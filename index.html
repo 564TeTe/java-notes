@@ -1680,8 +1680,6 @@ async function supabaseRequest(path, options = {}) {
         try { result = JSON.parse(raw); }
         catch (e) { result = raw; }
     }
-    const priority = { hard: 0, fuzzy: 1, known: 3 };
-    arr.sort((a, b) => (priority[mastery[a.id]?.level] ?? 2) - (priority[mastery[b.id]?.level] ?? 2));
     if (!response.ok) throw new Error(result?.msg || result?.message || result?.error_description || `请求失败（${response.status}）`);
     return result;
 }
