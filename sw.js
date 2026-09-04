@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v2";
+const CACHE_NAME = "java-notes-v3";
 const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./sync-config.js"];
 
 self.addEventListener("install", event => {
