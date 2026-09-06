@@ -1,7 +1,7 @@
-const CACHE_NAME = "java-notes-v4";
+const CACHE_NAME = "java-notes-v6";
 const APP_SHELL = [
     "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png",
-    "./sync-config.js", "./resume-data.js", "./resume-module.js",
+    "./sync-config.js", "./resume-data.js", "./resume-module.js", "./recruitment.css", "./recruitment-module.js",
     "./assets/resume/sun-te-resume.pdf",
     "./assets/resume/zhishu-interview-guide.docx",
     "./assets/resume/yonyou-interview-guide.docx",

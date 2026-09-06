@@ -11,9 +11,11 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./icon-192.png">
+    <link rel="stylesheet" href="./recruitment.css?v=1">
     <script src="./sync-config.js?v=3"></script>
     <script src="./resume-data.js?v=1"></script>
     <script src="./resume-module.js?v=1"></script>
+    <script src="./recruitment-module.js?v=4"></script>
     <style>
 /* ============================================
    Java Notes — 桌面 + 移动端样式
@@ -123,12 +125,18 @@ body {
 .toc-item .marked-star { color: var(--mark-color); font-size: 11px; margin-left: 3px; }
 
 /* 侧边栏底部 */
-.sidebar-footer { padding: 8px 10px; border-top: 1px solid var(--border); flex-shrink: 0; display: flex; gap: 4px; flex-wrap: wrap; }
+.sidebar-footer { padding: 9px 10px 10px; border-top: 1px solid var(--border); flex-shrink: 0; background: #fff; }
+.sidebar-primary-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.sidebar-tool-actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin-top: 5px; }
 .sidebar-footer .quick-btn {
-    flex: 1; min-width: 0; padding: 7px 6px; font-size: 11px; border: 1px solid var(--border); border-radius: 8px;
+    min-width: 0; padding: 7px 4px; overflow: hidden; font-size: 10px; border: 1px solid var(--border); border-radius: 8px;
     cursor: pointer; background: #fff; color: var(--text-muted); transition: all var(--transition);
-    text-align: center; white-space: nowrap; font-weight: 500;
+    text-align: center; text-overflow: ellipsis; white-space: nowrap; font-weight: 600;
 }
+.sidebar-primary-actions .quick-btn { display: grid; gap: 2px; place-items: center; min-height: 46px; padding: 6px 3px; background: #f8fafc; }
+.sidebar-primary-actions .quick-btn .quick-icon { font-size: 15px; line-height: 1; }
+.sidebar-tool-actions .quick-btn { border-color: transparent; background: transparent; font-size: 9px; }
+.sidebar-footer .sync-entry { display: flex; width: 100%; align-items: center; justify-content: center; gap: 6px; margin-top: 5px; padding: 6px; background: #f8fafc; }
 .sidebar-footer .quick-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 .sidebar-footer .quick-btn.active-filter { background: var(--primary-light); color: var(--primary); border-color: var(--primary); font-weight: 600; }
 .sidebar-footer .quick-btn .badge {
@@ -809,12 +817,17 @@ pre code { background: transparent; color: inherit; padding: 0; }
     </div>
 
     <div class="sidebar-footer">
-        <button class="quick-btn" id="quizBtn" title="随机抽题自测">🎲 随机抽查</button>
-        <button class="quick-btn" id="markedFilterBtn" title="查看已标记的笔记">⭐ 已标记 <span class="badge" id="markedBadge" style="display:none">0</span></button>
-        <button class="quick-btn" id="trashBtn" title="回收站">🗑️ 回收站 <span class="badge" id="trashBadge" style="display:none">0</span></button>
-        <button class="quick-btn" id="resourcesBtn" title="外部刷题资源">🔗 资源</button>
-        <button class="quick-btn" id="interviewExpBtn" title="面经专区">📝 面经</button>
-        <button class="quick-btn" id="resumePrepBtn" title="简历熟悉与面试准备">🧭 简历</button>
+        <div class="sidebar-primary-actions">
+            <button class="quick-btn" id="quizBtn" title="随机抽题自测"><span class="quick-icon">🎯</span><span>随机复习</span></button>
+            <button class="quick-btn" id="resumePrepBtn" title="简历熟悉与面试准备"><span class="quick-icon">🧭</span><span>简历准备</span></button>
+            <button class="quick-btn" id="recruitmentBtn" title="2027 届秋招信息与投递管理"><span class="quick-icon">📡</span><span>秋招专区</span></button>
+        </div>
+        <div class="sidebar-tool-actions">
+            <button class="quick-btn" id="markedFilterBtn" title="查看已标记的笔记">⭐ 重点 <span class="badge" id="markedBadge" style="display:none">0</span></button>
+            <button class="quick-btn" id="interviewExpBtn" title="面经专区">📝 面经</button>
+            <button class="quick-btn" id="resourcesBtn" title="外部刷题资源">🔗 资源</button>
+            <button class="quick-btn" id="trashBtn" title="回收站">🗑️ 回收 <span class="badge" id="trashBadge" style="display:none">0</span></button>
+        </div>
         <button class="quick-btn sync-entry" id="syncBtn" title="账号、同步与备份"><span class="sync-dot" id="syncDot"></span><span id="syncLabel">本地模式</span></button>
     </div>
 </aside>
@@ -873,9 +886,8 @@ pre code { background: transparent; color: inherit; padding: 0; }
     <button class="nav-item" data-tab="resume">
         <span class="nav-icon">🧭</span>简历
     </button>
-    <button class="nav-item" id="mobileMarkedTab" data-tab="marked">
-        <span class="nav-icon">⭐</span>重点
-        <span class="nav-badge" id="mobileMarkedBadge" style="display:none">0</span>
+    <button class="nav-item" data-tab="recruitment">
+        <span class="nav-icon">📡</span>秋招
     </button>
     <button class="nav-item" data-tab="more">
         <span class="nav-icon">•••</span>更多
@@ -893,6 +905,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
         <button data-more-action="trash"><span>🗑️</span>回收站</button>
         <button data-more-action="resources"><span>🔗</span>学习资源</button>
         <button data-more-action="interviewExp"><span>📝</span>面经专区</button>
+        <button data-more-action="marked" id="mobileMarkedTab"><span>⭐</span>重点笔记 <span class="nav-badge" id="mobileMarkedBadge" style="display:none">0</span></button>
         <button data-more-action="sync"><span>☁️</span>数据与同步</button>
         <button data-more-action="install" id="installAppBtn"><span>📲</span>安装到桌面</button>
     </div>
@@ -1059,6 +1072,7 @@ let showQuiz = false;              // 随机抽查模式
 let showResources = false;         // 外部资源视图
 let showInterviewExp = false;     // 面经专区视图
 let showResumePrep = false;        // 简历准备中心
+let showRecruitment = false;       // 秋招专区
 let quizNotes = [];                // 当前抽到的题目
 let quizRevealed = new Set();      // 已显示答案的题目索引
 let sunkIds = new Set();           // 已置底的笔记 ID
@@ -1342,6 +1356,7 @@ function startQuiz() {
     showResources = false;
     showInterviewExp = false;
     showResumePrep = false;
+    showRecruitment = false;
     activeCategory = "all";
     activeNoteId = null;
     document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
@@ -1422,6 +1437,7 @@ function updateBadges() {
     document.getElementById("resourcesBtn").classList.toggle("active-filter", showResources);
     document.getElementById("interviewExpBtn").classList.toggle("active-filter", showInterviewExp);
     document.getElementById("resumePrepBtn").classList.toggle("active-filter", showResumePrep);
+    document.getElementById("recruitmentBtn").classList.toggle("active-filter", showRecruitment);
 }
 
 function renderTOC(filtered) {
@@ -1429,6 +1445,11 @@ function renderTOC(filtered) {
     const noResult = document.getElementById("noResult");
     if (showResumePrep) {
         list.innerHTML = renderResumePrepTOC();
+        noResult.style.display = "none";
+        return;
+    }
+    if (showRecruitment) {
+        list.innerHTML = renderRecruitmentTOC();
         noResult.style.display = "none";
         return;
     }
@@ -1448,7 +1469,18 @@ function renderNotes(filtered) {
     const subtitleEl = document.getElementById("mainSubtitle");
     const statsEl = document.querySelector(".main-header .stats");
     document.body.classList.toggle("resume-mode", showResumePrep);
+    document.body.classList.toggle("recruitment-mode", showRecruitment);
     statsEl.style.display = "";
+
+    // ===== 秋招专区 =====
+    if (showRecruitment) {
+        titleEl.textContent = "📡 2027 届秋招专区";
+        subtitleEl.textContent = "发现最新机会，管理每一次投递，掌握当前招聘节奏";
+        statsEl.style.display = "none";
+        container.innerHTML = renderRecruitment();
+        document.getElementById("topbarTitle").textContent = "2027 届秋招";
+        return;
+    }
 
     // ===== 简历准备中心 =====
     if (showResumePrep) {
@@ -1644,7 +1676,7 @@ function updateStats(filtered) {
 
 // ===================== 事件绑定 =====================
 function bindEvents() {
-    document.getElementById("searchInput").addEventListener("input", () => { showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; activeNoteId = null; renderAll(); });
+    document.getElementById("searchInput").addEventListener("input", () => { showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; showRecruitment = false; activeNoteId = null; renderAll(); });
 
     // 分类按钮
     document.getElementById("categoryBtns").addEventListener("click", e => {
@@ -1658,13 +1690,14 @@ function bindEvents() {
         showResources = false;
         showInterviewExp = false;
         showResumePrep = false;
+        showRecruitment = false;
         activeNoteId = null;
         renderAll();
     });
 
     // 目录点击
     document.getElementById("tocList").addEventListener("click", e => {
-        const btn = e.target.closest(".toc-item"); if (!btn || showResumePrep || !btn.dataset.id) return;
+        const btn = e.target.closest(".toc-item"); if (!btn || showResumePrep || showRecruitment || !btn.dataset.id) return;
         activeNoteId = btn.dataset.id; scrollToNote(btn.dataset.id); renderTOC(getFilteredNotes());
     });
 
@@ -1705,8 +1738,10 @@ function bindEvents() {
         showMarkedOnly = !showMarkedOnly;
         showTrash = false;
         showQuiz = false;
+        showResources = false;
         showInterviewExp = false;
         showResumePrep = false;
+        showRecruitment = false;
         activeCategory = "all";
         document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
         document.querySelector("#categoryBtns .cat-btn[data-cat='all']").classList.add("active");
@@ -1722,6 +1757,7 @@ function bindEvents() {
         showResources = false;
         showInterviewExp = false;
         showResumePrep = false;
+        showRecruitment = false;
         activeCategory = "all";
         document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
         if (!showTrash) document.querySelector("#categoryBtns .cat-btn[data-cat='all']").classList.add("active");
@@ -1737,6 +1773,7 @@ function bindEvents() {
         showQuiz = false;
         showInterviewExp = false;
         showResumePrep = false;
+        showRecruitment = false;
         activeCategory = "all";
         document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
         if (!showResources) document.querySelector("#categoryBtns .cat-btn[data-cat='all']").classList.add("active");
@@ -1752,6 +1789,7 @@ function bindEvents() {
         showQuiz = false;
         showResources = false;
         showResumePrep = false;
+        showRecruitment = false;
         activeCategory = "all";
         document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
         if (!showInterviewExp) document.querySelector("#categoryBtns .cat-btn[data-cat='all']").classList.add("active");
@@ -1762,6 +1800,22 @@ function bindEvents() {
     // 简历准备中心按钮
     document.getElementById("resumePrepBtn").addEventListener("click", () => {
         showResumePrep = !showResumePrep;
+        showTrash = false;
+        showMarkedOnly = false;
+        showQuiz = false;
+        showResources = false;
+        showInterviewExp = false;
+        showRecruitment = false;
+        activeCategory = "all";
+        activeNoteId = null;
+        renderAll();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // 秋招专区按钮
+    document.getElementById("recruitmentBtn").addEventListener("click", () => {
+        showRecruitment = !showRecruitment;
+        showResumePrep = false;
         showTrash = false;
         showMarkedOnly = false;
         showQuiz = false;
@@ -1874,7 +1928,7 @@ function storeSyncSession(session) {
 
 function getStateSnapshot() {
     return {
-        version: 2,
+        version: 3,
         userNotes,
         markedIds: [...markedIds],
         deletedIds: [...deletedIds],
@@ -1882,6 +1936,7 @@ function getStateSnapshot() {
         purgedIds: [...purgedIds],
         mastery,
         resumePrep: getResumePrepSnapshot(),
+        recruitment: getRecruitmentSnapshot(),
         updatedAt: localStorage.getItem(LOCAL_UPDATED_KEY) || new Date().toISOString()
     };
 }
@@ -1896,6 +1951,7 @@ function applyStateSnapshot(data) {
     purgedIds = new Set(Array.isArray(data.purgedIds) ? data.purgedIds : []);
     mastery = data.mastery && typeof data.mastery === "object" ? data.mastery : {};
     applyResumePrepSnapshot(data.resumePrep);
+    applyRecruitmentSnapshot(data.recruitment);
     localStorage.setItem("user-notes", JSON.stringify(userNotes));
     localStorage.setItem("marked-ids", JSON.stringify([...markedIds]));
     localStorage.setItem("deleted-ids", JSON.stringify([...deletedIds]));
@@ -2141,7 +2197,7 @@ function initMobile() {
     // 移动端搜索同步到桌面搜索
     document.getElementById("mobileSearchInput").addEventListener("input", function() {
         document.getElementById("searchInput").value = this.value;
-        showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; activeNoteId = null;
+        showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; showRecruitment = false; activeNoteId = null;
         renderAll();
         closeDrawer();
     });
@@ -2154,16 +2210,16 @@ function initMobile() {
         closeDrawer();
 
         if (tabName === "all") {
-            showMarkedOnly = false; showTrash = false; showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false;
+            showMarkedOnly = false; showTrash = false; showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; showRecruitment = false;
             activeCategory = "all";
             document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
             const allBtn = document.querySelector("#categoryBtns .cat-btn[data-cat='all']");
             if (allBtn) allBtn.classList.add("active");
-        } else if (tabName === "marked") {
-            showMarkedOnly = true; showTrash = false; showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false;
-            activeCategory = "all";
         } else if (tabName === "resume") {
-            showResumePrep = true; showMarkedOnly = false; showTrash = false; showQuiz = false; showResources = false; showInterviewExp = false;
+            showResumePrep = true; showRecruitment = false; showMarkedOnly = false; showTrash = false; showQuiz = false; showResources = false; showInterviewExp = false;
+            activeCategory = "all";
+        } else if (tabName === "recruitment") {
+            showRecruitment = true; showResumePrep = false; showMarkedOnly = false; showTrash = false; showQuiz = false; showResources = false; showInterviewExp = false;
             activeCategory = "all";
         } else if (tabName === "quiz") {
             startQuiz();
@@ -2222,8 +2278,9 @@ function handleMoreAction(action) {
     showTrash = action === "trash";
     showResources = action === "resources";
     showInterviewExp = action === "interviewExp";
+    showMarkedOnly = action === "marked";
     showResumePrep = false;
-    showMarkedOnly = false;
+    showRecruitment = false;
     showQuiz = false;
     activeCategory = "all";
     activeNoteId = null;
@@ -2237,7 +2294,7 @@ function openCategoryPanel() {
     const grid = document.getElementById("catGrid");
     const allNotes = [...NOTES, ...userNotes];
     const cats = [...new Set(allNotes.map(n => n.category))];
-    const currentCat = (!showMarkedOnly && !showTrash && !showQuiz && !showResources && !showInterviewExp && !showResumePrep) ? activeCategory : null;
+    const currentCat = (!showMarkedOnly && !showTrash && !showQuiz && !showResources && !showInterviewExp && !showResumePrep && !showRecruitment) ? activeCategory : null;
     grid.innerHTML = cats.map(cat =>
         `<button class="cat-chip${currentCat === cat ? ' active' : ''}" data-cat="${cat}">${cat}</button>`
     ).join("");
@@ -2246,7 +2303,7 @@ function openCategoryPanel() {
 }
 function selectCategory(cat) {
     activeCategory = cat;
-    showMarkedOnly = false; showTrash = false; showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false;
+    showMarkedOnly = false; showTrash = false; showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; showRecruitment = false;
     activeNoteId = null;
     document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
     const desktopBtn = document.querySelector(`#categoryBtns .cat-btn[data-cat="${cat}"]`);
@@ -2262,7 +2319,7 @@ function closeCategoryPanel() {
 
 function updateMobileNavActive() {
     document.querySelectorAll(".mobile-bottombar .nav-item").forEach(b => b.classList.remove("active"));
-    const tabName = showResumePrep ? "resume" : (showTrash || showResources || showInterviewExp) ? "more" : showMarkedOnly ? "marked" : showQuiz ? "quiz" : "all";
+    const tabName = showRecruitment ? "recruitment" : showResumePrep ? "resume" : (showTrash || showResources || showInterviewExp || showMarkedOnly) ? "more" : showQuiz ? "quiz" : "all";
     document.querySelector(`.mobile-bottombar [data-tab="${tabName}"]`)?.classList.add("active");
 }
 
