@@ -136,10 +136,13 @@ body {
 
 /* ---- 主内容 ---- */
 .main {
-    margin-left: 272px; flex: 1; padding: 40px 48px 60px; max-width: 920px; width: 100%;
-    transition: margin-left var(--transition);
+    margin-left: 272px; flex: 1; min-width: 0; padding: 40px 48px 60px;
+    max-width: none; width: calc(100% - 272px);
+    transition: margin-left var(--transition), width var(--transition);
 }
-.main.shifted { margin-left: 56px; }
+.main.shifted { margin-left: 56px; width: calc(100% - 56px); }
+.main > .main-header,
+.main > #notesContainer { width: 100%; max-width: 1200px; margin-inline: auto; }
 
 .main-header { margin-bottom: 28px; }
 .main-header h1 { font-size: 26px; color: #0f172a; font-weight: 800; letter-spacing: -.5px; margin-bottom: 2px; }
@@ -417,7 +420,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
     .drawer-overlay.show { display: block; }
 
     /* 主内容 */
-    .main { margin-left: 0 !important; padding: 14px 14px 20px; max-width: 100%; }
+    .main { margin-left: 0 !important; padding: 14px 14px 20px; max-width: 100%; width: 100% !important; }
     .main-header { margin-bottom: 18px; }
     .main-header h1 { font-size: 20px; }
     .main-header .subtitle { font-size: 13px; }
