@@ -1,5 +1,12 @@
-const CACHE_NAME = "java-notes-v3";
-const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./sync-config.js"];
+const CACHE_NAME = "java-notes-v4";
+const APP_SHELL = [
+    "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png",
+    "./sync-config.js", "./resume-data.js", "./resume-module.js",
+    "./assets/resume/sun-te-resume.pdf",
+    "./assets/resume/zhishu-interview-guide.docx",
+    "./assets/resume/yonyou-interview-guide.docx",
+    "./assets/resume/beiruan-interview-guide.docx"
+];
 
 self.addEventListener("install", event => {
     event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
