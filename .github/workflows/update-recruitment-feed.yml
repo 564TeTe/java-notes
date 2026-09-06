@@ -1,0 +1,39 @@
+name: Update recruitment feed
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-feed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download and validate latest jobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data
+          curl --fail --location --retry 3 \
+            https://raw.githubusercontent.com/xixicc186/xixicc2027/main/jobs.json \
+            --output data/recruitment-jobs.json.new
+          node -e "const fs=require('fs');const rows=JSON.parse(fs.readFileSync('data/recruitment-jobs.json.new','utf8'));if(!Array.isArray(rows)||rows.length<20)throw new Error('Invalid recruitment feed');"
+          mv data/recruitment-jobs.json.new data/recruitment-jobs.json
+
+      - name: Commit changes when the feed changed
+        shell: bash
+        run: |
+          if git diff --quiet -- data/recruitment-jobs.json; then
+            echo "Recruitment feed is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/recruitment-jobs.json
+          git commit -m "chore: update recruitment feed"
+          git push

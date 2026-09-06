@@ -1,7 +1,7 @@
-const CACHE_NAME = "java-notes-v6";
+const CACHE_NAME = "java-notes-v8";
 const APP_SHELL = [
     "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png",
-    "./sync-config.js", "./resume-data.js", "./resume-module.js", "./recruitment.css", "./recruitment-module.js",
+    "./sync-config.js", "./resume-data.js", "./resume-module.js", "./recruitment.css", "./recruitment-module.js", "./data/recruitment-jobs.json",
     "./assets/resume/sun-te-resume.pdf",
     "./assets/resume/zhishu-interview-guide.docx",
     "./assets/resume/yonyou-interview-guide.docx",
@@ -23,6 +23,22 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
     if (event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
+
+    const requestUrl = new URL(event.request.url);
+    if (requestUrl.pathname.endsWith("/data/recruitment-jobs.json")) {
+        event.respondWith(
+            fetch(event.request)
+                .then(response => {
+                    if (response.ok) {
+                        const copy = response.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put("./data/recruitment-jobs.json", copy));
+                    }
+                    return response;
+                })
+                .catch(() => caches.match("./data/recruitment-jobs.json"))
+        );
+        return;
+    }
 
     if (event.request.mode === "navigate") {
         event.respondWith(

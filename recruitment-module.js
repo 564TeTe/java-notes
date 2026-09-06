@@ -1,7 +1,12 @@
 (function () {
     "use strict";
 
-    const FEED_URL = "https://raw.githubusercontent.com/xixicc186/xixicc2027/main/jobs.json";
+    const LOCAL_FEED_URL = "./data/recruitment-jobs.json";
+    const FEED_URLS = [
+        "https://xixicc186.github.io/xixicc2027/jobs.json",
+        "https://cdn.jsdelivr.net/gh/xixicc186/xixicc2027@main/jobs.json",
+        "https://raw.githubusercontent.com/xixicc186/xixicc2027/main/jobs.json"
+    ];
     const FEED_PAGE = "https://xixicc186.github.io/xixicc2027/";
     const APP_KEY = "recruitment-applications";
     const ACTION_KEY = "recruitment-actions";
@@ -108,19 +113,30 @@
         state.loading = true;
         state.error = "";
         rerender();
-        try {
-            const response = await fetch(`${FEED_URL}?t=${force ? Date.now() : "latest"}`, { cache: "no-store" });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            state.feed = normalizeJobs(await response.json());
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt: new Date().toISOString(), jobs: state.feed.slice(0, 300) }));
-        } catch (error) {
+        const sources = force ? [...FEED_URLS, LOCAL_FEED_URL] : [LOCAL_FEED_URL, ...FEED_URLS];
+        let loaded = false;
+        for (const source of sources) {
+            try {
+                const separator = source.includes("?") ? "&" : "?";
+                const response = await fetch(`${source}${separator}t=${force ? Date.now() : "latest"}`, { cache: "no-store" });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const jobs = normalizeJobs(await response.json());
+                if (jobs.length < 20) throw new Error("岗位数据不完整");
+                state.feed = jobs;
+                localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt: new Date().toISOString(), jobs: jobs.slice(0, 300) }));
+                loaded = true;
+                break;
+            } catch (_) {
+                // 手机网络可能无法访问部分 GitHub/CDN 域名，继续尝试下一来源。
+            }
+        }
+        if (!loaded) {
             const cached = readJSON(CACHE_KEY, null);
             if (cached?.jobs?.length) state.feed = cached.jobs;
             else state.error = "实时岗位暂时加载失败，请稍后刷新或使用下方可靠入口。";
-        } finally {
-            state.loading = false;
-            rerender();
         }
+        state.loading = false;
+        rerender();
     }
 
     function tabsHTML() {
@@ -179,7 +195,7 @@
             : jobs.length ? `<div class="recruit-job-grid">${jobs.slice(0, state.limit).map(({ job, index }) => jobCard(job, index)).join("")}</div>${jobs.length > state.limit ? `<button class="recruit-load-more" onclick="loadMoreRecruitmentJobs()">再看 ${Math.min(12, jobs.length - state.limit)} 条</button>` : ""}`
             : `<div class="recruit-feed-state"><b>没有匹配结果</b><small>试试清空关键词或关闭“适合我的方向”。</small></div>`;
         return `${heroHTML()}<section class="recruit-panel">
-            <div class="recruit-panel-head"><div><span>LIVE JOB FEED</span><h2>最新秋招岗位</h2><p>来自社区维护的 2027 届聚合数据；更新时间和投递链接仅作发现线索，最终以企业官网为准。</p></div><button onclick="refreshRecruitmentFeed()">↻ 刷新</button></div>
+            <div class="recruit-panel-head"><div><span>LIVE JOB FEED</span><h2>最新秋招岗位</h2><p>优先读取本站每日同步快照，刷新时自动切换多个信息源；投递链接最终以企业官网为准。</p></div><button onclick="refreshRecruitmentFeed()">↻ 刷新</button></div>
             <div class="recruit-toolbar"><div class="recruit-toggle"><button class="${state.fitOnly ? "active" : ""}" onclick="setRecruitmentFit(true)">适合我的方向</button><button class="${!state.fitOnly ? "active" : ""}" onclick="setRecruitmentFit(false)">全部岗位</button></div>
             <form onsubmit="searchRecruitment(event)"><input name="keyword" value="${esc(state.search)}" placeholder="公司、Java、后端、城市…"><button>搜索</button></form>
             <select onchange="setRecruitmentIndustry(this.value)">${industries.map(item => `<option${state.industry === item ? " selected" : ""}>${esc(item)}</option>`).join("")}</select></div>

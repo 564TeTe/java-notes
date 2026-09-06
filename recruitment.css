@@ -122,7 +122,7 @@
 .recruitment-mode .category-wrap,.recruitment-mode .fab { display: none !important; }
 
 @media (max-width: 768px) {
-    .recruit-tabs { position: sticky; top: 58px; z-index: 40; margin: 0 -4px 14px; padding: 5px; }.recruit-tab { min-width: 106px; padding: 9px 10px; font-size: 11px; }
+    .recruit-tabs { position: sticky; top: 58px; z-index: 40; margin: 0 -4px 14px; padding: 5px; background: #fff; box-shadow: 0 8px 20px rgba(15,23,42,.12); }.recruit-tab { min-width: 106px; padding: 9px 10px; font-size: 11px; }
     .recruit-hero { grid-template-columns: 1fr; gap: 16px; padding: 23px 19px; border-radius: 15px; }.recruit-hero h2 { font-size: 23px; }.recruit-hero p { font-size: 11px; }.recruit-phase { padding: 14px; }.recruit-phase strong { font-size: 22px; }
     .recruit-stats { grid-template-columns: repeat(2,1fr); gap: 8px; }.recruit-stats article { padding: 12px; }
     .recruit-panel { padding: 15px; }.recruit-panel-head { align-items: flex-start; }.recruit-panel-head h2 { font-size: 18px; }.recruit-panel-head p { max-width: 250px; }
