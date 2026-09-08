@@ -1,4 +1,16 @@
 /* Quiet paper, deep green, and a reading-first layout. */
+.study-pagination { flex-wrap: wrap; row-gap: 14px; }
+.study-pagination .study-page-summary { flex-wrap: wrap; gap: 14px; }
+.study-pagination label, .study-pagination form { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.study-pagination :is(select,input) { min-height: 36px; padding: 6px 9px; border: 1px solid #dce4d7; border-radius: 5px; background: #fff; color: #3b604b; font: inherit; }
+.study-pagination input { width: 65px; }
+.study-pagination .study-page-navigation { gap: 9px; flex-wrap: wrap; justify-content: center; }
+.study-summary-actions { flex-wrap: wrap; }
+@media (max-width: 768px) {
+    .study-pagination .study-page-summary { width: 100%; justify-content: space-between; }
+    .study-pagination .study-page-navigation { width: 100%; gap: 7px; }
+    .study-pagination .study-page-navigation button { padding: 9px; font-size: 11px; }
+}
 .study-switch.study-mobile-switch { display: none; }
 .study-summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 17px 0; border-top: 1px solid #dfe5de; border-bottom: 1px solid #dfe5de; }
 .study-summary-count, .study-summary-actions { display: flex; align-items: center; gap: 14px; }

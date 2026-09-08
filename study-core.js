@@ -47,5 +47,23 @@
                 return { ...r, company: r.company.slice(0, 120) };
             });
     }
-    return { pool, filter, sample, copyNote, restoreInterviews };
+    function pagination(total, size = 20, page = 1) {
+        const allowed = [10, 20, 50, 100];
+        const normalizedSize = allowed.includes(Number(size)) ? Number(size) : 20;
+        const pages = Math.max(1, Math.ceil(Math.max(0, Number(total) || 0) / normalizedSize));
+        const normalizedPage = Math.min(pages, Math.max(1, Math.floor(Number(page) || 1)));
+        return { size: normalizedSize, pages, page: normalizedPage, start: (normalizedPage - 1) * normalizedSize, end: Math.min(normalizedPage * normalizedSize, Math.max(0, Number(total) || 0)) };
+    }
+    function restoreBankQuestions(value, current = []) {
+        if (value === undefined) return current;
+        if (!Array.isArray(value)) throw new Error('题库数据格式无效');
+        const ids = new Set();
+        return value.map(q => {
+            if (!q || typeof q !== 'object' || typeof q.id !== 'string' || !q.id.startsWith('custom-bank-') || ids.has(q.id) ||
+                typeof q.question !== 'string' || typeof q.answer !== 'string' || typeof q.category !== 'string' ||
+                (q.priority !== undefined && !['P0', 'P1', 'P2'].includes(q.priority))) throw new Error('题库数据格式无效');
+            ids.add(q.id); return { ...q, keywords: Array.isArray(q.keywords) ? q.keywords.filter(k => typeof k === 'string') : [] };
+        });
+    }
+    return { pool, filter, sample, copyNote, restoreInterviews, pagination, restoreBankQuestions };
 });

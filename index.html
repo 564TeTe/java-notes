@@ -17,7 +17,7 @@
     <script src="./resume-module.js?v=2"></script>
     <script src="./recruitment-module.js?v=6"></script>
     <script src="./data/question-bank.js?v=1"></script>
-    <script src="./study-core.js?v=1"></script>
+    <script src="./study-core.js?v=2"></script>
     <style>
 /* ============================================
    Java Notes — 桌面 + 移动端样式
@@ -788,7 +788,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
 
 </style>
     <link rel="stylesheet" href="./career-workspace.css?v=1">
-    <link rel="stylesheet" href="./study-workspace.css?v=2">
+    <link rel="stylesheet" href="./study-workspace.css?v=3">
 </head>
 <body>
 
@@ -935,6 +935,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
         <select id="newCategory">
             <option value="">🤖 自动识别...</option>
         </select>
+        <div id="bankPriorityField" hidden><label for="bankPriority">学习优先级</label><select id="bankPriority"><option value="P0">P0 · 先掌握</option><option value="P1">P1 · 第二轮</option><option value="P2">P2 · 按岗位补充</option></select></div>
         <div class="btn-row">
             <button class="btn-cancel" onclick="closeAddModal()">取消</button>
             <button class="btn-primary" onclick="addNote()">添加笔记</button>
@@ -1947,6 +1948,7 @@ function getStateSnapshot() {
         resumePrep: getResumePrepSnapshot(),
         recruitment: getRecruitmentSnapshot(),
         interviews: getInterviewSnapshot(),
+        customBankQuestions: getCustomBankQuestions(),
         updatedAt: localStorage.getItem(LOCAL_UPDATED_KEY) || new Date().toISOString()
     };
 }
@@ -1955,6 +1957,7 @@ function applyStateSnapshot(data) {
     if (!data || typeof data !== "object") throw new Error("备份数据格式无效");
     // Validate new fields before touching existing local state; missing fields in v3 keep local records.
     const validatedInterviews = StudyCore.restoreInterviews(data.interviews, getInterviewSnapshot());
+    const validatedCustomBankQuestions = StudyCore.restoreBankQuestions(data.customBankQuestions, getCustomBankQuestions());
     syncApplyingRemote = true;
     userNotes = Array.isArray(data.userNotes) ? data.userNotes : [];
     markedIds = new Set(Array.isArray(data.markedIds) ? data.markedIds : []);
@@ -1965,6 +1968,7 @@ function applyStateSnapshot(data) {
     applyResumePrepSnapshot(data.resumePrep);
     applyRecruitmentSnapshot(data.recruitment);
     applyInterviewSnapshot(validatedInterviews);
+    applyCustomBankQuestionsSnapshot(validatedCustomBankQuestions);
     localStorage.setItem("user-notes", JSON.stringify(userNotes));
     localStorage.setItem("marked-ids", JSON.stringify([...markedIds]));
     localStorage.setItem("deleted-ids", JSON.stringify([...deletedIds]));
@@ -2368,7 +2372,7 @@ function init() {
     if (syncSession && isSyncConfigured()) syncNow();
 }
 </script>
-<script src="./study-module.js?v=2"></script>
+<script src="./study-module.js?v=3"></script>
 <script src="./interview-module.js?v=1"></script>
 <script>initStudyWorkspace(); init();</script>
 </body>

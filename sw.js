@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v11";
+const CACHE_NAME = "java-notes-v12";
 const APP_SHELL = [
     "./data/question-bank.js", "./study-core.js", "./study-module.js", "./interview-module.js", "./study-workspace.css",
     "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png",

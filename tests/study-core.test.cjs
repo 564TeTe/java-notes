@@ -38,3 +38,17 @@ test('review records are validated and legacy backup does not erase newly suppor
 test('malformed interview text fields are rejected before persistence', () => {
     assert.throws(() => core.restoreInterviews([{ id: 'r', company: '公司', questions: [], date: 42 }]), /格式/);
 });
+test('pagination clamps pages and normalizes page size', () => {
+    assert.deepEqual(core.pagination(421, 50, 99), { size: 50, pages: 9, page: 9, start: 400, end: 421 });
+    assert.equal(core.pagination(0, 20, -5).page, 1);
+    assert.equal(core.pagination(420, 7, 2).size, 20);
+    assert.equal(core.pagination(420, 100, 1.5).page, 1);
+});
+test('custom bank questions validate before importing and preserve old backups', () => {
+    const items = [{id:'custom-bank-1',question:'Q',answer:'A',category:'Java 基础'}];
+    assert.deepEqual(core.restoreBankQuestions(undefined, items), items);
+    assert.deepEqual(core.restoreBankQuestions(items), [{...items[0], keywords:[]}]);
+    assert.throws(() => core.restoreBankQuestions([{...items[0],answer:[]}]), /格式/);
+    assert.throws(() => core.restoreBankQuestions([{...items[0],id:'bank-Q01-001'}]), /格式/);
+    assert.throws(() => core.restoreBankQuestions([{...items[0],priority:'<img src=x onerror=alert(1)>'}]), /格式/);
+});

@@ -77,3 +77,20 @@ test('an invalid imported interview cannot overwrite existing personal notes', (
     assert.throws(() => run('applyStateSnapshot({userNotes:[],interviews:[{id:"r",company:"公司",questions:[]}]})'), /格式/);
     assert.equal(run('userNotes[0].id'), 'user-safe');
 });
+test('custom questions stay in bank, can be edited and copied, and survive snapshot round trips', () => {
+    const { run } = setup();
+    run('const added = saveCustomBankQuestion({question:"自定义题",answer:"答案",category:"Redis",priority:"P0"});');
+    assert.equal(run('getStudyPool("bank").length'), 421);
+    assert.equal(run('getPersonalNotes().length'), 0);
+    run('quizSource="bank"; quizCategory="Redis";');
+    assert.ok(run('getQuizPool().some(n=>n.id===added.id)'));
+    run('saveCustomBankQuestion({...added,answer:"修改"}, added.id); copyStudyNote(added.id);');
+    assert.equal(run('getCustomBankQuestions().length'), 1);
+    assert.equal(run('userNotes[0].answer'), '修改');
+    run('const snap=getStateSnapshot(); applyCustomBankQuestionsSnapshot([]); applyStateSnapshot(snap);');
+    assert.equal(run('getCustomBankQuestions()[0].answer'), '修改');
+    run('delete snap.customBankQuestions; applyStateSnapshot(snap);');
+    assert.equal(run('getCustomBankQuestions().length'), 1);
+    assert.throws(() => run('applyStateSnapshot({userNotes:[],customBankQuestions:[{id:"bad"}]})'), /格式/);
+    assert.equal(run('userNotes.length'), 1);
+});
