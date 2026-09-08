@@ -152,3 +152,6 @@ body:has(.modal-overlay.open),body:has(.interview-dialog[open]),body:has(.recrui
     .recruit-modal-backdrop { padding:0; }
     .recruit-modal-backdrop .recruit-form { width:100%; max-width:none; height:100dvh; max-height:100dvh; border-radius:0; padding:18px; overflow:auto; }
 }
+
+.app-version-row { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 0 18px; color:#738474; font-size:12px; }
+.app-version-row button { min-height:38px; border:1px solid #dce6d8; border-radius:7px; padding:8px 12px; background:#f4f7f0; color:#315e46; cursor:pointer; }

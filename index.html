@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="可离线使用、支持多端同步的 Java 后端面试复习工具">
     <meta name="theme-color" content="#f5f7f3">
+    <meta name="app-version" content="30">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Java 面试复习工作台 · 题库与笔记</title>
@@ -982,6 +983,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
         </div>
 
         <div class="backup-section">
+            <div class="app-version-row"><span id="appVersion">当前版本 30</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
             <h4>本地备份</h4>
             <p>导出文件可用于迁移设备，即使未配置云同步也能使用。</p>
             <div class="btn-row backup-actions">
@@ -2160,28 +2162,7 @@ async function importBackup(file) {
 }
 
 function registerPWA() {
-    if ("serviceWorker" in navigator && location.protocol !== "file:") {
-        const wasControlled = !!navigator.serviceWorker.controller;
-        let updateHandled = false;
-        navigator.serviceWorker.addEventListener("controllerchange", () => {
-            if (!wasControlled || updateHandled) return;
-            updateHandled = true;
-            const isEditing = () => !!document.querySelector('.modal-overlay.open,dialog[open],.recruit-modal-backdrop') ||
-                document.activeElement?.matches('input,textarea,[contenteditable="true"]');
-            if (!isEditing()) { location.reload(); return; }
-            const notice = document.createElement('div');
-            notice.className = 'app-update-notice'; notice.setAttribute('role', 'status');
-            notice.innerHTML = '<span>新版本已就绪，保存后刷新</span><button type="button">刷新</button>';
-            notice.querySelector('button').addEventListener('click', () => {
-                if (isEditing()) { toast('请先保存或关闭正在编辑的内容'); return; }
-                location.reload();
-            });
-            document.body.append(notice);
-        });
-        navigator.serviceWorker.register("./sw.js?v=17", { updateViaCache: "none" }).then(registration => {
-            registration.update().catch(() => {});
-        }).catch(error => console.warn("离线服务注册失败", error));
-    }
+    AppUpdates.start();
     window.addEventListener("beforeinstallprompt", event => {
         event.preventDefault();
         deferredInstallPrompt = event;
@@ -2395,6 +2376,7 @@ function init() {
 </script>
 <script src="./study-module.js?v=5"></script>
 <script src="./interview-module.js?v=3"></script>
+<script src="./app-updates.js?v=30"></script>
 <script src="./workspace-controls.js?v=1"></script>
 <script src="./workspace-shell.js?v=3"></script>
 <script>initStudyWorkspace(); init(); initWorkspaceShell();</script>

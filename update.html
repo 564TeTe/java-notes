@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5f7f3">
+<title>更新面试工作台</title>
+<style>
+body{margin:0;background:#f5f7f3;color:#234f40;font:16px/1.8 sans-serif;min-height:100dvh;display:grid;place-items:center}main{margin:24px;max-width:420px}h1{font-size:24px}p{color:#617566}button,a{display:inline-block;border:0;border-radius:8px;padding:12px 18px;margin:12px 12px 0 0;background:#286751;color:#fff;font:inherit;text-decoration:none}a{background:#e6eee4;color:#286751}button:disabled{opacity:.5}small{display:block;color:#738474;margin-top:22px}
+</style>
+<main><h1>更新面试工作台</h1><p id="status" role="status">正在获取最新版本…</p><button id="retry" hidden>重试更新</button><a href="./">返回题库</a><small>仅更新应用文件，保留这台设备的笔记和学习记录。</small></main>
+<script>
+async function update() {
+    const status = document.getElementById('status'), retry = document.getElementById('retry');
+    retry.hidden = true; status.textContent = '正在获取最新版本…';
+    try {
+        const response = await fetch('./version.json?t=' + Date.now(), {cache:'no-store',signal:AbortSignal.timeout(15000)});
+        if (!response.ok) throw Error('version');
+        const {version} = await response.json();
+        if (!/^\d+$/.test(version)) throw Error('version');
+        if ('serviceWorker' in navigator) {
+            status.textContent = '正在安装新版，请稍候…';
+            const registration = await navigator.serviceWorker.register('./sw.js?release=' + version, {updateViaCache:'none'});
+            await registration.update();
+            const deadline = Date.now() + 45000;
+            while (true) {
+                registration.waiting?.postMessage({type:'SKIP_WAITING'});
+                const active = registration.active;
+                const installed = await new Promise(resolve => {
+                    if (!active) { resolve(null); return; }
+                    const channel = new MessageChannel();
+                    const timer = setTimeout(() => { channel.port1.close(); resolve(null); }, 1000);
+                    channel.port1.onmessage = e => { clearTimeout(timer); channel.port1.close(); resolve(e.data?.version); };
+                    active.postMessage({type:'APP_VERSION'}, [channel.port2]);
+                });
+                if (installed === version) break;
+                if (Date.now() > deadline) throw Error('install timeout');
+                await new Promise(resolve => setTimeout(resolve, 250));
+            }
+        }
+        location.replace('./?updated=' + Date.now());
+    } catch (_) {
+        status.textContent = '暂时无法完成更新，请确认联网后重试。'; retry.hidden = false;
+    }
+}
+document.getElementById('retry').addEventListener('click',update);
+update();
+</script>
+</html>

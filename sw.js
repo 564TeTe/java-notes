@@ -1,7 +1,8 @@
-const CACHE_NAME = "java-notes-v29";
+const CACHE_NAME = "java-notes-v30";
 const APP_SHELL = [
     "./workspace-shell.js", "./workspace-shell.css",
     "./workspace-controls.js", "./workspace-controls.css",
+    "./app-updates.js", "./update.html",
     "./data/question-bank.js", "./study-core.js", "./study-module.js", "./interview-module.js", "./study-workspace.css",
     "./assets/interviews/lx-2026-09-08.html", "./assets/interviews/lx-2026-09-08.md",
     "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png",
@@ -15,8 +16,7 @@ const APP_SHELL = [
 self.addEventListener("install", event => {
     event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(
         APP_SHELL.map(asset => new Request(asset, { cache: "reload" }))
-    )));
-    self.skipWaiting();
+    )).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", event => {
@@ -27,10 +27,19 @@ self.addEventListener("activate", event => {
     );
 });
 
+self.addEventListener("message", event => {
+    if (event.data?.type === "APP_VERSION") event.ports[0]?.postMessage({ version: CACHE_NAME.replace("java-notes-v", "") });
+    if (event.data?.type === "SKIP_WAITING") event.waitUntil(self.skipWaiting());
+});
+
 self.addEventListener("fetch", event => {
     if (event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
 
     const requestUrl = new URL(event.request.url);
+    if (requestUrl.pathname.endsWith("/version.json")) {
+        event.respondWith(fetch(event.request, { cache: "no-store" }));
+        return;
+    }
     if (requestUrl.pathname.endsWith("/data/recruitment-jobs.json")) {
         event.respondWith(
             fetch(event.request)
@@ -51,10 +60,9 @@ self.addEventListener("fetch", event => {
         new URL(asset, self.location.href).pathname === requestUrl.pathname);
     if (event.request.mode === "navigate" && !isCachedAsset) {
         event.respondWith(
-            fetch(event.request)
+            fetch(event.request, { cache: "no-cache" })
                 .then(response => {
-                    const copy = response.clone();
-                    caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy));
+                    if (response.ok) event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put("./index.html", response.clone())));
                     return response;
                 })
                 .catch(() => caches.match("./index.html"))
@@ -63,13 +71,19 @@ self.addEventListener("fetch", event => {
     }
 
     event.respondWith(
-        caches.open(CACHE_NAME).then(cache => cache.match(event.request, {
-            // Versioned shell URLs share the current release's precached asset.
-            ignoreSearch: APP_SHELL.some(asset => new URL(asset, self.location.href).pathname === requestUrl.pathname)
-        })).then(cached => cached || fetch(event.request).then(response => {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-            return response;
-        }))
+        caches.open(CACHE_NAME).then(async cache => {
+            const exact = await cache.match(event.request);
+            if (exact) return exact;
+            try {
+                const response = await fetch(event.request, { cache: "no-cache" });
+                if (response.ok) event.waitUntil(cache.put(event.request, response.clone()));
+                return response;
+            } catch (error) {
+                // An offline, newly versioned URL can still use the installed shell.
+                const fallback = isCachedAsset && await cache.match(event.request, { ignoreSearch: true });
+                if (fallback) return fallback;
+                throw error;
+            }
+        })
     );
 });
