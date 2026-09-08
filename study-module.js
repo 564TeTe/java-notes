@@ -124,9 +124,12 @@ buildCategoryBtns = function() {
 function studyHeader() {
     return '';
 }
+function studyFilterToggle() {
+    const count = [activeCategory !== 'all', studyPriority !== 'all', studyLevel !== 'all'].filter(Boolean).length;
+    return `<button class="study-filter-toggle" data-study="filters" aria-expanded="${studyFiltersOpen}" aria-controls="studyLibraryFilters">筛选${count ? ` <b>${count}</b>` : ''}</button>`;
+}
 function studyFilters() {
-    const active = [activeCategory !== 'all' ? activeCategory : '', studyPriority !== 'all' ? studyPriority : '', studyLevel !== 'all' ? (studyLevelNames[studyLevel] || '薄弱题') : ''].filter(Boolean).join(' · ');
-    return `<button class="study-filter-toggle" data-study="filters" aria-expanded="${studyFiltersOpen}" aria-controls="studyLibraryFilters">${active ? studyEsc(active) : '分类与筛选'}<span>${studyFiltersOpen ? '收起 −' : '展开 ＋'}</span></button><div id="studyLibraryFilters" class="study-filters${studyFiltersOpen ? ' filters-expanded' : ''}">
+    return `<div id="studyLibraryFilters" class="study-filters${studyFiltersOpen ? ' filters-expanded' : ''}">
         <label>知识分类<select data-study-filter="category">${studyOptions([['all', '全部分类'], ...studyCategories().map(c => [c, c])], activeCategory)}</select></label>
         ${studySource === 'bank' ? `<label>学习顺序<select data-study-filter="priority">${studyOptions([['all', '全部优先级'], ['P0', 'P0 · 先掌握'], ['P1', 'P1 · 第二轮'], ['P2', 'P2 · 按岗位补充']], studyPriority)}</select></label>` : ''}
         <label>掌握程度<select data-study-filter="level">${studyOptions([['all', '全部状态'], ['new', '未复习'], ['weak', '不会 / 模糊'], ['known', '已掌握']], studyLevel)}</select></label>
@@ -174,9 +177,9 @@ function renderStudyLibrary(filtered) {
     const pageItems = filtered.slice((studyPage - 1) * studyPageSize, studyPage * studyPageSize);
     let html = studyHeader();
     if (!showTrash && !showMarkedOnly) html += `<section class="study-summary" aria-label="学习进度"><div class="study-summary-count"><strong>${pool.length}</strong><span>${bank ? '道题目' : '条笔记'}</span><i></i><span>已掌握 <b>${known}</b></span><span>待巩固 <b>${weak}</b></span></div><div class="study-summary-actions">${bank ? '<button class="study-primary" data-study="add-bank">＋ 添加题目</button><button class="study-secondary" data-study="weak">练习薄弱题</button>' : '<button class="study-primary" data-study="add">＋ 写笔记</button>'}<button class="study-secondary" data-study="quiz" data-source="${studySource}" ${pool.length ? '' : 'disabled'}>${bank ? '开始抽查' : '复习笔记'} →</button></div></section>`;
-    if (!showTrash) html += studyFilters();
     if (studyLinkedIds && !showTrash) html += `<div class="study-linked">面经关联：${studyEsc(studyLinkedTitle)}<button data-study="clear">查看全部题库 ×</button></div>`;
-    html += `<div class="study-list-heading"><div><h2>${showTrash ? '回收站' : showMarkedOnly ? '重点复习' : bank ? '全部题目' : '我的记录'} <span>${filtered.length}</span></h2><p>${showTrash ? '题库、笔记和公司问答共用；恢复后保留学习记录。' : bank ? 'P0 / P1 / P2 为整理者建议顺序，不代表公司出题频率。' : '只收录你自己写下的理解和主动保存的题目。'}</p></div><div class="study-list-tools"><button data-study="collapse">收起答案</button><button data-study="expand-all">展开答案</button></div></div>`;
+    html += `<div class="study-list-heading"><h2>${showTrash ? '回收站' : showMarkedOnly ? '重点复习' : bank ? '全部题目' : '我的记录'} <span>${filtered.length}</span></h2>${!showTrash ? studyFilterToggle() : ''}${studyAnswerToggle(filtered)}</div>`;
+    if (!showTrash) html += studyFilters();
     if (showTrash && filtered.length) html += '<button class="study-secondary" onclick="emptyTrash()">清空回收站</button>';
     if (!filtered.length) html += `<div class="study-empty"><span>⌕</span><h3>${showTrash ? (getDeletedNotes().length ? '没有匹配的已删除内容' : '回收站是空的') : !bank && !pool.length ? '从你的第一条笔记开始' : '暂时没有符合条件的内容'}</h3><p>${showTrash ? '删除的题目和笔记会显示在这里，可恢复或永久清除。' : bank ? '换一个关键词，或清空筛选继续学习。' : '写下第一条笔记，或从题库保存你想复习的问题。'}</p><button class="study-secondary" data-study="clear">清空筛选</button>${!bank && !showTrash ? '<button class="study-primary" data-study="add">写笔记</button>' : ''}</div>`;
     else html += renderStudyPagination(filtered.length, 'top') + pageItems.map(studyCard).join('');
@@ -187,9 +190,14 @@ function goStudyPage(value) {
     studyPage = StudyCore.pagination(getFilteredNotes().length, studyPageSize, value).page;
     renderAll(); document.querySelector('.study-list-heading')?.scrollIntoView({ block: 'start' });
 }
+function studyAnswerToggle(questions) {
+    const expanded = questions.length > 0 && questions.every(n => !collapsedNotes.has(n.id));
+    return `<div class="study-list-tools"><button data-study="${expanded ? 'collapse' : 'expand-all'}" aria-pressed="${expanded}">${expanded ? '收起答案' : '展开答案'}</button></div>`;
+}
 function renderStudyPagination(total, location) {
     const p = StudyCore.pagination(total, studyPageSize, studyPage);
-    return `<nav class="study-pagination" aria-label="${location === 'top' ? '顶部' : '底部'}题目分页"><div class="study-page-summary"><span>第 ${p.start + 1}–${p.end} 条 / 共 ${total} 条</span><label>每页 <select data-page-size aria-label="每页条数">${studyOptions([10,20,50,100].map(n => [String(n), n + ' 条']), String(p.size))}</select></label></div><div class="study-page-navigation"><button data-study="page" data-page="1" ${p.page === 1 ? 'disabled' : ''}>首页</button><button data-study="page" data-page="${p.page - 1}" ${p.page === 1 ? 'disabled' : ''}>上一页</button><span>${p.page} / ${p.pages}</span><button data-study="page" data-page="${p.page + 1}" ${p.page === p.pages ? 'disabled' : ''}>下一页</button><button data-study="page" data-page="${p.pages}" ${p.page === p.pages ? 'disabled' : ''}>末页</button></div><form data-page-jump><label>跳至 <input type="number" name="page" value="${p.page}" min="1" max="${p.pages}" step="1" required aria-label="跳转页码"> 页</label><button type="submit">跳转</button></form></nav>`;
+    const arrow = direction => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${direction === 'left' ? 'm14 6-6 6 6 6' : 'm10 6 6 6-6 6'}"/></svg>`;
+    return `<nav class="study-pagination pagination-compact" data-page-location="${location}" aria-label="${location === 'top' ? '顶部' : '底部'}题目分页"><span class="page-range">${p.start + 1}–${p.end} <span>/ ${total} 条</span></span><div class="page-steps"><button data-study="page" data-page="${p.page - 1}" aria-label="上一页" ${p.page === 1 ? 'disabled' : ''}>${arrow('left')}</button><span class="page-current" aria-label="第 ${p.page} 页，共 ${p.pages} 页">${p.page}<span> / ${p.pages}</span></span><button data-study="page" data-page="${p.page + 1}" aria-label="下一页" ${p.page === p.pages ? 'disabled' : ''}>${arrow('right')}</button></div><details class="page-settings"><summary aria-label="分页设置">设置</summary><div class="page-settings-content"><label>每页条数<select data-page-size aria-label="每页条数">${studyOptions([10,20,50,100].map(n => [String(n), n + ' 条']), String(p.size))}</select></label><form data-page-jump><label>跳至<input type="number" inputmode="numeric" name="page" value="${p.page}" min="1" max="${p.pages}" step="1" required aria-label="跳转页码">页</label><button type="submit">前往</button></form><div class="page-boundaries"><button data-study="page" data-page="1" ${p.page === 1 ? 'disabled' : ''}>首页</button><button data-study="page" data-page="${p.pages}" ${p.page === p.pages ? 'disabled' : ''}>末页</button></div></div></details></nav>`;
 }
 function getQuizPool() {
     return StudyCore.filter(getStudyPool(quizSource), { category: quizCategory, level: quizLevel, ids: quizLinkedIds }, mastery);
@@ -209,12 +217,12 @@ function drawStudyQuiz() {
 function renderStudyQuiz() {
     const pool = getQuizPool();
     const assessed = quizNotes.filter(n => mastery[n.id]?.session === studyQuizSession).length;
-    return `${studyHeader()}<section class="study-quiz-head"><span class="study-eyebrow">RECALL BEFORE READING</span><h2>先回忆，再看答案。</h2><p>从全题库查漏补缺，或专注复习自己记录的内容。</p></section>
+    return `${studyHeader()}<section class="study-quiz-head"><h2>先回忆，再看答案。</h2></section>
     <div class="study-quiz-sources" aria-label="抽查来源">${[['bank', '全题库抽查', '覆盖 13 个主题，发现知识盲区。'], ['personal', '我的笔记抽查', '只练自己记录与主动保存的内容。']].map(([source, title, desc]) => `<button data-study="quiz-source" data-source="${source}" class="${quizSource === source ? 'active' : ''}" aria-pressed="${quizSource === source}"><span>${source === 'bank' ? '01' : '02'}</span><strong>${title}<small>${getStudyPool(source).length} 道</small></strong><p>${desc}</p></button>`).join('')}</div>
-    <div class="study-filters quiz-config"><label>知识分类<select data-quiz-filter="category">${studyOptions([['all', '全部分类'], ...studyCategories(quizSource).map(c => [c, c])], quizCategory)}</select></label><label>练习范围<select data-quiz-filter="level">${studyOptions([['all', '全部内容'], ['weak', '只练不会 / 模糊'], ['new', '只练未复习']], quizLevel)}</select></label><label>每组题数<select data-quiz-filter="count">${studyOptions([['3', '3 道 · 热身'], ['5', '5 道 · 日常'], ['10', '10 道 · 挑战']], String(quizCount))}</select></label><button class="study-primary" data-study="draw" ${pool.length ? '' : 'disabled'}>${quizStarted ? '换一组题' : '开始抽查'} →</button></div>
+    <div class="study-filters quiz-config"><label>知识分类<select data-quiz-filter="category">${studyOptions([['all', '全部分类'], ...studyCategories(quizSource).map(c => [c, c])], quizCategory)}</select></label><label>练习范围<select data-quiz-filter="level">${studyOptions([['all', '全部内容'], ['weak', '只练不会 / 模糊'], ['new', '只练未复习']], quizLevel)}</select></label><label class="quiz-count-field">每组题数<select data-quiz-filter="count">${studyOptions([['3', '3 道 · 热身'], ['5', '5 道 · 日常'], ['10', '10 道 · 挑战']], String(quizCount))}</select></label><button class="study-primary" data-study="draw" ${pool.length ? '' : 'disabled'}>${quizStarted ? '换一组题' : '开始抽查'} →</button></div>
     ${quizLinkedIds ? `<div class="study-linked">面经关联：${studyEsc(quizLinkedTitle)}<button data-study="quiz-unlink">取消关联 ×</button></div>` : ''}
     <div class="study-list-heading"><p>当前可抽 ${pool.length} 道${pool.length < quizCount && pool.length ? ' · 数量不足时抽取全部，不重复' : ''}</p>${quizStarted ? `<span>${quizSource === 'bank' ? '全题库' : '我的笔记'} · 本组 ${quizNotes.length} 道 · 已自评 ${assessed} 道</span>` : ''}</div>
-    ${!pool.length && !quizNotes.length ? `<div class="study-empty"><h3>当前范围没有可抽查的内容</h3><p>${quizLevel === 'weak' ? '答题后标记“不会”或“模糊”，即可在这里专门练习。' : '切换分类或先添加自己的笔记，再来开始抽查。'}</p><button class="study-secondary" data-study="quiz-reset">恢复全部范围</button><button class="study-secondary" data-study="source" data-source="personal">去我的笔记</button></div>` : !quizStarted ? '<div class="study-quiz-guide"><span>1. 先独立作答</span><span>2. 对照原理与追问</span><span>3. 记录掌握程度</span><p>建议每道题先口述 30–90 秒，讲清原理、适用场景和边界。</p></div>' : ''}
+    ${!pool.length && !quizNotes.length ? `<div class="study-empty"><h3>当前范围没有可抽查的内容</h3><p>${quizLevel === 'weak' ? '答题后标记“不会”或“模糊”，即可在这里专门练习。' : '切换分类或先添加自己的笔记，再来开始抽查。'}</p><button class="study-secondary" data-study="quiz-reset">恢复全部范围</button><button class="study-secondary" data-study="source" data-source="personal">去我的笔记</button></div>` : !quizStarted ? '<div class="study-quiz-guide"><span>回忆作答</span><span>查看答案</span><span>标记掌握度</span></div>' : ''}
     ${quizNotes.map((n, i) => `<article class="study-quiz-card"><div class="study-card-meta"><span class="study-number">${String(i + 1).padStart(2, '0')}</span><span>${studyEsc(n.category)}</span><span>${studyEsc(n.number || '我的笔记')}</span></div><h3>${studyEsc(n.question)}</h3><button class="study-secondary" data-study="reveal" data-index="${i}" aria-expanded="${quizRevealed.has(i)}">${quizRevealed.has(i) ? '收起参考答案' : '我想好了，查看答案'}</button>${quizRevealed.has(i) ? `<div class="study-answer">${studyMarkdown(n.answer)}</div>${studyRatings(n, i)}` : '<p class="study-recall-hint">先说结论，再解释原理，最后举一个例子。</p>'}</article>`).join('')}`;
 }
 let studyQuizSession = Date.now();
@@ -328,8 +336,10 @@ function initStudyWorkspace() {
             expanded ? collapsedNotes.delete(id) : collapsedNotes.add(id);
             btn.setAttribute('aria-expanded', expanded); btn.querySelector('.study-chevron').textContent = expanded ? '−' : '+';
             document.getElementById('answer-' + id).classList.toggle('collapsed', !expanded);
+            const toggle = document.querySelector('.study-list-heading .study-list-tools');
+            if (toggle) toggle.outerHTML = studyAnswerToggle(showInterviewExp ? getInterviewFilteredQuestions() : getFilteredNotes());
         }
-        else if (action === 'collapse' || action === 'expand-all') { getFilteredNotes().forEach(n => action === 'collapse' ? collapsedNotes.add(n.id) : collapsedNotes.delete(n.id)); renderAll(); }
+        else if (action === 'collapse' || action === 'expand-all') { (showInterviewExp ? getInterviewFilteredQuestions() : getFilteredNotes()).forEach(n => action === 'collapse' ? collapsedNotes.add(n.id) : collapsedNotes.delete(n.id)); renderAll(); }
         else if (action === 'page') goStudyPage(btn.dataset.page);
         else if (action === 'quiz-source') { quizSource = btn.dataset.source; quizCategory = quizLevel = 'all'; quizLinkedIds = null; quizNotes = []; quizStarted = false; renderAll(); }
         else if (action === 'draw') { studyQuizSession = Date.now(); drawStudyQuiz(); }
@@ -374,7 +384,7 @@ function initStudyWorkspace() {
     modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-modal', 'true'); modal.setAttribute('aria-label', '我的笔记编辑器');
     modal.addEventListener('keydown', e => {
         if (e.key !== 'Tab') return;
-        const nodes = [...modal.querySelectorAll('button,input,textarea,select')].filter(n => !n.closest('[hidden]'));
+        const nodes = [...modal.querySelectorAll('button,input,textarea,select,summary')].filter(n => !n.closest('[hidden]') && n.getClientRects().length);
         const first = nodes[0], last = nodes.at(-1);
         if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
         if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }

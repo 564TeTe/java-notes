@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="可离线使用、支持多端同步的 Java 后端面试复习工具">
-    <meta name="theme-color" content="#4A6CF7">
+    <meta name="theme-color" content="#f5f7f3">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Java 面试复习工作台 · 题库与笔记</title>
-    <link rel="manifest" href="./manifest.webmanifest">
-    <link rel="icon" href="./icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="./icon-192.png">
+    <link rel="manifest" href="./manifest.webmanifest?v=2">
+    <link rel="icon" href="./icon.svg?v=2" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="./icon-192.png?v=2">
     <link rel="stylesheet" href="./recruitment.css?v=4">
     <script src="./sync-config.js?v=3"></script>
     <script src="./resume-data.js?v=1"></script>
@@ -789,7 +789,8 @@ pre code { background: transparent; color: inherit; padding: 0; }
 </style>
     <link rel="stylesheet" href="./career-workspace.css?v=1">
     <link rel="stylesheet" href="./study-workspace.css?v=3">
-    <link rel="stylesheet" href="./workspace-shell.css?v=2">
+    <link rel="stylesheet" href="./workspace-shell.css?v=3">
+    <link rel="stylesheet" href="./workspace-controls.css?v=1">
 </head>
 <body>
 
@@ -949,7 +950,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
     <div class="modal sync-modal">
         <div class="sync-modal-head">
             <div>
-                <h3>☁️ 数据与同步</h3>
+                <h3>数据与同步</h3>
                 <p class="modal-sub" id="syncDescription">当前数据保存在这台设备</p>
             </div>
             <button class="icon-close" type="button" id="closeSyncBtn" aria-label="关闭">×</button>
@@ -2115,7 +2116,7 @@ function updateSyncUI() {
     document.getElementById("signedInEmail").textContent = syncSession?.user?.email || "当前账号";
     document.getElementById("syncStatusTitle").textContent = signedIn ? "云端同步已开启" : "本地模式";
     document.getElementById("syncStatusText").textContent = signedIn ? "电脑和手机登录同一账号即可同步" : "可离线使用，建议定期导出备份";
-    document.querySelector(".sync-status-icon").textContent = signedIn ? "☁️" : "💾";
+    document.querySelector(".sync-status-icon").innerHTML = typeof workspaceIcon === "function" ? workspaceIcon("sync") : "";
     const hint = document.getElementById("syncConfigHint");
     hint.textContent = configured ? "使用同一邮箱账号登录电脑和手机。" : "云同步尚未配置；请先按 DEPLOY.md 填写 sync-config.js。";
     hint.classList.toggle("error", !configured);
@@ -2160,6 +2161,23 @@ async function importBackup(file) {
 
 function registerPWA() {
     if ("serviceWorker" in navigator && location.protocol !== "file:") {
+        const wasControlled = !!navigator.serviceWorker.controller;
+        let updateHandled = false;
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+            if (!wasControlled || updateHandled) return;
+            updateHandled = true;
+            const isEditing = () => !!document.querySelector('.modal-overlay.open,dialog[open],.recruit-modal-backdrop') ||
+                document.activeElement?.matches('input,textarea,[contenteditable="true"]');
+            if (!isEditing()) { location.reload(); return; }
+            const notice = document.createElement('div');
+            notice.className = 'app-update-notice'; notice.setAttribute('role', 'status');
+            notice.innerHTML = '<span>新版本已就绪，保存后刷新</span><button type="button">刷新</button>';
+            notice.querySelector('button').addEventListener('click', () => {
+                if (isEditing()) { toast('请先保存或关闭正在编辑的内容'); return; }
+                location.reload();
+            });
+            document.body.append(notice);
+        });
         navigator.serviceWorker.register("./sw.js?v=17", { updateViaCache: "none" }).then(registration => {
             registration.update().catch(() => {});
         }).catch(error => console.warn("离线服务注册失败", error));
@@ -2375,9 +2393,10 @@ function init() {
     if (syncSession && isSyncConfigured()) syncNow();
 }
 </script>
-<script src="./study-module.js?v=4"></script>
-<script src="./interview-module.js?v=2"></script>
-<script src="./workspace-shell.js?v=2"></script>
+<script src="./study-module.js?v=5"></script>
+<script src="./interview-module.js?v=3"></script>
+<script src="./workspace-controls.js?v=1"></script>
+<script src="./workspace-shell.js?v=3"></script>
 <script>initStudyWorkspace(); init(); initWorkspaceShell();</script>
 </body>
 </html>
