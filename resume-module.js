@@ -71,19 +71,23 @@
     function renderOverview() {
         const progress = getProgress();
         const weak = progress.fuzzy + progress.hard;
+        const nextQuestion = data().questions.find(item => !state.mastery[item.id] || ["hard", "fuzzy"].includes(state.mastery[item.id]));
+        const nextSource = nextQuestion ? sourceName(nextQuestion.source) : "全部经历";
+        const nextAction = nextQuestion ? `建议先练 ${nextSource} 的「${nextQuestion.question}」` : "所有问题都已练习，继续随机抽查保持状态";
         return `<section class="prep-start">
             <div class="prep-start-copy"><span class="prep-kicker">面试练习台</span><h2>从一段经历，开始今天的准备。</h2><p>讲清做了什么、为什么这样做，以及如何验证。</p>
                 <div class="prep-start-actions"><button class="career-primary" onclick="startResumePractice()">开始练习 <span aria-hidden="true">→</span></button><button class="career-secondary" onclick="reviewResumeWeak()">复习薄弱题${weak ? ` · ${weak}` : ""}</button></div></div>
-            <div class="prep-progress"><span>练习进度</span><strong>${progress.known}<small> / ${progress.questionTotal}</small></strong><span>道问答已掌握</span><div class="resume-mini-progress"><span style="width:${progress.questionTotal ? Math.round(progress.known / progress.questionTotal * 100) : 0}%"></span></div><button onclick="setResumePrepTab('checklist')">冲刺清单 ${progress.checked}/${progress.checklistTotal} <span aria-hidden="true">↗</span></button></div>
+            <div class="prep-progress"><span>练习进度</span><strong>${progress.known}<small> / ${progress.questionTotal}</small></strong><span>道问答已掌握</span><div class="resume-mini-progress"><span style="width:${progress.questionTotal ? Math.round(progress.known / progress.questionTotal * 100) : 0}%"></span></div><div class="prep-progress-stats"><span>薄弱 ${weak}</span><span>清单 ${progress.checked}/${progress.checklistTotal}</span></div><button onclick="setResumePrepTab('checklist')">查看冲刺清单 <span aria-hidden="true">↗</span></button></div>
         </section>
-        <div class="resume-section-heading"><div><h2>按经历准备</h2><p>先练口述，再深入技术细节。</p></div><span class="prep-count">${data().sources.length} 份材料</span></div>
-        <section class="resume-source-grid">${data().sources.map((source, index) => {
+        <section class="resume-today"><div><span class="prep-kicker">TODAY</span><strong>${escape(nextAction)}</strong><p>建议顺序：口述练习 → 经历深挖 → 模拟问答 → 冲刺核对</p></div><button class="career-secondary" onclick="${nextQuestion ? `setResumePrepSource('${nextQuestion.source}');setResumePrepTab('questions')` : "randomResumeQuestion()"}">${nextQuestion ? "去练这道题" : "开始抽查"} →</button></section>
+        <div class="resume-section-heading"><div><h2>按经历准备</h2><p>先练口述，再深入技术细节。</p></div><span class="prep-count">${data().sources.length} 段经历</span></div>
+        <section class="resume-source-list">${data().sources.map((source, index) => {
             const questions = data().questions.filter(item => item.source === source.id);
             const known = questions.filter(item => state.mastery[item.id] === "known").length;
             const percent = questions.length ? Math.round(known / questions.length * 100) : 0;
-            return `<article class="resume-source-card"><div class="resume-source-head"><span class="prep-source-number">0${index + 1}</span><span class="resume-file-badge">${source.id === "resume" ? "个人介绍" : source.id === "zhishu" ? "项目经历" : "实习经历"}</span></div><h3>${escape(source.shortName)}</h3><p class="resume-source-role">${escape(source.role)}</p><p>${escape(source.summary)}</p><div class="resume-mini-progress"><span style="width:${percent}%"></span></div><div class="resume-source-foot"><span>已掌握 ${known}/${questions.length}</span><button onclick="openResumeSource('${source.id}')">${source.id === "resume" ? "练自我介绍" : "准备这段经历"} →</button></div></article>`;
+            return `<article class="resume-source-row"><span class="prep-source-number">0${index + 1}</span><div class="resume-source-main"><h3>${escape(source.shortName)}</h3><p>${escape(source.role)} · ${escape(source.summary)}</p></div><div class="resume-source-meter"><span>已掌握 ${known}/${questions.length}</span><div class="resume-mini-progress"><span style="width:${percent}%"></span></div></div><button class="career-secondary" onclick="openResumeSource('${source.id}')">${source.id === "resume" ? "练自我介绍" : "继续练习"} →</button></article>`;
         }).join("")}</section>
-        <div class="prep-bottom-note"><span>建议顺序：口述练习 → 经历深挖 → 模拟问答 → 冲刺核对</span><button onclick="setResumePrepTab('sources')">查看原始资料 ↗</button></div>`;
+        <div class="prep-bottom-note"><span>需要核对原文或补充内容？</span><button onclick="setResumePrepTab('sources')">查看原始资料 ↗</button></div>`;
     }
 
     function renderPitches() {

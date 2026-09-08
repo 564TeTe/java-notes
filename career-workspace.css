@@ -47,6 +47,11 @@
 .prep-progress strong { font-size: 38px; font-weight: 600; line-height: 1.45; font-variant-numeric: tabular-nums; }
 .prep-progress strong small { color: #8090a4; font-size: 18px; font-weight: 400; }
 .prep-progress button { display: flex; justify-content: space-between; padding: 10px 0 0; border: 0; background: none; color: var(--career-accent); text-align: left; }
+.prep-progress-stats { display:flex; gap:12px; margin-top:10px; color:var(--career-muted); font-size:12px; }
+.resume-today { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-top:18px; padding:15px 18px; border:1px solid #dce4f0; border-radius:10px; background:#fff; }
+.resume-today .prep-kicker { display:inline; margin:0 10px 0 0; letter-spacing:1.5px; }
+.resume-today strong { font-size:14px; font-weight:600; }
+.resume-today p { margin-top:5px; color:var(--career-muted); font-size:12px; }
 .resume-mini-progress { height: 4px; background: #e4eaf4; }
 .resume-mini-progress span { background: var(--career-accent); }
 .resume-section-heading { display: flex; align-items: center; gap: 16px; margin: 26px 0 16px; }
@@ -55,6 +60,14 @@
 .resume-section-heading small, .prep-count { color: var(--career-muted); font-size: 12px; }
 .resume-view > .resume-section-heading:first-child { margin-top: 0; }
 .resume-source-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.resume-source-list { display:grid; gap:8px; }
+.resume-source-row { display:grid; grid-template-columns:34px minmax(0,1fr) 150px auto; align-items:center; gap:16px; padding:14px 16px; border:1px solid var(--career-line); border-radius:9px; background:#fff; }
+.resume-source-row:hover { border-color:#a9bbd9; }
+.resume-source-main h3 { font-size:15px; }
+.resume-source-main p { margin-top:4px; color:var(--career-muted); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.resume-source-meter { color:var(--career-muted); font-size:11px; }
+.resume-source-meter .resume-mini-progress { margin-top:6px; }
+.resume-source-row > button { min-height:34px; padding:7px 11px; font-size:12px; white-space:nowrap; }
 .resume-source-card { display: flex; flex-direction: column; padding: 22px; border-radius: 10px; box-shadow: none; }
 .resume-source-card:hover { transform: none; border-color: #a9bbd9; box-shadow: none; }
 .prep-source-number { color: #8594ac; font-family: Georgia, serif; font-size: 19px; }
@@ -212,6 +225,8 @@
     .resume-section-heading { margin-top: 22px; gap: 12px; }.resume-section-heading h2 { font-size: 18px; }.resume-section-heading p { font-size: 12px; }
     .resume-section-heading > small { display: none; }.resume-section-heading .career-primary { flex-shrink: 0; padding-inline: 12px; }
     .resume-source-grid, .resume-library-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }.resume-source-card { padding: 20px; }
+    .resume-source-row { grid-template-columns:28px minmax(0,1fr) auto; gap:10px; }.resume-source-meter { grid-column:2; }.resume-source-row > button { grid-column:3; grid-row:1 / span 2; }
+    .resume-today { align-items:flex-start; }
     .prep-bottom-note { align-items: flex-start; flex-direction: column; gap: 3px; }.prep-count { white-space: nowrap; }
     .resume-pitch-card { padding: 18px; }.resume-filters { gap: 4px; }.resume-filter { padding: 7px 9px; font-size: 12px !important; }.prep-filter-label { display: none; }
     .resume-story-card summary { flex-wrap: wrap; gap: 8px; padding: 17px; }.resume-story-card summary h3 { flex-basis: calc(100% - 32px); order: 2; }.prep-story-toggle { margin-left: auto; }.prep-story-content { padding: 0 17px 17px; }
