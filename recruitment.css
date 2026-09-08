@@ -131,3 +131,20 @@
     .recruit-timeline { grid-template-columns: 1fr; gap: 0; padding-left: 2px; }.recruit-timeline article { display: grid; grid-template-columns: 34px 1fr; }.recruit-time-marker { flex-direction: column; margin: 0; }.recruit-time-marker span { width: 3px; height: 100%; min-height: 84px; }.recruit-timeline article:last-child .recruit-time-marker span { display: block; background: transparent; }.recruit-timeline article > div:last-child { padding: 0 0 18px 8px; }.recruit-timeline p { font-size: 10px; }.recruit-timeline em { font-size: 9px; }
     .recruit-current-pill { display: none; }.recruit-weekly { padding: 14px; }.recruit-resource-grid p { min-height: 0; }
 }
+/* Job information first: dense radar layout with visible freshness signals. */
+.recruit-overview { display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:28px; padding:26px 30px; margin-bottom:18px; border:1px solid #d5e5df; border-radius:12px; background:linear-gradient(120deg,#eef8f2,#f7fbfa); }
+.recruit-kicker { color:#28735d; font-size:10px; letter-spacing:2px; font-weight:700; }
+.recruit-overview h2 { margin-top:9px; color:#1f493a; font-size:26px; }
+.recruit-overview p { max-width:680px; margin-top:7px; color:#60786e; font-size:13px; line-height:1.8; }
+.recruit-overview-actions { display:flex; gap:9px; margin-top:19px; flex-wrap:wrap; }
+.recruit-overview-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; align-items:center; }
+.recruit-overview-stats div { padding-left:13px; border-left:1px solid #cfe0d8; }
+.recruit-overview-stats strong { display:block; color:#236c54; font:27px Georgia,serif; }
+.recruit-overview-stats span { color:#6e8479; font-size:11px; white-space:nowrap; }
+.recruit-overview-stats small { grid-column:1/-1; color:#72897d; font-size:11px; }
+.recruit-job-source { margin-top:5px; color:#789187; font-size:10px; }
+.recruit-deadline { color:#bd6846; font-weight:600; }
+.recruit-toolbar { grid-template-columns:auto minmax(220px,1fr) 140px 140px; }
+.recruit-feed-summary { border-top:1px solid #edf2ee; padding-top:12px; }
+@media (max-width:1000px) { .recruit-overview { grid-template-columns:1fr; gap:18px; } .recruit-overview-stats { max-width:440px; } .recruit-toolbar { grid-template-columns:minmax(0,1fr) 130px; } .recruit-toolbar select:last-child { grid-column:2; } }
+@media (max-width:768px) { .recruit-overview { padding:20px 18px; gap:18px; } .recruit-overview h2 { font-size:22px; } .recruit-overview p { font-size:12px; } .recruit-overview-stats strong { font-size:23px; } .recruit-overview-stats span { font-size:10px; } .recruit-toolbar { grid-template-columns:minmax(0,1fr) 110px; } .recruit-toolbar select:last-child { grid-column:1/-1; } .recruit-job-source { font-size:10px; } }

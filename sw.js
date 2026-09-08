@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v17";
+const CACHE_NAME = "java-notes-v19";
 const APP_SHELL = [
     "./workspace-shell.js", "./workspace-shell.css",
     "./data/question-bank.js", "./study-core.js", "./study-module.js", "./interview-module.js", "./study-workspace.css",

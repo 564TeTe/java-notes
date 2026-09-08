@@ -49,7 +49,8 @@
         feed: null,
         loading: false,
         error: "",
-        fitOnly: true,
+        // Information coverage is the default; users can narrow to Java/backend on demand.
+        fitOnly: false,
         industry: "全部",
         search: "",
         limit: 12,
@@ -57,7 +58,10 @@
         editingId: null,
         stageFilter: "全部",
         feedSource: "",
-        attempted: false
+        attempted: false,
+        sort: "latest",
+        cohort: "全部届次",
+        batch: "全部批次"
     };
     let applications = readJSON(APP_KEY, []);
     let actionChecks = readJSON(ACTION_KEY, {});
@@ -107,8 +111,15 @@
     }
     function normalizeJobs(data) {
         const jobs = Array.isArray(data) ? data : (data?.jobs || data?.data || []);
-        return jobs.filter(job => job && (String(job.cohort || "").includes("2027") || job.cohort === "不限"))
-            .sort((a, b) => String(b.last_seen || b.first_seen || "").localeCompare(String(a.last_seen || a.first_seen || "")));
+        const asArray = value => Array.isArray(value) ? value : value == null || value === '' ? [] : [String(value)];
+        const unique = new Map();
+        jobs.filter(job => job && (!job.cohort || String(job.cohort).includes("2027") || job.cohort === "不限"))
+            .forEach(job => {
+                const normalized = { ...job, positions: asArray(job.positions), locations: asArray(job.locations) };
+                const key = [normalized.company, normalized.program, normalized.batch, normalized.positions.join(","), normalized.locations.join(","), normalized.apply_url].join("|");
+                if (!unique.has(key)) unique.set(key, normalized);
+            });
+        return [...unique.values()].sort((a, b) => String(b.last_seen || b.first_seen || "").localeCompare(String(a.last_seen || a.first_seen || "")));
     }
 
     async function loadFeed(force) {
@@ -117,7 +128,9 @@
         state.attempted = true;
         state.error = "";
         rerender();
-        const sources = force ? [...FEED_URLS, LOCAL_FEED_URL] : [LOCAL_FEED_URL, ...FEED_URLS];
+        // Try the live aggregators first so the radar is actually current. The
+        // local snapshot remains a reliable fallback for offline or blocked networks.
+        const sources = [...FEED_URLS, LOCAL_FEED_URL];
         let loaded = false;
         for (const source of sources) {
             try {
@@ -155,17 +168,27 @@
     function heroHTML() {
         const phase = currentPhase();
         const stats = applicationStats();
-        return `<section class="recruit-context"><div><span class="recruit-live-dot" aria-hidden="true"></span><strong>2027 届秋招</strong><span>${phase.title} · ${phase.date}</span></div><button onclick="setRecruitmentTab('applications')">我的投递 <b>${stats.total}</b><span aria-hidden="true">→</span></button></section>`;
+        const feedCount = state.feed?.length || 0;
+        const fresh = state.feed?.filter(job => String(job.last_seen || job.first_seen || '').slice(0,10) >= new Date(Date.now()-3*86400000).toISOString().slice(0,10)).length || 0;
+        return `<section class="recruit-overview"><div class="recruit-overview-main"><span class="recruit-kicker">JOB RADAR · 2027 CAMPUS</span><h2>今天有哪些新岗位？</h2><p>集中浏览校招、提前批和实习转正机会。岗位信息按更新时间更新，投递前请回到官网核验。</p><div class="recruit-overview-actions"><button class="career-primary" onclick="refreshRecruitmentFeed()">↻ 更新岗位</button><button class="career-secondary" onclick="setRecruitmentFit(true)">只看 Java / 后端 / AI</button></div></div><div class="recruit-overview-stats"><div><strong>${feedCount}</strong><span>已收录岗位</span></div><div><strong>${fresh}</strong><span>近 3 天更新</span></div><div><strong>${stats.total}</strong><span>我的投递</span></div><small>当前：${phase.title} · ${phase.date}</small></div></section>`;
     }
 
     function filteredJobs() {
         if (!state.feed) return [];
         const keyword = state.search.trim().toLowerCase();
-        return state.feed.map((job, index) => ({ job, index })).filter(({ job }) => {
+        const results = state.feed.map((job, index) => ({ job, index })).filter(({ job }) => {
             if (state.fitOnly && !isFit(job)) return false;
             if (state.industry !== "全部" && job.industry !== state.industry) return false;
+            if (state.cohort !== "全部届次" && job.cohort !== state.cohort) return false;
+            if (state.batch !== "全部批次" && job.batch !== state.batch) return false;
             if (!keyword) return true;
             return [job.company, job.program, job.industry, ...(job.positions || []), ...(job.locations || [])].join(" ").toLowerCase().includes(keyword);
+        });
+        return results.sort((a, b) => {
+            const ad = String(a.job.last_seen || a.job.first_seen || ""), bd = String(b.job.last_seen || b.job.first_seen || "");
+            if (state.sort === "deadline") return String(a.job.deadline || "9999").localeCompare(String(b.job.deadline || "9999"));
+            if (state.sort === "company") return String(a.job.company).localeCompare(String(b.job.company));
+            return bd.localeCompare(ad);
         });
     }
     function jobCard(job, index) {
@@ -174,12 +197,13 @@
         const positions = (state.fitOnly && matchedPositions.length ? matchedPositions : allPositions).slice(0, 3);
         const locations = (job.locations || []).slice(0, 4).join(" · ") || "地点待确认";
         const applyUrl = safeUrl(job.apply_url);
-        const added = applications.some(item => item.sourceKey === `${job.company}-${job.program || ""}-${job.batch || ""}`);
+        const sourceKey = [job.company, job.program, job.batch, allPositions.join(','), (job.locations || []).join(','), job.apply_url || ''].join('|');
+        const added = applications.some(item => item.sourceKey === sourceKey);
         return `<article class="recruit-job-card">
             <header><div><span class="recruit-company-icon">${esc(String(job.company || "岗").slice(0, 1))}</span><div><h3>${esc(job.company)}</h3><p>${esc(job.program || job.batch || "校园招聘")}</p></div></div><span class="recruit-batch">${esc(job.batch || "校招")}</span></header>
             <div class="recruit-job-tags">${positions.length ? positions.map(item => `<span>${esc(item)}</span>`).join("") : "<span>岗位以公告为准</span>"}</div>
             <p class="recruit-job-meta">📍 ${esc(locations)}</p>
-            <p class="recruit-job-meta">🕒 数据日期 ${esc(formatDate(job.last_seen || job.first_seen))}${job.deadline ? ` · 截止 ${esc(formatDate(job.deadline))}` : ""}</p>
+            <p class="recruit-job-meta">🕒 更新 ${esc(formatDate(job.last_seen || job.first_seen))}${job.deadline ? ` · <b class="recruit-deadline">截止 ${esc(formatDate(job.deadline))}</b>` : ""}</p><p class="recruit-job-source">${job.confirmed_by ? `✓ ${esc(job.confirmed_by)} 个来源核对` : "线索待官网核验"}</p>
             <footer>${applyUrl ? `<a href="${esc(applyUrl)}" target="_blank" rel="noopener">查看岗位 ↗</a>` : `<a href="${FEED_PAGE}" target="_blank" rel="noopener">查看来源 ↗</a>`}<button${added ? " disabled" : ""} onclick="addRecruitmentJob(${index})">${added ? "已加入" : "＋ 加入投递"}</button></footer>
         </article>`;
     }
@@ -194,8 +218,8 @@
         return `${heroHTML()}<section class="recruit-panel">
             <div class="recruit-panel-head"><div><h2>发现下一份机会</h2><p>按方向找岗位，感兴趣就加入投递记录。</p></div><button onclick="refreshRecruitmentFeed()" ${state.loading ? "disabled" : ""}>${state.loading ? "更新中…" : "↻ 更新岗位"}</button></div>
             <div class="recruit-toolbar"><div class="recruit-toggle"><button class="${state.fitOnly ? "active" : ""}" onclick="setRecruitmentFit(true)">Java / 后端 / AI</button><button class="${!state.fitOnly ? "active" : ""}" onclick="setRecruitmentFit(false)">全部岗位</button></div>
-            <form onsubmit="searchRecruitment(event)"><input aria-label="搜索公司、岗位或城市" type="search" name="keyword" value="${esc(state.search)}" placeholder="公司、Java、后端、城市…"><button>搜索</button></form>
-            <select aria-label="按行业筛选" onchange="setRecruitmentIndustry(this.value)">${industries.map(item => `<option${state.industry === item ? " selected" : ""}>${esc(item)}</option>`).join("")}</select></div>
+            <form onsubmit="searchRecruitment(event)"><input aria-label="搜索公司、岗位或城市" type="search" name="keyword" value="${esc(state.search)}" placeholder="公司、岗位、城市、关键词…"><button>搜索</button></form>
+            <select aria-label="按行业筛选" onchange="setRecruitmentIndustry(this.value)">${industries.map(item => `<option${state.industry === item ? " selected" : ""}>${esc(item)}</option>`).join("")}</select><select aria-label="按届次筛选" onchange="setRecruitmentCohort(this.value)">${['全部届次', ...new Set((state.feed || []).map(item => item.cohort).filter(Boolean))].map(item => `<option${state.cohort === item ? ' selected' : ''}>${esc(item)}</option>`).join('')}</select><select aria-label="按批次筛选" onchange="setRecruitmentBatch(this.value)">${['全部批次', ...new Set((state.feed || []).map(item => item.batch).filter(Boolean))].map(item => `<option${state.batch === item ? ' selected' : ''}>${esc(item)}</option>`).join('')}</select><select aria-label="按截止日期排序" onchange="setRecruitmentSort(this.value)"><option value="latest"${state.sort === 'latest' ? ' selected' : ''}>最新更新</option><option value="deadline"${state.sort === 'deadline' ? ' selected' : ''}>即将截止</option><option value="company"${state.sort === 'company' ? ' selected' : ''}>按公司</option></select></div>
             <div class="recruit-feed-summary">${state.feed ? `<span><b>${jobs.length}</b> 个匹配岗位 · ${esc(state.feedSource)}${latestFeedDate() ? ` · 数据日期 ${esc(formatDate(latestFeedDate()))}` : ""}</span><button class="career-text" onclick="resetRecruitmentFilters()">清空筛选</button>` : "等待数据"}</div>${state.error && state.feed ? `<p class="recruit-data-note" role="status">${esc(state.error)}</p>` : ""}${feedState}<p class="recruit-data-note">岗位是否开放、截止时间及要求，请以企业官网为准。</p>
         </section>`;
     }
@@ -257,17 +281,20 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
     function latestFeedDate() { return state.feed?.reduce((latest, item) => { const date = String(item.last_seen || item.first_seen || ""); return date > latest ? date : latest; }, "") || ""; }
-    window.resetRecruitmentFilters = function () { state.search = ""; state.industry = "全部"; state.fitOnly = false; state.limit = 12; rerender(); };
+    window.resetRecruitmentFilters = function () { state.search = ""; state.industry = "全部"; state.cohort = "全部届次"; state.batch = "全部批次"; state.fitOnly = false; state.sort = "latest"; state.limit = 12; rerender(); };
     window.setRecruitmentStageFilter = function (stage) { state.stageFilter = ["全部", ...STAGES].includes(stage) ? stage : "全部"; rerender(); };
     window.refreshRecruitmentFeed = function () { state.limit = 12; loadFeed(true); };
     window.setRecruitmentFit = function (value) { state.fitOnly = value; state.limit = 12; rerender(); };
     window.setRecruitmentIndustry = function (value) { state.industry = value; state.limit = 12; rerender(); };
+    window.setRecruitmentSort = function (value) { state.sort = ['latest','deadline','company'].includes(value) ? value : 'latest'; state.limit = 12; rerender(); };
+    window.setRecruitmentCohort = function (value) { state.cohort = value || '全部届次'; state.limit = 12; rerender(); };
+    window.setRecruitmentBatch = function (value) { state.batch = value || '全部批次'; state.limit = 12; rerender(); };
     window.searchRecruitment = function (event) { event.preventDefault(); state.search = new FormData(event.currentTarget).get("keyword") || ""; state.limit = 12; rerender(); };
     window.loadMoreRecruitmentJobs = function () { state.limit += 12; rerender(); };
     window.addRecruitmentJob = function (index) {
         const job = state.feed?.[index];
         if (!job) return;
-        const sourceKey = `${job.company}-${job.program || ""}-${job.batch || ""}`;
+        const sourceKey = [job.company, job.program, job.batch, ...(Array.isArray(job.positions) ? [job.positions.join(',')] : [job.positions || '']), ...(Array.isArray(job.locations) ? [job.locations.join(',')] : [job.locations || '']), job.apply_url || ''].join('|');
         if (applications.some(item => item.sourceKey === sourceKey)) return;
         const positions = Array.isArray(job.positions) ? job.positions : [];
         const role = positions.find(isTargetPosition) || positions[0] || job.program || "待确认岗位";
