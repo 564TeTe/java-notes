@@ -69,7 +69,7 @@ test('built-in legacy notes are no longer mixed into the personal notebook', () 
     const { run } = setup();
     run('userNotes = [{id:"user-only",question:"我的记录",answer:"A",category:"自定义"}]');
     assert.equal(run('getPersonalNotes().map(n=>n.id).join()'), 'user-only');
-    assert.equal(run('getStudyPool("bank").length'), 420);
+    assert.equal(run('getStudyPool("bank").length'), 421);
 });
 test('an invalid imported interview cannot overwrite existing personal notes', () => {
     const { run } = setup();
@@ -93,4 +93,52 @@ test('custom questions stay in bank, can be edited and copied, and survive snaps
     assert.equal(run('getCustomBankQuestions().length'), 1);
     assert.throws(() => run('applyStateSnapshot({userNotes:[],customBankQuestions:[{id:"bad"}]})'), /格式/);
     assert.equal(run('userNotes.length'), 1);
+});
+test('authored notes automatically join the bank while saved copies do not duplicate originals', () => {
+    const { run } = setup();
+    run('userNotes=[{id:"user-authored",question:"自己的问题",answer:"A",category:"Java 基础"}];');
+    assert.equal(run('getStudyPool("bank").length'), 421);
+    assert.equal(run('getStudyPool("bank").find(n=>n.id==="user-authored").answer'), 'A');
+    run('userNotes[0].answer="edited";copyStudyNote(BANK[0].id);');
+    assert.equal(run('getStudyPool("bank").length'), 421);
+    assert.equal(run('getStudyPool("bank").find(n=>n.id==="user-authored").answer'), 'edited');
+});
+test('shared trash excludes deleted bank questions and authored notes from quiz and restores mastery', () => {
+    const { run } = setup();
+    run('userNotes=[{id:"user-authored",question:"Q",answer:"A",category:"Java"}]; mastery[BANK[0].id]={level:"hard"}; deleteNote(BANK[0].id);deleteNote("user-authored");quizSource="bank";');
+    assert.equal(run('getDeletedNotes().length'), 2);
+    assert.ok(run('!getQuizPool().some(n=>n.id===BANK[0].id || n.id==="user-authored")'));
+    assert.equal(run('getPersonalNotes().length'), 0);
+    run('restoreNote(BANK[0].id);restoreNote("user-authored");');
+    assert.equal(run('mastery[BANK[0].id].level'), 'hard');
+    assert.equal(run('getStudyPool("bank").length'), 421);
+});
+test('permanent deletion and empty trash remove custom and built-in bank questions after reload', () => {
+    const { run } = setup();
+    run('const custom=saveCustomBankQuestion({question:"Q",answer:"A",category:"Redis"});deleteNote(custom.id);deleteNote(BANK[0].id);emptyTrash();loadState();loadUserNotes();');
+    assert.equal(run('getCustomBankQuestions().length'), 0);
+    assert.ok(run('!getStudyPool("bank").some(n=>n.id===BANK[0].id)'));
+    assert.equal(run('getDeletedNotes().length'), 0);
+});
+
+test('a saved copy does not resurrect its permanently deleted custom source in the bank', () => {
+    const { run } = setup();
+    run('const custom = saveCustomBankQuestion({question:"公司题",answer:"A",category:"Java 基础",company:"新公司"}); copyStudyNote(custom.id); deleteNote(custom.id); permDelete(custom.id);');
+    assert.equal(run('getStudyPool("bank").length'), 420);
+    assert.equal(run('getPersonalNotes().length'), 1);
+    run('applyStateSnapshot(getStateSnapshot()); quizSource="bank";');
+    assert.equal(run('getQuizPool().length'), 420);
+});
+
+test('company questions aggregate all sources, include custom questions, and respect shared trash', () => {
+    const { run } = setup();
+    assert.ok(run('QUESTION_BANK_DATA.sources.every(s => s.questionIds.every(id => getCompanyQuestions(s.company).some(n => n.id === id)))'));
+    run('const custom = saveCustomBankQuestion({question:"公司题",answer:"答案",category:"Java 基础",company:"新公司"});');
+    assert.equal(run('getCompanyQuestions("新公司").length'), 1);
+    run('deleteNote(custom.id);');
+    assert.equal(run('getCompanyQuestions("新公司").length'), 0);
+    run('restoreNote(custom.id); applyStateSnapshot(getStateSnapshot());');
+    assert.equal(run('getCompanyQuestions("新公司")[0].answer'), '答案');
+    run('interviewCompany="美团 / 快手";');
+    assert.ok(run('renderCompanyReferences().includes(QUESTION_BANK_DATA.sources.find(s=>s.id==="X09").url)'));
 });

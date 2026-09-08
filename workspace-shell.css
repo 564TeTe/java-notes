@@ -1,0 +1,185 @@
+/* Unified workspace: global functions above, content directories at the side. */
+:root { --shell-ink:#233e36; --shell-muted:#6c7b73; --shell-line:#e0e6df; --shell-accent:#286751; }
+body { background:#f5f7f3; font-family:"Microsoft YaHei","PingFang SC",sans-serif; padding-top:72px; }
+button,input,select,textarea { font-family:inherit; }
+.workspace-header { position:fixed; inset:0 0 auto; height:72px; z-index:150; display:flex; align-items:center; gap:30px; padding:0 28px; background:#fcfdfb; border-bottom:1px solid var(--shell-line); }
+.workspace-brand { display:flex; gap:10px; align-items:center; text-decoration:none; color:var(--shell-ink); flex-shrink:0; }
+.workspace-brand>span { display:grid; place-items:center; width:34px; height:38px; border-radius:7px; background:#2c6552; color:white; font:25px Georgia,serif; }
+.workspace-brand strong { font-size:14px; line-height:1.5; }
+.workspace-brand small { display:block; font-size:8px; font-weight:400; letter-spacing:2px; color:#819087; }
+.workspace-header nav { display:flex; gap:6px; align-self:stretch; align-items:stretch; }
+.workspace-header nav button { position:relative; background:none; border:0; padding:0 12px; color:#728177; font-size:13px; cursor:pointer; white-space:nowrap; }
+.workspace-header nav button.active { color:#255c45; font-weight:700; }
+.workspace-header nav button.active::after { content:""; position:absolute; bottom:0; height:3px; background:#397c5d; left:12px; right:12px; }
+.workspace-tools { display:flex; gap:8px; margin-left:auto; }
+.workspace-tools button { border:1px solid #dfe6db; border-radius:6px; background:transparent; color:#637968; padding:8px 11px; font-size:11px; cursor:pointer; white-space:nowrap; }
+.workspace-tools button.active { background:#eaf3e7; color:#2c603f; }
+.workspace-tools small { padding-left:5px; color:#a17a3b; }
+body .sidebar { display:none !important; }
+body.context-directory .sidebar { display:flex !important; position:fixed; top:72px; bottom:0; height:auto; width:220px; background:#fcfdf9; border-right:1px solid var(--shell-line); padding:25px 17px; overflow-y:auto; box-shadow:none; transform:none; }
+body .sidebar :is(.sidebar-header,.study-library-nav,.sidebar-footer,.toc-wrap) { display:none !important; }
+.workspace-directory-title { padding:0 6px 21px; }
+.workspace-directory-title .study-eyebrow { font-size:9px; margin-bottom:7px; }
+.workspace-directory-title h2 { color:#304d3a; font-size:17px; font-weight:600; }
+body .sidebar .category-wrap { display:block !important; max-height:none; padding:0; border:0; overflow:visible; }
+.sidebar .category-wrap>.label { display:none; }
+.sidebar .categories { display:flex; flex-direction:column; gap:5px; }
+body .sidebar .cat-btn { width:100%; border:0; border-radius:6px; padding:11px 12px; text-align:left; font-size:12px; color:#75846e; background:transparent; line-height:1.6; white-space:normal; }
+body .sidebar .cat-btn.active { background:#eaf1e5; color:#305d39; font-weight:600; }
+body .main, body .main.shifted, body.study-mode .main { width:auto; max-width:1240px; margin:0 auto; padding:30px 38px 70px; min-width:0; }
+body.context-directory .main { margin-left:220px; max-width:none; }
+body[data-workspace="interviews"] .main { max-width:1440px; }
+body .main-header { margin:0 0 22px; padding:0; border:0; display:grid; grid-template-columns:1fr auto; gap:6px 25px; }
+body .main-header h1 { font-size:25px; color:#254134; line-height:1.5; margin:0; }
+body .main-header h1::before { display:none; }
+body .main-header .subtitle { font-size:12px; color:#7d8975; margin:0; grid-column:1; line-height:1.8; }
+body .main-header .search-wrap { grid-column:2; grid-row:1 / 3; align-self:center; padding:0; width:290px; }
+body .main-header .search-wrap::before { display:none; }
+body #searchInput { width:100%; padding:11px 14px; background:#fff; border:1px solid #dfe6d8; border-radius:7px; font-size:12px; }
+body:not(.context-directory):not([data-workspace="trash"]) .main-header .search-wrap { display:none; }
+.study-switch.study-mobile-switch { display:none !important; }
+.study-filters>label:has([data-study-filter="category"]) { display:none; }
+.study-filters { padding:15px 0; gap:12px; }
+.study-filters label { min-width:140px; }
+.study-summary { padding:14px 0; }
+.study-list-heading { margin:20px 0 12px; }
+.study-pagination { padding:14px 0 20px; border:0; gap:12px; }
+.study-card.note,.interview-question-card { padding:19px 22px 13px; margin-bottom:12px; background:#fff; border:1px solid #e0e6dc; border-radius:8px; box-shadow:none; }
+.study-card-footer button, .interview-answer-actions button { min-height:34px; }
+.study-primary,.study-secondary { min-height:40px; }
+.study-empty { background:#fafcf7; padding:48px 24px; }
+.interview-company-layout { display:grid; grid-template-columns:200px minmax(0,1fr); gap:28px; align-items:start; }
+.interview-company-nav { position:sticky; top:98px; max-height:calc(100dvh - 120px); overflow-y:auto; padding:19px 13px; background:#fcfdf9; border:1px solid #e0e7d9; border-radius:9px; }
+.interview-nav-title { padding:1px 10px 18px; }
+.interview-nav-title h2 { font-size:17px; color:#355135; }
+.interview-company-nav button { display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; border:0; border-radius:6px; background:transparent; padding:12px 10px; font-size:12px; color:#75846e; text-align:left; cursor:pointer; }
+.interview-company-nav button.active { background:#eaf2e4; color:#366137; font-weight:600; }
+.interview-company-nav button small { color:#99a48d; font-size:10px; font-weight:400; }
+.company-nav-tools { margin-top:20px; padding-top:14px; border-top:1px solid #e4eadf; }
+.interview-company-main { min-width:0; }
+.interview-company-head { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:2px 0 18px; border-bottom:1px solid #dfe6d9; }
+.interview-company-head .study-eyebrow { font-size:9px; margin-bottom:7px; }
+.interview-company-head h2 { font-size:23px; font-weight:600; color:#365132; }
+.interview-company-head p { font-size:11px; color:#839077; line-height:1.8; margin-top:6px; }
+.interview-company-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.interview-company-actions button { font-size:12px; }
+.interview-search-row { display:flex; gap:12px; margin-top:18px; }
+.interview-search-row input { flex:1; min-width:0; padding:11px 13px; background:#fff; border:1px solid #dde5d4; border-radius:6px; font-size:12px; }
+.interview-citations { border-top:1px solid #eef2e7; margin-top:10px; padding-top:12px; color:#879578; font-size:10px; }
+.interview-citations summary { cursor:pointer; padding:4px 0; }
+.interview-citations p { margin-top:10px; line-height:1.9; }
+.interview-citations a { color:#57794a; }
+.interview-citations small { display:block; color:#96a085; font-size:10px; }
+.interview-mobile-tools { display:none; }
+#bankCompany { width:100%; padding:10px 12px; border:1px solid #dbe3d4; border-radius:6px; font-size:13px; }
+body .fab { display:none !important; }
+.workspace-header :is(button,a):focus-visible, .interview-company-nav button:focus-visible { outline:3px solid #74a17e; outline-offset:2px; }
+@media (min-width:769px) and (max-width:1150px) {
+    .workspace-header { gap:16px; padding:0 18px; }
+    .workspace-header nav { gap:0; }
+    .workspace-header nav button { padding:0 9px; font-size:12px; }
+    .workspace-brand strong { display:none; }
+    .workspace-tools button { font-size:10px; padding:8px; }
+    body.context-directory .sidebar { width:185px; padding:20px 12px; }
+    body.context-directory .main { margin-left:185px; padding:26px 24px; }
+    body .main-header .search-wrap { width:220px; }
+    .interview-company-layout { grid-template-columns:165px minmax(0,1fr); gap:20px; }
+    .interview-company-head { align-items:start; flex-direction:column; }
+}
+@media (max-width:768px) {
+    body { padding-top:52px; }
+    .workspace-header { display:none; }
+    body.context-directory .sidebar { display:none !important; }
+    body .main,body .main.shifted,body.study-mode .main,body.context-directory .main { margin:0; padding:18px 16px 100px; max-width:none; }
+    body .main-header { display:block; margin-bottom:16px; }
+    body .main-header h1 { font-size:22px; }
+    body .main-header .subtitle { font-size:11px; margin-top:4px; }
+    body .main-header .search-wrap { width:100%; margin-top:16px; }
+    body #searchInput { font-size:14px; min-height:44px; }
+    .mobile-topbar { height:52px; background:#fcfdf9; border-bottom:1px solid #e0e7d9; }
+    #hamburgerBtn,#mobileSearchBtn,.mobile-search-bar { display:none !important; }
+    .mobile-topbar .topbar-title { font-size:14px; padding-left:0; }
+    .mobile-bottombar { height:66px; padding-bottom:env(safe-area-inset-bottom); background:#fcfdf9; border-top:1px solid #dfe6d9; box-shadow:0 -4px 18px #34493406; }
+    .mobile-bottombar .nav-item { font-size:11px; gap:5px; padding:8px 0; color:#97a08d; }
+    .mobile-bottombar .nav-item.active { color:#28694b; font-weight:600; }
+    .mobile-bottombar .nav-icon { font-family:Georgia,serif; font-size:22px !important; }
+    .study-filters>label:has([data-study-filter="category"]) { display:flex; }
+    .study-filters { gap:10px; padding:15px 0; }
+    .study-filters label { flex:1 1 40%; min-width:0; font-size:11px; }
+    .study-filters :is(select,input) { min-height:42px; font-size:13px; }
+    .study-filters .study-text { flex:0 0 auto; margin-left:auto; }
+    .study-summary { flex-direction:row; flex-wrap:wrap; gap:14px; padding:14px 0; }
+    .study-summary-count { width:100%; font-size:11px; gap:10px; }
+    .study-summary-count strong { font-size:27px; }
+    .study-summary-actions { justify-content:flex-start; gap:8px; }
+    .study-summary-actions button { font-size:12px; min-height:40px; padding:9px 13px; }
+    .study-list-heading { margin:17px 0 10px; }
+    .study-list-heading p { font-size:10px; }
+    .study-card.note,.interview-question-card { padding:16px 14px 11px; }
+    .study-question { font-size:14px; line-height:1.8; }
+    .study-answer { font-size:13px; line-height:1.9; padding:12px 0 15px; }
+    .study-card-meta { font-size:10px; gap:7px; margin-bottom:10px; }
+    .study-card-footer { flex-wrap:wrap; gap:5px; }
+    .study-card-footer>span { max-width:100%; }
+    .study-card-footer>div { margin-left:auto; gap:14px; }
+    .study-card-footer button { min-height:40px; font-size:11px; }
+    .study-pagination { gap:10px; margin:0; padding:12px 0 18px; justify-content:space-between; }
+    .study-pagination .study-page-summary { gap:8px; font-size:10px; }
+    .study-pagination .study-page-navigation { justify-content:space-between; gap:5px; }
+    .study-pagination .study-page-navigation button { min-height:40px; padding:8px 10px; font-size:11px; }
+    .study-pagination form { justify-content:flex-end; width:100%; font-size:11px; }
+    .study-pagination :is(input,select,button) { min-height:40px; }
+    .interview-company-layout { display:block; }
+    .interview-company-nav { display:none; }
+    .interview-mobile-tools { display:flex; align-items:end; gap:12px; padding:0 0 16px; border-bottom:1px solid #dfe6d7; margin-bottom:18px; }
+    .interview-mobile-tools label { flex:1; min-width:0; font-size:11px; color:#809174; display:flex; flex-direction:column; gap:7px; }
+    .interview-mobile-tools select { padding:10px 12px; min-height:42px; background:#fff; border:1px solid #dce5d0; border-radius:6px; font:13px inherit; width:100%; }
+    .interview-mobile-tools button { font-size:12px; }
+    .interview-company-head { flex-direction:column; align-items:start; gap:14px; }
+    .interview-company-head h2 { font-size:22px; }
+    .interview-company-actions { justify-content:start; }
+    .interview-search-row input { min-height:44px; font-size:13px; }
+    .interview-record-intro { padding:0 0 20px; }
+    .interview-record-intro h2 { font-size:18px; }
+    .more-panel { padding-bottom:calc(24px + env(safe-area-inset-bottom)); }
+    .more-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-top:10px; }
+    .more-grid button { min-height:58px; background:#f4f7ee; color:#526e43; border:1px solid #e1e8d7; border-radius:8px; font-size:13px; }
+    #addModal .modal { width:calc(100vw - 24px); padding:20px; border-radius:12px; }
+    #addModal :is(textarea,select,input) { font-size:16px; }
+}
+@media (prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; } }
+/* Keep shared controls compact without hiding the current question. */
+.study-answer.collapsed { display:none; }
+.study-filter-toggle { display:none; }
+body .main-header .stats { display:none !important; }
+.study-list-heading { scroll-margin-top:90px; }
+@media (max-width:768px) {
+    .study-filter-toggle { display:flex; justify-content:space-between; align-items:center; width:100%; min-height:44px; margin:8px 0; padding:9px 0; border:0; background:none; color:#4c6650; font-size:12px; }
+    .study-filter-toggle span { font-size:11px; color:#78916d; }
+    #studyLibraryFilters:not(.filters-expanded) { display:none; }
+    .study-pagination { display:grid; grid-template-columns:minmax(0,1fr) auto; }
+    .study-pagination .study-page-summary { width:auto; display:contents; }
+    .study-pagination .study-page-summary>span { grid-column:1 / -1; }
+    .study-pagination .study-page-summary>label { grid-column:1; grid-row:2; justify-self:start; }
+    .study-pagination form { grid-column:2; grid-row:2; width:auto; gap:5px; }
+    .study-pagination .study-page-navigation { grid-row:3; grid-column:1 / -1; width:100%; }
+    .study-pagination form input { width:48px; }
+    .study-pagination form button { padding:8px; }
+    .study-summary { padding:10px 0; gap:10px; }
+    .study-summary-count strong { font-size:25px; }
+    body .main-header { margin-bottom:12px; }
+    .study-mode:not(.interview-mode) .main-header { margin-bottom:12px; }
+    .study-list-heading { scroll-margin-top:65px; margin-top:12px; }
+    .interview-company-head .study-eyebrow,.interview-company-head p { display:none; }
+    .interview-company-head { gap:12px; padding-bottom:14px; }
+    .interview-company-head h2 { font-size:20px; }
+    .interview-mobile-tools { margin-bottom:14px; padding-bottom:14px; }
+    .study-quiz-head { padding:0 0 15px; }
+    .study-quiz-head h2 { font-size:21px; }
+    .study-quiz-sources>button { padding:12px; }
+    .study-quiz-sources>button>span,.study-quiz-sources p { display:none; }
+    .study-quiz-sources strong { font-size:13px; }
+}
+.workspace-marked-link { width:100%; margin-top:20px; padding:10px 12px; border:1px solid #dce5d6; border-radius:6px; background:#fafcf6; color:#637853; cursor:pointer; text-align:left; font-size:12px; }
+.workspace-marked-link.active { color:#286751; background:#eaf1e5; }
+.company-references { margin:0; padding:8px 0; border-top:0; border-bottom:1px solid #e2e8dc; }

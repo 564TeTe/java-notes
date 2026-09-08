@@ -1,5 +1,6 @@
-const CACHE_NAME = "java-notes-v12";
+const CACHE_NAME = "java-notes-v14";
 const APP_SHELL = [
+    "./workspace-shell.js", "./workspace-shell.css",
     "./data/question-bank.js", "./study-core.js", "./study-module.js", "./interview-module.js", "./study-workspace.css",
     "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png",
     "./sync-config.js", "./resume-data.js", "./resume-module.js", "./recruitment.css", "./career-workspace.css", "./recruitment-module.js", "./data/recruitment-jobs.json",

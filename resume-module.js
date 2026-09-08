@@ -7,7 +7,7 @@
         { id: "stories", icon: "🧩", label: "经历深挖" },
         { id: "questions", icon: "🎯", label: "模拟问答" },
         { id: "checklist", icon: "✅", label: "冲刺清单" },
-        { id: "sources", icon: "📚", label: "原始资料" }
+        { id: "sources", icon: "📚", label: "准备手册与资料" }
     ];
 
     function loadJSON(key) {

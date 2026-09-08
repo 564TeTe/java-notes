@@ -10,16 +10,18 @@ function applyCustomBankQuestionsSnapshot(value) {
 function saveCustomBankQuestion(values, id) {
     const question = String(values.question || '').trim(), answer = String(values.answer || '').trim();
     if (!question || !answer) throw new Error('请填写题目和答案');
-    const note = { id: id || 'custom-bank-' + crypto.randomUUID(), question, answer, category: values.category || 'Java 基础', priority: values.priority || 'P1', kind: '自己添加', keywords: [], updatedAt: new Date().toISOString() };
+    const note = { id: id || 'custom-bank-' + crypto.randomUUID(), question, answer, category: values.category || 'Java 基础', priority: values.priority || 'P1', company: values.company || '', kind: '自己添加', keywords: [], updatedAt: new Date().toISOString() };
     const updated = customBankQuestions.filter(n => n.id !== note.id);
     applyCustomBankQuestionsSnapshot([note, ...updated]);
     scheduleCloudSync(); return note;
 }
 let studyEditorSource = 'personal';
+let studyEditorReturnInterview = false;
 let studyPageSize = 20;
 try { studyPageSize = StudyCore.pagination(0, localStorage.getItem('study-page-size')).size; } catch (_) {}
 let studySource = 'bank';
 let studyPage = 1;
+let studyFiltersOpen = false;
 let studyPriority = 'all';
 let studyLevel = 'all';
 let studyLinkedIds = null;
@@ -43,11 +45,47 @@ function getPersonalNotes(includeDeleted = false) {
     const merged = [...userNotes];
     return includeDeleted ? merged : StudyCore.pool('personal', BANK, merged, deletedIds, purgedIds);
 }
-function getStudyPool(source = studySource) { return source === 'bank' ? [...customBankQuestions, ...BANK] : getPersonalNotes(); }
+function getAllStudyRecords() {
+    return [...new Map([...BANK, ...customBankQuestions, ...userNotes].map(n => [n.id, n])).values()];
+}
+function getStudyPool(source = studySource) {
+    if (source !== 'bank') return getPersonalNotes();
+    // Authored notes share identity with the bank. Saved copies keep their personal
+    // wording but do not create a second bank entry for the same source.
+    const bank = [...customBankQuestions, ...BANK];
+    const authored = userNotes.filter(n => !n.sourceId);
+    return StudyCore.pool('personal', [], [...authored, ...bank], deletedIds, purgedIds);
+}
 getActiveNotes = function() { return getStudyPool(); };
-getDeletedNotes = function() { return getPersonalNotes(true).filter(n => deletedIds.has(n.id) && !purgedIds.has(n.id)); };
+getDeletedNotes = function() { return getAllStudyRecords().filter(n => deletedIds.has(n.id) && !purgedIds.has(n.id)); };
+deleteNote = function(id) {
+    if (!getAllStudyRecords().some(n => n.id === id)) return;
+    deletedIds.add(id); saveDeleted(); renderAll(); toast('已移入回收站，可恢复');
+};
+restoreNote = function(id) {
+    deletedIds.delete(id); saveDeleted(); renderAll(); toast('已恢复，学习记录已保留');
+};
+function purgeStudyRecord(id) {
+    userNotes = userNotes.filter(n => n.id !== id);
+    customBankQuestions = customBankQuestions.filter(n => n.id !== id);
+    if (BANK.some(n => n.id === id) || NOTES.some(n => n.id === id)) purgedIds.add(id);
+    deletedIds.delete(id); markedIds.delete(id); sunkIds.delete(id); delete mastery[id];
+}
+function persistStudyDeletion() {
+    applyCustomBankQuestionsSnapshot(customBankQuestions);
+    saveUserNotes(); saveDeleted(); savePurged(); saveMarked(); saveSunk(); saveMastery();
+}
+permDelete = function(id) {
+    if (!confirm('永久删除这条内容？此操作不可恢复。')) return;
+    purgeStudyRecord(id); persistStudyDeletion(); renderAll(); toast('已永久删除');
+};
+emptyTrash = function() {
+    if (!deletedIds.size || !confirm('永久清空回收站？题库和笔记中已删除的内容都将清除。')) return;
+    [...deletedIds].forEach(purgeStudyRecord); persistStudyDeletion(); renderAll(); toast('回收站已清空');
+};
 getFilteredNotes = function() {
     if (showQuiz) return quizNotes;
+    if (showInterviewExp) return getInterviewFilteredQuestions();
     const pool = showTrash ? getDeletedNotes() : getStudyPool();
     return StudyCore.filter(pool, {
         category: showTrash || showMarkedOnly ? 'all' : activeCategory,
@@ -84,10 +122,11 @@ buildCategoryBtns = function() {
         `<button class="cat-btn${activeCategory === value ? ' active' : ''}" data-cat="${studyEsc(value)}">${studyEsc(label)}</button>`).join('');
 };
 function studyHeader() {
-    return `<nav class="study-switch study-mobile-switch" aria-label="学习内容"><button data-study="source" data-source="bank" class="${studySource === 'bank' && !showQuiz ? 'active' : ''}">题库</button><button data-study="source" data-source="personal" class="${studySource === 'personal' && !showQuiz ? 'active' : ''}">我的笔记</button><button data-study="quiz" class="${showQuiz ? 'active' : ''}">随机抽查</button></nav>`;
+    return '';
 }
 function studyFilters() {
-    return `<div class="study-filters">
+    const active = [activeCategory !== 'all' ? activeCategory : '', studyPriority !== 'all' ? studyPriority : '', studyLevel !== 'all' ? (studyLevelNames[studyLevel] || '薄弱题') : ''].filter(Boolean).join(' · ');
+    return `<button class="study-filter-toggle" data-study="filters" aria-expanded="${studyFiltersOpen}" aria-controls="studyLibraryFilters">${active ? studyEsc(active) : '分类与筛选'}<span>${studyFiltersOpen ? '收起 −' : '展开 ＋'}</span></button><div id="studyLibraryFilters" class="study-filters${studyFiltersOpen ? ' filters-expanded' : ''}">
         <label>知识分类<select data-study-filter="category">${studyOptions([['all', '全部分类'], ...studyCategories().map(c => [c, c])], activeCategory)}</select></label>
         ${studySource === 'bank' ? `<label>学习顺序<select data-study-filter="priority">${studyOptions([['all', '全部优先级'], ['P0', 'P0 · 先掌握'], ['P1', 'P1 · 第二轮'], ['P2', 'P2 · 按岗位补充']], studyPriority)}</select></label>` : ''}
         <label>掌握程度<select data-study-filter="level">${studyOptions([['all', '全部状态'], ['new', '未复习'], ['weak', '不会 / 模糊'], ['known', '已掌握']], studyLevel)}</select></label>
@@ -111,17 +150,17 @@ function studyRatings(note, index) {
 }
 function studyCard(n) {
     const isBank = studySource === 'bank' && !showTrash;
-    const copied = userNotes.some(u => u.sourceId === n.id && !deletedIds.has(u.id));
+    const copied = userNotes.some(u => (u.sourceId === n.id || u.id === n.id) && !deletedIds.has(u.id));
     const level = mastery[n.id]?.level || 'new';
     const expanded = !collapsedNotes.has(n.id);
     return `<article class="study-card note${markedIds.has(n.id) ? ' marked' : ''}" id="note-${studyEsc(n.id)}">
-        <div class="study-card-meta"><span class="study-number">${studyEsc(n.number || n.sourceNumber || 'NOTE')}</span><span>${studyEsc(n.category)}</span>${n.priority ? `<span class="study-priority">${studyEsc(n.priority)}</span>` : ''}<span class="study-status ${level}">${studyLevelNames[level]}</span></div>
+        <div class="study-card-meta"><span class="study-number">${studyEsc(n.number || n.sourceNumber || (n.id.startsWith('custom-bank-') ? '自建题目' : '个人笔记'))}</span><span>${studyEsc(n.category)}</span>${n.priority ? `<span class="study-priority">${studyEsc(n.priority)}</span>` : ''}<span class="study-status ${level}">${studyLevelNames[level]}</span></div>
         <button class="study-question" data-study="expand" data-id="${studyEsc(n.id)}" aria-expanded="${expanded}" aria-controls="answer-${studyEsc(n.id)}"><span>${studyEsc(n.question)}</span><span class="study-chevron">${expanded ? '−' : '+'}</span></button>
         <div class="study-answer answer${expanded ? '' : ' collapsed'}" id="answer-${studyEsc(n.id)}">${studyMarkdown(n.answer)}${studyRatings(n)}</div>
-        <footer class="study-card-footer"><span>${isBank ? studyEsc(n.kind) : n.sourceId ? '来自题库 · 可编辑自己的理解' : n.id.startsWith('user-') ? '我的记录' : '原有笔记'}</span><div>
+        <footer class="study-card-footer"><span>${showTrash ? (n.id.startsWith('bank-') ? '内置题库' : n.id.startsWith('custom-bank-') ? (n.company ? '公司面经 · ' + studyEsc(n.company) : '自建题库') : '我的笔记') : isBank ? studyEsc(n.kind || '我的笔记 · 自动收录') : n.sourceId ? '来自题库 · 可编辑自己的理解' : n.id.startsWith('user-') ? '我的记录' : '原有笔记'}</span><div>
             ${showTrash ? `<button data-action="restore" data-id="${studyEsc(n.id)}">恢复</button><button data-action="perm-delete" data-id="${studyEsc(n.id)}">永久删除</button>` : `
             <button data-study="mark" data-id="${studyEsc(n.id)}" aria-pressed="${markedIds.has(n.id)}" aria-label="${markedIds.has(n.id) ? '取消重点' : '标记重点'}：${studyEsc(n.question)}">${markedIds.has(n.id) ? '★ 已标重点' : '☆ 重点'}</button>
-            ${isBank ? `<button data-study="copy" data-id="${studyEsc(n.id)}">${copied ? '✓ 已存笔记' : '＋ 记入笔记'}</button>${n.id.startsWith('custom-bank-') ? `<button data-study="edit-bank" data-id="${studyEsc(n.id)}">编辑题目</button>` : ''}` : `<button data-study="edit" data-id="${studyEsc(n.id)}">编辑</button><button data-action="delete" data-id="${studyEsc(n.id)}" aria-label="删除笔记：${studyEsc(n.question)}">删除</button>`}`}
+            ${isBank ? `<button data-study="copy" data-id="${studyEsc(n.id)}">${copied ? '✓ 已存笔记' : '＋ 记入笔记'}</button>${n.id.startsWith('custom-bank-') ? `<button data-study="edit-bank" data-id="${studyEsc(n.id)}">编辑题目</button>` : userNotes.some(u => u.id === n.id) ? `<button data-study="edit" data-id="${studyEsc(n.id)}">编辑笔记</button>` : ''}<button data-action="delete" data-id="${studyEsc(n.id)}">删除</button>` : `<button data-study="edit" data-id="${studyEsc(n.id)}">编辑</button><button data-action="delete" data-id="${studyEsc(n.id)}" aria-label="删除笔记：${studyEsc(n.question)}">删除</button>`}`}
         </div></footer>
     </article>`;
 }
@@ -135,11 +174,11 @@ function renderStudyLibrary(filtered) {
     const pageItems = filtered.slice((studyPage - 1) * studyPageSize, studyPage * studyPageSize);
     let html = studyHeader();
     if (!showTrash && !showMarkedOnly) html += `<section class="study-summary" aria-label="学习进度"><div class="study-summary-count"><strong>${pool.length}</strong><span>${bank ? '道题目' : '条笔记'}</span><i></i><span>已掌握 <b>${known}</b></span><span>待巩固 <b>${weak}</b></span></div><div class="study-summary-actions">${bank ? '<button class="study-primary" data-study="add-bank">＋ 添加题目</button><button class="study-secondary" data-study="weak">练习薄弱题</button>' : '<button class="study-primary" data-study="add">＋ 写笔记</button>'}<button class="study-secondary" data-study="quiz" data-source="${studySource}" ${pool.length ? '' : 'disabled'}>${bank ? '开始抽查' : '复习笔记'} →</button></div></section>`;
-    html += studyFilters();
+    if (!showTrash) html += studyFilters();
     if (studyLinkedIds && !showTrash) html += `<div class="study-linked">面经关联：${studyEsc(studyLinkedTitle)}<button data-study="clear">查看全部题库 ×</button></div>`;
-    html += `<div class="study-list-heading"><div><h2>${showTrash ? '回收站' : showMarkedOnly ? '重点复习' : bank ? '全部题目' : '我的记录'} <span>${filtered.length}</span></h2><p>${bank && !showTrash ? 'P0 / P1 / P2 为整理者建议顺序，不代表公司出题频率。' : '只收录你自己写下的理解和主动保存的题目。'}</p></div><div class="study-list-tools"><button data-study="collapse">收起答案</button><button data-study="expand-all">展开答案</button></div></div>`;
+    html += `<div class="study-list-heading"><div><h2>${showTrash ? '回收站' : showMarkedOnly ? '重点复习' : bank ? '全部题目' : '我的记录'} <span>${filtered.length}</span></h2><p>${showTrash ? '题库、笔记和公司问答共用；恢复后保留学习记录。' : bank ? 'P0 / P1 / P2 为整理者建议顺序，不代表公司出题频率。' : '只收录你自己写下的理解和主动保存的题目。'}</p></div><div class="study-list-tools"><button data-study="collapse">收起答案</button><button data-study="expand-all">展开答案</button></div></div>`;
     if (showTrash && filtered.length) html += '<button class="study-secondary" onclick="emptyTrash()">清空回收站</button>';
-    if (!filtered.length) html += `<div class="study-empty"><span>⌕</span><h3>${showTrash ? '回收站是空的' : !bank && !pool.length ? '从你的第一条笔记开始' : '暂时没有符合条件的内容'}</h3><p>${bank ? '换一个关键词，或清空筛选继续学习。' : '写下第一条笔记，或从题库保存你想复习的问题。'}</p><button class="study-secondary" data-study="clear">清空筛选</button>${!bank ? '<button class="study-primary" data-study="add">写笔记</button>' : ''}</div>`;
+    if (!filtered.length) html += `<div class="study-empty"><span>⌕</span><h3>${showTrash ? (getDeletedNotes().length ? '没有匹配的已删除内容' : '回收站是空的') : !bank && !pool.length ? '从你的第一条笔记开始' : '暂时没有符合条件的内容'}</h3><p>${showTrash ? '删除的题目和笔记会显示在这里，可恢复或永久清除。' : bank ? '换一个关键词，或清空筛选继续学习。' : '写下第一条笔记，或从题库保存你想复习的问题。'}</p><button class="study-secondary" data-study="clear">清空筛选</button>${!bank && !showTrash ? '<button class="study-primary" data-study="add">写笔记</button>' : ''}</div>`;
     else html += renderStudyPagination(filtered.length, 'top') + pageItems.map(studyCard).join('');
     if (filtered.length) html += renderStudyPagination(filtered.length, 'bottom');
     return html;
@@ -186,16 +225,16 @@ renderNotes = function(filtered) {
     document.body.classList.toggle('interview-mode', showInterviewExp);
     if (special) { legacyRenderNotes(filtered); return; }
     document.body.classList.remove('resume-mode', 'recruitment-mode');
-    const title = showInterviewExp ? '面经与复盘' : showQuiz ? '随机抽查' : showTrash ? '笔记回收站' : studySource === 'bank' ? 'Java 后端题库' : '我的笔记';
+    const title = showInterviewExp ? '公司面经' : showMarkedOnly ? '重点复习' : showQuiz ? '随机抽查' : showTrash ? '回收站' : studySource === 'bank' ? 'Java 后端题库' : '我的笔记';
     document.getElementById('mainTitle').textContent = title;
     document.getElementById('topbarTitle').textContent = title;
-    document.getElementById('mainSubtitle').textContent = showInterviewExp ? '从别人的经历中找考点，在自己的复盘中补短板。' : showQuiz ? '两种来源，按自己的节奏练习。' : '题库积累知识，笔记沉淀理解，抽查检验掌握。';
+    document.getElementById('mainSubtitle').textContent = showTrash ? '题库、笔记与公司问答的已删除内容。' : showMarkedOnly ? '集中复习已标记的重要知识点。' : showInterviewExp ? '按公司查题，逐题练习，也记录自己的面试经历。' : showQuiz ? '两种来源，按自己的节奏练习。' : studySource === 'personal' ? '自己的理解与答案，保存后自动收录到题库。' : '系统学习与自己的积累，都在一个题库里。';
     document.querySelector('.main-header .stats').style.display = 'none';
     document.getElementById('notesContainer').innerHTML = showInterviewExp ? renderInterviewWorkspace() : showQuiz ? renderStudyQuiz() : renderStudyLibrary(filtered);
 };
 const legacyRenderTOC = renderTOC;
 renderTOC = function(filtered) {
-    if (showInterviewExp || showQuiz || showResources) {
+    if (showInterviewExp || showQuiz || showResources || showTrash) {
         document.getElementById('tocList').innerHTML = '';
         document.getElementById('noResult').style.display = 'none'; return;
     }
@@ -215,7 +254,8 @@ updateBadges = function() {
     });
 };
 function copyStudyNote(id) {
-    const source = getStudyPool('bank').find(n => n.id === id); if (!source) return;
+    const source = getAllStudyRecords().find(n => n.id === id); if (!source) return;
+    if (userNotes.some(n => n.id === id)) { toast('这条内容已在我的笔记中'); return; }
     const result = StudyCore.copyNote(source, userNotes, () => 'user-' + crypto.randomUUID());
     if (result.created) userNotes.unshift(result.note);
     deletedIds.delete(result.note.id); purgedIds.delete(result.note.id);
@@ -224,6 +264,7 @@ function copyStudyNote(id) {
 }
 const legacyOpenAddModal = openAddModal;
 openAddModal = function(id, source) {
+    studyEditorReturnInterview = false;
     studyEditorSource = source || (typeof id === 'string' ? 'personal' : studySource === 'bank' && !showResumePrep && !showRecruitment && !showInterviewExp ? 'bank' : 'personal');
     studyModalFocus = document.activeElement;
     studyEditingId = typeof id === 'string' ? id : null;
@@ -232,9 +273,11 @@ openAddModal = function(id, source) {
     const modal = document.getElementById('addModal');
     modal.querySelector('h3').textContent = studyEditorSource === 'bank' ? note ? '编辑题目' : '添加题目到题库' : note ? '编辑我的笔记' : '写一条笔记';
     modal.querySelector('.modal').setAttribute('aria-label', studyEditorSource === 'bank' ? '题库编辑器' : '我的笔记编辑器');
-    modal.querySelector('.modal-sub').textContent = studyEditorSource === 'bank' ? '保存后可在题库中查找、抽查，也可记入个人笔记。' : '记录自己的理解与答案。';
+    modal.querySelector('.modal-sub').textContent = studyEditorSource === 'bank' ? '保存后可在题库中查找、抽查，也可记入个人笔记。' : '记录自己的理解与答案，保存后自动收录到题库。';
     document.getElementById('bankPriorityField').hidden = studyEditorSource !== 'bank';
     document.getElementById('bankPriority').value = note?.priority || 'P1';
+    document.getElementById('bankCompany').value = note?.company || '';
+    document.getElementById('bankCompany').required = false;
     modal.querySelector('.btn-primary').textContent = note ? '保存修改' : studyEditorSource === 'bank' ? '保存到题库' : '保存到我的笔记';
     document.getElementById('newCategory').innerHTML = studyOptions([['', '自动识别分类'], ...[...new Set([...getStudyPool('bank'), ...getPersonalNotes()].map(n => n.category))].map(c => [c, c])], note?.category || '');
     document.getElementById('newCategory').removeAttribute('data-auto');
@@ -249,15 +292,19 @@ addNote = function() {
     if (!question || !answer) { toast('请填写题目和自己的答案'); return; }
     const category = document.getElementById('newCategory').value || autoDetectCategory(question, answer) || 'Java基础';
     if (studyEditorSource === 'bank') {
-        const note = saveCustomBankQuestion({ question, answer, category, priority: document.getElementById('bankPriority').value }, studyEditingId);
-        closeAddModal(); openStudy('bank'); collapsedNotes.delete(note.id); renderAll(); toast('题目已保存到题库'); return;
+        if (studyEditorReturnInterview && !document.getElementById('bankCompany').value.trim()) { toast('请填写公司名称'); document.getElementById('bankCompany').focus(); return; }
+        const note = saveCustomBankQuestion({ question, answer, category, priority: document.getElementById('bankPriority').value, company: document.getElementById('bankCompany').value.trim() }, studyEditingId);
+        const returnToInterview = studyEditorReturnInterview;
+        closeAddModal();
+        if (returnToInterview) { resetStudyModes(); showInterviewExp=true; interviewCompany=note.company; interviewTab='sources'; interviewKeyword=''; studyPage=1; } else openStudy('bank');
+        collapsedNotes.delete(note.id); renderAll(); toast('题目已保存'); return;
     }
     const existing = studyEditingId && getPersonalNotes(true).find(n => n.id === studyEditingId);
     const note = { ...(existing || {}), id: existing?.id || 'user-' + crypto.randomUUID(), question, answer, category, keywords: existing?.keywords || [], updatedAt: new Date().toISOString() };
     const index = userNotes.findIndex(n => n.id === note.id);
     if (index >= 0) userNotes[index] = note; else userNotes.unshift(note);
     saveUserNotes(); closeAddModal(); openStudy('personal');
-    collapsedNotes.delete(note.id); renderAll(); toast(existing ? '笔记已更新' : '已保存到我的笔记');
+    collapsedNotes.delete(note.id); renderAll(); toast(existing ? '笔记已更新' : '已保存笔记，并自动收录到题库');
 };
 function initStudyWorkspace() {
     getStudyPool('bank').forEach(n => collapsedNotes.add(n.id));
@@ -265,7 +312,8 @@ function initStudyWorkspace() {
     document.getElementById('notesContainer').addEventListener('click', e => {
         const btn = e.target.closest('[data-study]'); if (!btn) return;
         const { study: action, id } = btn.dataset;
-        if (action === 'source') openStudy(btn.dataset.source);
+        if (action === 'filters') { studyFiltersOpen = !studyFiltersOpen; renderAll(); }
+        else if (action === 'source') openStudy(btn.dataset.source);
         else if (action === 'quiz') startQuiz(btn.dataset.source);
         else if (action === 'weak') { startQuiz(studySource); quizLevel = 'weak'; renderAll(); }
         else if (action === 'clear') { clearStudyFilters(); buildCategoryBtns(); renderAll(); }
@@ -326,7 +374,7 @@ function initStudyWorkspace() {
     modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-modal', 'true'); modal.setAttribute('aria-label', '我的笔记编辑器');
     modal.addEventListener('keydown', e => {
         if (e.key !== 'Tab') return;
-        const nodes = [...modal.querySelectorAll('button,textarea,select')].filter(n => !n.closest('[hidden]'));
+        const nodes = [...modal.querySelectorAll('button,input,textarea,select')].filter(n => !n.closest('[hidden]'));
         const first = nodes[0], last = nodes.at(-1);
         if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
         if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }

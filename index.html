@@ -14,10 +14,10 @@
     <link rel="stylesheet" href="./recruitment.css?v=2">
     <script src="./sync-config.js?v=3"></script>
     <script src="./resume-data.js?v=1"></script>
-    <script src="./resume-module.js?v=2"></script>
+    <script src="./resume-module.js?v=3"></script>
     <script src="./recruitment-module.js?v=6"></script>
     <script src="./data/question-bank.js?v=1"></script>
-    <script src="./study-core.js?v=2"></script>
+    <script src="./study-core.js?v=3"></script>
     <style>
 /* ============================================
    Java Notes — 桌面 + 移动端样式
@@ -789,6 +789,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
 </style>
     <link rel="stylesheet" href="./career-workspace.css?v=1">
     <link rel="stylesheet" href="./study-workspace.css?v=3">
+    <link rel="stylesheet" href="./workspace-shell.css?v=2">
 </head>
 <body>
 
@@ -935,7 +936,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
         <select id="newCategory">
             <option value="">🤖 自动识别...</option>
         </select>
-        <div id="bankPriorityField" hidden><label for="bankPriority">学习优先级</label><select id="bankPriority"><option value="P0">P0 · 先掌握</option><option value="P1">P1 · 第二轮</option><option value="P2">P2 · 按岗位补充</option></select></div>
+        <div id="bankPriorityField" hidden><label for="bankCompany">面经公司（选填）</label><input id="bankCompany" maxlength="120" placeholder="填写后也会显示在该公司的面经中"><label for="bankPriority">学习优先级</label><select id="bankPriority"><option value="P0">P0 · 先掌握</option><option value="P1">P1 · 第二轮</option><option value="P2">P2 · 按岗位补充</option></select></div>
         <div class="btn-row">
             <button class="btn-cancel" onclick="closeAddModal()">取消</button>
             <button class="btn-primary" onclick="addNote()">添加笔记</button>
@@ -2372,8 +2373,9 @@ function init() {
     if (syncSession && isSyncConfigured()) syncNow();
 }
 </script>
-<script src="./study-module.js?v=3"></script>
-<script src="./interview-module.js?v=1"></script>
-<script>initStudyWorkspace(); init();</script>
+<script src="./study-module.js?v=4"></script>
+<script src="./interview-module.js?v=2"></script>
+<script src="./workspace-shell.js?v=2"></script>
+<script>initStudyWorkspace(); init(); initWorkspaceShell();</script>
 </body>
 </html>

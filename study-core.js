@@ -61,7 +61,8 @@
         return value.map(q => {
             if (!q || typeof q !== 'object' || typeof q.id !== 'string' || !q.id.startsWith('custom-bank-') || ids.has(q.id) ||
                 typeof q.question !== 'string' || typeof q.answer !== 'string' || typeof q.category !== 'string' ||
-                (q.priority !== undefined && !['P0', 'P1', 'P2'].includes(q.priority))) throw new Error('题库数据格式无效');
+                (q.priority !== undefined && !['P0', 'P1', 'P2'].includes(q.priority)) ||
+                (q.company !== undefined && typeof q.company !== 'string')) throw new Error('题库数据格式无效');
             ids.add(q.id); return { ...q, keywords: Array.isArray(q.keywords) ? q.keywords.filter(k => typeof k === 'string') : [] };
         });
     }

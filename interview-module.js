@@ -16,26 +16,46 @@ function applyInterviewSnapshot(value) {
     interviewRecords = StudyCore.restoreInterviews(value, interviewRecords);
     localStorage.setItem('interview-records', JSON.stringify(interviewRecords));
 }
-function interviewSourcesHTML() {
-    const sources = window.QUESTION_BANK_DATA.sources.filter(s => (interviewCompany === 'all' || s.company === interviewCompany) &&
-        [s.title, s.description, ...s.questionIds.map(id => BANK.find(n => n.id === id)?.question || '')].join(' ').toLowerCase().includes(interviewKeyword.toLowerCase()));
-    return `<div class="study-filters"><label>公司<select id="interviewCompany">${studyOptions([['all', '全部公司'], ...[...new Set(window.QUESTION_BANK_DATA.sources.map(s => s.company))].map(c => [c, c])], interviewCompany)}</select></label><label class="study-search-label">查找面经<input id="interviewSearch" type="search" value="${studyEsc(interviewKeyword)}" placeholder="搜索公司、考点或标题"></label><button class="study-text" data-interview="reset">清空筛选</button></div>
-    <div class="study-list-heading"><h2>面经来源 <span>${sources.length}</span></h2><span>资料整理于 2026.09.07</span></div>
-    <p class="interview-source-note">保留候选人自述、转载与汇编的区别。关联题目为考点改写或延展；以下日期和来源说明沿用附件，未重新核验网页。</p>
-    <div class="interview-source-grid">${sources.map(s => `<article class="interview-source-card"><div class="study-card-meta"><span class="study-number">${s.id}</span><span class="interview-company">${studyEsc(s.company)}</span><span>${s.questionIds.length ? s.questionIds.length + ' 道关联题' : '追溯来源'}</span></div><h3>${studyEsc(s.title)}</h3><p>${studyEsc(s.description)}</p><div class="interview-topics">${[...new Set(s.questionIds.map(id => BANK.find(n => n.id === id)?.category).filter(Boolean))].slice(0, 5).map(c => `<span>${studyEsc(c)}</span>`).join('')}</div><footer><a href="${studyEsc(s.url)}" target="_blank" rel="noopener noreferrer">阅读原文 ↗</a>${s.questionIds.length ? `<button data-interview="questions" data-id="${s.id}">查看关联题</button><button class="study-primary" data-interview="practice" data-id="${s.id}">抽题练习 →</button>` : ''}</footer></article>`).join('')}</div>
-    ${!sources.length ? '<div class="study-empty"><h3>没有找到相关面经</h3><p>试试“线程池”“腾讯”等关键词，或清空公司筛选。</p><button class="study-secondary" data-interview="reset">清空筛选</button></div>' : ''}
-    <details class="interview-platforms"><summary>继续查找面经 · 常用平台</summary><div>${INTERVIEW_EXP.map(r => `<a href="${studyEsc(r.url)}" target="_blank" rel="noopener noreferrer">${studyEsc(r.name)} ↗</a>`).join('')}</div></details>`;
-}
 function interviewRecordsHTML() {
     const records = [...interviewRecords].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     return `<section class="interview-record-intro"><div><h2>把一次面试，变成下一次的底气。</h2><p>记下实际被问的问题、当时的回答与需要补上的知识。</p></div><button class="study-primary" data-interview="new">＋ 记录面试</button></section>
     ${records.length ? records.map(r => `<article class="interview-record"><div class="study-card-meta"><span>${studyEsc(r.date || '日期未填')}</span><span>${studyEsc(r.round || '轮次未填')}</span><span class="study-status">${studyEsc(r.result || '待反馈')}</span></div><h3>${studyEsc(r.company)} <small>${studyEsc(r.role || 'Java 后端')}</small></h3><dl><dt>实际问题</dt><dd>${studyEsc(r.questions || '还没有记录问题')}</dd><dt>我的回答与复盘</dt><dd>${studyEsc(r.reflection || '面试后补充：哪里卡住了，如何答得更好？')}</dd>${r.nextStep ? `<dt>下一步行动</dt><dd>${studyEsc(r.nextStep)}</dd>` : ''}</dl><footer><span>${(r.questions || '').split('\n').filter(q => q.trim()).length} 条问题</span><div><button data-interview="extract" data-id="${studyEsc(r.id)}">问题存入笔记</button><button data-interview="edit" data-id="${studyEsc(r.id)}">编辑复盘</button><button data-interview="delete" data-id="${studyEsc(r.id)}">删除</button></div></footer></article>`).join('') : `<div class="study-empty"><span>✎</span><h3>你的第一份面试复盘，从这里开始</h3><p>按公司和轮次记录真实面试，把不会的问题加入自己的笔记。</p><button class="study-secondary" data-interview="new">记录一次面试</button></div>`}`;
 }
-function interviewGuidesHTML() {
-    return `<div class="study-list-heading"><div><h2>围绕简历，准备能展开讲的故事。</h2><p>你的原始资料与已有的简历专项练习，集中在这里。</p></div></div><div class="interview-source-grid">${window.RESUME_PREP_DATA.sources.map(s => `<article class="interview-source-card"><span class="study-eyebrow">${studyEsc(s.fileType)} / 面试准备资料</span><h3>${studyEsc(s.name)}</h3><p>${studyEsc(s.summary)}</p><div class="interview-topics">${s.highlights.map(h => `<span>${studyEsc(h)}</span>`).join('')}</div><footer><a href="${studyEsc(s.file)}" target="_blank" rel="noopener">查看原始资料 ↗</a><button class="study-primary" data-interview="guide" data-id="${studyEsc(s.id)}">进入专项准备 →</button></footer></article>`).join('')}</div>`;
+function getInterviewCompanies() {
+    return [...new Set([...window.QUESTION_BANK_DATA.sources.map(s => s.company), ...customBankQuestions.map(n => n.company).filter(Boolean), ...interviewRecords.map(r => r.company)])];
+}
+function getCompanyQuestions(company = interviewCompany) {
+    const sources = window.QUESTION_BANK_DATA.sources.filter(s => company === 'all' || s.company === company);
+    const ids = new Set(sources.flatMap(s => s.questionIds));
+    return getStudyPool('bank').filter(n => ids.has(n.id) || (n.company && (company === 'all' || n.company === company)));
+}
+function getInterviewFilteredQuestions() {
+    return StudyCore.filter(getCompanyQuestions(), { keyword: interviewKeyword }, mastery);
+}
+function openInterviewQuestionEditor(company, id) {
+    openAddModal(id || null, 'bank');
+    document.getElementById('bankCompany').value = company === 'all' ? '' : company;
+    studyEditorReturnInterview = true;
+    document.getElementById('bankCompany').required = true;
+    document.querySelector('#addModal .modal-sub').textContent = '按公司记录实际问题和答案，保存后也会收录到题库。';
+}
+function renderInterviewQuestion(n) {
+    const sources = window.QUESTION_BANK_DATA.sources.filter(s => (interviewCompany === 'all' || s.company === interviewCompany) && s.questionIds.includes(n.id));
+    const open = !collapsedNotes.has(n.id);
+    return `<article class="study-card interview-question-card" id="note-${studyEsc(n.id)}"><div class="study-card-meta"><span class="study-number">${studyEsc(n.number || '自建面经')}</span><span>${studyEsc(n.category)}</span><span>${studyEsc(n.company || [...new Set(sources.map(s=>s.company))].join(' / '))}</span><span class="study-status">${studyLevelNames[mastery[n.id]?.level || 'new']}</span></div><button class="study-question" data-study="expand" data-id="${studyEsc(n.id)}" aria-expanded="${open}" aria-controls="answer-${studyEsc(n.id)}"><span>${studyEsc(n.question)}</span><span class="study-chevron">${open ? '−' : '+'}</span></button><div class="study-answer answer${open ? '' : ' collapsed'}" id="answer-${studyEsc(n.id)}">${studyMarkdown(n.answer)}${studyRatings(n)}</div><footer class="study-card-footer"><span>${n.company ? '自己记录的面经' : '面经考点改写 / 延展'}</span><div><button data-study="copy" data-id="${studyEsc(n.id)}">记入笔记</button>${n.id.startsWith('custom-bank-') ? `<button data-interview="edit-question" data-id="${studyEsc(n.id)}" data-company="${studyEsc(n.company || '')}">编辑</button>` : ''}<button data-action="delete" data-id="${studyEsc(n.id)}">删除</button></div></footer>${sources.length ? `<details class="interview-citations"><summary>题目来源 · ${sources.length} 条面经</summary>${sources.map(s=>`<p><a href="${studyEsc(s.url)}" target="_blank" rel="noopener noreferrer">${studyEsc(s.title)} ↗</a><small>${studyEsc(s.description)}</small></p>`).join('')}</details>` : ''}</article>`;
+}
+function renderCompanyReferences() {
+    const sources = window.QUESTION_BANK_DATA.sources.filter(s => interviewCompany === 'all' || s.company === interviewCompany);
+    if (!sources.length) return '';
+    return `<details class="interview-citations company-references"><summary>参考面经与来源说明 · ${sources.length} 篇</summary>${sources.map(s => `<p><a href="${studyEsc(s.url)}" target="_blank" rel="noopener noreferrer">${studyEsc(s.title)} ↗</a><small>${studyEsc(s.description)}</small></p>`).join('')}</details>`;
 }
 function renderInterviewWorkspace() {
-    return `<section class="interview-workspace"><nav class="study-switch" aria-label="面经内容">${[['sources', '面经与考点', window.QUESTION_BANK_DATA.sources.length], ['records', '我的面试复盘', interviewRecords.length], ['guides', '准备手册', 4]].map(([tab, label, count]) => `<button data-interview="tab" data-tab="${tab}" class="${interviewTab === tab ? 'active' : ''}" aria-pressed="${interviewTab === tab}">${label}<span>${count}</span></button>`).join('')}</nav>${interviewTab === 'sources' ? interviewSourcesHTML() : interviewTab === 'records' ? interviewRecordsHTML() : interviewGuidesHTML()}</section>`;
+    const companies = getInterviewCompanies();
+    const filtered = getInterviewFilteredQuestions();
+    const p = StudyCore.pagination(filtered.length, studyPageSize, studyPage); studyPage = p.page;
+    const journal = interviewTab === 'records';
+    const selected = interviewCompany === 'all' ? '全部公司' : interviewCompany;
+    return `<section class="interview-workspace interview-company-layout"><aside class="interview-company-nav" aria-label="公司导航"><div class="interview-nav-title"><span class="study-eyebrow">INTERVIEWS</span><h2>公司目录</h2></div><button data-interview="company" data-company="all" class="${interviewCompany === 'all' && !journal ? 'active' : ''}" aria-current="${interviewCompany === 'all' && !journal ? 'page' : 'false'}"><span>全部公司</span><small>${getCompanyQuestions('all').length}</small></button>${companies.map(c => `<button data-interview="company" data-company="${studyEsc(c)}" class="${c === interviewCompany && !journal ? 'active' : ''}" aria-current="${c === interviewCompany && !journal ? 'page' : 'false'}"><span>${studyEsc(c)}</span><small>${getCompanyQuestions(c).length}</small></button>`).join('')}<div class="company-nav-tools"><button data-interview="new-company">＋ 新建公司面经</button><button data-interview="tab" data-tab="records" class="${journal ? 'active' : ''}">我的面试复盘 <small>${interviewRecords.length}</small></button></div></aside><div class="interview-company-main"><div class="interview-mobile-tools"><label>公司<select id="interviewCompany">${studyOptions([['all','全部公司'], ...companies.map(c=>[c,c])],interviewCompany)}</select></label><button class="study-secondary" data-interview="tab" data-tab="${journal ? 'sources' : 'records'}">${journal ? '返回公司问答' : '我的复盘'}</button></div>${journal ? interviewRecordsHTML() : `<header class="interview-company-head"><div><span class="study-eyebrow">COMPANY QUESTIONS</span><h2>${studyEsc(selected)}</h2><p>逐题练习答案，补充自己的面试记录。</p></div><div class="interview-company-actions"><button class="study-primary" data-interview="add-company" data-company="${studyEsc(interviewCompany)}">＋ 添加面经题</button><button class="study-secondary" data-interview="company-practice" data-company="${studyEsc(interviewCompany)}" ${filtered.length ? '' : 'disabled'}>抽查这些题</button></div></header>${renderCompanyReferences()}<div class="interview-search-row"><input id="interviewSearch" type="search" aria-label="搜索公司面经问答" value="${studyEsc(interviewKeyword)}" placeholder="搜索这个公司的问题或答案"><button class="study-text" data-interview="reset-search">清空</button></div><div class="study-list-heading"><span>${filtered.length} 道题目 · 参考答案可展开</span><div class="study-list-tools"><button data-study="collapse">收起答案</button><button data-study="expand-all">展开答案</button></div></div>${filtered.length ? renderStudyPagination(filtered.length,'top') + filtered.slice(p.start,p.end).map(renderInterviewQuestion).join('') + renderStudyPagination(filtered.length,'bottom') : '<div class="study-empty"><h3>暂无匹配的公司问答</h3><p>可以清空搜索，或添加这个公司的实际问题与答案。</p></div>'}`}</div></section>`;
 }
 function openInterviewEditor(id) {
     interviewReturnFocus = document.activeElement;
@@ -87,6 +107,12 @@ function initInterviewWorkspace() {
         const btn = e.target.closest('[data-interview]'); if (!btn) return;
         const { interview: action, id } = btn.dataset;
         if (action === 'tab') { interviewTab = btn.dataset.tab; renderAll(); }
+        else if (action === 'company') { interviewCompany = btn.dataset.company; interviewTab = 'sources'; interviewKeyword = ''; studyPage = 1; renderAll(); window.scrollTo({top:0}); }
+        else if (action === 'new-company') openInterviewQuestionEditor('');
+        else if (action === 'edit-question') openInterviewQuestionEditor(btn.dataset.company, id);
+        else if (action === 'reset-search') { interviewKeyword = ''; studyPage = 1; renderAll(); }
+        else if (action === 'company-practice') { const c=btn.dataset.company; const ids=getInterviewFilteredQuestions().map(n=>n.id); startQuiz('bank'); quizLinkedIds=ids; quizLinkedTitle=(c==='all'?'全部公司':c)+' 面经'; renderAll(); }
+        else if (action === 'add-company') { openInterviewQuestionEditor(btn.dataset.company); }
         else if (action === 'reset') { interviewCompany = 'all'; interviewKeyword = ''; renderAll(); }
         else if (action === 'new') openInterviewEditor();
         else if (action === 'edit') openInterviewEditor(id);
@@ -106,11 +132,11 @@ function initInterviewWorkspace() {
         }
     });
     document.getElementById('notesContainer').addEventListener('change', e => {
-        if (e.target.id === 'interviewCompany') { interviewCompany = e.target.value; renderAll(); }
+        if (e.target.id === 'interviewCompany') { interviewCompany = e.target.value; interviewTab='sources'; studyPage=1; interviewKeyword=''; renderAll(); }
     });
     document.getElementById('notesContainer').addEventListener('input', e => {
         if (e.target.id !== 'interviewSearch') return;
-        interviewKeyword = e.target.value;
+        interviewKeyword = e.target.value; studyPage = 1;
         const position = e.target.selectionStart;
         renderAll();
         const input = document.getElementById('interviewSearch'); input.focus();
