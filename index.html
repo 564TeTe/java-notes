@@ -7,15 +7,17 @@
     <meta name="theme-color" content="#4A6CF7">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>Java 后端知识点笔记</title>
+    <title>Java 面试复习工作台 · 题库与笔记</title>
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./icon-192.png">
     <link rel="stylesheet" href="./recruitment.css?v=2">
     <script src="./sync-config.js?v=3"></script>
     <script src="./resume-data.js?v=1"></script>
-    <script src="./resume-module.js?v=1"></script>
-    <script src="./recruitment-module.js?v=5"></script>
+    <script src="./resume-module.js?v=2"></script>
+    <script src="./recruitment-module.js?v=6"></script>
+    <script src="./data/question-bank.js?v=1"></script>
+    <script src="./study-core.js?v=1"></script>
     <style>
 /* ============================================
    Java Notes — 桌面 + 移动端样式
@@ -785,6 +787,8 @@ pre code { background: transparent; color: inherit; padding: 0; }
 }
 
 </style>
+    <link rel="stylesheet" href="./career-workspace.css?v=1">
+    <link rel="stylesheet" href="./study-workspace.css?v=2">
 </head>
 <body>
 
@@ -792,13 +796,17 @@ pre code { background: transparent; color: inherit; padding: 0; }
 <aside class="sidebar">
     <div class="sidebar-header">
         <div class="header-text">
-            <h2>📒 Java 笔记</h2>
-            <p class="sub">八股文速查手册</p>
+            <h2>Java 面试工作台</h2>
+            <p class="sub">积累 · 练习 · 复盘</p>
         </div>
         <button class="sidebar-toggle" id="addNoteBtn" title="添加新笔记" style="margin-right:4px;">＋</button>
         <button class="sidebar-toggle" id="sidebarToggle" title="收起/展开侧边栏">◀</button>
     </div>
 
+    <nav class="study-library-nav" aria-label="题库与笔记">
+        <button data-study-nav="bank">题库</button>
+        <button data-study-nav="personal">我的笔记</button>
+    </nav>
     <div class="search-wrap">
         <input type="text" id="searchInput" placeholder="搜索知识点…" autocomplete="off">
     </div>
@@ -878,7 +886,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
 <!-- 底部导航栏 -->
 <div class="mobile-bottombar">
     <button class="nav-item active" data-tab="all">
-        <span class="nav-icon">📋</span>笔记
+        <span class="nav-icon">📋</span>学习
     </button>
     <button class="nav-item" data-tab="quiz">
         <span class="nav-icon">🎯</span>复习
@@ -919,11 +927,11 @@ pre code { background: transparent; color: inherit; padding: 0; }
     <div class="modal">
         <h3>➕ 添加新笔记</h3>
         <p class="modal-sub">粘贴题目和答案，分类会自动识别</p>
-        <label>题目 <span style="font-weight:400;color:var(--text-muted);">（必填）</span></label>
+        <label for="newQuestion">题目 <span style="font-weight:400;color:var(--text-muted);">（必填）</span></label>
         <textarea id="newQuestion" placeholder="例如：说一下 HashMap 的扩容机制？"></textarea>
-        <label>答案 <span style="font-weight:400;color:var(--text-muted);">（必填）</span></label>
+        <label for="newAnswer">答案 <span style="font-weight:400;color:var(--text-muted);">（必填）</span></label>
         <textarea class="answer-ta" id="newAnswer" placeholder="粘贴你的答案..."></textarea>
-        <label>分类 <span class="auto-badge" id="autoBadge" style="display:none">🤖 已自动识别</span></label>
+        <label for="newCategory">分类 <span class="auto-badge" id="autoBadge" style="display:none">🤖 已自动识别</span></label>
         <select id="newCategory">
             <option value="">🤖 自动识别...</option>
         </select>
@@ -1136,6 +1144,7 @@ function deleteNote(id) {
     saveDeleted();
     saveMarked();
     saveSunk();
+    saveMastery();
     const note = [...NOTES, ...userNotes].find(n => n.id === id);
     toast(`已移至回收站：${note ? note.question.slice(0, 20) + '...' : id}`);
     renderAll();
@@ -1159,14 +1168,14 @@ function permDelete(id) {
     if (userIndex >= 0) {
         userNotes.splice(userIndex, 1);
         saveUserNotes();
-    } else {
+    }
+    if (NOTES.some(n => n.id === id)) {
         purgedIds.add(id);
         savePurged();
     }
     saveDeleted();
     saveMarked();
     saveSunk();
-    saveMastery();
     saveMastery();
     toast("已永久删除");
     renderAll();
@@ -1178,7 +1187,7 @@ function emptyTrash() {
     [...deletedIds].forEach(id => {
         const userIndex = userNotes.findIndex(n => n.id === id);
         if (userIndex >= 0) userNotes.splice(userIndex, 1);
-        else purgedIds.add(id);
+        if (NOTES.some(n => n.id === id)) purgedIds.add(id);
         markedIds.delete(id);
         sunkIds.delete(id);
         delete mastery[id];
@@ -1474,8 +1483,8 @@ function renderNotes(filtered) {
 
     // ===== 秋招专区 =====
     if (showRecruitment) {
-        titleEl.textContent = "📡 2027 届秋招专区";
-        subtitleEl.textContent = "发现最新机会，管理每一次投递，掌握当前招聘节奏";
+        titleEl.textContent = "秋招专区";
+        subtitleEl.textContent = "找岗位、跟进投递，把求职安排在一处。";
         statsEl.style.display = "none";
         container.innerHTML = renderRecruitment();
         document.getElementById("topbarTitle").textContent = "2027 届秋招";
@@ -1484,8 +1493,8 @@ function renderNotes(filtered) {
 
     // ===== 简历准备中心 =====
     if (showResumePrep) {
-        titleEl.textContent = "🧭 简历准备中心";
-        subtitleEl.textContent = "从简历主线到五层追问，按真实经历系统准备";
+        titleEl.textContent = "简历准备";
+        subtitleEl.textContent = "围绕你的项目与实习，练好每一次面试表达。";
         statsEl.style.display = "none";
         container.innerHTML = renderResumePrep();
         document.getElementById("topbarTitle").textContent = "简历准备中心";
@@ -1928,7 +1937,7 @@ function storeSyncSession(session) {
 
 function getStateSnapshot() {
     return {
-        version: 3,
+        version: 4,
         userNotes,
         markedIds: [...markedIds],
         deletedIds: [...deletedIds],
@@ -1937,12 +1946,15 @@ function getStateSnapshot() {
         mastery,
         resumePrep: getResumePrepSnapshot(),
         recruitment: getRecruitmentSnapshot(),
+        interviews: getInterviewSnapshot(),
         updatedAt: localStorage.getItem(LOCAL_UPDATED_KEY) || new Date().toISOString()
     };
 }
 
 function applyStateSnapshot(data) {
     if (!data || typeof data !== "object") throw new Error("备份数据格式无效");
+    // Validate new fields before touching existing local state; missing fields in v3 keep local records.
+    const validatedInterviews = StudyCore.restoreInterviews(data.interviews, getInterviewSnapshot());
     syncApplyingRemote = true;
     userNotes = Array.isArray(data.userNotes) ? data.userNotes : [];
     markedIds = new Set(Array.isArray(data.markedIds) ? data.markedIds : []);
@@ -1952,6 +1964,7 @@ function applyStateSnapshot(data) {
     mastery = data.mastery && typeof data.mastery === "object" ? data.mastery : {};
     applyResumePrepSnapshot(data.resumePrep);
     applyRecruitmentSnapshot(data.recruitment);
+    applyInterviewSnapshot(validatedInterviews);
     localStorage.setItem("user-notes", JSON.stringify(userNotes));
     localStorage.setItem("marked-ids", JSON.stringify([...markedIds]));
     localStorage.setItem("deleted-ids", JSON.stringify([...deletedIds]));
@@ -2168,8 +2181,7 @@ async function installApp() {
 
 // ===================== 移动端逻辑 =====================
 function initMobile() {
-    const isMobile = window.matchMedia("(max-width: 768px)").matches;
-    if (!isMobile) return;
+    // Bind once at startup so navigation also works after resizing to mobile.
 
     const overlay = document.getElementById("drawerOverlay");
     const sidebar = document.querySelector(".sidebar");
@@ -2292,8 +2304,7 @@ function openCategoryPanel() {
     const panel = document.getElementById("categoryPanel");
     const overlay = document.getElementById("catPanelOverlay");
     const grid = document.getElementById("catGrid");
-    const allNotes = [...NOTES, ...userNotes];
-    const cats = [...new Set(allNotes.map(n => n.category))];
+    const cats = studyCategories();
     const currentCat = (!showMarkedOnly && !showTrash && !showQuiz && !showResources && !showInterviewExp && !showResumePrep && !showRecruitment) ? activeCategory : null;
     grid.innerHTML = cats.map(cat =>
         `<button class="cat-chip${currentCat === cat ? ' active' : ''}" data-cat="${cat}">${cat}</button>`
@@ -2302,6 +2313,7 @@ function openCategoryPanel() {
     overlay.classList.add("show");
 }
 function selectCategory(cat) {
+    studyPage = 1;
     activeCategory = cat;
     showMarkedOnly = false; showTrash = false; showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; showRecruitment = false;
     activeNoteId = null;
@@ -2355,7 +2367,9 @@ function init() {
     registerPWA();
     if (syncSession && isSyncConfigured()) syncNow();
 }
-init();
 </script>
+<script src="./study-module.js?v=2"></script>
+<script src="./interview-module.js?v=1"></script>
+<script>initStudyWorkspace(); init();</script>
 </body>
 </html>

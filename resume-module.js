@@ -2,8 +2,8 @@
     const MASTERY_KEY = "resume-prep-mastery";
     const CHECKLIST_KEY = "resume-prep-checklist";
     const TABS = [
-        { id: "overview", icon: "🧭", label: "准备总览" },
-        { id: "pitches", icon: "🎙️", label: "口述稿" },
+        { id: "overview", icon: "🧭", label: "准备概览" },
+        { id: "pitches", icon: "🎙️", label: "口述练习" },
         { id: "stories", icon: "🧩", label: "经历深挖" },
         { id: "questions", icon: "🎯", label: "模拟问答" },
         { id: "checklist", icon: "✅", label: "冲刺清单" },
@@ -18,6 +18,9 @@
     const state = {
         tab: "overview",
         source: "all",
+        search: "",
+        level: "all",
+        openStory: null,
         mastery: loadJSON(MASTERY_KEY),
         checklist: loadJSON(CHECKLIST_KEY),
         revealed: new Set(),
@@ -52,78 +55,41 @@
     }
 
     function renderTabs() {
-        return `<nav class="resume-tabs" aria-label="简历准备模块导航">${TABS.map(tab => `
-            <button class="resume-tab${state.tab === tab.id ? " active" : ""}" type="button" onclick="setResumePrepTab('${tab.id}')">
-                <span>${tab.icon}</span>${tab.label}
-            </button>`).join("")}</nav>`;
+        return `<div class="prep-navigation"><nav class="resume-tabs" aria-label="简历准备模块导航">${TABS.slice(0, 4).map(tab => `
+            <button class="resume-tab${state.tab === tab.id ? " active" : ""}" aria-current="${state.tab === tab.id ? "page" : "false"}" type="button" onclick="setResumePrepTab('${tab.id}')">${tab.label}</button>`).join("")}</nav>
+            <div class="prep-utilities">${TABS.slice(4).map(tab => `<button class="${state.tab === tab.id ? "active" : ""}" aria-current="${state.tab === tab.id ? "page" : "false"}" onclick="setResumePrepTab('${tab.id}')">${tab.label === "原始资料" ? "资料库" : tab.label}</button>`).join("")}</div></div>`;
     }
 
     function renderSourceFilters(allowed = ["resume", "zhishu", "yonyou", "beiruan"]) {
         const sources = data().sources.filter(source => allowed.includes(source.id));
         return `<div class="resume-filters">
-            <button class="resume-filter${state.source === "all" ? " active" : ""}" onclick="setResumePrepSource('all')">全部</button>
-            ${sources.map(source => `<button class="resume-filter${state.source === source.id ? " active" : ""}" onclick="setResumePrepSource('${source.id}')">${source.icon} ${source.shortName}</button>`).join("")}
+            <span class="prep-filter-label">经历</span><button aria-pressed="${state.source === "all"}" class="resume-filter${state.source === "all" ? " active" : ""}" onclick="setResumePrepSource('all')">全部</button>
+            ${sources.map(source => `<button aria-pressed="${state.source === source.id}" class="resume-filter${state.source === source.id ? " active" : ""}" onclick="setResumePrepSource('${source.id}')">${source.shortName}</button>`).join("")}
         </div>`;
     }
 
     function renderOverview() {
         const progress = getProgress();
-        const sourceCards = data().sources.map(source => {
-            const sourceQuestions = data().questions.filter(item => item.source === source.id);
-            const known = sourceQuestions.filter(item => state.mastery[item.id] === "known").length;
-            const percent = sourceQuestions.length ? Math.round(known / sourceQuestions.length * 100) : 0;
-            return `<article class="resume-source-card">
-                <div class="resume-source-head"><span class="resume-source-icon">${source.icon}</span><span class="resume-file-badge">${sourceQuestions.length} 道题</span></div>
-                <h3>${escape(source.name)}</h3>
-                <p class="resume-source-role">${escape(source.role)}</p>
-                <p>${escape(source.summary)}</p>
-                <div class="resume-mini-progress"><span style="width:${percent}%"></span></div>
-                <div class="resume-source-foot"><span>已掌握 ${known}/${sourceQuestions.length}</span><button onclick="openResumeSource('${source.id}')">开始准备 →</button></div>
-            </article>`;
-        }).join("");
-
-        return `<section class="resume-hero">
-            <div class="resume-hero-copy">
-                <span class="resume-eyebrow">RESUME INTERVIEW LAB</span>
-                <h2>把简历上的每一句，都准备到能继续追问五层</h2>
-                <p>围绕个人简历、知枢项目、用友实习和北软实习，完成口述、深挖、问答与边界核对。</p>
-                <div class="resume-hero-actions">
-                    <button class="resume-primary-btn" onclick="setResumePrepTab('questions')">开始模拟问答</button>
-                    <button class="resume-ghost-btn" onclick="setResumePrepTab('pitches')">练习自我介绍</button>
-                </div>
-            </div>
-            <div class="resume-score" aria-label="总体准备进度">
-                <strong>${progress.percent}%</strong>
-                <span>总体准备度</span>
-                <div><i style="width:${progress.percent}%"></i></div>
-            </div>
+        const weak = progress.fuzzy + progress.hard;
+        return `<section class="prep-start">
+            <div class="prep-start-copy"><span class="prep-kicker">面试练习台</span><h2>从一段经历，开始今天的准备。</h2><p>讲清做了什么、为什么这样做，以及如何验证。</p>
+                <div class="prep-start-actions"><button class="career-primary" onclick="startResumePractice()">开始练习 <span aria-hidden="true">→</span></button><button class="career-secondary" onclick="reviewResumeWeak()">复习薄弱题${weak ? ` · ${weak}` : ""}</button></div></div>
+            <div class="prep-progress"><span>练习进度</span><strong>${progress.known}<small> / ${progress.questionTotal}</small></strong><span>道问答已掌握</span><div class="resume-mini-progress"><span style="width:${progress.questionTotal ? Math.round(progress.known / progress.questionTotal * 100) : 0}%"></span></div><button onclick="setResumePrepTab('checklist')">冲刺清单 ${progress.checked}/${progress.checklistTotal} <span aria-hidden="true">↗</span></button></div>
         </section>
-
-        <section class="resume-stat-grid">
-            <article><span>🎯</span><strong>${progress.known}/${progress.questionTotal}</strong><small>问答已掌握</small></article>
-            <article><span>🟡</span><strong>${progress.fuzzy}</strong><small>仍然模糊</small></article>
-            <article><span>🔴</span><strong>${progress.hard}</strong><small>需要补课</small></article>
-            <article><span>✅</span><strong>${progress.checked}/${progress.checklistTotal}</strong><small>清单已完成</small></article>
-        </section>
-
-        <div class="resume-section-heading"><div><span>准备地图</span><h2>按经历逐个击破</h2></div><button onclick="setResumePrepTab('checklist')">查看冲刺清单</button></div>
-        <section class="resume-source-grid">${sourceCards}</section>
-
-        <section class="resume-route">
-            <div class="resume-section-heading"><div><span>推荐顺序</span><h2>一轮完整准备只走四步</h2></div></div>
-            <ol>
-                <li><b>01</b><div><strong>先把故事讲顺</strong><span>练熟 30 秒和 1 分钟口述稿，形成稳定主线。</span></div></li>
-                <li><b>02</b><div><strong>再把项目讲深</strong><span>每段经历至少准备一个 3 分钟 STAR 故事。</span></div></li>
-                <li><b>03</b><div><strong>随机追问验真</strong><span>先口答再看参考答案，并标记掌握程度。</span></div></li>
-                <li><b>04</b><div><strong>最后核对边界</strong><span>测试数字、个人贡献和未上线能力都保持准确。</span></div></li>
-            </ol>
-        </section>`;
+        <div class="resume-section-heading"><div><h2>按经历准备</h2><p>先练口述，再深入技术细节。</p></div><span class="prep-count">${data().sources.length} 份材料</span></div>
+        <section class="resume-source-grid">${data().sources.map((source, index) => {
+            const questions = data().questions.filter(item => item.source === source.id);
+            const known = questions.filter(item => state.mastery[item.id] === "known").length;
+            const percent = questions.length ? Math.round(known / questions.length * 100) : 0;
+            return `<article class="resume-source-card"><div class="resume-source-head"><span class="prep-source-number">0${index + 1}</span><span class="resume-file-badge">${source.id === "resume" ? "个人介绍" : source.id === "zhishu" ? "项目经历" : "实习经历"}</span></div><h3>${escape(source.shortName)}</h3><p class="resume-source-role">${escape(source.role)}</p><p>${escape(source.summary)}</p><div class="resume-mini-progress"><span style="width:${percent}%"></span></div><div class="resume-source-foot"><span>已掌握 ${known}/${questions.length}</span><button onclick="openResumeSource('${source.id}')">${source.id === "resume" ? "练自我介绍" : "准备这段经历"} →</button></div></article>`;
+        }).join("")}</section>
+        <div class="prep-bottom-note"><span>建议顺序：口述练习 → 经历深挖 → 模拟问答 → 冲刺核对</span><button onclick="setResumePrepTab('sources')">查看原始资料 ↗</button></div>`;
     }
 
     function renderPitches() {
         const pitches = data().pitches.filter(item => state.source === "all" || item.source === state.source);
         return `${renderSourceFilters()}
-            <div class="resume-section-heading"><div><span>口述训练</span><h2>先讲顺，再压缩时间</h2></div><small>建议录音回听，删掉口头禅和无效技术名词</small></div>
+            <div class="resume-section-heading"><div><h2>先讲顺，再压缩时间</h2></div><small>选一个时长，尝试脱稿复述</small></div>
             <section class="resume-pitch-list">${pitches.map(item => `
                 <article class="resume-pitch-card">
                     <header><div><span class="resume-duration">${item.duration}</span><span class="resume-source-chip">${sourceName(item.source)}</span></div><button onclick="copyResumePitch('${item.id}')">复制话术</button></header>
@@ -134,46 +100,47 @@
 
     function renderStories() {
         const stories = data().stories.filter(item => state.source === "all" || item.source === state.source);
-        return `${renderSourceFilters(["zhishu", "yonyou", "beiruan"])}
-            <div class="resume-section-heading"><div><span>STAR 深挖</span><h2>每个故事都能讲清因果与验证</h2></div><small>回答顺序：现象 → 目标 → 定位与修改 → 结果 → 边界</small></div>
+        return `<div class="resume-section-heading"><div><h2>把经历讲清楚</h2><p>背景 → 目标 → 行动 → 结果，点击展开一段故事。</p></div></div>${renderSourceFilters(["zhishu", "yonyou", "beiruan"])}
             <section class="resume-story-list">${stories.map(item => `
-                <article class="resume-story-card">
-                    <header><div><span class="resume-source-chip">${sourceName(item.source)}</span><h3>${escape(item.title)}</h3></div><div>${item.tags.map(tag => `<span>${escape(tag)}</span>`).join("")}</div></header>
-                    <dl>
+                <details class="resume-story-card" ${state.openStory === item.id ? "open" : ""} ontoggle="rememberResumeStory('${item.id}',this.open)">
+                    <summary><span class="resume-source-chip">${sourceName(item.source)}</span><h3>${escape(item.title)}</h3><span class="prep-story-toggle" aria-hidden="true">＋</span></summary>
+                    <div class="prep-story-content"><div class="prep-story-tags">${item.tags.map(tag => `<span>${escape(tag)}</span>`).join("")}</div><dl>
                         <div><dt>S</dt><dd><strong>背景</strong>${escape(item.situation)}</dd></div>
                         <div><dt>T</dt><dd><strong>目标</strong>${escape(item.task)}</dd></div>
                         <div><dt>A</dt><dd><strong>行动</strong>${escape(item.action)}</dd></div>
                         <div><dt>R</dt><dd><strong>结果</strong>${escape(item.result)}</dd></div>
-                    </dl>
-                    <p class="resume-boundary"><b>真实性边界</b>${escape(item.boundary)}</p>
-                </article>`).join("")}</section>`;
+                    </dl><p class="resume-boundary"><b>表达边界</b>${escape(item.boundary)}</p><button class="career-secondary" onclick="practiceResumeSource('${item.source}')">练这段经历的追问 →</button></div>
+                </details>`).join("") || '<p class="resume-empty">这段经历暂时没有故事。</p>'}</section>`;
+    }
+
+    function filteredQuestions() {
+        const query = state.search.trim().toLowerCase();
+        return data().questions.filter(item => {
+            const level = state.mastery[item.id] || "new";
+            return (state.source === "all" || item.source === state.source)
+                && (state.level === "all" || (state.level === "weak" ? ["hard", "fuzzy"].includes(level) : level === state.level))
+                && (!query || `${item.question} ${item.answer} ${item.followup} ${sourceName(item.source)}`.toLowerCase().includes(query));
+        });
+    }
+
+    function questionCardsHTML(questions) {
+        if (!questions.length) return `<div class="career-empty"><span aria-hidden="true">⌕</span><h3>没有匹配的问题</h3><p>${state.level === "weak" ? "标记为“不会”或“模糊”的题会出现在这里。" : "换个关键词，或清空筛选再试。"}</p><button class="career-secondary" onclick="resetResumeFilters()">清空筛选</button></div>`;
+        return questions.map(item => {
+            const level = state.mastery[item.id] || "new";
+            const revealed = state.revealed.has(item.id);
+            const labels = { new: "未练习", known: "已掌握", fuzzy: "模糊", hard: "不会" };
+            return `<article class="resume-qa-card${revealed ? " revealed" : ""}${state.mockId === item.id ? " mock-focus" : ""}" id="resume-${item.id}">
+                <button class="resume-question" aria-expanded="${revealed}" aria-controls="answer-${item.id}" onclick="toggleResumeAnswer('${item.id}')"><span class="resume-q-mark">Q</span><span><small>${sourceName(item.source)} · <em class="prep-level ${level}">${labels[level]}</em></small>${escape(item.question)}</span><i>${revealed ? "收起" : "看答案"}</i></button>
+                <div class="resume-answer" id="answer-${item.id}"><p>${escape(item.answer)}</p><div class="resume-followup"><b>继续追问</b>${escape(item.followup)}</div><div class="resume-mastery"><span>掌握程度</span>${["hard", "fuzzy", "known"].map(value => `<button aria-pressed="${level === value}" class="${value}${level === value ? " selected" : ""}" onclick="rateResumeQuestion('${item.id}','${value}')">${labels[value]}</button>`).join("")}</div></div>
+            </article>`;
+        }).join("");
     }
 
     function renderQuestions() {
-        const questions = data().questions.filter(item => state.source === "all" || item.source === state.source);
-        return `<section class="resume-mock-banner">
-                <div><span>MOCK INTERVIEW</span><h2>随机抽一道简历追问</h2><p>先完整口答，再展开参考答案并标记掌握程度。</p></div>
-                <button onclick="randomResumeQuestion()">🎲 随机抽题</button>
-            </section>
-            ${renderSourceFilters()}
-            <div class="resume-question-tools"><label>🔍 <input type="search" placeholder="搜索问题、技术词或经历…" oninput="filterResumeQuestions(this.value)"></label><span>共 ${questions.length} 道</span></div>
-            <section class="resume-question-list">${questions.map(item => {
-                const level = state.mastery[item.id] || "";
-                const revealed = state.revealed.has(item.id);
-                const search = `${item.question} ${item.answer} ${item.followup} ${sourceName(item.source)}`.toLowerCase();
-                return `<article class="resume-qa-card${revealed ? " revealed" : ""}${state.mockId === item.id ? " mock-focus" : ""}" id="resume-${item.id}" data-search="${escape(search)}">
-                    <button class="resume-question" onclick="toggleResumeAnswer('${item.id}')"><span class="resume-q-mark">Q</span><span><small>${sourceName(item.source)}</small>${escape(item.question)}</span><i>${revealed ? "收起" : "展开"}</i></button>
-                    <div class="resume-answer">
-                        <p>${escape(item.answer)}</p>
-                        <div class="resume-followup"><b>继续追问</b>${escape(item.followup)}</div>
-                        <div class="resume-mastery"><span>这题目前：</span>
-                            <button class="hard${level === "hard" ? " selected" : ""}" onclick="rateResumeQuestion('${item.id}','hard')">不会</button>
-                            <button class="fuzzy${level === "fuzzy" ? " selected" : ""}" onclick="rateResumeQuestion('${item.id}','fuzzy')">模糊</button>
-                            <button class="known${level === "known" ? " selected" : ""}" onclick="rateResumeQuestion('${item.id}','known')">掌握</button>
-                        </div>
-                    </div>
-                </article>`;
-            }).join("")}</section>`;
+        const questions = filteredQuestions();
+        return `<div class="resume-section-heading"><div><h2>模拟问答</h2><p>先口答，再看参考答案；优先抽取尚未掌握的问题。</p></div><button class="career-primary" onclick="randomResumeQuestion()" ${questions.length ? "" : "disabled"}>随机抽题 ↗</button></div>
+            <section class="prep-question-filters">${renderSourceFilters()}<div class="prep-question-toolbar"><label class="career-search"><span aria-hidden="true">⌕</span><input type="search" aria-label="搜索简历问题" value="${escape(state.search)}" placeholder="搜索问题、技术词…" oninput="filterResumeQuestions(this.value)"></label><select aria-label="按掌握程度筛选" onchange="setResumePrepMastery(this.value)">${[["all", "全部掌握程度"], ["new", "未练习"], ["weak", "薄弱题（不会 / 模糊）"], ["known", "已掌握"]].map(([id, label]) => `<option value="${id}" ${state.level === id ? "selected" : ""}>${label}</option>`).join("")}</select><button class="career-text" onclick="resetResumeFilters()">清空筛选</button></div></section>
+            <div class="prep-results-count" id="resume-result-count" role="status">${questions.length} 道问题</div><section class="resume-question-list" id="resume-question-results">${questionCardsHTML(questions)}</section>`;
     }
 
     function renderChecklist() {
@@ -184,7 +151,7 @@
             <div class="resume-check-progress"><span style="width:${Math.round(progress.checked / progress.checklistTotal * 100)}%"></span></div>
             <section class="resume-check-groups">${Object.entries(groups).map(([group, items]) => `
                 <article><h3>${escape(group)}<span>${items.filter(item => state.checklist[item.id]).length}/${items.length}</span></h3>
-                    ${items.map(item => `<button class="resume-check-item${state.checklist[item.id] ? " checked" : ""}" onclick="toggleResumeChecklist('${item.id}')"><i>${state.checklist[item.id] ? "✓" : ""}</i><span>${escape(item.text)}</span></button>`).join("")}
+                    ${items.map(item => `<button aria-pressed="${!!state.checklist[item.id]}" class="resume-check-item${state.checklist[item.id] ? " checked" : ""}" onclick="toggleResumeChecklist('${item.id}')"><i>${state.checklist[item.id] ? "✓" : ""}</i><span>${escape(item.text)}</span></button>`).join("")}
                 </article>`).join("")}</section>`;
     }
 
@@ -220,6 +187,7 @@
     window.setResumePrepTab = function (tab) {
         state.tab = TABS.some(item => item.id === tab) ? tab : "overview";
         state.mockId = null;
+        if (state.tab === "stories" && state.source === "resume") state.source = "all";
         renderAll();
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
@@ -244,16 +212,22 @@
         if (card) {
             card.classList.toggle("revealed", state.revealed.has(id));
             const indicator = card.querySelector(".resume-question i");
-            if (indicator) indicator.textContent = state.revealed.has(id) ? "收起" : "展开";
+            if (indicator) indicator.textContent = state.revealed.has(id) ? "收起" : "看答案";
+            card.querySelector(".resume-question")?.setAttribute("aria-expanded", String(state.revealed.has(id)));
         }
     };
 
     window.rateResumeQuestion = function (id, level) {
         state.mastery[id] = level;
         saveProgress();
-        const card = document.getElementById(`resume-${id}`);
-        card?.querySelectorAll(".resume-mastery button").forEach(button => button.classList.remove("selected"));
-        card?.querySelector(`.resume-mastery .${level}`)?.classList.add("selected");
+        updateQuestionResults();
+        const nextFocus = document.querySelector(`#resume-${id} .resume-mastery .${level}`)
+            || document.querySelector("#resume-question-results .resume-question")
+            || document.getElementById("resume-result-count");
+        if (nextFocus) {
+            if (nextFocus.id === "resume-result-count") nextFocus.setAttribute("tabindex", "-1");
+            nextFocus.focus({ preventScroll: true });
+        }
         if (typeof toast === "function") toast(level === "known" ? "已标记为掌握" : level === "fuzzy" ? "已加入模糊题" : "已加入重点复习");
     };
 
@@ -264,7 +238,7 @@
     };
 
     window.randomResumeQuestion = function () {
-        const pool = data().questions.filter(item => state.source === "all" || item.source === state.source);
+        const pool = filteredQuestions();
         if (!pool.length) return;
         const weaker = pool.filter(item => state.mastery[item.id] !== "known");
         const candidates = weaker.length ? weaker : pool;
@@ -275,12 +249,22 @@
         requestAnimationFrame(() => document.getElementById(`resume-${picked.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
     };
 
-    window.filterResumeQuestions = function (value) {
-        const query = String(value || "").trim().toLowerCase();
-        document.querySelectorAll(".resume-qa-card").forEach(card => {
-            card.hidden = !!query && !card.dataset.search.includes(query);
-        });
-    };
+    function updateQuestionResults() {
+        const questions = filteredQuestions();
+        const list = document.getElementById("resume-question-results");
+        if (list) list.innerHTML = questionCardsHTML(questions);
+        const count = document.getElementById("resume-result-count");
+        if (count) count.textContent = `${questions.length} 道问题`;
+        const random = document.querySelector(".resume-section-heading .career-primary");
+        if (random) random.disabled = !questions.length;
+    }
+    window.filterResumeQuestions = function (value) { state.search = String(value || ""); state.mockId = null; updateQuestionResults(); };
+    window.setResumePrepMastery = function (value) { state.level = ["all", "new", "weak", "known"].includes(value) ? value : "all"; state.mockId = null; renderAll(); };
+    window.resetResumeFilters = function () { state.source = "all"; state.search = ""; state.level = "all"; state.mockId = null; renderAll(); };
+    window.startResumePractice = function () { state.tab = "questions"; state.source = "all"; state.search = ""; state.level = "all"; window.randomResumeQuestion(); };
+    window.reviewResumeWeak = function () { state.tab = "questions"; state.source = "all"; state.search = ""; state.level = "weak"; state.mockId = null; renderAll(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+    window.practiceResumeSource = function (source) { state.source = source; state.level = "all"; state.search = ""; window.setResumePrepTab("questions"); };
+    window.rememberResumeStory = function (id, open) { if (open) state.openStory = id; else if (state.openStory === id) state.openStory = null; };
 
     window.copyResumePitch = async function (id) {
         const pitch = data().pitches.find(item => item.id === id);

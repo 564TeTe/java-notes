@@ -1,0 +1,79 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const path = require('node:path');
+const root = path.join(__dirname, '..');
+function setup() {
+    const store = new Map();
+    const element = { value: '', textContent: '', innerHTML: '', style: {}, dataset: {}, classList: { add(){}, remove(){}, toggle(){} },
+        querySelectorAll: () => [], querySelector: () => element, setAttribute(){}, removeAttribute(){}, addEventListener(){}, focus(){}, appendChild(){} };
+    const context = vm.createContext({ console, URL, FormData, crypto: require('node:crypto').webcrypto,
+        localStorage: { getItem: k => store.get(k), setItem: (k,v) => store.set(k,v), removeItem: k => store.delete(k) },
+        document: { getElementById: () => element, querySelector: () => element, querySelectorAll: () => [], addEventListener(){}, createElement: () => element },
+        setTimeout(){}, clearTimeout(){}, confirm: () => true, requestAnimationFrame(){},
+    });
+    context.window = context;
+    const run = code => vm.runInContext(code, context);
+    for (const name of ['resume-data.js', 'resume-module.js', 'recruitment-module.js', 'data/question-bank.js', 'study-core.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
+    const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    for (const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) if (match[1].includes('const NOTES')) run(match[1]);
+    for (const name of ['study-module.js','interview-module.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
+    run('renderAll = function() {}; buildCategoryBtns = function() {}; toast = function() {};');
+    return { run, store };
+}
+test('imported data has 420 unique questions, 13 categories, complete source references', () => {
+    const { run } = setup();
+    assert.equal(run('BANK.length'), 420);
+    assert.equal(run('new Set(BANK.map(n=>n.id)).size'), 420);
+    assert.equal(run('new Set(BANK.map(n=>n.category)).size'), 13);
+    assert.ok(run('QUESTION_BANK_DATA.sources.every(s=>s.questionIds.every(id=>BANK.some(n=>n.id===id)))'));
+    assert.equal(run('QUESTION_BANK_DATA.sources.find(s=>s.id==="X02").company'), '拼多多');
+    assert.equal(run('QUESTION_BANK_DATA.sources.find(s=>s.id==="X03").company'), '腾讯');
+    assert.equal(run('QUESTION_BANK_DATA.sources.find(s=>s.id==="X05").company'), '得物');
+});
+test('legacy snapshots retain notes, deleted state and mastery; new snapshots round-trip interviews', () => {
+    const { run } = setup();
+    run(`applyStateSnapshot({ version:3, userNotes:[{id:'user-existing',question:'Mine',answer:'A',category:'Java'}], deletedIds:[NOTES[0].id], markedIds:['user-existing'], mastery:{'user-existing':{level:'hard'}}, purgedIds:[NOTES[1].id] });`);
+    assert.equal(run('getPersonalNotes().filter(n=>n.id===\'user-existing\').length'), 1);
+    assert.ok(run('!getPersonalNotes().some(n=>n.id===NOTES[0].id || n.id===NOTES[1].id)'));
+    run(`applyInterviewSnapshot([{id:'r',company:'公司',questions:'Q?'}]); const snapshot = getStateSnapshot(); applyStateSnapshot(snapshot);`);
+    assert.equal(run('getInterviewSnapshot()[0].company'), '公司');
+    assert.equal(run('mastery["user-existing"].level'), 'hard');
+    assert.equal(run('getStateSnapshot().version'), 4);
+    run('delete snapshot.interviews; applyStateSnapshot(snapshot)');
+    assert.equal(run('getInterviewSnapshot().length'), 1);
+});
+for (const operation of ['permDelete(NOTES[0].id)', 'emptyTrash()']) test(`edited original note does not reappear after ${operation}`, () => {
+    const { run } = setup();
+    run('userNotes = [{...NOTES[0],answer:"edited"}]; deletedIds.add(NOTES[0].id);');
+    run(operation);
+    assert.ok(run('!getPersonalNotes().some(n=>n.id===NOTES[0].id)'));
+    run('loadState(); loadUserNotes();');
+    assert.ok(run('!getPersonalNotes().some(n=>n.id===NOTES[0].id)'));
+});
+test('copying a deleted bank note restores exactly one personal copy', () => {
+    const { run } = setup();
+    run('copyStudyNote(BANK[0].id); const copiedId = userNotes[0].id; deletedIds.add(copiedId); copyStudyNote(BANK[0].id);');
+    assert.equal(run('userNotes.filter(n=>n.sourceId===BANK[0].id).length'), 1);
+    assert.ok(run('getPersonalNotes().some(n=>n.id===copiedId)'));
+});
+test('static and personal quiz pools remain separate despite saved bank copies', () => {
+    const { run } = setup();
+    run('copyStudyNote(BANK[0].id); quizSource="personal";');
+    assert.ok(run('getQuizPool().every(n=>!n.id.startsWith("bank-"))'));
+    run('quizSource="bank";');
+    assert.equal(run('getQuizPool().length'), 420);
+});
+test('built-in legacy notes are no longer mixed into the personal notebook', () => {
+    const { run } = setup();
+    run('userNotes = [{id:"user-only",question:"我的记录",answer:"A",category:"自定义"}]');
+    assert.equal(run('getPersonalNotes().map(n=>n.id).join()'), 'user-only');
+    assert.equal(run('getStudyPool("bank").length'), 420);
+});
+test('an invalid imported interview cannot overwrite existing personal notes', () => {
+    const { run } = setup();
+    run('userNotes = [{id:"user-safe",question:"Q",answer:"A",category:"Java"}]');
+    assert.throws(() => run('applyStateSnapshot({userNotes:[],interviews:[{id:"r",company:"公司",questions:[]}]})'), /格式/);
+    assert.equal(run('userNotes[0].id'), 'user-safe');
+});

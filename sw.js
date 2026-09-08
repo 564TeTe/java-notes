@@ -1,7 +1,8 @@
-const CACHE_NAME = "java-notes-v8";
+const CACHE_NAME = "java-notes-v11";
 const APP_SHELL = [
+    "./data/question-bank.js", "./study-core.js", "./study-module.js", "./interview-module.js", "./study-workspace.css",
     "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png",
-    "./sync-config.js", "./resume-data.js", "./resume-module.js", "./recruitment.css", "./recruitment-module.js", "./data/recruitment-jobs.json",
+    "./sync-config.js", "./resume-data.js", "./resume-module.js", "./recruitment.css", "./career-workspace.css", "./recruitment-module.js", "./data/recruitment-jobs.json",
     "./assets/resume/sun-te-resume.pdf",
     "./assets/resume/zhishu-interview-guide.docx",
     "./assets/resume/yonyou-interview-guide.docx",
@@ -54,7 +55,10 @@ self.addEventListener("fetch", event => {
     }
 
     event.respondWith(
-        caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
+        caches.open(CACHE_NAME).then(cache => cache.match(event.request, {
+            // Versioned shell URLs share the current release's precached asset.
+            ignoreSearch: APP_SHELL.some(asset => new URL(asset, self.location.href).pathname === requestUrl.pathname)
+        })).then(cached => cached || fetch(event.request).then(response => {
             const copy = response.clone();
             caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
             return response;
