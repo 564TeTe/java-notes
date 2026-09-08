@@ -35,7 +35,15 @@
     ];
     const RESOURCES = [
         { name: "2027 届秋招实时聚合", url: FEED_PAGE, icon: "📡", tag: "每日更新", desc: "跨行业岗位聚合，可按行业、关键词和截止时间筛选；社区维护，投递前需官网核验。" },
-        { name: "牛客校招日程", url: "https://www.nowcoder.com/jobs/school/schedule?tab=3", icon: "🐮", tag: "24h 更新", desc: "集中查看 27 届秋招、校招与实习信息，适合快速发现新开放岗位。" },
+        { name: "Offer 笔记", url: "https://offernotes.cn/", icon: "📝", tag: "求职信息", desc: "查看校招岗位、求职经验与 Offer 信息，适合作为岗位线索补充。" },
+        { name: "Gank Interview", url: "https://www.gankinterview.cn/campus", icon: "🎓", tag: "校招面经", desc: "校园招聘岗位与面试经验入口，可按公司和方向查找。" },
+        { name: "牛客校招日程", url: "https://www.nowcoder.com/jobs/school/schedule", icon: "🐮", tag: "招聘日程", desc: "集中查看校招、实习和宣讲安排，适合发现新开放岗位。" },
+        { name: "OfferContext 校招 Hub", url: "https://hub.offercontext.cn/", icon: "🧭", tag: "校招聚合", desc: "汇总校招岗位和求职信息，方便交叉比对不同来源。" },
+        { name: "offer喵", url: "https://offer-cat.com/", icon: "🐱", tag: "求职工具", desc: "查看校招机会与求职相关信息，作为岗位线索补充。" },
+        { name: "2027 届互联网校招汇总", url: "https://campus2027.top/", icon: "🌐", tag: "2027 校招", desc: "面向互联网校招的汇总入口，适合快速浏览公司和岗位线索。" },
+        { name: "OfferComing", url: "https://offercoming.cn/", icon: "🚀", tag: "校招信息", desc: "查看校招与实习机会，投递前请回到企业官网核验。" },
+        { name: "应届生求职网", url: "https://www.yingjiesheng.com/", icon: "🧑‍🎓", tag: "综合招聘", desc: "覆盖应届生校招、实习和宣讲信息的综合求职入口。" },
+        { name: "应届生求职网 · 校园招聘", url: "http://101.132.173.68/campus/campus_recruit.html", icon: "📋", tag: "校园招聘", desc: "应届生求职网的校园招聘页面，可作为补充检索入口。" },
         { name: "国家大学生就业服务平台", url: "https://www.ncss.cn/", icon: "🏛️", tag: "官方平台", desc: "教育部主管就业服务入口，适合关注地方、国企、事业单位和专场招聘。" },
         { name: "字节跳动校园招聘", url: "https://jobs.bytedance.com/campus", icon: "🎵", tag: "企业官网", desc: "校园职位、应聘记录和招聘 FAQ；最终岗位状态以官网为准。" },
         { name: "腾讯校园招聘", url: "https://join.qq.com/", icon: "🐧", tag: "企业官网", desc: "腾讯校园招聘长期入口，可查看中国区校园职位和个人投递状态。" },

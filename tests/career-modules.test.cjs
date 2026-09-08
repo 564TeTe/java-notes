@@ -60,3 +60,13 @@ test('application stages filter records without changing saved data', () => {
     app.setRecruitmentStageFilter('全部');
     assert.match(app.renderRecruitment(), /目标甲/);
 });
+test('recruitment resource hub includes all requested campus job links', () => {
+    const app = setup('recruitment');
+    app.setRecruitmentTab('resources');
+    const html = app.renderRecruitment();
+    for (const url of [
+        'xixicc186.github.io/xixicc2027', 'offernotes.cn', 'gankinterview.cn/campus',
+        'nowcoder.com/jobs/school/schedule', 'hub.offercontext.cn', 'offer-cat.com',
+        'campus2027.top', 'offercoming.cn', 'www.yingjiesheng.com', '101.132.173.68/campus/campus_recruit.html'
+    ]) assert.ok(html.includes(url), `missing resource: ${url}`);
+});
