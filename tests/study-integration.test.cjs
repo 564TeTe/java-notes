@@ -22,10 +22,10 @@ function setup() {
     run('renderAll = function() {}; buildCategoryBtns = function() {}; toast = function() {};');
     return { run, store };
 }
-test('imported data has 490 unique questions, 13 categories, complete source references', () => {
+test('imported data has 531 unique questions, 13 categories, complete source references', () => {
     const { run } = setup();
-    assert.equal(run('BANK.length'), 490);
-    assert.equal(run('new Set(BANK.map(n=>n.id)).size'), 490);
+    assert.equal(run('BANK.length'), 531);
+    assert.equal(run('new Set(BANK.map(n=>n.id)).size'), 531);
     assert.equal(run('new Set(BANK.map(n=>n.category)).size'), 13);
     assert.ok(run('QUESTION_BANK_DATA.sources.every(s=>s.questionIds.every(id=>BANK.some(n=>n.id===id)))'));
     assert.equal(run('QUESTION_BANK_DATA.sources.find(s=>s.id==="X02").company'), '拼多多');
@@ -63,13 +63,13 @@ test('static and personal quiz pools remain separate despite saved bank copies',
     run('copyStudyNote(BANK[0].id); quizSource="personal";');
     assert.ok(run('getQuizPool().every(n=>!n.id.startsWith("bank-"))'));
     run('quizSource="bank";');
-    assert.equal(run('getQuizPool().length'), 490);
+    assert.equal(run('getQuizPool().length'), 531);
 });
 test('built-in legacy notes are no longer mixed into the personal notebook', () => {
     const { run } = setup();
     run('userNotes = [{id:"user-only",question:"我的记录",answer:"A",category:"自定义"}]');
     assert.equal(run('getPersonalNotes().map(n=>n.id).join()'), 'user-only');
-    assert.equal(run('getStudyPool("bank").length'), 491);
+    assert.equal(run('getStudyPool("bank").length'), 532);
 });
 test('an invalid imported interview cannot overwrite existing personal notes', () => {
     const { run } = setup();
@@ -80,7 +80,7 @@ test('an invalid imported interview cannot overwrite existing personal notes', (
 test('custom questions stay in bank, can be edited and copied, and survive snapshot round trips', () => {
     const { run } = setup();
     run('const added = saveCustomBankQuestion({question:"自定义题",answer:"答案",category:"Redis",priority:"P0"});');
-    assert.equal(run('getStudyPool("bank").length'), 491);
+    assert.equal(run('getStudyPool("bank").length'), 532);
     assert.equal(run('getPersonalNotes().length'), 0);
     run('quizSource="bank"; quizCategory="Redis";');
     assert.ok(run('getQuizPool().some(n=>n.id===added.id)'));
@@ -97,10 +97,10 @@ test('custom questions stay in bank, can be edited and copied, and survive snaps
 test('authored notes automatically join the bank while saved copies do not duplicate originals', () => {
     const { run } = setup();
     run('userNotes=[{id:"user-authored",question:"自己的问题",answer:"A",category:"Java 基础"}];');
-    assert.equal(run('getStudyPool("bank").length'), 491);
+    assert.equal(run('getStudyPool("bank").length'), 532);
     assert.equal(run('getStudyPool("bank").find(n=>n.id==="user-authored").answer'), 'A');
     run('userNotes[0].answer="edited";copyStudyNote(BANK[0].id);');
-    assert.equal(run('getStudyPool("bank").length'), 491);
+    assert.equal(run('getStudyPool("bank").length'), 532);
     assert.equal(run('getStudyPool("bank").find(n=>n.id==="user-authored").answer'), 'edited');
 });
 test('shared trash excludes deleted bank questions and authored notes from quiz and restores mastery', () => {
@@ -111,7 +111,7 @@ test('shared trash excludes deleted bank questions and authored notes from quiz 
     assert.equal(run('getPersonalNotes().length'), 0);
     run('restoreNote(BANK[0].id);restoreNote("user-authored");');
     assert.equal(run('mastery[BANK[0].id].level'), 'hard');
-    assert.equal(run('getStudyPool("bank").length'), 491);
+    assert.equal(run('getStudyPool("bank").length'), 532);
 });
 test('permanent deletion and empty trash remove custom and built-in bank questions after reload', () => {
     const { run } = setup();
@@ -124,10 +124,10 @@ test('permanent deletion and empty trash remove custom and built-in bank questio
 test('a saved copy does not resurrect its permanently deleted custom source in the bank', () => {
     const { run } = setup();
     run('const custom = saveCustomBankQuestion({question:"公司题",answer:"A",category:"Java 基础",company:"新公司"}); copyStudyNote(custom.id); deleteNote(custom.id); permDelete(custom.id);');
-    assert.equal(run('getStudyPool("bank").length'), 490);
+    assert.equal(run('getStudyPool("bank").length'), 531);
     assert.equal(run('getPersonalNotes().length'), 1);
     run('applyStateSnapshot(getStateSnapshot()); quizSource="bank";');
-    assert.equal(run('getQuizPool().length'), 490);
+    assert.equal(run('getQuizPool().length'), 531);
 });
 
 test('company questions aggregate all sources, include custom questions, and respect shared trash', () => {

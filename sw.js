@@ -1,7 +1,8 @@
-const CACHE_NAME = "java-notes-v25";
+const CACHE_NAME = "java-notes-v27";
 const APP_SHELL = [
     "./workspace-shell.js", "./workspace-shell.css",
     "./data/question-bank.js", "./study-core.js", "./study-module.js", "./interview-module.js", "./study-workspace.css",
+    "./assets/interviews/lx-2026-09-08.html", "./assets/interviews/lx-2026-09-08.md",
     "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png",
     "./sync-config.js", "./resume-data.js", "./resume-module.js", "./recruitment.css", "./career-workspace.css", "./recruitment-module.js", "./data/recruitment-jobs.json",
     "./assets/resume/sun-te-resume.pdf",
@@ -44,7 +45,10 @@ self.addEventListener("fetch", event => {
         return;
     }
 
-    if (event.request.mode === "navigate") {
+    // Precached documents must open their own content, including while offline.
+    const isCachedAsset = APP_SHELL.some(asset => asset !== "./" && asset !== "./index.html" &&
+        new URL(asset, self.location.href).pathname === requestUrl.pathname);
+    if (event.request.mode === "navigate" && !isCachedAsset) {
         event.respondWith(
             fetch(event.request)
                 .then(response => {
