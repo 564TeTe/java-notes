@@ -266,7 +266,7 @@
         ${WEEKLY_ACTIONS.map(item => `<button class="${actionChecks[item.id] ? "checked" : ""}" onclick="toggleRecruitmentAction('${item.id}')"><i>${actionChecks[item.id] ? "✓" : ""}</i><span>${item.text}</span></button>`).join("")}</div></section>`;
     }
     function resourcesHTML() {
-        return `<section class="recruit-panel recruit-resource-panel"><div class="recruit-panel-head"><div><h2>常用招聘入口</h2><p>聚合站负责发现机会，企业官网负责确认岗位、截止时间和投递状态。</p></div></div>
+        return `<section class="recruit-panel recruit-resource-panel"><div class="recruit-panel-head"><div><h2>校招信息入口</h2><p>这里集中放聚合平台、校招日程和综合求职网站，方便一次查看更多岗位线索。</p></div></div>
         <div class="recruit-resource-grid">${RESOURCES.map(item => `<a href="${item.url}" target="_blank" rel="noopener"><header><span>${item.icon}</span><i>${item.tag}</i></header><h3>${item.name}</h3><p>${item.desc}</p><b>${new URL(item.url).hostname} ↗</b></a>`).join("")}</div>
         <div class="recruit-source-note">信息校验原则：聚合页、群聊和公众号只能作为线索；涉及网申、截止日期、笔试安排和个人状态时，一律回到企业招聘官网确认。不要为内推付费。</div></section>`;
     }
