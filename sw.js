@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v14";
+const CACHE_NAME = "java-notes-v15";
 const APP_SHELL = [
     "./workspace-shell.js", "./workspace-shell.css",
     "./data/question-bank.js", "./study-core.js", "./study-module.js", "./interview-module.js", "./study-workspace.css",
@@ -11,7 +11,9 @@ const APP_SHELL = [
 ];
 
 self.addEventListener("install", event => {
-    event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
+    event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(
+        APP_SHELL.map(asset => new Request(asset, { cache: "reload" }))
+    )));
     self.skipWaiting();
 });
 
