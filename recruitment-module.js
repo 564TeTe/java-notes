@@ -113,7 +113,9 @@
         const jobs = Array.isArray(data) ? data : (data?.jobs || data?.data || []);
         const asArray = value => Array.isArray(value) ? value : value == null || value === '' ? [] : [String(value)];
         const unique = new Map();
-        jobs.filter(job => job && (!job.cohort || String(job.cohort).includes("2027") || job.cohort === "不限"))
+        // Keep every campus/recruiting record supplied by the feed. Cohort is a
+        // user filter, so older or open-ended batches must remain discoverable.
+        jobs.filter(job => job)
             .forEach(job => {
                 const normalized = { ...job, positions: asArray(job.positions), locations: asArray(job.locations) };
                 const key = [normalized.company, normalized.program, normalized.batch, normalized.positions.join(","), normalized.locations.join(","), normalized.apply_url].join("|");
@@ -141,7 +143,7 @@
                 if (jobs.length < 20) throw new Error("岗位数据不完整");
                 state.feed = jobs;
                 state.feedSource = source === LOCAL_FEED_URL ? "本站快照" : "在线数据";
-                localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt: new Date().toISOString(), jobs: jobs.slice(0, 300) }));
+                localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt: new Date().toISOString(), jobs: jobs.slice(0, 2000) }));
                 loaded = true;
                 break;
             } catch (_) {
