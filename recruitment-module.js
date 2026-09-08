@@ -45,11 +45,6 @@
         { name: "应届生求职网", url: "https://www.yingjiesheng.com/", icon: "🧑‍🎓", tag: "综合招聘", desc: "覆盖应届生校招、实习和宣讲信息的综合求职入口。" },
         { name: "应届生求职网 · 校园招聘", url: "http://101.132.173.68/campus/campus_recruit.html", icon: "📋", tag: "校园招聘", desc: "应届生求职网的校园招聘页面，可作为补充检索入口。" },
         { name: "国家大学生就业服务平台", url: "https://www.ncss.cn/", icon: "🏛️", tag: "官方平台", desc: "教育部主管就业服务入口，适合关注地方、国企、事业单位和专场招聘。" },
-        { name: "字节跳动校园招聘", url: "https://jobs.bytedance.com/campus", icon: "🎵", tag: "企业官网", desc: "校园职位、应聘记录和招聘 FAQ；最终岗位状态以官网为准。" },
-        { name: "腾讯校园招聘", url: "https://join.qq.com/", icon: "🐧", tag: "企业官网", desc: "腾讯校园招聘长期入口，可查看中国区校园职位和个人投递状态。" },
-        { name: "阿里巴巴校园招聘", url: "https://campus-talent.alibaba.com/", icon: "🟠", tag: "企业官网", desc: "阿里巴巴校招项目与职位入口，适合直接搜索后端、Java 与 AI 应用岗位。" },
-        { name: "美团招聘", url: "https://career.meituan.com/", icon: "🟡", tag: "企业官网", desc: "校园招聘、北斗计划、转正实习和日常实习的统一入口。" },
-        { name: "华为校园招聘", url: "https://career.huawei.com/reccampportal/portal5/index.html", icon: "🌺", tag: "企业官网", desc: "华为应届生与实习生职位入口，适合关注软件开发和云服务方向。" }
     ];
 
     const state = {
