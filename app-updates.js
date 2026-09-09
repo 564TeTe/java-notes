@@ -1,6 +1,6 @@
 /* Check a resumed mobile page as well as a newly opened page. Never clear user data. */
 const AppUpdates = (() => {
-    const version = document.querySelector('meta[name="app-version"]')?.content || '30';
+    const version = document.querySelector('meta[name="app-version"]')?.content || '32';
     let registration, checking, handled = false, started = false, lastCheck = 0;
     const watched = new WeakSet();
     const isEditing = () => !!document.querySelector('.modal-overlay.open,dialog[open],.recruit-modal-backdrop') ||

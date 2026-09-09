@@ -1,0 +1,78 @@
+/* Night palette, scoped to leave the existing daytime design intact. */
+html { color-scheme: light; }
+.theme-toggle { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; padding:7px 10px; border:1px solid #dfe6db; border-radius:7px; color:#385e4c; background:transparent; font:inherit; font-size:12px; white-space:nowrap; cursor:pointer; }
+.theme-toggle:focus-visible { outline:2px solid #63b895; outline-offset:3px; }
+.mobile-topbar .theme-toggle { min-height:40px; order:1; margin-left:6px; font-size:12px; }
+
+html[data-theme="dark"] {
+    color-scheme:dark;
+    --night-bg:#101214;
+    --night-panel:#191c1f;
+    --night-raised:#22272b;
+    --night-line:#343b40;
+    --night-ink:#e0e5e3;
+    --night-muted:#a7b2ad;
+    --night-accent:#8cd5b3;
+    --night-soft:#20382e;
+}
+html[data-theme="dark"] body {
+    --primary:var(--night-accent); --primary-light:var(--night-soft);
+    --text:var(--night-ink); --text-muted:var(--night-muted);
+    --bg:var(--night-bg); --card-bg:var(--night-panel); --border:var(--night-line);
+    --shell-ink:var(--night-ink); --shell-muted:var(--night-muted); --shell-line:var(--night-line); --shell-accent:var(--night-accent);
+    --study-ink:var(--night-ink); --study-muted:var(--night-muted); --study-line:var(--night-line); --study-accent:var(--night-accent);
+    --danger:#f2a09e; --danger-light:#3b2426; --mark-color:#e1be79;
+    background:var(--night-bg); color:var(--night-ink);
+}
+html[data-theme="dark"] body :is(.resume-prep,.recruitment-hub) {
+    --career-ink:var(--night-ink); --career-muted:var(--night-muted);
+    --career-line:var(--night-line); --career-accent:var(--night-accent); --career-soft:var(--night-soft);
+    color:var(--night-ink);
+}
+html[data-theme="dark"] body :is(.workspace-header,.sidebar,.sidebar-footer,.mobile-topbar,.mobile-bottombar,.mobile-search-bar,.more-panel,.category-panel,.modal,dialog,.recruit-form,.app-update-notice) {
+    background:var(--night-panel); color:var(--night-ink); border-color:var(--night-line); box-shadow:none;
+}
+html[data-theme="dark"] body :is(.study-card.note,.interview-question-card,.study-quiz-card,.interview-source-card,.interview-record-card,.study-empty,.study-intro,.study-quiz-sources>button,.prep-start,.resume-today,.resume-source-row,.prep-question-filters,.career-search,.career-empty,.recruit-panel,.recruit-stats article,.recruit-job-card,.recruit-application-card,.resume-question-card,.resume-story-card,.resource-card,.resource-section,.recruit-resource-card) {
+    background:var(--night-panel); color:var(--night-ink); border-color:var(--night-line); box-shadow:none;
+}
+html[data-theme="dark"] body :is(h1,h2,h3,h4,.workspace-brand,.topbar-title,.study-question,.study-summary-count strong,.study-summary-count b,.study-progress strong,.study-quiz-sources strong,.recruit-stats strong,.recruit-job-title,.resource-title) { color:var(--night-ink); }
+html[data-theme="dark"] body :is(.subtitle,.study-summary-count,.study-card-meta,.study-card-footer>span,.study-number,.study-filters label,.study-list-heading p,.study-list-heading>span,.study-list-heading h2 span,.study-pagination,.study-intro p,.study-quiz-head p,.study-quiz-sources p,.study-quiz-sources small,.study-empty p,.study-recall-hint,.study-progress>span,.interview-source-card p,.interview-source-card small,.interview-record-card p,.modal-sub,.modal label,.sync-hint,.study-eyebrow,.workspace-brand small) { color:var(--night-muted); }
+html[data-theme="dark"] body :is(.study-answer,.note .answer,.resume-answer,.resume-question-answer,.interview-answer,.recruit-panel p,.resource-desc) { color:#c9d2cc; }
+html[data-theme="dark"] body :is(input,textarea,select,.choice-trigger,.choice-body,.choice-option,.choice-search,.study-secondary,.career-secondary,.btn-cancel,.study-ratings button,.study-pagination button,.recruit-pipeline button,.app-version-row button,.more-grid button) {
+    background:var(--night-raised); color:var(--night-ink); border-color:var(--night-line);
+}
+html[data-theme="dark"] body #searchInput { background:var(--night-raised); color:var(--night-ink); border-color:var(--night-line); }
+html[data-theme="dark"] body :is(input,textarea)::placeholder { color:#9da9a2; opacity:1; }
+html[data-theme="dark"] body :is(.workspace-tools button,.theme-toggle,.workspace-header nav button,.cat-btn,.workspace-marked-link,.nav-item,.study-text,.study-list-tools button,.study-card-footer button,.interview-answer-actions button,.study-linked button,.topbar-search-btn,.editor-close) { color:var(--night-muted); border-color:var(--night-line); }
+html[data-theme="dark"] body :is(.workspace-header nav button.active,.cat-btn.active,.workspace-tools button.active,.nav-item.active,.workspace-marked-link.active,.choice-option[aria-pressed="true"],.study-ratings button.selected,.study-quiz-sources>button.active,.recruit-pipeline button.active,.resume-filter.active,.interview-company-button.active,.interview-tab.active) {
+    background:var(--night-soft); color:var(--night-accent); border-color:#507b66; box-shadow:none;
+}
+html[data-theme="dark"] body .mobile-bottombar .nav-item.active .nav-icon { background:var(--night-soft); color:var(--night-accent); }
+html[data-theme="dark"] body :is(.study-primary,.career-primary,.btn-primary,.recruit-primary,.fab) { background:#316e53; color:#f1faf5; border-color:#4e9875; }
+html[data-theme="dark"] body :is(.study-primary,.career-primary,.btn-primary,.recruit-primary):hover { background:#3c8263; }
+html[data-theme="dark"] body :is(a,.study-answer a,.interview-citations a) { color:var(--night-accent); }
+html[data-theme="dark"] body :is(pre,code,.study-answer pre,.study-answer code,.resume-answer pre,.resume-answer code) { background:#111618; color:#cfddd3; border-color:var(--night-line); }
+html[data-theme="dark"] body :is(.study-priority,.study-linked,.study-switch button span,.resume-file-badge,.recruit-job-tags span,.recruit-toggle,.choice-options,.interview-tabs,.interview-company-list,.interview-citations,.sync-section,.sync-user,.sync-status,.recruit-context) { background:var(--night-raised); color:var(--night-muted); border-color:var(--night-line); }
+html[data-theme="dark"] body :is(.study-summary,.study-card-footer,.study-ratings,.main-header,.study-list-heading,.interview-search-row,.interview-record-card header,.modal .btn-row,.sync-section,.resume-tabs,.recruit-tabs,.prep-module,.prep-question-row) { border-color:var(--night-line); }
+html[data-theme="dark"] body :is(.study-status.known,.study-ratings .known.selected) { color:#93d9b5; }
+html[data-theme="dark"] body :is(.study-status.hard,.study-ratings .hard.selected) { color:#efb49b; }
+html[data-theme="dark"] body .study-ratings .hard.selected { background:#3b2c25; border-color:#a67c62; }
+html[data-theme="dark"] body :is(.study-status.fuzzy,.study-ratings .fuzzy.selected) { color:#e3c686; }
+html[data-theme="dark"] body .study-card.note.marked { border-left-color:#c5a566; }
+html[data-theme="dark"] body button:disabled { opacity:.45; }
+html[data-theme="dark"] body :is(.workspace-marked-link,.back-top,.interview-company-nav,.recruit-toolbar form,.recruit-toggle button,.recruit-panel-head button,.icon-close,.sync-status-card,.sync-status-icon,.res-tag,.resume-mini-progress,.page-settings[open]) { background:var(--night-raised); color:var(--night-muted); border-color:var(--night-line); }
+html[data-theme="dark"] body :is(.interview-company-nav button,.page-range,.page-current,.recruit-kicker,.recruit-hero p,.recruit-hero strong,.recruit-stats strong,.recruit-panel-head>div>span) { color:var(--night-muted); }
+html[data-theme="dark"] body :is(.interview-company-nav button.active,.recruit-toggle button.active) { background:var(--night-soft); color:var(--night-accent); }
+html[data-theme="dark"] body :is(.res-name,.sync-status-card strong) { color:var(--night-ink); }
+html[data-theme="dark"] body :is(.recruit-overview-main p,.recruit-overview-stats strong,.study-filter-toggle) { color:var(--night-muted); }
+html[data-theme="dark"] body .interview-record { background:var(--night-panel); border-color:var(--night-line); }
+html[data-theme="dark"] body :is(.resume-pitch-card,.recruit-overview,.editor-close) { background:var(--night-panel); border-color:var(--night-line); }
+html[data-theme="dark"] body :is(.resume-pitch-card p,.resume-story-card dd,.resume-answer>p,.interview-record p,.interview-record dd) { color:#c9d2cc; }
+html[data-theme="dark"] body #addModal .modal h3 { color:var(--night-ink); }
+html[data-theme="dark"] :focus-visible { outline-color:var(--night-accent); }
+html[data-theme="dark"] ::selection { background:#365b4c; color:#f5faf7; }
+html[data-theme="dark"] * { scrollbar-color:#48534d #191c1f; }
+@media (max-width:768px) {
+    html[data-theme="dark"] body :is(#addModal,#syncModal,#addModal .btn-row) { background:var(--night-panel); border-color:var(--night-line); }
+    .mobile-topbar .topbar-title { flex:1; min-width:0; }
+}

@@ -113,6 +113,60 @@ test('shared trash excludes deleted bank questions and authored notes from quiz 
     assert.equal(run('mastery[BANK[0].id].level'), 'hard');
     assert.equal(run('getStudyPool("bank").length'), 532);
 });
+
+test('deleting a personal note moves it to the bank and preserves content and study state after reload', () => {
+    const { run } = setup();
+    run('userNotes=[{id:"user-move",question:"Q",answer:"自己的答案",category:"Java"}]; mastery["user-move"]={level:"hard"}; markedIds.add("user-move"); studySource="personal"; deleteNote("user-move");');
+    assert.equal(run('getPersonalNotes().length'), 0);
+    assert.equal(run('getDeletedNotes().length'), 0);
+    assert.equal(run('getStudyPool("bank").find(n=>n.id==="user-move").answer'), '自己的答案');
+    run('loadUserNotes(); const movedSnapshot=getStateSnapshot(); applyStateSnapshot(movedSnapshot);');
+    assert.equal(run('getPersonalNotes().length'), 0);
+    assert.equal(run('mastery["user-move"].level'), 'hard');
+    assert.ok(run('markedIds.has("user-move")'));
+    run('quizSource="personal";');
+    assert.equal(run('getQuizPool().length'), 0);
+    run('studySource="bank";');
+    assert.ok(run('studyCard(getStudyPool().find(n=>n.id==="user-move")).includes("＋ 记入笔记")'));
+    run('copyStudyNote("user-move"); copyStudyNote("user-move");');
+    assert.equal(run('getPersonalNotes().length'), 1);
+    assert.equal(run('userNotes.length'), 1);
+});
+
+test('a saved copy moved to the bank retains edited answers and can pass through trash', () => {
+    const { run } = setup();
+    run('copyStudyNote(BANK[0].id); const movedId=userNotes[0].id; userNotes[0].answer="个人理解"; studySource="personal"; deleteNote(movedId);');
+    assert.equal(run('getPersonalNotes().length'), 0);
+    assert.equal(run('getDeletedNotes().length'), 0);
+    assert.equal(run('getStudyPool("bank").find(n=>n.id===movedId).answer'), '个人理解');
+    assert.ok(run('getStudyPool("bank").some(n=>n.id===BANK[0].id)'));
+    run('studySource="bank"; deleteNote(movedId);');
+    assert.equal(run('getDeletedNotes().length'), 1);
+    assert.ok(run('!getStudyPool("bank").some(n=>n.id===movedId)'));
+    run('restoreNote(movedId);');
+    assert.equal(run('getPersonalNotes().length'), 0);
+    assert.equal(run('getStudyPool("bank").find(n=>n.id===movedId).answer'), '个人理解');
+    run('copyStudyNote(BANK[0].id);');
+    assert.equal(run('getPersonalNotes().length'), 1);
+    assert.equal(run('getPersonalNotes()[0].answer'), '个人理解');
+});
+
+test('deleting an automatically collected note in the bank restores only to the bank', () => {
+    const { run } = setup();
+    run('userNotes=[{id:"user-bank-delete",question:"Q",answer:"A",category:"Java"}]; studySource="bank"; deleteNote("user-bank-delete"); restoreNote("user-bank-delete");');
+    assert.equal(run('getPersonalNotes().length'), 0);
+    assert.ok(run('getStudyPool("bank").some(n=>n.id==="user-bank-delete")'));
+});
+
+test('interview extraction can return a moved question to the notebook without losing its answer', () => {
+    const { run } = setup();
+    run('applyInterviewSnapshot([{id:"interview-move",company:"公司",questions:"问题？"}]); extractInterviewNotes("interview-move"); const extractedId=userNotes[0].id; userNotes[0].answer="补充的回答"; studySource="personal"; deleteNote(extractedId);');
+    assert.equal(run('getPersonalNotes().length'), 0);
+    run('extractInterviewNotes("interview-move"); loadUserNotes();');
+    assert.equal(run('getPersonalNotes().length'), 1);
+    assert.equal(run('getPersonalNotes()[0].answer'), '补充的回答');
+    assert.equal(run('userNotes.length'), 1);
+});
 test('permanent deletion and empty trash remove custom and built-in bank questions after reload', () => {
     const { run } = setup();
     run('const custom=saveCustomBankQuestion({question:"Q",answer:"A",category:"Redis"});deleteNote(custom.id);deleteNote(BANK[0].id);emptyTrash();loadState();loadUserNotes();');

@@ -43,23 +43,35 @@ function getPersonalNotes(includeDeleted = false) {
     // Imported 420 questions are the canonical home for built-in questions.
     // The personal area contains only user-authored notes and saved copies.
     const merged = [...userNotes];
-    return includeDeleted ? merged : StudyCore.pool('personal', BANK, merged, deletedIds, purgedIds);
+    return includeDeleted ? merged : StudyCore.pool('personal', BANK, merged.filter(n => !n.bankOnly), deletedIds, purgedIds);
 }
 function getAllStudyRecords() {
     return [...new Map([...BANK, ...customBankQuestions, ...userNotes].map(n => [n.id, n])).values()];
 }
 function getStudyPool(source = studySource) {
     if (source !== 'bank') return getPersonalNotes();
-    // Authored notes share identity with the bank. Saved copies keep their personal
-    // wording but do not create a second bank entry for the same source.
+    // Authored notes share identity with the bank. Copies removed from the notebook
+    // retain their personal wording as separate bank entries until saved again.
     const bank = [...customBankQuestions, ...BANK];
-    const authored = userNotes.filter(n => !n.sourceId);
+    const authored = userNotes.filter(n => !n.sourceId || n.bankOnly);
     return StudyCore.pool('personal', [], [...authored, ...bank], deletedIds, purgedIds);
 }
 getActiveNotes = function() { return getStudyPool(); };
 getDeletedNotes = function() { return getAllStudyRecords().filter(n => deletedIds.has(n.id) && !purgedIds.has(n.id)); };
 deleteNote = function(id) {
-    if (!getAllStudyRecords().some(n => n.id === id)) return;
+    if (!getAllStudyRecords().some(n => n.id === id) || deletedIds.has(id) || purgedIds.has(id)) return;
+    const note = userNotes.find(n => n.id === id);
+    const fromPersonal = studySource === 'personal' && !showInterviewExp;
+    if (fromPersonal && (!note || note.bankOnly)) return;
+    if (note) {
+        // Keep identity, personal wording and learning history across both moves.
+        note.bankOnly = true;
+        note.updatedAt = new Date().toISOString();
+        saveUserNotes();
+    }
+    if (fromPersonal) {
+        renderAll(); toast('已移到题库，题目和学习记录已保留'); return;
+    }
     deletedIds.add(id); saveDeleted(); renderAll(); toast('已移入回收站，可恢复');
 };
 restoreNote = function(id) {
@@ -153,7 +165,7 @@ function studyRatings(note, index) {
 }
 function studyCard(n) {
     const isBank = studySource === 'bank' && !showTrash;
-    const copied = userNotes.some(u => (u.sourceId === n.id || u.id === n.id) && !deletedIds.has(u.id));
+    const copied = getPersonalNotes().some(u => u.sourceId === n.id || u.id === n.id);
     const level = mastery[n.id]?.level || 'new';
     const expanded = !collapsedNotes.has(n.id);
     return `<article class="study-card note${markedIds.has(n.id) ? ' marked' : ''}" id="note-${studyEsc(n.id)}">
@@ -163,7 +175,7 @@ function studyCard(n) {
         <footer class="study-card-footer"><span>${showTrash ? (n.id.startsWith('bank-') ? '内置题库' : n.id.startsWith('custom-bank-') ? (n.company ? '公司面经 · ' + studyEsc(n.company) : '自建题库') : '我的笔记') : isBank ? studyEsc(n.kind || '我的笔记 · 自动收录') : n.sourceId ? '来自题库 · 可编辑自己的理解' : n.id.startsWith('user-') ? '我的记录' : '原有笔记'}</span><div>
             ${showTrash ? `<button data-action="restore" data-id="${studyEsc(n.id)}">恢复</button><button data-action="perm-delete" data-id="${studyEsc(n.id)}">永久删除</button>` : `
             <button data-study="mark" data-id="${studyEsc(n.id)}" aria-pressed="${markedIds.has(n.id)}" aria-label="${markedIds.has(n.id) ? '取消重点' : '标记重点'}：${studyEsc(n.question)}">${markedIds.has(n.id) ? '★ 已标重点' : '☆ 重点'}</button>
-            ${isBank ? `<button data-study="copy" data-id="${studyEsc(n.id)}">${copied ? '✓ 已存笔记' : '＋ 记入笔记'}</button>${n.id.startsWith('custom-bank-') ? `<button data-study="edit-bank" data-id="${studyEsc(n.id)}">编辑题目</button>` : userNotes.some(u => u.id === n.id) ? `<button data-study="edit" data-id="${studyEsc(n.id)}">编辑笔记</button>` : ''}<button data-action="delete" data-id="${studyEsc(n.id)}">删除</button>` : `<button data-study="edit" data-id="${studyEsc(n.id)}">编辑</button><button data-action="delete" data-id="${studyEsc(n.id)}" aria-label="删除笔记：${studyEsc(n.question)}">删除</button>`}`}
+            ${isBank ? `<button data-study="copy" data-id="${studyEsc(n.id)}">${copied ? '✓ 已存笔记' : '＋ 记入笔记'}</button>${n.id.startsWith('custom-bank-') ? `<button data-study="edit-bank" data-id="${studyEsc(n.id)}">编辑题目</button>` : userNotes.some(u => u.id === n.id) ? `<button data-study="edit" data-id="${studyEsc(n.id)}">编辑笔记</button>` : ''}<button data-action="delete" data-id="${studyEsc(n.id)}">删除</button>` : `<button data-study="edit" data-id="${studyEsc(n.id)}">编辑</button><button data-action="delete" data-id="${studyEsc(n.id)}" title="从我的笔记移到题库" aria-label="删除笔记并移到题库：${studyEsc(n.question)}">删除</button>`}`}
         </div></footer>
     </article>`;
 }
@@ -181,7 +193,7 @@ function renderStudyLibrary(filtered) {
     html += `<div class="study-list-heading"><h2>${showTrash ? '回收站' : showMarkedOnly ? '重点复习' : bank ? '全部题目' : '我的记录'} <span>${filtered.length}</span></h2>${!showTrash ? studyFilterToggle() : ''}${studyAnswerToggle(filtered)}</div>`;
     if (!showTrash) html += studyFilters();
     if (showTrash && filtered.length) html += '<button class="study-secondary" onclick="emptyTrash()">清空回收站</button>';
-    if (!filtered.length) html += `<div class="study-empty"><span>⌕</span><h3>${showTrash ? (getDeletedNotes().length ? '没有匹配的已删除内容' : '回收站是空的') : !bank && !pool.length ? '从你的第一条笔记开始' : '暂时没有符合条件的内容'}</h3><p>${showTrash ? '删除的题目和笔记会显示在这里，可恢复或永久清除。' : bank ? '换一个关键词，或清空筛选继续学习。' : '写下第一条笔记，或从题库保存你想复习的问题。'}</p><button class="study-secondary" data-study="clear">清空筛选</button>${!bank && !showTrash ? '<button class="study-primary" data-study="add">写笔记</button>' : ''}</div>`;
+    if (!filtered.length) html += `<div class="study-empty"><span>⌕</span><h3>${showTrash ? (getDeletedNotes().length ? '没有匹配的已删除内容' : '回收站是空的') : !bank && !pool.length ? '从你的第一条笔记开始' : '暂时没有符合条件的内容'}</h3><p>${showTrash ? '从题库删除的题目会显示在这里，可恢复或永久清除。' : bank ? '换一个关键词，或清空筛选继续学习。' : '写下第一条笔记，或从题库保存你想复习的问题。'}</p><button class="study-secondary" data-study="clear">清空筛选</button>${!bank && !showTrash ? '<button class="study-primary" data-study="add">写笔记</button>' : ''}</div>`;
     else html += renderStudyPagination(filtered.length, 'top') + pageItems.map(studyCard).join('');
     if (filtered.length) html += renderStudyPagination(filtered.length, 'bottom');
     return html;
@@ -236,7 +248,7 @@ renderNotes = function(filtered) {
     const title = showInterviewExp ? '公司面经' : showMarkedOnly ? '重点复习' : showQuiz ? '随机抽查' : showTrash ? '回收站' : studySource === 'bank' ? 'Java 后端题库' : '我的笔记';
     document.getElementById('mainTitle').textContent = title;
     document.getElementById('topbarTitle').textContent = title;
-    document.getElementById('mainSubtitle').textContent = showTrash ? '题库、笔记与公司问答的已删除内容。' : showMarkedOnly ? '集中复习已标记的重要知识点。' : showInterviewExp ? '按公司查题，逐题练习，也记录自己的面试经历。' : showQuiz ? '两种来源，按自己的节奏练习。' : studySource === 'personal' ? '自己的理解与答案，保存后自动收录到题库。' : '系统学习与自己的积累，都在一个题库里。';
+    document.getElementById('mainSubtitle').textContent = showTrash ? '题库、笔记与公司问答的已删除内容。' : showMarkedOnly ? '集中复习已标记的重要知识点。' : showInterviewExp ? '按公司查题，逐题练习，也记录自己的面试经历。' : showQuiz ? '两种来源，按自己的节奏练习。' : studySource === 'personal' ? '自己的理解与答案；删除后移到题库，内容仍保留。' : '系统学习与自己的积累，都在一个题库里。';
     document.querySelector('.main-header .stats').style.display = 'none';
     document.getElementById('notesContainer').innerHTML = showInterviewExp ? renderInterviewWorkspace() : showQuiz ? renderStudyQuiz() : renderStudyLibrary(filtered);
 };
@@ -263,12 +275,15 @@ updateBadges = function() {
 };
 function copyStudyNote(id) {
     const source = getAllStudyRecords().find(n => n.id === id); if (!source) return;
-    if (userNotes.some(n => n.id === id)) { toast('这条内容已在我的笔记中'); return; }
-    const result = StudyCore.copyNote(source, userNotes, () => 'user-' + crypto.randomUUID());
+    const existing = userNotes.find(n => n.id === id);
+    if (existing && !existing.bankOnly && !deletedIds.has(id) && !purgedIds.has(id)) { toast('这条内容已在我的笔记中'); return; }
+    const result = existing ? { note: existing, created: false } : StudyCore.copyNote(source, userNotes, () => 'user-' + crypto.randomUUID());
+    const restored = result.note.bankOnly || deletedIds.has(result.note.id) || purgedIds.has(result.note.id);
+    delete result.note.bankOnly;
     if (result.created) userNotes.unshift(result.note);
     deletedIds.delete(result.note.id); purgedIds.delete(result.note.id);
     saveUserNotes(); saveDeleted(); savePurged(); renderAll();
-    toast(result.created ? '已保存到我的笔记，可以编辑自己的理解' : '这道题已在我的笔记中');
+    toast(result.created || restored ? '已保存到我的笔记，可以编辑自己的理解' : '这道题已在我的笔记中');
 }
 const legacyOpenAddModal = openAddModal;
 openAddModal = function(id, source) {
@@ -281,7 +296,7 @@ openAddModal = function(id, source) {
     const modal = document.getElementById('addModal');
     modal.querySelector('h3').textContent = studyEditorSource === 'bank' ? note ? '编辑题目' : '添加题目到题库' : note ? '编辑我的笔记' : '写一条笔记';
     modal.querySelector('.modal').setAttribute('aria-label', studyEditorSource === 'bank' ? '题库编辑器' : '我的笔记编辑器');
-    modal.querySelector('.modal-sub').textContent = studyEditorSource === 'bank' ? '保存后可在题库中查找、抽查，也可记入个人笔记。' : '记录自己的理解与答案，保存后自动收录到题库。';
+    modal.querySelector('.modal-sub').textContent = studyEditorSource === 'bank' ? '保存后可在题库中查找、抽查，也可记入个人笔记。' : '记录自己的理解与答案；删除后移到题库，内容仍保留。';
     document.getElementById('bankPriorityField').hidden = studyEditorSource !== 'bank';
     document.getElementById('bankPriority').value = note?.priority || 'P1';
     document.getElementById('bankCompany').value = note?.company || '';
@@ -311,7 +326,7 @@ addNote = function() {
     const note = { ...(existing || {}), id: existing?.id || 'user-' + crypto.randomUUID(), question, answer, category, keywords: existing?.keywords || [], updatedAt: new Date().toISOString() };
     const index = userNotes.findIndex(n => n.id === note.id);
     if (index >= 0) userNotes[index] = note; else userNotes.unshift(note);
-    saveUserNotes(); closeAddModal(); openStudy('personal');
+    saveUserNotes(); closeAddModal(); openStudy(note.bankOnly ? 'bank' : 'personal');
     collapsedNotes.delete(note.id); renderAll(); toast(existing ? '笔记已更新' : '已保存笔记，并自动收录到题库');
 };
 function initStudyWorkspace() {

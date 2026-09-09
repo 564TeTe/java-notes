@@ -80,7 +80,11 @@ function extractInterviewNotes(id) {
     let added = 0;
     questions.forEach(question => {
         const existing = userNotes.find(n => n.interviewId === id && n.question === question);
-        if (existing) { deletedIds.delete(existing.id); return; }
+        if (existing) {
+            if (existing.bankOnly || deletedIds.has(existing.id)) added++;
+            delete existing.bankOnly;
+            deletedIds.delete(existing.id); return;
+        }
         userNotes.unshift({ id: 'user-' + crypto.randomUUID(), interviewId: id, question, category: autoDetectCategory(question, '') || '面试复盘',
             answer: `来自 ${record.company} · ${record.round || '面试'}（${record.date || '日期未填'}）\n\n待补充：我的回答、遗漏的原理、正确思路与举例。`, keywords: [record.company], updatedAt: new Date().toISOString() });
         added++;
