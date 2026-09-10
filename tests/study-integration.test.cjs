@@ -15,7 +15,7 @@ function setup() {
     });
     context.window = context;
     const run = code => vm.runInContext(code, context);
-    for (const name of ['resume-data.js', 'resume-module.js', 'recruitment-module.js', 'data/question-bank.js', 'study-core.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
+    for (const name of ['resume-data.js', 'resume-module.js', 'recruitment-module.js', 'data/question-bank.js', 'data/question-curation.js', 'study-core.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
     for (const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) if (match[1].includes('const NOTES')) run(match[1]);
     for (const name of ['study-module.js','interview-module.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
@@ -167,9 +167,57 @@ test('interview extraction can return a moved question to the notebook without l
     assert.equal(run('getPersonalNotes()[0].answer'), '补充的回答');
     assert.equal(run('userNotes.length'), 1);
 });
+
+test('Java backend curation moves only the selected built-in questions into recoverable trash', () => {
+    const { run, store } = setup();
+    run('userNotes=[{id:"user-safe-curation",sourceId:"bank-LX001",question:"我的理解",answer:"保留",category:"算法"}]; mastery["bank-LX001"]={level:"known"}; saveUserNotes(); saveMastery(); loadState(); loadUserNotes();');
+    assert.equal(run('getStudyPool("bank").length'), 513);
+    assert.equal(run('getDeletedNotes().length'), 18);
+    assert.ok(run('getDeletedNotes().some(n=>n.id==="bank-LX001")'));
+    assert.equal(run('getPersonalNotes()[0].answer'), '保留');
+    assert.equal(run('mastery["bank-LX001"].level'), 'known');
+    assert.ok(JSON.parse(store.get('deleted-ids')).includes('bank-LX001'));
+    run('quizSource="bank";');
+    assert.ok(run('!getQuizPool().some(n=>n.id==="bank-LX001")'));
+    assert.ok(run('!getCompanyQuestions("all").some(n=>n.id==="bank-LX001")'));
+});
+
+test('restoring a curated question survives reload and snapshot import; deleting it again stays deleted', () => {
+    const { run } = setup();
+    run('loadState(); restoreNote("bank-LX001"); loadState();');
+    assert.ok(run('getStudyPool("bank").some(n=>n.id==="bank-LX001")'));
+    run('const curatedSnapshot=JSON.parse(JSON.stringify(getStateSnapshot())); applyStateSnapshot(curatedSnapshot);');
+    assert.ok(run('getStudyPool("bank").some(n=>n.id==="bank-LX001")'));
+    assert.equal(run('getDeletedNotes().length'), 17);
+    run('studySource="bank";deleteNote("bank-LX001");loadState();');
+    assert.equal(run('getDeletedNotes().length'), 18);
+});
+
+test('legacy cloud snapshots receive curated trash without erasing unrelated deleted records', () => {
+    const { run } = setup();
+    run('applyStateSnapshot({userNotes:[],deletedIds:[BANK[0].id]});');
+    assert.equal(run('getDeletedNotes().length'), 19);
+    run('restoreNote("bank-LX001"); applyStateSnapshot({userNotes:[],deletedIds:[BANK[0].id]});');
+    assert.ok(run('getStudyPool("bank").some(n=>n.id==="bank-LX001")'));
+    assert.equal(run('getDeletedNotes().length'), 18);
+});
+
+test('curation keeps a new device eligible to load newer cloud data during startup', () => {
+    const { run, store } = setup();
+    run('loadSyncSession=applySidebarState=bindEvents=initMobile=updateSyncUI=registerPWA=function(){};window.matchMedia=()=>({matches:false}); init();');
+    assert.equal(run('getDeletedNotes().length'), 18);
+    assert.equal(store.get(run('LOCAL_UPDATED_KEY')), undefined);
+});
+
+test('permanently deleted curated questions are not reintroduced after reload', () => {
+    const { run } = setup();
+    run('loadState(); permDelete("bank-LX001"); loadState();');
+    assert.ok(run('!getStudyPool("bank").some(n=>n.id==="bank-LX001")'));
+    assert.ok(run('!getDeletedNotes().some(n=>n.id==="bank-LX001")'));
+});
 test('permanent deletion and empty trash remove custom and built-in bank questions after reload', () => {
     const { run } = setup();
-    run('const custom=saveCustomBankQuestion({question:"Q",answer:"A",category:"Redis"});deleteNote(custom.id);deleteNote(BANK[0].id);emptyTrash();loadState();loadUserNotes();');
+    run('loadState(); const custom=saveCustomBankQuestion({question:"Q",answer:"A",category:"Redis"});deleteNote(custom.id);deleteNote(BANK[0].id);emptyTrash();loadState();loadUserNotes();');
     assert.equal(run('getCustomBankQuestions().length'), 0);
     assert.ok(run('!getStudyPool("bank").some(n=>n.id===BANK[0].id)'));
     assert.equal(run('getDeletedNotes().length'), 0);
@@ -181,7 +229,7 @@ test('a saved copy does not resurrect its permanently deleted custom source in t
     assert.equal(run('getStudyPool("bank").length'), 531);
     assert.equal(run('getPersonalNotes().length'), 1);
     run('applyStateSnapshot(getStateSnapshot()); quizSource="bank";');
-    assert.equal(run('getQuizPool().length'), 531);
+    assert.equal(run('getQuizPool().length'), 513);
 });
 
 test('company questions aggregate all sources, include custom questions, and respect shared trash', () => {

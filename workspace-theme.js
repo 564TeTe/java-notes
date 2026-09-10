@@ -10,7 +10,7 @@
         const dark = theme === 'dark';
         document.documentElement.dataset.theme = theme;
         const meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.content = dark ? '#101214' : '#f5f7f3';
+        if (meta) meta.content = dark ? '#101214' : '#f3f5f2';
         document.querySelectorAll('[data-theme-toggle]').forEach(button => {
             button.textContent = dark ? '☀ 日间' : '☾ 夜间';
             button.setAttribute('aria-label', dark ? '切换到浅色主题' : '切换到黑色主题');

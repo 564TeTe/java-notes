@@ -1,8 +1,77 @@
-/* Night palette, scoped to leave the existing daytime design intact. */
+/* Shared theme controls and separate day/night palettes. */
 html { color-scheme: light; }
 .theme-toggle { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; padding:7px 10px; border:1px solid #dfe6db; border-radius:7px; color:#385e4c; background:transparent; font:inherit; font-size:12px; white-space:nowrap; cursor:pointer; }
 .theme-toggle:focus-visible { outline:2px solid #63b895; outline-offset:3px; }
 .mobile-topbar .theme-toggle { min-height:40px; order:1; margin-left:6px; font-size:12px; }
+
+/* Daylight: neutral paper surfaces, readable labels, restrained green accents. */
+html:not([data-theme="dark"]) {
+    --day-bg:#f3f5f2;
+    --day-panel:#ffffff;
+    --day-soft:#f7f9f6;
+    --day-line:#dce3dc;
+    --day-ink:#253a30;
+    --day-body:#405348;
+    --day-muted:#596b5f;
+    --day-accent:#28654b;
+    --day-selected:#e7f0e9;
+}
+html:not([data-theme="dark"]) body {
+    --primary:var(--day-accent); --primary-light:var(--day-selected);
+    --text:var(--day-ink); --text-muted:var(--day-muted); --bg:var(--day-bg); --card-bg:var(--day-panel); --border:var(--day-line);
+    --shell-ink:var(--day-ink); --shell-muted:var(--day-muted); --shell-line:var(--day-line); --shell-accent:var(--day-accent);
+    --study-ink:var(--day-ink); --study-muted:var(--day-muted); --study-line:var(--day-line); --study-accent:var(--day-accent);
+    --danger:#a54239; --danger-light:#fbedeb;
+    background:var(--day-bg); color:var(--day-ink);
+}
+html:not([data-theme="dark"]) body :is(.resume-prep,.recruitment-hub) {
+    --career-ink:var(--day-ink); --career-muted:var(--day-muted); --career-line:var(--day-line); --career-accent:var(--day-accent); --career-soft:var(--day-selected);
+    color:var(--day-ink);
+}
+html:not([data-theme="dark"]) body :is(.workspace-header,.sidebar,.sidebar-footer,.mobile-topbar,.mobile-bottombar,.interview-company-nav) { background:#fafbf9; border-color:var(--day-line); }
+html:not([data-theme="dark"]) body :is(.study-card.note,.study-quiz-card,.interview-source-card,.interview-record,.resume-source-row,.resume-pitch-card,.resume-story-card,.resume-question-card,.recruit-job-card,.recruit-panel,.recruit-resource-card,.resource-card,.career-empty,.modal,dialog,.more-panel,.recruit-form) {
+    background:var(--day-panel); border-color:var(--day-line); color:var(--day-body);
+    box-shadow:0 2px 6px #233d2d04;
+}
+html:not([data-theme="dark"]) body :is(h1,h2,h3,h4,.workspace-brand,.topbar-title,.study-question,.study-summary-count strong,.study-quiz-sources strong,.res-name,.resume-question-title) { color:var(--day-ink); }
+html:not([data-theme="dark"]) body :is(.study-answer,.note .answer,.resume-answer,.resume-pitch-card p,.resume-story-card dd,.resume-answer>p,.interview-record dd,.resource-desc) { color:var(--day-body); }
+html:not([data-theme="dark"]) body :is(.subtitle,.study-summary-count,.study-card-meta,.study-card-footer>span,.study-number,.study-filters label,.study-list-heading p,.study-list-heading>span,.study-list-heading h2 span,.study-pagination,.study-intro p,.study-quiz-head p,.study-quiz-sources p,.study-quiz-sources small,.study-empty p,.study-recall-hint,.study-eyebrow,.study-progress>span,.study-quiz-guide span,.interview-source-card p,.interview-source-card small,.interview-record-intro p,.interview-record dt,.interview-record footer,.modal-sub,.modal label,.sync-hint,.page-range,.page-current,.workspace-brand small) { color:var(--day-muted); }
+html:not([data-theme="dark"]) body :is(.workspace-header nav button,.cat-btn,.nav-item,.interview-company-nav button,.interview-company-nav button small,.workspace-tools button,.theme-toggle,.workspace-marked-link,.study-filter-toggle,.study-text,.study-list-tools button,.study-card-footer button,.interview-record footer button) { color:var(--day-muted); }
+html:not([data-theme="dark"]) body :is(.study-summary,.study-card-footer,.study-ratings,.interview-record footer,.study-pagination,.prep-module) { border-color:var(--day-line); }
+html:not([data-theme="dark"]) body :is(.study-intro,.study-empty,.prep-start,.recruit-overview,.recruit-context,.study-linked,.sync-status-card,.interview-citations) { background:var(--day-soft); color:var(--day-body); border-color:var(--day-line); }
+html:not([data-theme="dark"]) body :is(input,textarea,select,.choice-trigger,.choice-body,.choice-option,.career-search,.recruit-toolbar form) { background:var(--day-panel); color:var(--day-body); border-color:#c8d4ca; }
+html:not([data-theme="dark"]) body #searchInput { background:var(--day-panel); color:var(--day-body); border-color:#c8d4ca; }
+html:not([data-theme="dark"]) body :is(input,textarea)::placeholder { color:#6d7c72; opacity:1; }
+html:not([data-theme="dark"]) body :is(.study-secondary,.career-secondary,.btn-cancel,.study-ratings button,.study-pagination button,.recruit-pipeline button,.app-version-row button,.workspace-marked-link,.theme-toggle,.more-grid button) { background:var(--day-panel); color:var(--day-body); border-color:#cfd9d0; }
+html:not([data-theme="dark"]) body :is(.study-primary,.career-primary,.btn-primary,.recruit-primary,.fab) { background:var(--day-accent); border-color:var(--day-accent); color:#fff; }
+html:not([data-theme="dark"]) body :is(.study-primary,.career-primary,.btn-primary,.recruit-primary):hover { background:#1e503b; border-color:#1e503b; }
+html:not([data-theme="dark"]) body :is(.workspace-header nav button.active,.cat-btn.active,.workspace-tools button.active,.workspace-marked-link.active,.interview-company-nav button.active,.choice-option[aria-pressed="true"],.study-quiz-sources>button.active,.resume-filter.active,.recruit-pipeline button.active,.recruit-toggle button.active) { background:var(--day-selected); color:#245a40; border-color:#b4cdbb; box-shadow:none; }
+html:not([data-theme="dark"]) body .workspace-header nav button.active::after { background:var(--day-accent); }
+html:not([data-theme="dark"]) body .mobile-bottombar .nav-item.active { color:var(--day-accent); background:transparent; }
+html:not([data-theme="dark"]) body .mobile-bottombar .nav-item.active .nav-icon { background:var(--day-selected); color:var(--day-accent); }
+html:not([data-theme="dark"]) body :is(.study-status.known,.study-ratings .known.selected) { color:#27683f; }
+html:not([data-theme="dark"]) body .study-ratings .known.selected { background:#eaf4ed; border-color:#9ebda7; }
+html:not([data-theme="dark"]) body :is(.study-status.fuzzy,.study-ratings .fuzzy.selected) { color:#855d16; }
+html:not([data-theme="dark"]) body .study-ratings .fuzzy.selected { background:#faf1dc; border-color:#d7bd83; }
+html:not([data-theme="dark"]) body :is(.study-status.hard,.study-ratings .hard.selected) { color:#a34732; }
+html:not([data-theme="dark"]) body .study-ratings .hard.selected { background:#fbeee8; border-color:#d5aa98; }
+html:not([data-theme="dark"]) body .study-priority { color:#785c26; background:#f7f0df; }
+html:not([data-theme="dark"]) body .study-card.note.marked { background:#fffdf7; border-left-color:#b58a3c; }
+html:not([data-theme="dark"]) body :is(.study-answer pre,.study-answer code,.resume-answer pre,.resume-answer code) { background:#f0f4f0; color:#344d3e; }
+html:not([data-theme="dark"]) body :is(.study-answer a,.resource-card a,.interview-citations a,.career-text) { color:var(--day-accent); }
+html:not([data-theme="dark"]) body :is(.page-range span,.page-current span,.page-settings summary,.study-chevron,.study-empty>span,.study-quiz-sources>button>span,.interview-company-head p,.prep-progress small,.prep-source-number,.recruit-overview p,.recruit-overview-stats span,.recruit-overview-stats small,.recruit-toggle button) { color:var(--day-muted); }
+html:not([data-theme="dark"]) body .workspace-tools small { color:#865e27; }
+html:not([data-theme="dark"]) body :is(.study-card-footer button[data-action="delete"],.study-card-footer button[data-action="perm-delete"],.empty-trash-btn) { color:#a34a40; }
+html:not([data-theme="dark"]) body :is([data-action="delete"],[data-action="perm-delete"]):hover { color:#802e26; text-decoration:underline; text-underline-offset:3px; }
+html:not([data-theme="dark"]) :focus-visible { outline:2px solid #417e5b; outline-offset:3px; }
+html:not([data-theme="dark"]) ::selection { color:#1c4832; background:#d7e8da; }
+@media (hover:hover) {
+    html:not([data-theme="dark"]) body :is(.cat-btn:not(.active),.workspace-tools button,.theme-toggle,.study-secondary,.career-secondary,.more-grid button):hover { background:#edf3ed; color:#28543c; border-color:#acc4b2; }
+    html:not([data-theme="dark"]) body .study-card.note:hover { border-color:#b8cabe; }
+}
+@media (max-width:768px) {
+    html:not([data-theme="dark"]) body :is(#addModal,#syncModal,#addModal .btn-row) { background:var(--day-soft); border-color:var(--day-line); }
+}
 
 html[data-theme="dark"] {
     color-scheme:dark;

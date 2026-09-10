@@ -1,5 +1,15 @@
 /* Study workspace. Loaded after the legacy app declarations and before init(). */
 const BANK = window.QUESTION_BANK_DATA.questions;
+function applyStudyCuration() {
+    const reasons = window.QUESTION_BANK_CURATION?.reasons || {};
+    for (const note of BANK) {
+        if (Object.hasOwn(reasons, note.id) && !restoredCuratedIds.has(note.id) && !purgedIds.has(note.id)) deletedIds.add(note.id);
+    }
+    // Do not change the sync timestamp during startup: a newer cloud snapshot
+    // must still load before this same reversible selection is applied to it.
+    localStorage.setItem('deleted-ids', JSON.stringify([...deletedIds]));
+    localStorage.setItem('restored-curated-ids', JSON.stringify([...restoredCuratedIds]));
+}
 let customBankQuestions = [];
 try { customBankQuestions = StudyCore.restoreBankQuestions(JSON.parse(localStorage.getItem('custom-bank-questions') || '[]')); } catch (_) {}
 function getCustomBankQuestions() { return customBankQuestions; }
@@ -72,9 +82,11 @@ deleteNote = function(id) {
     if (fromPersonal) {
         renderAll(); toast('已移到题库，题目和学习记录已保留'); return;
     }
+    restoredCuratedIds.delete(id);
     deletedIds.add(id); saveDeleted(); renderAll(); toast('已移入回收站，可恢复');
 };
 restoreNote = function(id) {
+    if (Object.hasOwn(window.QUESTION_BANK_CURATION?.reasons || {}, id)) restoredCuratedIds.add(id);
     deletedIds.delete(id); saveDeleted(); renderAll(); toast('已恢复，学习记录已保留');
 };
 function purgeStudyRecord(id) {
@@ -172,6 +184,7 @@ function studyCard(n) {
         <div class="study-card-meta"><span class="study-number">${studyEsc(n.number || n.sourceNumber || (n.id.startsWith('custom-bank-') ? '自建题目' : '个人笔记'))}</span><span>${studyEsc(n.category)}</span>${n.priority ? `<span class="study-priority">${studyEsc(n.priority)}</span>` : ''}<span class="study-status ${level}">${studyLevelNames[level]}</span></div>
         <button class="study-question" data-study="expand" data-id="${studyEsc(n.id)}" aria-expanded="${expanded}" aria-controls="answer-${studyEsc(n.id)}"><span>${studyEsc(n.question)}</span><span class="study-chevron">${expanded ? '−' : '+'}</span></button>
         <div class="study-answer answer${expanded ? '' : ' collapsed'}" id="answer-${studyEsc(n.id)}">${studyMarkdown(n.answer)}${studyRatings(n)}</div>
+        ${showTrash && window.QUESTION_BANK_CURATION?.reasons[n.id] ? `<p class="study-linked">Java 后端复习整理：${studyEsc(window.QUESTION_BANK_CURATION.reasons[n.id])}</p>` : ''}
         <footer class="study-card-footer"><span>${showTrash ? (n.id.startsWith('bank-') ? '内置题库' : n.id.startsWith('custom-bank-') ? (n.company ? '公司面经 · ' + studyEsc(n.company) : '自建题库') : '我的笔记') : isBank ? studyEsc(n.kind || '我的笔记 · 自动收录') : n.sourceId ? '来自题库 · 可编辑自己的理解' : n.id.startsWith('user-') ? '我的记录' : '原有笔记'}</span><div>
             ${showTrash ? `<button data-action="restore" data-id="${studyEsc(n.id)}">恢复</button><button data-action="perm-delete" data-id="${studyEsc(n.id)}">永久删除</button>` : `
             <button data-study="mark" data-id="${studyEsc(n.id)}" aria-pressed="${markedIds.has(n.id)}" aria-label="${markedIds.has(n.id) ? '取消重点' : '标记重点'}：${studyEsc(n.question)}">${markedIds.has(n.id) ? '★ 已标重点' : '☆ 重点'}</button>

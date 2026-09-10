@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="可离线使用、支持多端同步的 Java 后端面试复习工具">
-    <meta name="theme-color" content="#f5f7f3">
-    <script src="./workspace-theme.js?v=1"></script>
-    <meta name="app-version" content="32">
+    <meta name="theme-color" content="#f3f5f2">
+    <script src="./workspace-theme.js?v=2"></script>
+    <meta name="app-version" content="33">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Java 面试复习工作台 · 题库与笔记</title>
@@ -19,6 +19,7 @@
     <script src="./resume-module.js?v=3"></script>
     <script src="./recruitment-module.js?v=12"></script>
     <script src="./data/question-bank.js?v=3"></script>
+    <script src="./data/question-curation.js?v=1"></script>
     <script src="./study-core.js?v=3"></script>
     <style>
 /* ============================================
@@ -793,7 +794,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
     <link rel="stylesheet" href="./study-workspace.css?v=3">
     <link rel="stylesheet" href="./workspace-shell.css?v=3">
     <link rel="stylesheet" href="./workspace-controls.css?v=1">
-    <link rel="stylesheet" href="./workspace-theme.css?v=1">
+    <link rel="stylesheet" href="./workspace-theme.css?v=2">
 </head>
 <body>
 
@@ -985,7 +986,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
         </div>
 
         <div class="backup-section">
-            <div class="app-version-row"><span id="appVersion">当前版本 32</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
+            <div class="app-version-row"><span id="appVersion">当前版本 33</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
             <h4>本地备份</h4>
             <p>导出文件可用于迁移设备，即使未配置云同步也能使用。</p>
             <div class="btn-row backup-actions">
@@ -1094,6 +1095,7 @@ let sunkIds = new Set();           // 已置底的笔记 ID
 let markedIds = new Set();         // 已标记的笔记 ID
 let deletedIds = new Set();        // 已删除的笔记 ID
 let purgedIds = new Set();         // 已永久删除的内置笔记 ID
+let restoredCuratedIds = new Set(); // 用户主动恢复的本轮整理题目
 let mastery = {};                  // 题目掌握程度：hard / fuzzy / known
 
 // ===================== localStorage 持久化 =====================
@@ -1110,9 +1112,18 @@ function loadState() {
         mastery = JSON.parse(localStorage.getItem("mastery") || "{}");
         sidebarCollapsed = localStorage.getItem("sidebar-collapsed") === "1";
     } catch (e) { /* ignore corrupt data */ }
+    try {
+        const restored = JSON.parse(localStorage.getItem('restored-curated-ids') || '[]');
+        restoredCuratedIds = new Set(Array.isArray(restored) ? restored.filter(id => typeof id === 'string') : []);
+    } catch (_) { restoredCuratedIds = new Set(); }
+    applyStudyCuration();
 }
 function saveMarked() { localStorage.setItem("marked-ids", JSON.stringify([...markedIds])); scheduleCloudSync(); }
-function saveDeleted() { localStorage.setItem("deleted-ids", JSON.stringify([...deletedIds])); scheduleCloudSync(); }
+function saveDeleted() {
+    localStorage.setItem("deleted-ids", JSON.stringify([...deletedIds]));
+    localStorage.setItem("restored-curated-ids", JSON.stringify([...restoredCuratedIds]));
+    scheduleCloudSync();
+}
 function saveSunk() { localStorage.setItem("sunk-ids", JSON.stringify([...sunkIds])); scheduleCloudSync(); }
 function savePurged() { localStorage.setItem("purged-ids", JSON.stringify([...purgedIds])); scheduleCloudSync(); }
 function saveMastery() { localStorage.setItem("mastery", JSON.stringify(mastery)); scheduleCloudSync(); }
@@ -1948,6 +1959,7 @@ function getStateSnapshot() {
         userNotes,
         markedIds: [...markedIds],
         deletedIds: [...deletedIds],
+        restoredCuratedIds: [...restoredCuratedIds],
         sunkIds: [...sunkIds],
         purgedIds: [...purgedIds],
         mastery,
@@ -1964,17 +1976,20 @@ function applyStateSnapshot(data) {
     // Validate new fields before touching existing local state; missing fields in v3 keep local records.
     const validatedInterviews = StudyCore.restoreInterviews(data.interviews, getInterviewSnapshot());
     const validatedCustomBankQuestions = StudyCore.restoreBankQuestions(data.customBankQuestions, getCustomBankQuestions());
+    if (data.restoredCuratedIds !== undefined && (!Array.isArray(data.restoredCuratedIds) || data.restoredCuratedIds.some(id => typeof id !== 'string'))) throw new Error('题库恢复记录格式无效');
     syncApplyingRemote = true;
     userNotes = Array.isArray(data.userNotes) ? data.userNotes : [];
     markedIds = new Set(Array.isArray(data.markedIds) ? data.markedIds : []);
     deletedIds = new Set(Array.isArray(data.deletedIds) ? data.deletedIds : []);
     sunkIds = new Set(Array.isArray(data.sunkIds) ? data.sunkIds : []);
     purgedIds = new Set(Array.isArray(data.purgedIds) ? data.purgedIds : []);
+    if (data.restoredCuratedIds !== undefined) restoredCuratedIds = new Set(data.restoredCuratedIds);
     mastery = data.mastery && typeof data.mastery === "object" ? data.mastery : {};
     applyResumePrepSnapshot(data.resumePrep);
     applyRecruitmentSnapshot(data.recruitment);
     applyInterviewSnapshot(validatedInterviews);
     applyCustomBankQuestionsSnapshot(validatedCustomBankQuestions);
+    applyStudyCuration();
     localStorage.setItem("user-notes", JSON.stringify(userNotes));
     localStorage.setItem("marked-ids", JSON.stringify([...markedIds]));
     localStorage.setItem("deleted-ids", JSON.stringify([...deletedIds]));
@@ -2362,7 +2377,8 @@ function init() {
     loadState();
     loadUserNotes();
     loadSyncSession();
-    if (!localStorage.getItem(LOCAL_UPDATED_KEY) && (userNotes.length || markedIds.size || deletedIds.size || sunkIds.size)) {
+    const manuallyDeleted = [...deletedIds].some(id => !Object.hasOwn(window.QUESTION_BANK_CURATION?.reasons || {}, id));
+    if (!localStorage.getItem(LOCAL_UPDATED_KEY) && (userNotes.length || markedIds.size || manuallyDeleted || sunkIds.size || purgedIds.size)) {
         localStorage.setItem(LOCAL_UPDATED_KEY, new Date().toISOString());
     }
     if (window.matchMedia("(max-width: 768px)").matches) getActiveNotes().forEach(n => collapsedNotes.add(n.id));
@@ -2376,9 +2392,9 @@ function init() {
     if (syncSession && isSyncConfigured()) syncNow();
 }
 </script>
-<script src="./study-module.js?v=6"></script>
+<script src="./study-module.js?v=7"></script>
 <script src="./interview-module.js?v=4"></script>
-<script src="./app-updates.js?v=32"></script>
+<script src="./app-updates.js?v=33"></script>
 <script src="./workspace-controls.js?v=1"></script>
 <script src="./workspace-shell.js?v=3"></script>
 <script>initStudyWorkspace(); init(); initWorkspaceShell();</script>
