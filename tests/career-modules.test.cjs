@@ -44,6 +44,65 @@ test('weak review excludes known and unreviewed questions; reset restores the fu
     assert.ok(app.renderResumePrep().includes(`id="resume-${unreviewed.id}"`));
 });
 
+test('recommended question opens the exact card and clears stale filters and its answer', () => {
+    const app = setup('resume');
+    const id = 'q-zhishu-3';
+    app.toggleResumeAnswer(id);
+    app.filterResumeQuestions('no-match-987654');
+    app.setResumePrepMastery('known');
+    app.practiceResumeQuestion(id);
+    const html = app.renderResumePrep();
+    assert.match(html, new RegExp(`class="resume-qa-card mock-focus" id="resume-${id}"`));
+    assert.doesNotMatch(html, /no-match-987654/);
+    assert.match(html, /option value="all" selected/);
+});
+
+test('random practice avoids immediate repetition when another eligible question exists', () => {
+    const app = setup('resume');
+    vm.runInContext('Math.random = () => 0', app);
+    app.startResumePractice();
+    const selected = () => app.renderResumePrep().match(/mock-focus" id="resume-([^"]+)"/)[1];
+    const first = selected();
+    app.randomResumeQuestion();
+    assert.notEqual(selected(), first);
+    app.applyResumePrepSnapshot({mastery: Object.fromEntries(app.RESUME_PREP_DATA.questions.map(q => [q.id, q.id === first ? 'hard' : 'known']))});
+    app.randomResumeQuestion();
+    assert.equal(selected(), first, 'priority still goes to the only weak question');
+});
+
+test('personal answers save, round-trip, escape HTML, and survive legacy snapshots', () => {
+    const app = setup('resume');
+    const id = 'q-zhishu-3';
+    const answer = '</textarea><script>alert(1)</script>\n我的复盘';
+    let syncs = 0;
+    app.scheduleCloudSync = () => syncs++;
+    app.saveResumeDraft(id, answer);
+    assert.equal(syncs, 1);
+    assert.equal(JSON.parse(app.localStorage.getItem('resume-prep-drafts'))[id], answer);
+    const snapshot = JSON.parse(JSON.stringify(app.getResumePrepSnapshot()));
+    app.applyResumePrepSnapshot({mastery:{}, checklist:{}});
+    assert.equal(app.getResumePrepSnapshot().drafts[id], answer);
+    app.applyResumePrepSnapshot({drafts:{}});
+    assert.equal(app.getResumePrepSnapshot().drafts[id], undefined);
+    app.applyResumePrepSnapshot(snapshot);
+    app.setResumePrepTab('questions');
+    assert.match(app.renderResumePrep(), /&lt;\/textarea&gt;&lt;script&gt;/);
+    assert.doesNotMatch(app.renderResumePrep(), /<script>alert/);
+    app.saveResumeDraft(id, '');
+    assert.equal(app.getResumePrepSnapshot().drafts[id], undefined);
+});
+
+test('malformed drafts cannot render objects or pollute other questions', () => {
+    const app = setup('resume');
+    app.saveResumeDraft('q-zhishu-3', '保留');
+    app.applyResumePrepSnapshot({drafts:null});
+    assert.equal(app.getResumePrepSnapshot().drafts['q-zhishu-3'], '保留');
+    app.applyResumePrepSnapshot({drafts:{'q-zhishu-3': {}, 'unknown': '忽略', 'q-zhishu-4': '有效'}});
+    assert.equal(JSON.stringify(app.getResumePrepSnapshot().drafts), '{"q-zhishu-4":"有效"}');
+    app.saveResumeDraft('unknown', '忽略');
+    assert.equal(app.getResumePrepSnapshot().drafts.unknown, undefined);
+});
+
 test('application stages filter records without changing saved data', () => {
     const app = setup('recruitment');
     app.applyRecruitmentSnapshot({ applications: [

@@ -1,6 +1,7 @@
 (function () {
     const MASTERY_KEY = "resume-prep-mastery";
     const CHECKLIST_KEY = "resume-prep-checklist";
+    const DRAFTS_KEY = "resume-prep-drafts";
     const TABS = [
         { id: "overview", icon: "🧭", label: "准备概览" },
         { id: "pitches", icon: "🎙️", label: "口述练习" },
@@ -11,7 +12,7 @@
     ];
 
     function loadJSON(key) {
-        try { return JSON.parse(localStorage.getItem(key) || "{}"); }
+        try { const value = JSON.parse(localStorage.getItem(key) || "{}"); return value && typeof value === "object" && !Array.isArray(value) ? value : {}; }
         catch (error) { return {}; }
     }
 
@@ -23,9 +24,16 @@
         openStory: null,
         mastery: loadJSON(MASTERY_KEY),
         checklist: loadJSON(CHECKLIST_KEY),
+        drafts: cleanDrafts(loadJSON(DRAFTS_KEY)),
         revealed: new Set(),
         mockId: null
     };
+
+    function cleanDrafts(value) {
+        return Object.fromEntries(window.RESUME_PREP_DATA.questions
+            .filter(item => typeof value[item.id] === "string" && value[item.id])
+            .map(item => [item.id, value[item.id].slice(0, 6000)]));
+    }
 
     const data = () => window.RESUME_PREP_DATA;
     const sourceName = id => data().sources.find(source => source.id === id)?.shortName || "全部";
@@ -39,6 +47,7 @@
     function saveProgress() {
         localStorage.setItem(MASTERY_KEY, JSON.stringify(state.mastery));
         localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state.checklist));
+        localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
         if (typeof scheduleCloudSync === "function") scheduleCloudSync();
     }
 
@@ -79,7 +88,7 @@
                 <div class="prep-start-actions"><button class="career-primary" onclick="startResumePractice()">开始练习 <span aria-hidden="true">→</span></button><button class="career-secondary" onclick="reviewResumeWeak()">复习薄弱题${weak ? ` · ${weak}` : ""}</button></div></div>
             <div class="prep-progress"><span>练习进度</span><strong>${progress.known}<small> / ${progress.questionTotal}</small></strong><span>道问答已掌握</span><div class="resume-mini-progress"><span style="width:${progress.questionTotal ? Math.round(progress.known / progress.questionTotal * 100) : 0}%"></span></div><div class="prep-progress-stats"><span>薄弱 ${weak}</span><span>清单 ${progress.checked}/${progress.checklistTotal}</span></div><button onclick="setResumePrepTab('checklist')">查看冲刺清单 <span aria-hidden="true">↗</span></button></div>
         </section>
-        <section class="resume-today"><div><span class="prep-kicker">TODAY</span><strong>${escape(nextAction)}</strong><p>建议顺序：口述练习 → 经历深挖 → 模拟问答 → 冲刺核对</p></div><button class="career-secondary" onclick="${nextQuestion ? `setResumePrepSource('${nextQuestion.source}');setResumePrepTab('questions')` : "randomResumeQuestion()"}">${nextQuestion ? "去练这道题" : "开始抽查"} →</button></section>
+        <section class="resume-today"><div><span class="prep-kicker">TODAY</span><strong>${escape(nextAction)}</strong><p>建议顺序：口述练习 → 经历深挖 → 模拟问答 → 冲刺核对</p></div><button class="career-secondary" onclick="${nextQuestion ? `practiceResumeQuestion('${nextQuestion.id}')` : "startResumePractice()"}">${nextQuestion ? "去练这道题" : "开始抽查"} →</button></section>
         <div class="resume-section-heading"><div><h2>按经历准备</h2><p>先练口述，再深入技术细节。</p></div><span class="prep-count">${data().sources.length} 段经历</span></div>
         <section class="resume-source-list">${data().sources.map((source, index) => {
             const questions = data().questions.filter(item => item.source === source.id);
@@ -135,14 +144,15 @@
             const labels = { new: "未练习", known: "已掌握", fuzzy: "模糊", hard: "不会" };
             return `<article class="resume-qa-card${revealed ? " revealed" : ""}${state.mockId === item.id ? " mock-focus" : ""}" id="resume-${item.id}">
                 <button class="resume-question" aria-expanded="${revealed}" aria-controls="answer-${item.id}" onclick="toggleResumeAnswer('${item.id}')"><span class="resume-q-mark">Q</span><span><small>${sourceName(item.source)} · <em class="prep-level ${level}">${labels[level]}</em></small>${escape(item.question)}</span><i>${revealed ? "收起" : "看答案"}</i></button>
-                <div class="resume-answer" id="answer-${item.id}"><p>${escape(item.answer)}</p><div class="resume-followup"><b>继续追问</b>${escape(item.followup)}</div><div class="resume-mastery"><span>掌握程度</span>${["hard", "fuzzy", "known"].map(value => `<button aria-pressed="${level === value}" class="${value}${level === value ? " selected" : ""}" onclick="rateResumeQuestion('${item.id}','${value}')">${labels[value]}</button>`).join("")}</div></div>
+                <div class="resume-answer" id="answer-${item.id}">${item.outline ? `<div class="resume-answer-outline"><b>回答顺序</b>${escape(item.outline)}</div>` : ""}<p>${escape(item.answer)}</p><div class="resume-followup"><b>继续追问</b>${escape(item.followup)}</div>${item.evidence ? `<div class="resume-evidence"><b>准备证据</b>${escape(item.evidence)}</div>` : ""}<div class="resume-mastery"><span>掌握程度</span>${["hard", "fuzzy", "known"].map(value => `<button aria-pressed="${level === value}" class="${value}${level === value ? " selected" : ""}" onclick="rateResumeQuestion('${item.id}','${value}')">${labels[value]}</button>`).join("")}</div></div>
+                <details class="resume-draft"><summary>我的回答与复盘${state.drafts[item.id] ? " · 已记录" : ""}</summary><label for="draft-${item.id}">先写自己的思路，再对照参考回答补充遗漏。</label><textarea id="draft-${item.id}" maxlength="6000" rows="4" placeholder="问题现象 → 定位证据 → 修改理由 → 验证结果；补上自己的实际职责与薄弱点。" oninput="saveResumeDraft('${item.id}',this.value)">${escape(state.drafts[item.id] || "")}</textarea><small id="draft-status-${item.id}">${state.drafts[item.id] ? "已保存到本机" : "输入后自动保存到本机"}；登录后随学习数据同步。</small></details>
             </article>`;
         }).join("");
     }
 
     function renderQuestions() {
         const questions = filteredQuestions();
-        return `<div class="resume-section-heading"><div><h2>模拟问答</h2><p>先口答，再看参考答案；优先抽取尚未掌握的问题。</p></div><button class="career-primary" onclick="randomResumeQuestion()" ${questions.length ? "" : "disabled"}>随机抽题 ↗</button></div>
+        return `<div class="resume-section-heading"><div><h2>模拟问答</h2><p>先口答或记录自己的回答，再看参考；涉及实现细节时，用真实代码和测试记录核对。</p></div><button class="career-primary" onclick="randomResumeQuestion()" ${questions.length ? "" : "disabled"}>随机抽题 ↗</button></div>
             <section class="prep-question-filters">${renderSourceFilters()}<div class="prep-question-toolbar"><label class="career-search"><span aria-hidden="true">⌕</span><input type="search" aria-label="搜索简历问题" value="${escape(state.search)}" placeholder="搜索问题、技术词…" oninput="filterResumeQuestions(this.value)"></label><select aria-label="按掌握程度筛选" onchange="setResumePrepMastery(this.value)">${[["all", "全部掌握程度"], ["new", "未练习"], ["weak", "薄弱题（不会 / 模糊）"], ["known", "已掌握"]].map(([id, label]) => `<option value="${id}" ${state.level === id ? "selected" : ""}>${label}</option>`).join("")}</select><button class="career-text" onclick="resetResumeFilters()">清空筛选</button></div></section>
             <div class="prep-results-count" id="resume-result-count" role="status">${questions.length} 道问题</div><section class="resume-question-list" id="resume-question-results">${questionCardsHTML(questions)}</section>`;
     }
@@ -160,7 +170,7 @@
     }
 
     function renderSources() {
-        return `<section class="resume-library-head"><span>REFERENCE LIBRARY</span><h2>原始资料库</h2><p>网页内容已经按面试场景整理；需要核对原文时，可直接打开或下载原文件。</p></section>
+        return `<section class="resume-library-head"><span>REFERENCE LIBRARY</span><h2>原始资料库</h2><p>PDF 已更新为本次提供的最新简历。DOCX 保留原准备手册，涉及测试数量和职责时，以最新简历与对应代码、运行记录核对。</p></section>
             <section class="resume-library-grid">${data().sources.map(source => `
                 <a class="resume-library-card" href="${source.file}" target="_blank" rel="noopener">
                     <div><span>${source.icon}</span><i>${source.fileType}</i></div>
@@ -245,12 +255,42 @@
         const pool = filteredQuestions();
         if (!pool.length) return;
         const weaker = pool.filter(item => state.mastery[item.id] !== "known");
-        const candidates = weaker.length ? weaker : pool;
+        const preferred = weaker.length ? weaker : pool;
+        const alternatives = preferred.filter(item => item.id !== state.mockId);
+        const candidates = alternatives.length ? alternatives : preferred;
         const picked = candidates[Math.floor(Math.random() * candidates.length)];
         state.mockId = picked.id;
         state.revealed.delete(picked.id);
         renderAll();
         requestAnimationFrame(() => document.getElementById(`resume-${picked.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    };
+
+    window.practiceResumeQuestion = function (id) {
+        const question = data().questions.find(item => item.id === id);
+        if (!question) return;
+        state.tab = "questions";
+        state.source = question.source;
+        state.search = "";
+        state.level = "all";
+        state.mockId = id;
+        state.revealed.delete(id);
+        renderAll();
+        requestAnimationFrame(() => {
+            const card = document.getElementById(`resume-${id}`);
+            card?.querySelector(".resume-question")?.focus({ preventScroll: true });
+            card?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+    };
+
+    window.saveResumeDraft = function (id, value) {
+        if (!data().questions.some(item => item.id === id) || typeof value !== "string") return;
+        if (value) state.drafts[id] = value.slice(0, 6000);
+        else delete state.drafts[id];
+        saveProgress();
+        const status = document.getElementById(`draft-status-${id}`);
+        if (status) status.textContent = `${value ? "已保存到本机" : "已清空记录"}；登录后随学习数据同步。`;
+        const summary = document.querySelector(`#resume-${id} .resume-draft summary`);
+        if (summary) summary.textContent = `我的回答与复盘${value ? " · 已记录" : ""}`;
     };
 
     function updateQuestionResults() {
@@ -282,14 +322,17 @@
     };
 
     window.getResumePrepSnapshot = function () {
-        return { mastery: state.mastery, checklist: state.checklist };
+        return { mastery: state.mastery, checklist: state.checklist, drafts: state.drafts };
     };
 
     window.applyResumePrepSnapshot = function (snapshot) {
         if (!snapshot || typeof snapshot !== "object") return;
         state.mastery = snapshot.mastery && typeof snapshot.mastery === "object" ? snapshot.mastery : {};
         state.checklist = snapshot.checklist && typeof snapshot.checklist === "object" ? snapshot.checklist : {};
+        // Older backups do not contain personal answers; preserve local drafts in that case.
+        if (snapshot.drafts && typeof snapshot.drafts === "object" && !Array.isArray(snapshot.drafts)) state.drafts = cleanDrafts(snapshot.drafts);
         localStorage.setItem(MASTERY_KEY, JSON.stringify(state.mastery));
         localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state.checklist));
+        localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
     };
 })();

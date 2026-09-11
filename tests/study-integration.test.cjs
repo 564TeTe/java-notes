@@ -114,6 +114,17 @@ test('shared trash excludes deleted bank questions and authored notes from quiz 
     assert.equal(run('getStudyPool("bank").length'), 532);
 });
 
+test('resume personal answers join full backups and retain local drafts when importing old backups', () => {
+    const { run, store } = setup();
+    run(`saveResumeDraft('q-zhishu-9', '同键不同语义应拒绝'); const resumeBackup = JSON.parse(JSON.stringify(getStateSnapshot()));`);
+    assert.equal(run('resumeBackup.resumePrep.drafts["q-zhishu-9"]'), '同键不同语义应拒绝');
+    assert.ok(store.get('java-notes-local-updated-at') || run('!!localStorage.getItem(LOCAL_UPDATED_KEY)'));
+    run('applyResumePrepSnapshot({drafts:{}}); applyStateSnapshot(resumeBackup);');
+    assert.equal(run('getResumePrepSnapshot().drafts["q-zhishu-9"]'), '同键不同语义应拒绝');
+    run('delete resumeBackup.resumePrep.drafts; applyStateSnapshot(resumeBackup);');
+    assert.equal(JSON.parse(store.get('resume-prep-drafts'))['q-zhishu-9'], '同键不同语义应拒绝');
+});
+
 test('deleting a personal note moves it to the bank and preserves content and study state after reload', () => {
     const { run } = setup();
     run('userNotes=[{id:"user-move",question:"Q",answer:"自己的答案",category:"Java"}]; mastery["user-move"]={level:"hard"}; markedIds.add("user-move"); studySource="personal"; deleteNote("user-move");');
