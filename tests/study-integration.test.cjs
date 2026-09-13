@@ -22,10 +22,10 @@ function setup() {
     run('renderAll = function() {}; buildCategoryBtns = function() {}; toast = function() {};');
     return { run, store };
 }
-test('imported data has 551 unique questions, 13 categories, complete source references', () => {
+test('imported data has 591 unique questions, 13 categories, complete source references', () => {
     const { run } = setup();
-    assert.equal(run('BANK.length'), 551);
-    assert.equal(run('new Set(BANK.map(n=>n.id)).size'), 551);
+    assert.equal(run('BANK.length'), 591);
+    assert.equal(run('new Set(BANK.map(n=>n.id)).size'), 591);
     assert.equal(run('new Set(BANK.map(n=>n.category)).size'), 13);
     assert.ok(run('QUESTION_BANK_DATA.sources.every(s=>s.questionIds.every(id=>BANK.some(n=>n.id===id)))'));
     assert.equal(run('QUESTION_BANK_DATA.sources.find(s=>s.id==="X02").company'), '拼多多');
@@ -63,13 +63,13 @@ test('static and personal quiz pools remain separate despite saved bank copies',
     run('copyStudyNote(BANK[0].id); quizSource="personal";');
     assert.ok(run('getQuizPool().every(n=>!n.id.startsWith("bank-"))'));
     run('quizSource="bank";');
-    assert.equal(run('getQuizPool().length'), 551);
+    assert.equal(run('getQuizPool().length'), 591);
 });
 test('built-in legacy notes are no longer mixed into the personal notebook', () => {
     const { run } = setup();
     run('userNotes = [{id:"user-only",question:"我的记录",answer:"A",category:"自定义"}]');
     assert.equal(run('getPersonalNotes().map(n=>n.id).join()'), 'user-only');
-    assert.equal(run('getStudyPool("bank").length'), 552);
+    assert.equal(run('getStudyPool("bank").length'), 592);
 });
 test('an invalid imported interview cannot overwrite existing personal notes', () => {
     const { run } = setup();
@@ -80,7 +80,7 @@ test('an invalid imported interview cannot overwrite existing personal notes', (
 test('custom questions stay in bank, can be edited and copied, and survive snapshot round trips', () => {
     const { run } = setup();
     run('const added = saveCustomBankQuestion({question:"自定义题",answer:"答案",category:"Redis",priority:"P0"});');
-    assert.equal(run('getStudyPool("bank").length'), 552);
+    assert.equal(run('getStudyPool("bank").length'), 592);
     assert.equal(run('getPersonalNotes().length'), 0);
     run('quizSource="bank"; quizCategory="Redis";');
     assert.ok(run('getQuizPool().some(n=>n.id===added.id)'));
@@ -97,10 +97,10 @@ test('custom questions stay in bank, can be edited and copied, and survive snaps
 test('authored notes automatically join the bank while saved copies do not duplicate originals', () => {
     const { run } = setup();
     run('userNotes=[{id:"user-authored",question:"自己的问题",answer:"A",category:"Java 基础"}];');
-    assert.equal(run('getStudyPool("bank").length'), 552);
+    assert.equal(run('getStudyPool("bank").length'), 592);
     assert.equal(run('getStudyPool("bank").find(n=>n.id==="user-authored").answer'), 'A');
     run('userNotes[0].answer="edited";copyStudyNote(BANK[0].id);');
-    assert.equal(run('getStudyPool("bank").length'), 552);
+    assert.equal(run('getStudyPool("bank").length'), 592);
     assert.equal(run('getStudyPool("bank").find(n=>n.id==="user-authored").answer'), 'edited');
 });
 test('shared trash excludes deleted bank questions and authored notes from quiz and restores mastery', () => {
@@ -111,7 +111,7 @@ test('shared trash excludes deleted bank questions and authored notes from quiz 
     assert.equal(run('getPersonalNotes().length'), 0);
     run('restoreNote(BANK[0].id);restoreNote("user-authored");');
     assert.equal(run('mastery[BANK[0].id].level'), 'hard');
-    assert.equal(run('getStudyPool("bank").length'), 552);
+    assert.equal(run('getStudyPool("bank").length'), 592);
 });
 
 test('resume personal answers join full backups and retain local drafts when importing old backups', () => {
@@ -182,7 +182,7 @@ test('interview extraction can return a moved question to the notebook without l
 test('Java backend curation moves only the selected built-in questions into recoverable trash', () => {
     const { run, store } = setup();
     run('userNotes=[{id:"user-safe-curation",sourceId:"bank-LX001",question:"我的理解",answer:"保留",category:"算法"}]; mastery["bank-LX001"]={level:"known"}; saveUserNotes(); saveMastery(); loadState(); loadUserNotes();');
-    assert.equal(run('getStudyPool("bank").length'), 533);
+    assert.equal(run('getStudyPool("bank").length'), 573);
     assert.equal(run('getDeletedNotes().length'), 18);
     assert.ok(run('getDeletedNotes().some(n=>n.id==="bank-LX001")'));
     assert.equal(run('getPersonalNotes()[0].answer'), '保留');
@@ -237,10 +237,10 @@ test('permanent deletion and empty trash remove custom and built-in bank questio
 test('a saved copy does not resurrect its permanently deleted custom source in the bank', () => {
     const { run } = setup();
     run('const custom = saveCustomBankQuestion({question:"公司题",answer:"A",category:"Java 基础",company:"新公司"}); copyStudyNote(custom.id); deleteNote(custom.id); permDelete(custom.id);');
-    assert.equal(run('getStudyPool("bank").length'), 551);
+    assert.equal(run('getStudyPool("bank").length'), 591);
     assert.equal(run('getPersonalNotes().length'), 1);
     run('applyStateSnapshot(getStateSnapshot()); quizSource="bank";');
-    assert.equal(run('getQuizPool().length'), 533);
+    assert.equal(run('getQuizPool().length'), 573);
 });
 
 test('company questions aggregate all sources, include custom questions, and respect shared trash', () => {
@@ -258,8 +258,8 @@ test('company questions aggregate all sources, include custom questions, and res
 
 test('company supplement preserves 25-company membership and keeps six standalone exercises out of company lists', () => {
     const { run } = setup();
-    assert.equal(run('QUESTION_BANK_DATA.sources.filter(s=>s.id.startsWith("N")).length'), 56);
-    assert.equal(run('new Set(QUESTION_BANK_DATA.sources.filter(s=>s.id.startsWith("N")).map(s=>s.company)).size'), 25);
+    assert.equal(run('QUESTION_BANK_DATA.sources.filter(s=>/^N[0-9]+$/.test(s.id)).length'), 56);
+    assert.equal(run('new Set(QUESTION_BANK_DATA.sources.filter(s=>/^N[0-9]+$/.test(s.id)).map(s=>s.company)).size'), 25);
     assert.equal(run('BANK.filter(n=>n.number.startsWith("JX")).length'), 20);
     assert.equal(run('BANK.filter(n=>n.number.startsWith("JX")&&!n.sourceIds.length).length'), 6);
     assert.ok(run('BANK.filter(n=>n.number.startsWith("JX")&&!n.sourceIds.length).every(n=>!getCompanyQuestions("all").some(q=>q.id===n.id))'));
@@ -270,4 +270,20 @@ test('company supplement preserves 25-company membership and keeps six standalon
     assert.ok(run('BANK.every(n=>n.answer.trim() && (n.answer.match(/```/g)||[]).length%2===0)'));
     assert.ok(run('BANK.every(n=>n.sourceIds.filter(id=>id.startsWith("N")).every(id=>QUESTION_BANK_DATA.sources.some(s=>s.id===id&&s.questionIds.includes(n.id))))'));
     assert.ok(run('QUESTION_BANK_DATA.sources.every(s=>new Set(s.questionIds).size===s.questionIds.length)'));
+});
+
+test('recent interviews link existing topics and 40 new questions to the correct companies', () => {
+    const { run } = setup();
+    assert.equal(run('QUESTION_BANK_DATA.sources.filter(s => /^NI[0-9]{3}$/.test(s.id)).length'), 25);
+    assert.equal(run('BANK.filter(q => /^RM[0-9]{3}$/.test(q.number)).length'), 40);
+    assert.equal(run('QUESTION_BANK_DATA.supplements.find(s => s.id === "recent-interviews-2026-09-13").companyEntries'), 286);
+    assert.equal(run('QUESTION_BANK_DATA.supplements.find(s => s.id === "recent-interviews-2026-09-13").uniqueCompanyQuestions'), 193);
+    assert.ok(run('QUESTION_BANK_DATA.sources.filter(s => /^NI[0-9]{3}$/.test(s.id)).every(s => s.questionIds.every(id => getCompanyQuestions(s.company).some(q => q.id === id && q.sourceIds.includes(s.id))))'));
+    assert.ok(run('getCompanyQuestions("招银网络科技").some(q => q.number === "RM001")'));
+    assert.equal(run('QUESTION_BANK_DATA.sources.find(s => s.id === "NI023").company'), '未具名公司');
+    assert.equal(run('QUESTION_BANK_DATA.sources.find(s => s.id === "NI021").company'), '阿里');
+    assert.equal(run('QUESTION_BANK_DATA.sources.find(s => s.id === "NI025").company'), '阿里');
+    run('applyStudyCuration()');
+    assert.equal(run('getStudyPool("bank").length'), 573);
+    assert.ok(run('getStudyPool("bank").filter(q => /^RM[0-9]{3}$/.test(q.number)).length === 40'));
 });

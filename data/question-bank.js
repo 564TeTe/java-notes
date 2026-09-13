@@ -9,10 +9,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\nJava 跨平台靠的是 JVM：源码先编译成统一的字节码，再由各操作系统上的 JVM 执行。JVM 是执行引擎；JRE 是传统意义上的运行环境；JDK 是开发工具包，在运行能力之外提供 javac 等开发工具。记住：开发用 JDK，执行靠 JVM，JRE 强调运行环境。\n\n**举个例子：**\n同一个 Hello.class 可以交给 Windows 和 Linux 上匹配的 JVM 执行。不是 JVM 自己跨平台，而是每个平台都有对应实现。\n\n**深入补充（选读）：**\nJava 源码经编译生成字节码，由不同平台的 JVM 实现执行，因此通常不必为每种操作系统重写业务代码。JVM 负责执行和内存管理，JRE 是传统意义上的运行环境，JDK 再加编译器和诊断工具。跨平台仍受本地库、文件路径、字符集、操作系统行为影响；现代 JDK 的发行打包不能简单理解成一定附带一个独立 JRE 目录。\n\n**追问 / 易错点：** 编译后有字节码，为什么运行时还需要 JIT？见 JVM 章。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI021"
+      ],
       "keywords": [
         "Q01-001",
-        "Java 基础"
+        "Java 基础",
+        "阿里"
       ],
       "sourceFile": "01_Java基础.md"
     },
@@ -28,7 +31,8 @@ window.QUESTION_BANK_DATA = {
         "N010",
         "N013",
         "N032",
-        "N052"
+        "N052",
+        "NI021"
       ],
       "keywords": [
         "Q01-002",
@@ -36,7 +40,8 @@ window.QUESTION_BANK_DATA = {
         "京东",
         "百度",
         "招银云创",
-        "快手"
+        "快手",
+        "阿里"
       ],
       "sourceFile": "01_Java基础.md"
     },
@@ -159,12 +164,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n装箱是把基本值变成包装对象，拆箱是把包装对象取回基本值。Integer 的小整数缓存会影响两个引用用 == 的结果，所以比较数值不要依赖对象是否来自缓存。包装对象为 null 时，只要发生拆箱就会抛空指针异常。\n\n**举个例子：**\nInteger a = null; a == 0 不是简单比较，而是先把 a 拆成 int，因此会抛 NullPointerException。\n\n**深入补充（选读）：**\n装箱把基本值转包装对象，拆箱反过来。Integer.valueOf 至少缓存 -128 到 127，不能依赖缓存范围外对象的引用相等；比较数值使用 equals 或安全拆箱。Integer 为 null 时拆箱会抛 NPE，包括算术、比较、三元表达式触发的隐式拆箱。\n\n**追问 / 易错点：** Integer a = null; a == 0 会怎样？触发拆箱并抛 NPE。",
       "sourceIds": [
-        "N010"
+        "N010",
+        "NI002"
       ],
       "keywords": [
         "Q01-009",
         "Java 基础",
-        "京东"
+        "京东",
+        "招银网络科技"
       ],
       "sourceFile": "01_Java基础.md"
     },
@@ -177,12 +184,16 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n== 比较基本类型时比较值，比较引用类型时看是不是同一个对象；equals 用来判断逻辑上是否相等，具体规则由类决定。重写 equals 就应同时重写 hashCode，因为哈希集合先按哈希找位置，再判断相等。\n\n**举个例子：**\n两个不同 User 对象的用户 ID 相同，可以规定 equals 为 true；这时它们的 hashCode 也必须相同，否则 HashSet 可能无法正确去重。\n\n**深入补充（选读）：**\n基本类型的 == 比较数值，引用类型的 == 比较是否同一对象。Object.equals 默认也是身份比较，但 String 等类型改成内容相等。equals 相等的对象必须有相同 hashCode，反过来不成立；否则 HashMap/HashSet 可能把逻辑相同对象放到不同桶，破坏查找和去重。\n\n**追问 / 易错点：** equals 要满足什么性质？自反、对称、传递、一致，对 null 返回 false。",
       "sourceIds": [
-        "N054"
+        "N054",
+        "NI017",
+        "NI024"
       ],
       "keywords": [
         "Q01-010",
         "Java 基础",
-        "货拉拉"
+        "货拉拉",
+        "深轻科技",
+        "即时设计"
       ],
       "sourceFile": "01_Java基础.md"
     },
@@ -224,10 +235,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\n字符串常量池用于复用相同内容的字符串。字面量通常取池中的对象；new String(\"ab\") 则创建一个新的 String 对象。intern() 返回同内容字符串在池中的统一引用。业务上比较字符串内容用 equals，不要靠常量池猜 ==。\n\n**举个例子：**\nString a=\"ab\", b=\"ab\", c=new String(\"ab\"); a==b 为 true，a==c 为 false，a.equals(c) 为 true。\n\n**深入补充（选读）：**\n字面量和编译期常量表达式会使用驻留字符串。new String(\"ab\") 在语义上创建新的 String 对象，字面量对应池对象是否早已存在要看上下文；不能脱离场景硬说每次创建两个对象。intern 返回与内容相等的规范化池引用。编译期拼接与包含运行时变量的拼接，引用相等结果可能不同。\n\n**追问 / 易错点：** 比较字符串业务值该用什么？equals；不要拿常量池和编译器优化当业务保证。\n\n**原始资料核对 / 延伸查阅：** [J03 · Java 21 String API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html)。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI006"
+      ],
       "keywords": [
         "Q01-013",
-        "Java 基础"
+        "Java 基础",
+        "携程"
       ],
       "sourceFile": "01_Java基础.md"
     },
@@ -290,10 +304,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\n先执行 try，出现匹配异常再执行 catch，离开这段流程前通常执行 finally。try 里 return 时，会先计算返回值，再执行 finally。不要在 finally 里 return，因为它会覆盖原返回值，甚至把本来要抛出的异常吞掉。\n\n**举个例子：**\ntry { return 1; } finally { return 2; } 最后返回 2。若 finally 只是修改一个基本类型局部变量，不会改掉已经计算好的返回值。\n\n**深入补充（选读）：**\n通常先执行 try，匹配 catch 后执行 finally；try 中 return 的值会先求出，再进入 finally。finally 再 return 会覆盖原返回值，也可能吞掉异常，因此应避免。进程被强制终止、JVM 崩溃或没有离开 try 等情况下，finally 不保证运行。\n\n**追问 / 易错点：** finally 修改返回对象字段会影响结果吗？可能影响，因为返回的是同一对象引用；修改基本局部变量则不同。\n\n**原始资料核对 / 延伸查阅：** [J05 · JLS 21：Exceptions](https://docs.oracle.com/javase/specs/jls/se21/html/jls-11.html)。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI022"
+      ],
       "keywords": [
         "Q01-017",
-        "Java 基础"
+        "Java 基础",
+        "得物"
       ],
       "sourceFile": "01_Java基础.md"
     },
@@ -357,13 +374,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n反射就是运行时查看一个类有哪些字段、方法和构造器，并动态创建对象或调用方法。框架可以据此注入依赖、做对象映射。它更灵活，但错误可能推迟到运行时，还要遵守访问和模块限制。\n\n**举个例子：**\n正常调用是 user.getName()；反射调用是先找到名为 getName 的 Method，再 invoke(user)。不能因此认为任何 private 都能随意突破。\n\n**深入补充（选读）：**\n反射在运行时检查类、字段、构造器和方法并调用，框架常用于依赖注入、映射与扩展。代价包括类型检查推迟、封装和模块访问限制、调用与维护成本。反射不等于无条件突破 private，强封装模块可能要求显式开放；热点反射优化应根据测量决定。\n\n**追问 / 易错点：** Class.forName 与 ClassLoader.loadClass 一定都初始化类吗？默认行为不同：Class.forName(String) 会触发初始化，ClassLoader.loadClass 通常不会；见 Q04-020。",
       "sourceIds": [
         "N003",
-        "N021"
+        "N021",
+        "NI021"
       ],
       "keywords": [
         "Q01-021",
         "Java 基础",
         "字节跳动",
-        "快手"
+        "快手",
+        "阿里"
       ],
       "sourceFile": "01_Java基础.md"
     },
@@ -395,10 +414,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "体系补全",
       "answer": "**直接回答：**\nJDK 动态代理通过实现接口来代理对象；CGLIB 通过生成目标类的子类来增强方法。因此类代理不能继承 final 类，也不能靠重写增强 final/private 方法。无论哪种代理，都要经过代理对象的调用路径才会生效。\n\n**举个例子：**\n把代理想成门口的检查员。外部经过门口会被检查，但对象内部 this.xxx() 通常没有再次经过代理。\n\n**深入补充（选读）：**\nJDK 动态代理围绕接口创建代理对象，通过 InvocationHandler 分发；CGLIB 等基于生成子类拦截可覆盖方法。final 类无法被子类代理，final/private 方法不能按重写机制增强。代理只能覆盖经过代理的调用路径，类内 this 调用常绕开切面。\n\n**追问 / 易错点：** 为什么使用代理后 getClass 与原类不同？运行时对象可能就是生成的代理类。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI004"
+      ],
       "keywords": [
         "Q01-023",
-        "Java 基础"
+        "Java 基础",
+        "招银网络科技"
       ],
       "sourceFile": "01_Java基础.md"
     },
@@ -410,10 +432,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "体系补全",
       "answer": "**直接回答：**\n浅拷贝只复制外层对象，里面的引用仍指向原来的对象；深拷贝会把需要独立的内部对象也复制出来。判断关键不是“是否 new 了外层”，而是修改内部对象时，另一份是否跟着变化。\n\n**举个例子：**\n复制 User 后，两份 User 还共用同一个 Address，就是浅拷贝；连 Address 也单独复制，才让地址修改相互独立。\n\n**深入补充（选读）：**\n浅拷贝复制对象字段，其中引用仍指向原来的嵌套对象；深拷贝复制需要独立的对象图。Object.clone 默认是浅拷贝。深拷贝需处理循环引用、共享引用和不可复制资源，不能只说“转 JSON 就总能复制”；显式复制构造器或映射通常更可控。\n\n**追问 / 易错点：** 不可变对象必须深拷贝吗？通常可以安全共享。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI022"
+      ],
       "keywords": [
         "Q01-024",
-        "Java 基础"
+        "Java 基础",
+        "得物"
       ],
       "sourceFile": "01_Java基础.md"
     },
@@ -588,7 +613,11 @@ window.QUESTION_BANK_DATA = {
         "N011",
         "N024",
         "N038",
-        "N049"
+        "N049",
+        "NI001",
+        "NI003",
+        "NI007",
+        "NI021"
       ],
       "keywords": [
         "Q01-035",
@@ -598,7 +627,8 @@ window.QUESTION_BANK_DATA = {
         "阿里",
         "BIGO",
         "百度",
-        "熙牛医疗"
+        "熙牛医疗",
+        "招银网络科技"
       ],
       "sourceFile": "01_Java基础.md"
     },
@@ -693,12 +723,14 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n集合先分两条线：Collection 放一个个元素，Map 放键值对。Collection 下，List 有顺序且通常允许重复，Set 负责去重，Queue/Deque 负责排队或双端操作。选具体实现时，再考虑查找速度、排序和线程安全。\n\n**深入补充（选读）：**\nCollection 主要分 List、Set、Queue；Map 独立于 Collection，保存键值映射。List 常用于有序且允许重复的元素，Set 用于按相等规则去重，Queue/Deque 用于排队和双端操作。选择时还要考虑排序、随机访问、并发、null 支持和内存开销，不能只按接口名称选择。\n\n**追问 / 易错点：** HashSet 的“无序”是每次必然乱序吗？不是，意思是不保证迭代顺序。",
       "sourceIds": [
         "N028",
-        "N049"
+        "N049",
+        "NI019"
       ],
       "keywords": [
         "Q02-001",
         "Java 集合",
-        "熙牛医疗"
+        "熙牛医疗",
+        "新蛋"
       ],
       "sourceFile": "02_Java集合.md"
     },
@@ -713,14 +745,16 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N001",
         "N013",
-        "N054"
+        "N054",
+        "NI017"
       ],
       "keywords": [
         "Q02-002",
         "Java 集合",
         "阿里",
         "百度",
-        "货拉拉"
+        "货拉拉",
+        "深轻科技"
       ],
       "sourceFile": "02_Java集合.md"
     },
@@ -782,7 +816,10 @@ window.QUESTION_BANK_DATA = {
         "N050",
         "N054",
         "N055",
-        "X04"
+        "X04",
+        "NI011",
+        "NI015",
+        "NI022"
       ],
       "keywords": [
         "Q02-005",
@@ -797,7 +834,10 @@ window.QUESTION_BANK_DATA = {
         "小米",
         "货拉拉",
         "网易",
-        "综合"
+        "综合",
+        "BIGO",
+        "腾讯",
+        "得物"
       ],
       "sourceFile": "02_Java集合.md"
     },
@@ -810,12 +850,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\nput 先算桶的位置。桶空就直接放；桶里已有相同 key 就替换 value；没有相同 key 就新增节点。新增后根据大小和桶内情况判断是否扩容或树化。覆盖已有 key 的值，不会让 size 增加。\n\n**举个例子：**\nmap.put(\"a\",1) 后再 put(\"a\",2)，最终只有一条映射，第二次 put 返回旧值 1。\n\n**深入补充（选读）：**\n先处理尚未初始化的表并计算桶下标。桶为空就插入；不为空则检查已有键，存在则更新值，否则沿链表或树定位插入位置。插入新映射后更新大小和结构修改计数，达到条件时树化或扩容。覆盖既有值通常不增加 size。\n\n**追问 / 易错点：** put 返回什么？旧值；若旧值为 null，则不能仅据返回 null 判定键原本不存在。",
       "sourceIds": [
-        "N001"
+        "N001",
+        "NI018"
       ],
       "keywords": [
         "Q02-006",
         "Java 集合",
-        "阿里"
+        "阿里",
+        "实在智能"
       ],
       "sourceFile": "02_Java集合.md"
     },
@@ -865,14 +907,16 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N028",
         "N054",
-        "X04"
+        "X04",
+        "NI011"
       ],
       "keywords": [
         "Q02-009",
         "Java 集合",
         "熙牛医疗",
         "货拉拉",
-        "综合"
+        "综合",
+        "BIGO"
       ],
       "sourceFile": "02_Java集合.md"
     },
@@ -886,13 +930,25 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nHashMap 不适合没有同步保护的并发读写：可能丢数据、读不到更新或出现结构问题。JDK 8 修复了旧版本某些扩容风险，也不等于它线程安全。共享可变 Map 通常用 ConcurrentHashMap 或外部统一锁。\n\n**深入补充（选读）：**\n并发写可能丢更新、结构或可见性异常，读写也没有同步保证。JDK 7 的扩容头插曾有链表成环风险，JDK 8 改了迁移实现并不代表变成线程安全。共享可变映射通常用 ConcurrentHashMap 或外部统一锁。\n\n**追问 / 易错点：** 不写就一定安全？还要有安全发布，且 key/value 的可变状态需要单独管理。\n\n**面经线索：** [X04 · 2026 Java后端开发面试真题汇总（含AI工程方向）](https://www.nowcoder.com/discuss/864594486704291840)。\n\n**原始资料核对 / 延伸查阅：** [C01 · Java 21 HashMap API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/HashMap.html)。",
       "sourceIds": [
         "N035",
-        "X04"
+        "X04",
+        "NI001",
+        "NI008",
+        "NI011",
+        "NI017",
+        "NI018",
+        "NI022"
       ],
       "keywords": [
         "Q02-010",
         "Java 集合",
         "快手",
-        "综合"
+        "综合",
+        "招银网络科技",
+        "美团",
+        "BIGO",
+        "深轻科技",
+        "实在智能",
+        "得物"
       ],
       "sourceFile": "02_Java集合.md"
     },
@@ -919,10 +975,15 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\nHashMap：不保证线程安全，允许 null 键和值。Hashtable：老的同步容器，很多操作锁整个对象，不允许 null。ConcurrentHashMap：为并发访问设计，锁粒度更细，也提供原子复合操作，同样不允许 null。\n\n**深入补充（选读）：**\nHashMap 不提供并发保证且允许 null 键和值。Hashtable 是历史同步容器，很多操作锁整个对象且不允许 null。ConcurrentHashMap 提供并发访问和一些原子复合操作，不允许 null 键值；其遍历通常弱一致。选型要看复合语义，不能只比较“哪个用了锁”。\n\n**追问 / 易错点：** Collections.synchronizedMap 与 CHM 的差别？前者包装统一锁，后者用更细粒度并发设计。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI019",
+        "NI024"
+      ],
       "keywords": [
         "Q02-012",
-        "Java 集合"
+        "Java 集合",
+        "新蛋",
+        "即时设计"
       ],
       "sourceFile": "02_Java集合.md"
     },
@@ -943,7 +1004,9 @@ window.QUESTION_BANK_DATA = {
         "N028",
         "N043",
         "N046",
-        "X04"
+        "X04",
+        "NI001",
+        "NI011"
       ],
       "keywords": [
         "Q02-013",
@@ -955,7 +1018,8 @@ window.QUESTION_BANK_DATA = {
         "BIGO",
         "熙牛医疗",
         "同程",
-        "综合"
+        "综合",
+        "招银网络科技"
       ],
       "sourceFile": "02_Java集合.md"
     },
@@ -1120,13 +1184,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nBlockingQueue 会在队列满时让生产者等待、队列空时让消费者等待。ArrayBlockingQueue 有明确容量；LinkedBlockingQueue 要注意默认容量很大；SynchronousQueue 不保存元素，要求直接交接。put/take 可阻塞，offer/poll 可立即返回或限时等待。\n\n**深入补充（选读）：**\nArrayBlockingQueue 是有界数组队列；LinkedBlockingQueue 基于节点，未指定容量时上限很大；SynchronousQueue 不存储元素，直接交接；DelayQueue 按延迟到期取元素；PriorityBlockingQueue 按优先级，逻辑上无界。put/take 可以阻塞，offer/poll 有立即或限时版本。\n\n**追问 / 易错点：** 为什么线程池队列常要有界？把过载变成显式拒绝或背压，避免无限堆积耗尽内存。",
       "sourceIds": [
         "N001",
-        "N052"
+        "N052",
+        "NI022"
       ],
       "keywords": [
         "Q02-023",
         "Java 集合",
         "阿里",
-        "快手"
+        "快手",
+        "得物"
       ],
       "sourceFile": "02_Java集合.md"
     },
@@ -1278,7 +1344,8 @@ window.QUESTION_BANK_DATA = {
         "N007",
         "N018",
         "N033",
-        "X07"
+        "X07",
+        "NI024"
       ],
       "keywords": [
         "Q03-006",
@@ -1287,7 +1354,8 @@ window.QUESTION_BANK_DATA = {
         "美团",
         "腾讯",
         "携程",
-        "同程"
+        "同程",
+        "即时设计"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1299,10 +1367,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\n原子性：一组操作不能只完成一半就被当作完成；可见性：一个线程的修改能按同步规则被另一个线程看到；有序性：必要的操作顺序不会被重排破坏。JMM 规定的是并发读写规则，不是堆、栈怎么分区。\n\n**举个例子：**\ni++ 包含读 i、加一、写回。两个线程都读到 0，再各写回 1，就说明这三个步骤不是天然原子的。\n\n**深入补充（选读）：**\n原子性是操作不可被观察为执行一半；可见性规定线程对写入结果的观察保证；有序性约束编译器、处理器和线程间允许的重排。JMM 描述合法执行和同步关系，不是 JVM 堆栈分区。正确同步才能让共享数据满足预期，不能靠某次机器运行“看起来没错”。\n\n**追问 / 易错点：** i++ 为什么不原子？它包含读、加一和写回。\n\n**原始资料核对 / 延伸查阅：** [T01 · JLS 21：Threads and Locks](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html)。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI006"
+      ],
       "keywords": [
         "Q03-007",
-        "多线程 / 并发"
+        "多线程 / 并发",
+        "携程"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1332,14 +1403,16 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N002",
         "X04",
-        "X07"
+        "X07",
+        "NI001"
       ],
       "keywords": [
         "Q03-009",
         "多线程 / 并发",
         "美团",
         "综合",
-        "腾讯"
+        "腾讯",
+        "招银网络科技"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1355,7 +1428,8 @@ window.QUESTION_BANK_DATA = {
         "N010",
         "N011",
         "N018",
-        "N043"
+        "N043",
+        "NI011"
       ],
       "keywords": [
         "Q03-010",
@@ -1363,7 +1437,8 @@ window.QUESTION_BANK_DATA = {
         "京东",
         "阿里",
         "携程",
-        "同程"
+        "同程",
+        "BIGO"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1407,7 +1482,10 @@ window.QUESTION_BANK_DATA = {
         "N029",
         "N032",
         "N039",
-        "X04"
+        "X04",
+        "NI001",
+        "NI011",
+        "NI017"
       ],
       "keywords": [
         "Q03-012",
@@ -1417,7 +1495,10 @@ window.QUESTION_BANK_DATA = {
         "熙牛医疗",
         "招银云创",
         "京东",
-        "综合"
+        "综合",
+        "招银网络科技",
+        "BIGO",
+        "深轻科技"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1433,7 +1514,8 @@ window.QUESTION_BANK_DATA = {
         "N001",
         "N003",
         "N018",
-        "N052"
+        "N052",
+        "NI001"
       ],
       "keywords": [
         "Q03-013",
@@ -1441,7 +1523,8 @@ window.QUESTION_BANK_DATA = {
         "阿里",
         "字节跳动",
         "携程",
-        "快手"
+        "快手",
+        "招银网络科技"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1509,13 +1592,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n死锁就是多个执行者互相等对方手里的资源，谁都不往前走。四个条件是互斥、持有并等待、不可剥夺、循环等待。常用防法是统一拿锁顺序、缩短持锁时间、避免持锁调远程接口，必要时超时退出。\n\n**举个例子：**\nA 拿锁 1 等锁 2，B 拿锁 2 等锁 1，就是循环等待。都按“先锁 1、后锁 2”获取，可打破这种顺序冲突。\n\n**深入补充（选读）：**\n常见四条件为互斥、持有并等待、不可剥夺、循环等待。工程上可统一多锁获取顺序，缩小锁范围，避免持锁调用外部服务，必要时使用超时获取并回退。排查结合线程转储中的持锁与等待关系，还要区分数据库死锁和应用线程死锁。\n\n**追问 / 易错点：** 活锁与饥饿是什么？前者线程一直重试却不推进，后者某个线程长期拿不到执行资源。",
       "sourceIds": [
         "N007",
-        "N038"
+        "N038",
+        "NI011"
       ],
       "keywords": [
         "Q03-017",
         "多线程 / 并发",
         "腾讯",
-        "百度"
+        "百度",
+        "BIGO"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1567,7 +1652,8 @@ window.QUESTION_BANK_DATA = {
         "N022",
         "N028",
         "N032",
-        "X03"
+        "X03",
+        "NI011"
       ],
       "keywords": [
         "Q03-020",
@@ -1621,7 +1707,9 @@ window.QUESTION_BANK_DATA = {
         "X01",
         "X04",
         "X05",
-        "X08"
+        "X08",
+        "NI003",
+        "NI011"
       ],
       "keywords": [
         "Q03-022",
@@ -1638,7 +1726,9 @@ window.QUESTION_BANK_DATA = {
         "网易",
         "腾讯",
         "综合",
-        "得物"
+        "得物",
+        "招银网络科技",
+        "BIGO"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1652,13 +1742,19 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n任务进入线程池，通常按四步走：不到核心数就建线程；达到核心数就排队；队列满了才扩到最大数；仍放不下就执行拒绝策略。不是先开到最大线程数，再让任务排队。\n\n**举个例子：**\ncore=2、max=4、队列容量=3，且任务都没做完时：前 2 个交给线程，中间 3 个排队，再来的 2 个促使扩线程，随后才拒绝。\n\n**深入补充（选读）：**\n工作线程少于核心数时优先创建线程；达到核心后尝试入队；队列放不下再尝试扩到最大数；仍无法接收就拒绝。入队后还会重新检查池状态和必要的工作线程。无界队列通常使最大线程数难以发挥作用，SynchronousQueue 则倾向直接交接或扩线程。\n\n**追问 / 易错点：** core=4、max=8、队列=100，是否先开满8个再排队？通常不是，先到核心数再入队。\n\n**面经线索：** [X08 · 美团java后端日常实习一二面](https://www.nowcoder.com/feed/main/detail/d27704499b5c41e0bd0019a8d158a052)。\n\n**原始资料核对 / 延伸查阅：** [T02 · Java 21 ThreadPoolExecutor API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html)。",
       "sourceIds": [
         "N052",
-        "X08"
+        "X08",
+        "NI003",
+        "NI011",
+        "NI022"
       ],
       "keywords": [
         "Q03-023",
         "多线程 / 并发",
         "快手",
-        "美团"
+        "美团",
+        "招银网络科技",
+        "BIGO",
+        "得物"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1673,13 +1769,17 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N046",
         "N048",
-        "X08"
+        "X08",
+        "NI017",
+        "NI022"
       ],
       "keywords": [
         "Q03-024",
         "多线程 / 并发",
         "美团",
-        "熙牛医疗"
+        "熙牛医疗",
+        "深轻科技",
+        "得物"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1697,7 +1797,8 @@ window.QUESTION_BANK_DATA = {
         "N035",
         "N051",
         "X01",
-        "X02"
+        "X02",
+        "NI007"
       ],
       "keywords": [
         "Q03-025",
@@ -1707,7 +1808,8 @@ window.QUESTION_BANK_DATA = {
         "快手",
         "京东",
         "腾讯",
-        "拼多多"
+        "拼多多",
+        "美团"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1832,10 +1934,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "体系补全",
       "answer": "**直接回答：**\n虚拟线程是由 JDK 调度的轻量线程，Java 21 正式引入，主要适合大量等待 IO 的任务。通常一个任务一个虚拟线程，不是建池反复复用。它能降低线程成本，但数据库连接数和下游容量仍要限制。\n\n**深入补充（选读）：**\nJava 21 正式引入虚拟线程，由 JDK 调度到平台线程，适合大量以等待 IO 为主的并发任务，降低一请求一平台线程的资源成本。通常一个任务一个虚拟线程，不应为了复用而像平台线程那样池化；对稀缺下游资源仍需信号量或连接池限制。\n\n**追问 / 易错点：** 换成虚拟线程后数据库连接数也能无限开吗？不能，下游容量没有改变。\n\n**原始资料核对 / 延伸查阅：** [T05 · JEP 444：Virtual Threads](https://openjdk.org/jeps/444)。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI004"
+      ],
       "keywords": [
         "Q03-033",
-        "多线程 / 并发"
+        "多线程 / 并发",
+        "招银网络科技"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1864,13 +1969,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n交替输出先定义“现在轮到谁”，用同一把锁保护检查和修改；不轮到自己就 while 等待，输出后切换状态并通知另一方。还要设计结束和中断条件。生产者消费者通常直接用 BlockingQueue 更稳妥。\n\n**举个例子：**\n只让 A sleep(100)、B sleep(200) 不能保证 A、B 交替，因为线程什么时候真正运行由调度决定。\n\n**深入补充（选读）：**\n先定义共享状态，如轮到哪一方或缓冲区数量，用同一锁保护条件判断与状态变化。条件不满足时 while 等待，执行后更新状态并通知对应等待者；处理中断和结束条件，避免最后一个线程永远等待。生产者消费者通常优先用 BlockingQueue，而不是从零手写同步器。\n\n**追问 / 易错点：** 为什么加 sleep 不算正确交替？它不提供顺序保证，也无法可靠处理调度变化。",
       "sourceIds": [
         "N039",
-        "N052"
+        "N052",
+        "NI024"
       ],
       "keywords": [
         "Q03-035",
         "多线程 / 并发",
         "京东",
-        "快手"
+        "快手",
+        "即时设计"
       ],
       "sourceFile": "03_多线程与并发.md"
     },
@@ -1889,7 +1996,9 @@ window.QUESTION_BANK_DATA = {
         "N049",
         "N055",
         "X04",
-        "X08"
+        "X08",
+        "NI011",
+        "NI017"
       ],
       "keywords": [
         "Q04-001",
@@ -1900,7 +2009,8 @@ window.QUESTION_BANK_DATA = {
         "熙牛医疗",
         "网易",
         "综合",
-        "美团"
+        "美团",
+        "深轻科技"
       ],
       "sourceFile": "04_JVM.md"
     },
@@ -1916,7 +2026,9 @@ window.QUESTION_BANK_DATA = {
         "N002",
         "N010",
         "N013",
-        "N033"
+        "N033",
+        "NI001",
+        "NI024"
       ],
       "keywords": [
         "Q04-002",
@@ -1924,7 +2036,9 @@ window.QUESTION_BANK_DATA = {
         "美团",
         "京东",
         "百度",
-        "同程"
+        "同程",
+        "招银网络科技",
+        "即时设计"
       ],
       "sourceFile": "04_JVM.md"
     },
@@ -1939,14 +2053,16 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N014",
         "N036",
-        "N052"
+        "N052",
+        "NI025"
       ],
       "keywords": [
         "Q04-003",
         "JVM",
         "百度",
         "腾讯",
-        "快手"
+        "快手",
+        "阿里"
       ],
       "sourceFile": "04_JVM.md"
     },
@@ -1975,13 +2091,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nTLAB 是堆里临时划给一个线程使用的分配区。线程在自己这块区域里创建对象，通常不用每次都和其他线程抢同一个分配指针。它优化的是“分配内存”，不是“之后访问对象”的线程安全。\n\n**举个例子：**\n像大仓库给每个工人分一小片工位；工位仍属于仓库，放进去的物品也不因此禁止别人使用。\n\n**深入补充（选读）：**\nTLAB 是在线程共享堆中为某线程预留的一小块分配区域，让常见对象分配通过本地指针推进完成，减少每次都争抢堆分配指针。它不是独立于堆的私有内存，也不意味着分配在其中的对象永远不能被其他线程访问。大对象或区域不足时走其他分配路径。\n\n**追问 / 易错点：** TLAB 会导致共享对象不用同步吗？不会，它只优化分配，不改变业务访问的线程安全要求。",
       "sourceIds": [
         "N052",
-        "N054"
+        "N054",
+        "NI025"
       ],
       "keywords": [
         "Q04-005",
         "JVM",
         "快手",
-        "货拉拉"
+        "货拉拉",
+        "阿里"
       ],
       "sourceFile": "04_JVM.md"
     },
@@ -2058,7 +2176,11 @@ window.QUESTION_BANK_DATA = {
         "N014",
         "N036",
         "N044",
-        "X04"
+        "X04",
+        "NI001",
+        "NI003",
+        "NI007",
+        "NI019"
       ],
       "keywords": [
         "Q04-009",
@@ -2068,7 +2190,10 @@ window.QUESTION_BANK_DATA = {
         "百度",
         "腾讯",
         "字节跳动",
-        "综合"
+        "综合",
+        "招银网络科技",
+        "美团",
+        "新蛋"
       ],
       "sourceFile": "04_JVM.md"
     },
@@ -2082,13 +2207,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n分代回收基于一个现象：多数对象很快不用，少数对象会活很久。所以把不同寿命对象分开处理。对象晋升与年龄、Survivor 空间和收集器策略有关，不是所有对象都必须经历 15 次 GC。\n\n**举个例子：**\n接口里临时拼接的对象常很快消失；长期缓存里的对象可能一直存活。两类对象用同样频率扫描不一定划算。\n\n**深入补充（选读）：**\n分代利用多数对象短命、较少对象长期存活的统计规律。对象经过回收仍存活可能增加年龄并在条件满足时晋升；Survivor 容量、动态年龄判定、大对象分配和具体收集器策略也会影响。不能背“所有对象都十五次后进入老年代”，也不是所有收集器都使用相同分代布局。\n\n**追问 / 易错点：** 大对象一定直接进老年代吗？要看收集器和配置，G1 有自己的 humongous 处理方式。\n\n**面经线索：** [X08 · 美团java后端日常实习一二面](https://www.nowcoder.com/feed/main/detail/d27704499b5c41e0bd0019a8d158a052)。",
       "sourceIds": [
         "N052",
-        "X08"
+        "X08",
+        "NI011"
       ],
       "keywords": [
         "Q04-010",
         "JVM",
         "快手",
-        "美团"
+        "美团",
+        "BIGO"
       ],
       "sourceFile": "04_JVM.md"
     },
@@ -2100,10 +2227,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\nYoung/Minor GC 通常收年轻代；Full GC 通常涉及全堆等更大范围；G1 的 Mixed GC 收年轻代加选中的老年代 Region。Major GC 在不同资料里叫法不统一，面试和排障最好按具体收集器日志说清楚。\n\n**深入补充（选读）：**\nMinor/Young GC 常指年轻代回收；Full GC 常指较广范围甚至全堆的回收。Major GC 的用法在资料中不统一，回答应结合具体日志。G1 Mixed GC 会同时处理年轻代和选定老年代 Region，不等同 Full GC。现场排查优先读收集器类型和日志事件名称。\n\n**追问 / 易错点：** “老年代满了必然每次 Full GC”准确吗？不准确，触发和回退行为受收集器及当前状态影响。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI001"
+      ],
       "keywords": [
         "Q04-011",
-        "JVM"
+        "JVM",
+        "招银网络科技"
       ],
       "sourceFile": "04_JVM.md"
     },
@@ -2237,7 +2367,8 @@ window.QUESTION_BANK_DATA = {
         "N023",
         "N028",
         "N032",
-        "N036"
+        "N036",
+        "NI019"
       ],
       "keywords": [
         "Q04-018",
@@ -2245,7 +2376,8 @@ window.QUESTION_BANK_DATA = {
         "BIGO",
         "熙牛医疗",
         "招银云创",
-        "腾讯"
+        "腾讯",
+        "新蛋"
       ],
       "sourceFile": "04_JVM.md"
     },
@@ -2292,7 +2424,11 @@ window.QUESTION_BANK_DATA = {
         "N011",
         "N019",
         "N029",
-        "X07"
+        "X07",
+        "NI009",
+        "NI017",
+        "NI024",
+        "NI025"
       ],
       "keywords": [
         "Q04-021",
@@ -2301,7 +2437,10 @@ window.QUESTION_BANK_DATA = {
         "阿里",
         "字节跳动",
         "熙牛医疗",
-        "腾讯"
+        "腾讯",
+        "拼多多",
+        "深轻科技",
+        "即时设计"
       ],
       "sourceFile": "04_JVM.md"
     },
@@ -2335,10 +2474,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\n先用 top 等找高 CPU 的进程，再用 top -H -p PID 找热点线程，把线程 ID 转为十六进制，与 jstack/jcmd 里的 nid 对上。连续采样确认它是在死循环、GC、正则还是正常计算，最后定位到代码和输入。\n\n**举个例子：**\n一份线程栈只是瞬间照片；同一线程连续多次停在相同热点，再结合 CPU 数据，判断才更可靠。\n\n**深入补充（选读）：**\n先确认目标进程和线程 CPU，使用 top -H -p PID 等定位热点 TID，再转换为十六进制并匹配 jstack/jcmd 线程转储里的 nid；对同一热点连续采样，区分死循环、正则回溯、GC 或正常计算。可用 JFR/采样剖析进一步确认，避免只凭一次栈下结论。\n\n**追问 / 易错点：** 线程栈显示 RUNNABLE 就一定耗 CPU 吗？不一定，需与线程 CPU 和具体栈联合看。\n\n**原始资料核对 / 延伸查阅：** [V05 · Java 21 jcmd 命令参考](https://docs.oracle.com/en/java/javase/21/docs/specs/man/jcmd.html)。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI002"
+      ],
       "keywords": [
         "Q04-023",
-        "JVM"
+        "JVM",
+        "招银网络科技"
       ],
       "sourceFile": "04_JVM.md"
     },
@@ -2426,7 +2568,9 @@ window.QUESTION_BANK_DATA = {
         "N002",
         "N021",
         "N025",
-        "X07"
+        "X07",
+        "NI011",
+        "NI025"
       ],
       "keywords": [
         "Q04-028",
@@ -2434,7 +2578,9 @@ window.QUESTION_BANK_DATA = {
         "美团",
         "快手",
         "大疆",
-        "腾讯"
+        "腾讯",
+        "BIGO",
+        "阿里"
       ],
       "sourceFile": "04_JVM.md"
     },
@@ -2486,13 +2632,16 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nSpring 是基础框架，提供 IoC、AOP、事务等能力；Spring MVC 是处理 Web 请求的一部分；Spring Boot 帮我们更方便地配置、启动和运行 Spring 应用。记住：Spring 提供能力，MVC 接请求，Boot 简化搭建。\n\n**深入补充（选读）：**\nSpring Framework 提供依赖注入、AOP、事务等基础设施；Spring MVC 是其 Web MVC 框架，处理请求映射与返回；Spring Boot 基于 Spring 通过约定、自动配置、Starter 和运行支持降低装配成本。Boot 并没有替代 Spring，也不是“一种新的 MVC 架构”。\n\n**追问 / 易错点：** Spring Cloud 又是什么？面向分布式应用的一组生态能力，具体组件和版本需单独确认。",
       "sourceIds": [
         "N020",
-        "N056"
+        "N056",
+        "NI010",
+        "NI021"
       ],
       "keywords": [
         "Q05-001",
         "Spring / Spring Boot",
         "用友",
-        "阿里"
+        "阿里",
+        "拼多多"
       ],
       "sourceFile": "05_Spring与SpringBoot.md"
     },
@@ -2510,7 +2659,8 @@ window.QUESTION_BANK_DATA = {
         "N033",
         "N049",
         "N050",
-        "N054"
+        "N054",
+        "NI020"
       ],
       "keywords": [
         "Q05-002",
@@ -2520,7 +2670,8 @@ window.QUESTION_BANK_DATA = {
         "同程",
         "熙牛医疗",
         "小米",
-        "货拉拉"
+        "货拉拉",
+        "新蛋"
       ],
       "sourceFile": "05_Spring与SpringBoot.md"
     },
@@ -2599,12 +2750,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\nSpring 默认 singleton，是同一容器中一个 Bean 定义通常对应一个实例；prototype 是每次向容器请求时创建。单例不等于线程安全：多个请求会使用同一个 Service，放在字段里的可变请求数据可能互相覆盖。\n\n**举个例子：**\n不要在单例 Service 中用成员变量 currentUserId 保存每次请求的用户；放方法参数里更合适。\n\n**深入补充（选读）：**\n常用 singleton 为容器内每个 Bean 定义一个实例，prototype 每次请求创建新实例；Web 还有 request、session 等。Spring 单例不等于整个 JVM 只能有一个，也不提供业务字段自动线程安全。单例 Service 通常保持无状态，请求数据放参数或适当上下文。\n\n**追问 / 易错点：** 把 prototype 注入 singleton 后每次调用都新建吗？普通一次性注入不会，需 Provider 或作用域代理等。",
       "sourceIds": [
-        "N009"
+        "N009",
+        "NI008"
       ],
       "keywords": [
         "Q05-007",
         "Spring / Spring Boot",
-        "京东"
+        "京东",
+        "美团"
       ],
       "sourceFile": "05_Spring与SpringBoot.md"
     },
@@ -2685,7 +2838,9 @@ window.QUESTION_BANK_DATA = {
         "N033",
         "N050",
         "N054",
-        "N055"
+        "N055",
+        "NI010",
+        "NI020"
       ],
       "keywords": [
         "Q05-011",
@@ -2694,7 +2849,9 @@ window.QUESTION_BANK_DATA = {
         "同程",
         "小米",
         "货拉拉",
-        "网易"
+        "网易",
+        "拼多多",
+        "新蛋"
       ],
       "sourceFile": "05_Spring与SpringBoot.md"
     },
@@ -2706,10 +2863,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\nSpring AOP 的关键限制是“调用必须经过代理”。同一个对象内部 this 调另一个方法，通常绕过代理。类代理还不能通过重写增强 final/private 方法。需要让内部调用生效时，优先拆到另一个 Bean，再从代理调用。\n\n**深入补充（选读）：**\nJDK 代理围绕接口，类代理通过子类增强；final/private 等不能按常规子类重写方式拦截。核心限制是必须经过代理，自调用通常绕过拦截。Boot 与原生 Spring 的代理默认配置可能不同，不应脱离环境说“一定用 JDK”或“一定用 CGLIB”。\n\n**追问 / 易错点：** 怎样解决自调用？优先拆到另一个 Bean 由外部调用，或采用适合的编程式机制。\n\n**原始资料核对 / 延伸查阅：** [S02 · Spring：Proxying Mechanisms](https://docs.spring.io/spring-framework/reference/core/aop/proxying.html)。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI022"
+      ],
       "keywords": [
         "Q05-012",
-        "Spring / Spring Boot"
+        "Spring / Spring Boot",
+        "得物"
       ],
       "sourceFile": "05_Spring与SpringBoot.md"
     },
@@ -2748,14 +2908,16 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N009",
         "N025",
-        "X06"
+        "X06",
+        "NI024"
       ],
       "keywords": [
         "Q05-014",
         "Spring / Spring Boot",
         "京东",
         "大疆",
-        "好未来"
+        "好未来",
+        "即时设计"
       ],
       "sourceFile": "05_Spring与SpringBoot.md"
     },
@@ -2847,10 +3009,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\n数据库提交和发消息是两件事，先后顺序都有失败窗口。可靠做法之一是 Outbox：在同一事务里写业务记录和待发消息，再由后台投递并重试。提交后监听避免了提前发送，但不自动保证宕机后消息不丢。\n\n**举个例子：**\n数据库已提交，进程却在发消息前崩溃，普通内存事件就丢了；Outbox 记录还在，重启后还能补发。\n\n**深入补充（选读）：**\n直接在事务里发消息可能出现消息已发但数据库回滚；仅使用提交后回调，也有提交成功后进程崩溃而消息未发的窗口。可靠方案常用同一数据库事务写业务表与 Outbox，后台投递、确认和重试。提交后监听适合允许较弱可靠性或另有补偿的场景。\n\n**追问 / 易错点：** @TransactionalEventListener 自动等于可靠 MQ 吗？不是，普通进程内事件没有持久化交付保证。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI024"
+      ],
       "keywords": [
         "Q05-020",
-        "Spring / Spring Boot"
+        "Spring / Spring Boot",
+        "即时设计"
       ],
       "sourceFile": "05_Spring与SpringBoot.md"
     },
@@ -2892,10 +3057,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\n@RequestParam 取查询或表单参数，@PathVariable 取 URL 路径里的变量，@RequestBody 读取请求体，例如 JSON。前后端要约定字段、数据格式和 Content-Type，不要只看参数名字一样就认为能绑定。\n\n**举个例子：**\n/users/123 中的 123 用 PathVariable；?page=1 用 RequestParam；请求体 {\"name\":\"张三\"} 通常用 RequestBody 绑定 DTO。\n\n**深入补充（选读）：**\nRequestParam 绑定查询或表单参数，PathVariable 绑定路径变量，RequestBody 通过消息转换器解析请求体。JSON 请求需要正确 Content-Type；同一个请求体不能随意按多个独立对象重复消费。DTO 做边界校验，避免把数据库实体直接作为可任意赋值的入参。\n\n**追问 / 易错点：** HTTP 400、415 常分别查哪里？参数格式/校验失败，以及媒体类型或转换器不匹配。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI004"
+      ],
       "keywords": [
         "Q05-023",
-        "Spring / Spring Boot"
+        "Spring / Spring Boot",
+        "招银网络科技"
       ],
       "sourceFile": "05_Spring与SpringBoot.md"
     },
@@ -2980,10 +3148,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "体系补全",
       "answer": "**直接回答：**\nBoot 启动先准备环境和配置，再创建、刷新 ApplicationContext，完成 Bean 装配和初始化；Web 应用同时按生命周期启动内嵌服务器，之后执行 Runner 等回调。记住主线：配置→容器→Bean→服务就绪。\n\n**深入补充（选读）：**\nSpringApplication 准备环境、创建应用上下文、加载配置定义并刷新上下文，期间完成自动配置和 Bean 初始化，Web 应用启动嵌入式服务器，之后执行相关 Runner 并发布生命周期事件。精确顺序随版本和应用类型不同，回答时应把握环境、容器、Bean、服务器和回调的关系。\n\n**追问 / 易错点：** 初始化数据库数据适合放构造器吗？通常不合适，应使用受控初始化或迁移机制。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI017"
+      ],
       "keywords": [
         "Q05-028",
-        "Spring / Spring Boot"
+        "Spring / Spring Boot",
+        "深轻科技"
       ],
       "sourceFile": "05_Spring与SpringBoot.md"
     },
@@ -3027,13 +3198,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nMyBatis 会给 Mapper 接口创建代理，把“调用 Java 方法”转换成“执行映射 SQL 并封装结果”，所以不必手写实现类。数据值用 #{} 绑定；${} 是直接拼接，动态列名等位置必须用服务端白名单控制。\n\n**深入补充（选读）：**\nMyBatis 为 Mapper 创建代理，把方法调用映射到 MappedStatement，执行参数处理、SQL、结果映射等。SqlSession 与 Executor 管理会话和执行过程。#{x} 常走预编译占位参数，${x} 直接拼接，动态排序列等无法参数绑定的部分必须白名单校验。\n\n**追问 / 易错点：** 为什么不能用 ${userInput} 拼 where 值？容易产生 SQL 注入和语义错误。\n\n**原始资料核对 / 延伸查阅：** [S06 · MyBatis：Mapper XML Files](https://mybatis.org/mybatis-3/sqlmap-xml.html)。",
       "sourceIds": [
         "N009",
-        "N049"
+        "N049",
+        "NI013"
       ],
       "keywords": [
         "Q05-031",
         "Spring / Spring Boot",
         "京东",
-        "熙牛医疗"
+        "熙牛医疗",
+        "腾讯"
       ],
       "sourceFile": "05_Spring与SpringBoot.md"
     },
@@ -3203,13 +3376,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nInnoDB 支持事务、MVCC、行级锁和崩溃恢复，适合常见业务系统；MyISAM 是较老的引擎，主要用表级锁，不提供同样的事务保障。讨论 MySQL 的锁和事务前，要先确认表使用什么引擎。\n\n**深入补充（选读）：**\nInnoDB 支持事务、崩溃恢复、MVCC 和行级锁等，适合大多数事务业务；MyISAM 是历史常见引擎，主要表级锁，不提供同样的事务保障。不能仅凭历史 count(*) 快等局部特点选引擎。面试场景若未说明，通常先确认使用 InnoDB 再讨论锁和隔离。\n\n**追问 / 易错点：** “MySQL 支持事务”需要补充什么？具体表的存储引擎和事务配置。",
       "sourceIds": [
         "N021",
-        "N053"
+        "N053",
+        "NI001"
       ],
       "keywords": [
         "Q06-002",
         "MySQL",
         "快手",
-        "小鹅通"
+        "小鹅通",
+        "招银网络科技"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3226,7 +3401,8 @@ window.QUESTION_BANK_DATA = {
         "N021",
         "N033",
         "N047",
-        "N049"
+        "N049",
+        "NI016"
       ],
       "keywords": [
         "Q06-003",
@@ -3235,7 +3411,8 @@ window.QUESTION_BANK_DATA = {
         "快手",
         "同程",
         "网易",
-        "熙牛医疗"
+        "熙牛医疗",
+        "滴滴"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3256,7 +3433,11 @@ window.QUESTION_BANK_DATA = {
         "N042",
         "N054",
         "X04",
-        "X08"
+        "X08",
+        "NI001",
+        "NI003",
+        "NI017",
+        "NI021"
       ],
       "keywords": [
         "Q06-004",
@@ -3267,7 +3448,9 @@ window.QUESTION_BANK_DATA = {
         "BIGO",
         "大疆",
         "货拉拉",
-        "综合"
+        "综合",
+        "招银网络科技",
+        "深轻科技"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3281,13 +3464,16 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nInnoDB 主键通常组织聚簇索引，叶子保存整行；二级索引叶子主要保存索引列和主键。先查二级索引拿到主键，再去主键索引取其他字段，就是回表。主键越长，二级索引携带它的开销也越大。\n\n**举个例子：**\n用手机号索引查用户姓名：先找到手机号对应的 user_id，再按 user_id 找到整行取 name，这就是一次回表路径。\n\n**深入补充（选读）：**\nInnoDB 聚簇索引叶子保存整行，通常由主键组织；二级索引叶子保存索引列和主键值。若二级索引不包含所需字段，需要再按主键访问聚簇索引，即回表。没有显式主键时，InnoDB 会按规则选择唯一非空键或生成内部键。\n\n**追问 / 易错点：** 主键太长有什么影响？二级索引会携带更长主键，放大空间和缓存成本。\n\n**原始资料核对 / 延伸查阅：** [D05 · MySQL 8.4：Clustered and Secondary Indexes](https://dev.mysql.com/doc/refman/8.4/en/innodb-index-types.html)。",
       "sourceIds": [
         "N013",
-        "N036"
+        "N036",
+        "NI015",
+        "NI018"
       ],
       "keywords": [
         "Q06-005",
         "MySQL",
         "百度",
-        "腾讯"
+        "腾讯",
+        "实在智能"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3301,13 +3487,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n覆盖索引是“查询要的字段，索引里已经全有了，不必再取整行”；索引下推是“先在索引层筛掉不符合条件的记录，少去取整行”。一个减少取整行的必要性，一个减少取整行的次数。\n\n**举个例子：**\nExtra 中 Using index 常提示覆盖读取，Using index condition 才对应索引条件下推，不要把它们当成一回事。\n\n**深入补充（选读）：**\n覆盖索引是查询所需字段可由某个索引直接提供，从而减少回表。索引条件下推把能在索引层判断的条件交给引擎先过滤，减少不必要的行读取。二者不同：覆盖是“不必取整行”，下推是“先筛再少取整行”，是否启用取决于查询和引擎条件。\n\n**追问 / 易错点：** EXPLAIN 中 Using index 就是索引下推吗？不是，Using index condition 才是相关提示。\n\n**原始资料核对 / 延伸查阅：** [D05 · MySQL 8.4：Clustered and Secondary Indexes](https://dev.mysql.com/doc/refman/8.4/en/innodb-index-types.html)。",
       "sourceIds": [
         "N012",
-        "N036"
+        "N036",
+        "NI018"
       ],
       "keywords": [
         "Q06-006",
         "MySQL",
         "XTransfer",
-        "腾讯"
+        "腾讯",
+        "实在智能"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3323,7 +3511,8 @@ window.QUESTION_BANK_DATA = {
         "N018",
         "N023",
         "N026",
-        "N039"
+        "N039",
+        "NI001"
       ],
       "keywords": [
         "Q06-007",
@@ -3331,7 +3520,8 @@ window.QUESTION_BANK_DATA = {
         "携程",
         "BIGO",
         "顺丰",
-        "京东"
+        "京东",
+        "招银网络科技"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3364,14 +3554,20 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N005",
         "N035",
-        "N055"
+        "N055",
+        "NI003",
+        "NI010",
+        "NI024"
       ],
       "keywords": [
         "Q06-009",
         "MySQL",
         "美团",
         "快手",
-        "网易"
+        "网易",
+        "招银网络科技",
+        "拼多多",
+        "即时设计"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3385,13 +3581,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n设计联合索引先看真实 SQL：哪些列等值过滤、哪些做范围、按什么排序、返回哪些字段。再选能服务主要查询的列顺序，用实际数据和执行计划验证。不是永远把区分度最高的列放第一，也不是索引越宽越好。\n\n**深入补充（选读）：**\n先确定最常见查询、过滤选择性、连接条件、排序和分页方式，再考虑等值前缀、范围及 order by 的匹配。索引并非永远“选择性最高放最前”，还要复用多种查询与避免排序。用实际数据的 EXPLAIN/ANALYZE 和写入成本验证，删除重复冗余索引。\n\n**追问 / 易错点：** 查询 where tenant_id=? order by created_at,id 可考虑什么？以租户开头并配合排序列的索引，结合其他过滤评估。\n\n**面经线索：** [X04 · 2026 Java后端开发面试真题汇总（含AI工程方向）](https://www.nowcoder.com/discuss/864594486704291840)。\n\n**原始资料核对 / 延伸查阅：** [D06 · MySQL 8.4：Multiple-Column Indexes](https://dev.mysql.com/doc/refman/8.4/en/multiple-column-indexes.html)。",
       "sourceIds": [
         "N053",
-        "X04"
+        "X04",
+        "NI024"
       ],
       "keywords": [
         "Q06-010",
         "MySQL",
         "小鹅通",
-        "综合"
+        "综合",
+        "即时设计"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3437,7 +3635,11 @@ window.QUESTION_BANK_DATA = {
         "N046",
         "N054",
         "N056",
-        "X08"
+        "X08",
+        "NI002",
+        "NI003",
+        "NI004",
+        "NI008"
       ],
       "keywords": [
         "Q06-012",
@@ -3449,7 +3651,8 @@ window.QUESTION_BANK_DATA = {
         "熙牛医疗",
         "百度",
         "货拉拉",
-        "阿里"
+        "阿里",
+        "招银网络科技"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3464,14 +3667,16 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N010",
         "N028",
-        "X06"
+        "X06",
+        "NI016"
       ],
       "keywords": [
         "Q06-013",
         "MySQL",
         "京东",
         "熙牛医疗",
-        "好未来"
+        "好未来",
+        "滴滴"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3497,7 +3702,9 @@ window.QUESTION_BANK_DATA = {
         "N049",
         "N054",
         "N055",
-        "X04"
+        "X04",
+        "NI001",
+        "NI008"
       ],
       "keywords": [
         "Q06-014",
@@ -3514,7 +3721,8 @@ window.QUESTION_BANK_DATA = {
         "熙牛医疗",
         "货拉拉",
         "网易",
-        "综合"
+        "综合",
+        "招银网络科技"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3538,7 +3746,8 @@ window.QUESTION_BANK_DATA = {
         "N054",
         "X04",
         "X06",
-        "X08"
+        "X08",
+        "NI008"
       ],
       "keywords": [
         "Q06-015",
@@ -3610,14 +3819,16 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N015",
         "N046",
-        "N049"
+        "N049",
+        "NI016"
       ],
       "keywords": [
         "Q06-018",
         "MySQL",
         "拼多多",
         "美团",
-        "熙牛医疗"
+        "熙牛医疗",
+        "滴滴"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3645,12 +3856,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n数据库死锁是事务互相等对方的锁。InnoDB 检测到后可能回滚一个事务让另一个继续；应用要在幂等前提下有限重试整笔事务。预防主要靠统一更新顺序、缩短事务和合适索引。\n\n**举个例子：**\nA 先改订单 1 再改 2，B 先改 2 再改 1，就可能互相等待。统一按 ID 顺序修改可减少这种情况。\n\n**深入补充（选读）：**\n两个事务以相反顺序锁定多行，或锁范围互相依赖时可能形成循环等待。数据库可检测并回滚受害事务；应用要按业务幂等对整个事务做有限重试。优化统一锁顺序、缩短事务、完善索引，结合死锁日志和锁等待视图确认。\n\n**追问 / 易错点：** 锁等待超时与死锁相同吗？不相同，等待超时不一定存在循环依赖。\n\n**原始资料核对 / 延伸查阅：** [D02 · MySQL 8.4：InnoDB Locking](https://dev.mysql.com/doc/refman/8.4/en/innodb-locking.html)。",
       "sourceIds": [
-        "N015"
+        "N015",
+        "NI008"
       ],
       "keywords": [
         "Q06-020",
         "MySQL",
-        "拼多多"
+        "拼多多",
+        "美团"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3663,12 +3876,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n悲观方式先在事务里锁住库存，再检查修改；乐观方式在更新时检查版本或库存条件，成功才扣减。关键是让数据库原子判断，不能先普通 SELECT 再无条件 UPDATE。无论哪种写法，数据库实际更新仍会使用必要的锁。\n\n**举个例子：**\nUPDATE stock SET qty=qty-1 WHERE id=? AND qty>0；检查影响行数为 1 才算成功，0 行表示本次没扣成。\n\n**深入补充（选读）：**\n悲观方案在事务内用锁定读后校验并修改；乐观方案用版本号或条件更新，如 UPDATE stock SET qty=qty-1 WHERE id=? AND qty>0，再检查影响行数。真正约束应落到数据库原子条件，不能先普通 SELECT 再无条件 UPDATE。高冲突下乐观重试需限次数。\n\n**追问 / 易错点：** 影响0行意味着什么？库存不足、版本变化或目标不存在，需要按业务区分。\n\n**原章示例（移至对应题目）：**\n```sql\nUPDATE product_stock\nSET stock = stock - :qty\nWHERE product_id = :product_id\n  AND stock >= :qty;\n```\n\n`:qty` 为展示用绑定参数，不是可直接交给所有MySQL客户端执行的字面SQL。**应用层必须先验证 qty > 0，并检查影响行数恰好为1；和订单落库放在同一个事务中，失败抛异常/回滚。**只写这一条不能处理订单与跨系统结果。",
       "sourceIds": [
-        "N032"
+        "N032",
+        "NI017"
       ],
       "keywords": [
         "Q06-021",
         "MySQL",
-        "招银云创"
+        "招银云创",
+        "深轻科技"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3767,10 +3982,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\n深分页慢在 offset 很大时，数据库通常仍要扫描并跳过前面的记录。连续翻页可改成“从上次最后一条之后继续查”，这叫游标分页。排序必须稳定，常用时间加唯一 ID；它不天然支持高效任意跳页。\n\n**举个例子：**\n不是查第 100 万行后 20 条，而是 WHERE id > 上页最后ID ORDER BY id LIMIT 20；具体索引和过滤条件也要匹配。\n\n**深入补充（选读）：**\nLIMIT 很大 offset 时通常仍需扫描并跳过前面的记录，回表和排序会加重成本。可用稳定排序键进行 seek 分页，例如条件 (created_at,id) 在上次位置之后，配合联合索引；也可延迟关联减少回表。游标要包含唯一 tie-breaker，且不能天然支持任意页跳转。\n\n**追问 / 易错点：** 只用 create_time 当游标行吗？时间相同的记录可能漏或重复，需加唯一 ID。\n\n**原章示例（移至对应题目）：**\n```sql\nSELECT id, created_at, amount\nFROM orders\nWHERE tenant_id = :tenant_id\n  AND (created_at > :last_time\n       OR (created_at = :last_time AND id > :last_id))\nORDER BY created_at ASC, id ASC\nLIMIT 100;\n```\n\n候选索引 `(tenant_id, created_at, id)`，用真实执行计划验证。需要快照式导出时再明确数据截止时间/快照机制。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI018"
+      ],
       "keywords": [
         "Q06-027",
-        "MySQL"
+        "MySQL",
+        "实在智能"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3842,10 +4060,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\nINNER JOIN 只保留两边匹配的行；LEFT JOIN 即使右边找不到，也保留左边，并给右边补 NULL。右表过滤条件放 ON 和放 WHERE，结果可能不同：WHERE 可能把补 NULL 的行再过滤掉。\n\n**举个例子：**\n想查所有用户及其有效订单，右表条件放错位置，可能把“没有有效订单的用户”也一起删掉。\n\n**深入补充（选读）：**\nINNER JOIN 只保留匹配行，LEFT JOIN 保留左表并对未匹配右侧补 NULL。把右表过滤从 ON 放到 WHERE 可能排除 NULL 补行，改变左连接语义。优化看连接键索引、驱动集合规模和执行计划，避免多对多关联导致行数膨胀后再粗暴去重。\n\n**追问 / 易错点：** 分页主表再关联子表有什么好处？可控制主记录页大小，但需明确一对多结果如何展开。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI018"
+      ],
       "keywords": [
         "Q06-032",
-        "MySQL"
+        "MySQL",
+        "实在智能"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3874,13 +4095,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n分库分表是为了突破单库单表的容量或负载限制，但会增加跨片查询、事务、排序、唯一约束和扩容迁移的复杂度。先做索引、SQL、归档等优化，再判断是否真的需要分片，不要按固定行数机械决定。\n\n**深入补充（选读）：**\n在索引、SQL、归档、缓存和垂直拆分等优化仍不能满足容量或写入需求时再评估。分片键应兼顾均匀分布与主要查询局部性，跨片 join、事务、排序分页、唯一约束和扩容迁移都更复杂。不能用“数据过千万就必须分表”当统一阈值。\n\n**追问 / 易错点：** 按用户 ID 分片后按订单号怎么查？需订单号携带路由信息、路由表或二级检索等方案。",
       "sourceIds": [
         "N033",
-        "N054"
+        "N054",
+        "NI017"
       ],
       "keywords": [
         "Q06-034",
         "MySQL",
         "同程",
-        "货拉拉"
+        "货拉拉",
+        "深轻科技"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3892,10 +4115,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "体系补全",
       "answer": "**直接回答：**\n大批量操作要拆批、限速、可恢复。导入分批事务，删除按可索引范围逐批清理，DDL 先确认版本和操作能否在线完成。在线 DDL 也可能等元数据锁，变更前还要检查长事务、磁盘空间和兼容方案。\n\n**深入补充（选读）：**\n导入按固定批次事务、校验与重试，避免一笔超长事务；历史清理按可索引范围小批删除并观察复制和锁。DDL 能否 INSTANT/INPLACE 受版本、操作和表结构限制，仍可能遇到元数据锁。变更前确认计划、空间、兼容窗口与回滚方式。\n\n**追问 / 易错点：** 为什么一个简单 ALTER 卡住？可能等待长期事务占用的元数据锁。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI003"
+      ],
       "keywords": [
         "Q06-035",
-        "MySQL"
+        "MySQL",
+        "招银网络科技"
       ],
       "sourceFile": "06_MySQL.md"
     },
@@ -3938,7 +4164,10 @@ window.QUESTION_BANK_DATA = {
         "N025",
         "N027",
         "N035",
-        "X06"
+        "X06",
+        "NI002",
+        "NI015",
+        "NI017"
       ],
       "keywords": [
         "Q07-002",
@@ -3948,7 +4177,10 @@ window.QUESTION_BANK_DATA = {
         "快手",
         "大疆",
         "车300",
-        "好未来"
+        "好未来",
+        "招银网络科技",
+        "腾讯",
+        "深轻科技"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4019,13 +4251,17 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nBitmap 用每一位记录是否发生；HyperLogLog 估算有多少个不同元素；Bloom Filter 判断一个值“肯定没有”或“可能有”。HLL 有统计误差，布隆过滤器有误判，不能当精确业务去重集合。\n\n**举个例子：**\n签到可用位图；估算独立访客可用 HLL；先拦截明显不存在的商品 ID 可用布隆过滤器，判断可能存在后仍需查真实数据。\n\n**深入补充（选读）：**\nBitmap 用位记录状态，如签到；HyperLogLog 估算去重基数，省内存但有误差且不能列出全部成员；Bloom Filter 判断成员是否可能存在，允许误判存在，一般不误判正确加入且未损坏状态下的不存在。Bloom 的可用性与模块/发行版有关，不要假定所有环境默认都有。\n\n**追问 / 易错点：** 布隆过滤器能直接做资金记录精确去重吗？不能，误判可能丢掉合法操作。\n\n**原始资料核对 / 延伸查阅：** [R01 · Redis：Data Types](https://redis.io/docs/latest/develop/data-types/)。",
       "sourceIds": [
         "N017",
-        "N041"
+        "N041",
+        "NI008",
+        "NI015"
       ],
       "keywords": [
         "Q07-006",
         "Redis",
         "滴滴",
-        "BIGO"
+        "BIGO",
+        "美团",
+        "腾讯"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4058,14 +4294,16 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N003",
         "N052",
-        "X02"
+        "X02",
+        "NI015"
       ],
       "keywords": [
         "Q07-008",
         "Redis",
         "字节跳动",
         "快手",
-        "拼多多"
+        "拼多多",
+        "腾讯"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4083,7 +4321,8 @@ window.QUESTION_BANK_DATA = {
         "N035",
         "N039",
         "N055",
-        "X08"
+        "X08",
+        "NI019"
       ],
       "keywords": [
         "Q07-009",
@@ -4092,7 +4331,8 @@ window.QUESTION_BANK_DATA = {
         "快手",
         "京东",
         "网易",
-        "美团"
+        "美团",
+        "新蛋"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4159,13 +4399,17 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nRedis Cluster 把 key 映射到 16384 个槽，再把槽分配给不同节点，实现分片。客户端根据槽找到节点；多 key 操作通常要求同槽，可以用 hash tag 让相关 key 落在一起。Cluster 和 Sentinel 的用途不同。\n\n**举个例子：**\norder:{123}:info 与 order:{123}:lock 使用相同的 hash tag 123，可方便相关操作落在同一槽。\n\n**深入补充（选读）：**\n开源 Cluster 使用 16384 个哈希槽，key 经 CRC16 等规则映射到槽，再由节点承担槽。带 hash tag 的 key 可指定共同哈希部分，方便多 key 操作在同槽执行。客户端感知拓扑，节点故障与迁移通过集群机制处理，和 Sentinel 不是同一种架构。\n\n**追问 / 易错点：** 为什么多 key Lua 可能报 CROSSSLOT？脚本涉及的 key 不在同一个槽。\n\n**面经线索：** [X02 · 拼多多服务端开发秋招面经](https://www.nowcoder.com/discuss/926155090849693696)。\n\n**原始资料核对 / 延伸查阅：** [R05 · Redis：Cluster Specification](https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/)。",
       "sourceIds": [
         "N023",
-        "X02"
+        "X02",
+        "NI005",
+        "NI016"
       ],
       "keywords": [
         "Q07-013",
         "Redis",
         "BIGO",
-        "拼多多"
+        "拼多多",
+        "携程",
+        "滴滴"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4205,7 +4449,9 @@ window.QUESTION_BANK_DATA = {
         "N041",
         "X02",
         "X04",
-        "X08"
+        "X08",
+        "NI002",
+        "NI015"
       ],
       "keywords": [
         "Q07-015",
@@ -4219,7 +4465,8 @@ window.QUESTION_BANK_DATA = {
         "BIGO",
         "拼多多",
         "综合",
-        "美团"
+        "美团",
+        "招银网络科技"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4242,7 +4489,10 @@ window.QUESTION_BANK_DATA = {
         "N039",
         "N041",
         "X04",
-        "X08"
+        "X08",
+        "NI001",
+        "NI002",
+        "NI015"
       ],
       "keywords": [
         "Q07-016",
@@ -4256,7 +4506,8 @@ window.QUESTION_BANK_DATA = {
         "京东",
         "BIGO",
         "综合",
-        "美团"
+        "美团",
+        "招银网络科技"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4275,7 +4526,10 @@ window.QUESTION_BANK_DATA = {
         "N039",
         "N041",
         "X04",
-        "X08"
+        "X08",
+        "NI002",
+        "NI003",
+        "NI015"
       ],
       "keywords": [
         "Q07-017",
@@ -4286,7 +4540,9 @@ window.QUESTION_BANK_DATA = {
         "京东",
         "BIGO",
         "综合",
-        "美团"
+        "美团",
+        "招银网络科技",
+        "腾讯"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4324,7 +4580,9 @@ window.QUESTION_BANK_DATA = {
         "N027",
         "N031",
         "N037",
-        "N041"
+        "N041",
+        "NI011",
+        "NI024"
       ],
       "keywords": [
         "Q07-019",
@@ -4334,7 +4592,8 @@ window.QUESTION_BANK_DATA = {
         "车300",
         "拼多多",
         "腾讯",
-        "BIGO"
+        "BIGO",
+        "即时设计"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4372,7 +4631,10 @@ window.QUESTION_BANK_DATA = {
         "N037",
         "N040",
         "N054",
-        "N055"
+        "N055",
+        "NI002",
+        "NI004",
+        "NI016"
       ],
       "keywords": [
         "Q07-021",
@@ -4382,7 +4644,9 @@ window.QUESTION_BANK_DATA = {
         "腾讯",
         "帆软",
         "货拉拉",
-        "网易"
+        "网易",
+        "招银网络科技",
+        "滴滴"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4416,10 +4680,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "体系补全",
       "answer": "**直接回答：**\n主库加锁成功但还没复制就宕机，新主上可能没有这把锁，另一个客户端又能加锁，出现两个持有者。单纯续期解决不了这种切主窗口。重要业务最终要靠资源端约束，而不只相信“我曾经拿到 Redis 锁”。\n\n**深入补充（选读）：**\n主节点收到加锁并响应后，锁可能尚未复制便故障；副本晋升后另一客户端能再次加锁，出现两个持有者。仅加重试和自动续期不能消除这个故障窗口。锁用于减少重复工作还是保护不可重复副作用，要求不同；后者需更强协调或资源端约束。\n\n**追问 / 易错点：** Redlock 能否一句话说绝对安全？不能，需说明时间、网络、故障模型和 fencing 等前提。\n\n**原始资料核对 / 延伸查阅：** [R04 · Redis：Replication](https://redis.io/docs/latest/operate/oss_and_stack/management/replication/)；[R06 · Redis：Distributed Locks](https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/)。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI004"
+      ],
       "keywords": [
         "Q07-023",
-        "Redis"
+        "Redis",
+        "招银网络科技"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4469,12 +4736,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\nbig key 是“一个 key 的值太大或成员太多”，hot key 是“一个 key 被访问太频繁”。前者重在拆分、限大小和避免重操作，后者重在缓存、请求合并、分摊和限流。先看瓶颈是内存、CPU 还是带宽。\n\n**举个例子：**\n一个几十 MB 的列表是 big key；一个只有十几个字节却每秒访问很多次的计数器，也可以是 hot key。\n\n**深入补充（选读）：**\nbig key 是体积大或成员多，影响网络、删除和内存；hot key 是访问集中，可能压满单节点，即便值很小也会热点。结合采样扫描、命令/延迟统计、客户端指标与业务键分布定位，避免在线长时间用 KEYS 或重命令遍历全库。先明确是 CPU、带宽还是容量瓶颈。\n\n**追问 / 易错点：** 怎么治理？big key 拆分与限大小；hot key 本地缓存、请求合并或可接受的读副本分散。",
       "sourceIds": [
-        "N003"
+        "N003",
+        "NI008"
       ],
       "keywords": [
         "Q07-026",
         "Redis",
-        "字节跳动"
+        "字节跳动",
+        "美团"
       ],
       "sourceFile": "07_Redis.md"
     },
@@ -4558,7 +4827,8 @@ window.QUESTION_BANK_DATA = {
         "N002",
         "N016",
         "N017",
-        "N055"
+        "N055",
+        "NI008"
       ],
       "keywords": [
         "Q08-001",
@@ -4582,7 +4852,8 @@ window.QUESTION_BANK_DATA = {
         "N021",
         "N039",
         "N046",
-        "X06"
+        "X06",
+        "NI017"
       ],
       "keywords": [
         "Q08-002",
@@ -4590,7 +4861,8 @@ window.QUESTION_BANK_DATA = {
         "快手",
         "京东",
         "美团",
-        "好未来"
+        "好未来",
+        "深轻科技"
       ],
       "sourceFile": "08_消息队列MQ.md"
     },
@@ -4654,7 +4926,11 @@ window.QUESTION_BANK_DATA = {
         "N029",
         "N031",
         "N037",
-        "N045"
+        "N045",
+        "NI003",
+        "NI008",
+        "NI020",
+        "NI024"
       ],
       "keywords": [
         "Q08-005",
@@ -4666,7 +4942,11 @@ window.QUESTION_BANK_DATA = {
         "熙牛医疗",
         "拼多多",
         "腾讯",
-        "字节跳动"
+        "字节跳动",
+        "招银网络科技",
+        "美团",
+        "新蛋",
+        "即时设计"
       ],
       "sourceFile": "08_消息队列MQ.md"
     },
@@ -4682,7 +4962,8 @@ window.QUESTION_BANK_DATA = {
         "N014",
         "N031",
         "N039",
-        "X07"
+        "X07",
+        "NI001"
       ],
       "keywords": [
         "Q08-006",
@@ -4690,7 +4971,8 @@ window.QUESTION_BANK_DATA = {
         "百度",
         "拼多多",
         "京东",
-        "腾讯"
+        "腾讯",
+        "招银网络科技"
       ],
       "sourceFile": "08_消息队列MQ.md"
     },
@@ -4762,10 +5044,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\nOutbox 是一张本地待发事件表。业务数据和事件在同一数据库事务里提交，后台再把事件发给 MQ。发成功后再标记，但中间崩溃可能造成重复，所以消费者仍需幂等。它主要解决“业务成功但消息没发”的双写窗口。\n\n**举个例子：**\n订单写入和“需要通知仓库”的事件一起保存。即使马上重启，后台也能从事件表继续发送。\n\n**深入补充（选读）：**\n在同一数据库事务里写业务变化与待发事件，事务提交后二者同时存在。投递器扫描或订阅 Outbox，向 MQ 发送并确认后标记。发送成功但标记前崩溃会重复，因此消费者仍需幂等。监控未发送年龄、重试次数和清理策略，防止本地事件表无限增长。\n\n**追问 / 易错点：** 先标记已发送再实际发送行吗？不行，中途崩溃会丢消息。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI008"
+      ],
       "keywords": [
         "Q08-010",
-        "消息队列 MQ"
+        "消息队列 MQ",
+        "美团"
       ],
       "sourceFile": "08_消息队列MQ.md"
     },
@@ -4796,14 +5081,18 @@ window.QUESTION_BANK_DATA = {
         "N006",
         "N014",
         "N034",
-        "N042"
+        "N042",
+        "NI003",
+        "NI015"
       ],
       "keywords": [
         "Q08-012",
         "消息队列 MQ",
         "美团",
         "百度",
-        "小米"
+        "小米",
+        "招银网络科技",
+        "腾讯"
       ],
       "sourceFile": "08_消息队列MQ.md"
     },
@@ -4816,12 +5105,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "面经考点改写/延展",
       "answer": "**直接回答：**\nKafka 高吞吐主要来自顺序追加、批量处理、页缓存、压缩和分区并行，部分路径还有零拷贝优化。不是因为“消息完全不落盘”。批量越大可能吞吐更好，但等攒批也可能增加单条延迟。\n\n**深入补充（选读）：**\n常见原因是顺序追加、批量网络与磁盘操作、页缓存、压缩和分区并行，部分传输路径可利用零拷贝减少复制。不是“所有消息都只在内存所以快”。批次大小、等待时间、压缩 CPU 与端到端延迟需权衡，小流量也不一定能达到宣传峰值。\n\n**追问 / 易错点：** 高吞吐和低单条延迟必然一致吗？不一定，批量等待可能增加单条延迟。\n\n**面经线索：** [X06 · 好未来Java面经（可见转发内容）](https://www.nowcoder.com/feed/main/detail/740c0c1fcf114d9784c43fc2d0f74664)。\n\n**原始资料核对 / 延伸查阅：** [M01 · Kafka 4.1：Design](https://kafka.apache.org/41/design/design/)。",
       "sourceIds": [
-        "X06"
+        "X06",
+        "NI003"
       ],
       "keywords": [
         "Q08-013",
         "消息队列 MQ",
-        "好未来"
+        "好未来",
+        "招银网络科技"
       ],
       "sourceFile": "08_消息队列MQ.md"
     },
@@ -4878,10 +5169,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "体系补全",
       "answer": "**直接回答：**\nRebalance 是消费者组重新分配分区，常因消费者加入、退出、失败或分区变化触发。它可能暂停部分处理并导致重投。要控制处理耗时、及时 poll/心跳，并在分区撤销时处理好在途任务和位移。\n\n**深入补充（选读）：**\n消费者加入、离开、失败或订阅/分区变化会触发分配调整，期间可能暂停部分处理并出现重投。控制单批处理时间，正确 poll 和心跳，按版本评估静态成员、协作式分配等方案。撤销分区时处理在途任务和位移，避免旧消费者继续写造成乱序。\n\n**追问 / 易错点：** 为什么“心跳正常”也可能失去分区？消费循环时限等配置也影响组成员有效性。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI003"
+      ],
       "keywords": [
         "Q08-017",
-        "消息队列 MQ"
+        "消息队列 MQ",
+        "招银网络科技"
       ],
       "sourceFile": "08_消息队列MQ.md"
     },
@@ -4923,10 +5217,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\n生产者先把消息发到 Exchange，交换机按 Binding 和 Routing Key 路由到 Queue，消费者再从队列取。Direct 精确匹配，Topic 按模式匹配，Fanout 广播，Headers 按头匹配。发到交换机不代表一定路由进目标队列。\n\n**深入补充（选读）：**\n生产者把消息发到 exchange，根据其类型和 binding 规则路由到 queue，消费者从 queue 消费。Direct 常精确匹配，Topic 支持模式匹配，Fanout 广播到绑定队列，Headers 根据头条件路由。发到 exchange 成功不代表消息一定路由到想要的队列。\n\n**追问 / 易错点：** 一个消息能进多个队列吗？可以，取决于交换机与绑定规则。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI020"
+      ],
       "keywords": [
         "Q08-020",
-        "消息队列 MQ"
+        "消息队列 MQ",
+        "新蛋"
       ],
       "sourceFile": "08_消息队列MQ.md"
     },
@@ -5018,7 +5315,11 @@ window.QUESTION_BANK_DATA = {
         "N003",
         "N023",
         "N056",
-        "X06"
+        "X06",
+        "NI006",
+        "NI011",
+        "NI015",
+        "NI024"
       ],
       "keywords": [
         "Q09-001",
@@ -5027,7 +5328,10 @@ window.QUESTION_BANK_DATA = {
         "字节跳动",
         "BIGO",
         "阿里",
-        "好未来"
+        "好未来",
+        "携程",
+        "腾讯",
+        "即时设计"
       ],
       "sourceFile": "09_计算机网络.md"
     },
@@ -5062,7 +5366,8 @@ window.QUESTION_BANK_DATA = {
         "N025",
         "N037",
         "N054",
-        "X07"
+        "X07",
+        "NI015"
       ],
       "keywords": [
         "Q09-003",
@@ -5090,7 +5395,8 @@ window.QUESTION_BANK_DATA = {
         "N042",
         "N054",
         "X02",
-        "X07"
+        "X07",
+        "NI009"
       ],
       "keywords": [
         "Q09-004",
@@ -5116,14 +5422,16 @@ window.QUESTION_BANK_DATA = {
         "N036",
         "N042",
         "X02",
-        "X07"
+        "X07",
+        "NI011"
       ],
       "keywords": [
         "Q09-005",
         "计算机网络",
         "腾讯",
         "美团",
-        "拼多多"
+        "拼多多",
+        "BIGO"
       ],
       "sourceFile": "09_计算机网络.md"
     },
@@ -5137,7 +5445,8 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nTIME_WAIT 通常出现在主动关闭方，用来处理最后 ACK 丢失和旧报文影响；CLOSE_WAIT 表示已收到对方 FIN，但本地应用还没关闭。大量 CLOSE_WAIT 先查连接有没有正确关，大量 TIME_WAIT 先看短连接和端口压力。\n\n**深入补充（选读）：**\nTIME_WAIT 常由主动关闭的一端进入，等待旧报文消退并能应对最终 ACK 丢失后的 FIN 重传；CLOSE_WAIT 表示已收到对端关闭但本应用尚未关闭本端。大量 CLOSE_WAIT 优先排查连接/流未正确关闭，TIME_WAIT 多则结合短连接频率、端口与连接复用判断。\n\n**追问 / 易错点：** 看到 TIME_WAIT 就该调内核参数吗？先分析请求模式和是否真正资源不足。\n\n**面经线索：** [X02 · 拼多多服务端开发秋招面经](https://www.nowcoder.com/discuss/926155090849693696)。\n\n**原始资料核对 / 延伸查阅：** [N01 · RFC 9293：TCP](https://datatracker.ietf.org/doc/html/rfc9293)。",
       "sourceIds": [
         "N023",
-        "X02"
+        "X02",
+        "NI011"
       ],
       "keywords": [
         "Q09-006",
@@ -5176,12 +5485,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n滑动窗口让发送方不用每发一点就等一次确认。流量控制照顾接收方，别让对方缓冲区装不下；拥塞控制照顾网络，别把传输路径塞满。实际发送量要同时考虑接收窗口和拥塞窗口。\n\n**深入补充（选读）：**\n滑动窗口允许多个数据段在确认前在途，提高利用率。流量控制依据接收端能力限制发送，避免接收缓冲耗尽；拥塞控制根据网络拥塞信号调节发送，避免压垮路径。实际可发送量受接收窗口与拥塞窗口等共同约束，不能把二者当同一机制。\n\n**追问 / 易错点：** 接收端很快是否就能无限加速发送？不能，中间网络仍可能拥塞。\n\n**原始资料核对 / 延伸查阅：** [N01 · RFC 9293：TCP](https://datatracker.ietf.org/doc/html/rfc9293)。",
       "sourceIds": [
-        "N032"
+        "N032",
+        "NI015"
       ],
       "keywords": [
         "Q09-008",
         "计算机网络",
-        "招银云创"
+        "招银云创",
+        "腾讯"
       ],
       "sourceFile": "09_计算机网络.md"
     },
@@ -5279,13 +5590,17 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nHTTPS 是 HTTP 加 TLS。TLS 主要保护传输的机密性、完整性和身份认证：证书帮助确认身份，握手建立密钥，正文通常用对称加密。不是所有数据都直接用服务器公钥加密，也不保证网站业务本身可靠。\n\n**深入补充（选读）：**\nTLS 对传输提供加密、完整性与身份认证相关保障。证书验证服务器身份，握手协商密钥，后续业务数据通常使用对称加密。HTTPS 不自动保证服务器业务正确，也不能隐藏所有网络元数据。不能把 HTTPS 概括成“所有数据都用服务器公钥加密”。\n\n**追问 / 易错点：** 为什么不用非对称加密所有正文？性能和协议设计上通常使用混合机制。\n\n**原始资料核对 / 延伸查阅：** [N03 · RFC 8446：TLS 1.3](https://datatracker.ietf.org/doc/html/rfc8446)。",
       "sourceIds": [
         "N033",
-        "N036"
+        "N036",
+        "NI001",
+        "NI003",
+        "NI014"
       ],
       "keywords": [
         "Q09-014",
         "计算机网络",
         "同程",
-        "腾讯"
+        "腾讯",
+        "招银网络科技"
       ],
       "sourceFile": "09_计算机网络.md"
     },
@@ -5301,14 +5616,16 @@ window.QUESTION_BANK_DATA = {
         "N016",
         "N023",
         "N036",
-        "N041"
+        "N041",
+        "NI021"
       ],
       "keywords": [
         "Q09-015",
         "计算机网络",
         "拼多多",
         "BIGO",
-        "腾讯"
+        "腾讯",
+        "阿里"
       ],
       "sourceFile": "09_计算机网络.md"
     },
@@ -5323,14 +5640,16 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N016",
         "N021",
-        "N038"
+        "N038",
+        "NI003"
       ],
       "keywords": [
         "Q09-016",
         "计算机网络",
         "拼多多",
         "快手",
-        "百度"
+        "百度",
+        "招银网络科技"
       ],
       "sourceFile": "09_计算机网络.md"
     },
@@ -5347,7 +5666,8 @@ window.QUESTION_BANK_DATA = {
         "N041",
         "N046",
         "N052",
-        "N053"
+        "N053",
+        "NI009"
       ],
       "keywords": [
         "Q09-017",
@@ -5356,7 +5676,8 @@ window.QUESTION_BANK_DATA = {
         "BIGO",
         "美团",
         "快手",
-        "小鹅通"
+        "小鹅通",
+        "拼多多"
       ],
       "sourceFile": "09_计算机网络.md"
     },
@@ -5404,14 +5725,19 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N022",
         "N038",
-        "X08"
+        "X08",
+        "NI004",
+        "NI011",
+        "NI017"
       ],
       "keywords": [
         "Q09-020",
         "计算机网络",
         "BIGO",
         "百度",
-        "美团"
+        "美团",
+        "招银网络科技",
+        "深轻科技"
       ],
       "sourceFile": "09_计算机网络.md"
     },
@@ -5460,12 +5786,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n零拷贝通常是尽量减少用户态与内核态之间的数据复制，不是物理上完全没有复制。sendfile 可用于文件到 socket 的适用传输路径，mmap 是把文件映射到地址空间。是否获益还要看 TLS、平台和具体实现。\n\n**深入补充（选读）：**\n零拷贝通常指减少用户态/内核态数据复制和上下文切换，不是全链路真的零次复制。sendfile 可在适用路径内从文件向 socket 传输，mmap 将文件映射到地址空间。是否受益取决于文件、网络、TLS 与实现路径，不能保证所有 Java IO 自动零拷贝。\n\n**追问 / 易错点：** TLS 场景还会有额外处理吗？加密可能改变可用路径和复制成本。",
       "sourceIds": [
-        "N055"
+        "N055",
+        "NI009"
       ],
       "keywords": [
         "Q09-023",
         "计算机网络",
-        "网易"
+        "网易",
+        "拼多多"
       ],
       "sourceFile": "09_计算机网络.md"
     },
@@ -5570,12 +5898,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n进程通信常见有管道、消息队列、共享内存、信号和 socket。共享内存少复制，但必须自己协调并发；socket 可以同机或跨机器；信号适合有限通知。选型先看消息边界、数据规模和是否跨主机。\n\n**深入补充（选读）：**\n管道适合字节流传递，消息队列传递离散消息，共享内存减少数据复制但需同步，信号用于有限异步通知，socket 可本地或跨网络通信。选择看数据规模、边界、可靠性和跨主机需求。共享内存不是写进去就自动有正确并发顺序。\n\n**追问 / 易错点：** Unix domain socket 有什么特点？适合同机进程通信，不必走完整远程网络路径。",
       "sourceIds": [
-        "N003"
+        "N003",
+        "NI015"
       ],
       "keywords": [
         "Q10-004",
         "操作系统 / Linux",
-        "字节跳动"
+        "字节跳动",
+        "腾讯"
       ],
       "sourceFile": "10_操作系统与Linux.md"
     },
@@ -5919,12 +6249,16 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n先确认从什么时候开始、哪些请求变慢、是否刚发布。再沿 trace 把耗时拆成排队、业务计算、SQL、缓存和第三方调用，找到新增的主要耗时。影响用户时先限流、降级或回滚，同时保留现场，不要一上来加线程。\n\n**深入补充（选读）：**\n先界定影响范围、开始时间、P95/P99和错误率，关联发布与流量变化。沿 trace 拆连接池等待、线程池排队、应用计算、SQL、缓存和第三方调用，找新增主要耗时；同时看 CPU、GC、锁、队列。影响用户时先限流、降级或回滚，再保存现场、验证根因。不能先盲目扩大线程池。\n\n**追问 / 易错点：** 只有少数请求慢？看长尾、热点参数、锁等待、冷缓存和重试，不只看平均值。",
       "sourceIds": [
-        "N031"
+        "N031",
+        "NI012",
+        "NI024"
       ],
       "keywords": [
         "Q11-001",
         "场景题 / 故障排查",
-        "拼多多"
+        "拼多多",
+        "得物",
+        "即时设计"
       ],
       "sourceFile": "11_场景题与故障排查.md"
     },
@@ -5952,12 +6286,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "面经考点改写/延展",
       "answer": "**直接回答：**\n看多轮 GC 之后的内存最低点，而不是只看使用量往上走。缓存预热通常有容量上限并逐渐稳定；不再需要的对象仍不断累积，就要查持有链。用 dump 找大对象和根引用，修复后在同负载下继续观察。\n\n**深入补充（选读）：**\n观察多轮 GC 后的存活基线、缓存容量与业务量是否一起增长，使用堆转储看 dominator 和根引用。容量有界并趋稳可能是预热；无界 Map、积压任务或 ThreadLocal 持有已失效对象则像泄漏。还需看堆外/RSS与容器限制，避免把所有进程内存上涨都归咎 Java 堆。\n\n**追问 / 易错点：** 怎么证明修好了？同负载持续观察存活基线和持有对象数量，而不是重启后暂时下降。\n\n**面经线索：** [X05 · 得物后端一面9.1](https://www.nowcoder.com/discuss/926058684231225344?sourceSSR=post)。",
       "sourceIds": [
-        "X05"
+        "X05",
+        "NI008"
       ],
       "keywords": [
         "Q11-003",
         "场景题 / 故障排查",
-        "得物"
+        "得物",
+        "美团"
       ],
       "sourceFile": "11_场景题与故障排查.md"
     },
@@ -6006,10 +6342,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\nRedis 故障时，不能把原本所有缓存流量原样打到数据库。按重要性限流，允许的场景使用本地缓存或旧数据，承受不了的请求明确返回繁忙。恢复后分批预热、逐步放量，防止数据库在恢复时再次被冲垮。\n\n**深入补充（选读）：**\n按业务优先级保留核心读写，缓存可用性异常时限制回源并发与速率，用短期本地缓存或允许的旧数据降级。对不可降级读返回明确繁忙，而非全量绕过缓存。恢复后分批预热、请求合并并控制流量，观察数据库和缓存负载后逐步恢复。\n\n**追问 / 易错点：** 多级缓存会引入什么？内存重复、失效传播、陈旧数据和实例间差异。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI004"
+      ],
       "keywords": [
         "Q11-006",
-        "场景题 / 故障排查"
+        "场景题 / 故障排查",
+        "招银网络科技"
       ],
       "sourceFile": "11_场景题与故障排查.md"
     },
@@ -6060,7 +6399,8 @@ window.QUESTION_BANK_DATA = {
         "N027",
         "N035",
         "N041",
-        "N055"
+        "N055",
+        "NI005"
       ],
       "keywords": [
         "Q11-009",
@@ -6069,7 +6409,8 @@ window.QUESTION_BANK_DATA = {
         "车300",
         "快手",
         "BIGO",
-        "网易"
+        "网易",
+        "携程"
       ],
       "sourceFile": "11_场景题与故障排查.md"
     },
@@ -6103,13 +6444,17 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n前端防双击只改善体验，后端仍需稳定幂等键。把键与用户、操作和参数摘要绑定，用数据库唯一约束防并发重复，保存处理中或成功结果。相同键相同参数复用结果，相同键不同参数拒绝。\n\n**举个例子：**\n用户第一次下单超时，第二次仍带原 requestId，服务器应返回原订单或处理中状态，而不是重新创建订单。\n\n**深入补充（选读）：**\n客户端按钮禁用改善体验，服务端还需幂等键。幂等键绑定用户、操作和请求摘要，数据库唯一约束保证并发只接受一个，保存处理中/成功/失败及结果。相同键不同参数拒绝，处理中返回可查询状态。锁只能减少竞争，最终约束应在可靠存储中。\n\n**追问 / 易错点：** 请求超时但服务器成功，第二次返回什么？复用原结果或给查询入口，不能重新生成订单。\n\n**面经线索：** [X05 · 得物后端一面9.1](https://www.nowcoder.com/discuss/926058684231225344?sourceSSR=post)。",
       "sourceIds": [
         "N005",
-        "X05"
+        "X05",
+        "NI016",
+        "NI024"
       ],
       "keywords": [
         "Q11-011",
         "场景题 / 故障排查",
         "美团",
-        "得物"
+        "得物",
+        "滴滴",
+        "即时设计"
       ],
       "sourceFile": "11_场景题与故障排查.md"
     },
@@ -6123,7 +6468,8 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n分布式 ID 先看要不要趋势递增、能否依赖中心服务、吞吐多大。可选数据库号段、雪花或 UUID 等。雪花常由时间、节点号、序列组成，必须保证节点号分配正确，并处理时钟回拨和序列用尽。\n\n**深入补充（选读）：**\n先要求唯一性、吞吐、趋势递增、信息暴露和离线生成。数据库号段便于集中治理，雪花算法组合时间、节点与序列，UUID 减少协调但可能影响索引局部性。雪花要保证节点号唯一、处理时钟回拨和序列耗尽；不能只写“64位所以永不重复”。\n\n**追问 / 易错点：** 时钟回拨怎么办？短回拨可等待，大回拨拒绝/切备用方案并告警，规则需一致。\n\n**面经线索：** [X05 · 得物后端一面9.1](https://www.nowcoder.com/discuss/926058684231225344?sourceSSR=post)。",
       "sourceIds": [
         "N041",
-        "X05"
+        "X05",
+        "NI022"
       ],
       "keywords": [
         "Q11-012",
@@ -6219,7 +6565,8 @@ window.QUESTION_BANK_DATA = {
         "N030",
         "N039",
         "N055",
-        "X06"
+        "X06",
+        "NI025"
       ],
       "keywords": [
         "Q11-017",
@@ -6228,7 +6575,8 @@ window.QUESTION_BANK_DATA = {
         "科大讯飞",
         "京东",
         "网易",
-        "好未来"
+        "好未来",
+        "阿里"
       ],
       "sourceFile": "11_场景题与故障排查.md"
     },
@@ -6396,7 +6744,8 @@ window.QUESTION_BANK_DATA = {
         "N002",
         "N026",
         "N027",
-        "N035"
+        "N035",
+        "NI005"
       ],
       "keywords": [
         "Q11-027",
@@ -6404,7 +6753,8 @@ window.QUESTION_BANK_DATA = {
         "美团",
         "顺丰",
         "车300",
-        "快手"
+        "快手",
+        "携程"
       ],
       "sourceFile": "11_场景题与故障排查.md"
     },
@@ -6470,12 +6820,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\nCAP 讨论的是网络发生分区时，不能同时完整保证线性一致性和可用性，不是平时随便三选二。BASE 是某些系统接受短暂不一致、最终收敛的设计思路。业务必须明确能旧多久、怎么补偿、什么时候报警。\n\n**深入补充（选读）：**\nCAP讨论网络分区存在时，线性一致性与可用性无法同时完全满足，不是平时随意三选二；这里可用性也有严格模型含义。BASE是对某些业务采用基本可用、软状态、最终一致的设计概括。回答要落到具体操作：比如余额扣减和商品详情展示可以采用不同约束。\n\n**追问 / 易错点：** 最终一致多久算最终？业务要明确可接受延迟、补偿和无法收敛时的处理。",
       "sourceIds": [
-        "N055"
+        "N055",
+        "NI008"
       ],
       "keywords": [
         "Q11-031",
         "场景题 / 故障排查",
-        "网易"
+        "网易",
+        "美团"
       ],
       "sourceFile": "11_场景题与故障排查.md"
     },
@@ -6550,7 +6902,9 @@ window.QUESTION_BANK_DATA = {
         "X02",
         "X03",
         "X04",
-        "X05"
+        "X05",
+        "NI008",
+        "NI025"
       ],
       "keywords": [
         "Q11-035",
@@ -6561,7 +6915,8 @@ window.QUESTION_BANK_DATA = {
         "腾讯",
         "拼多多",
         "综合",
-        "得物"
+        "得物",
+        "美团"
       ],
       "sourceFile": "11_场景题与故障排查.md"
     },
@@ -6574,12 +6929,16 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n按五句话介绍：项目给谁用，解决什么问题，主流程是什么，我负责什么，怎么验证效果。技术栈穿插在具体实现中，不要先报一串框架。所有规模和成绩用真实记录，没有压测就直接说未做系统压测。\n\n**举个例子：**\n表达模板：这个项目面向【真实用户】，处理【问题】；核心链路是【输入→处理→结果】；我负责【模块】，解决了【具体难点】，通过【真实测试或记录】验证。\n\n**深入补充（选读）：**\n按“服务对象与问题→主链路→技术栈→个人贡献→验证结果”组织：项目解决【真实业务问题】，核心流程是【输入到结果】，我负责【实际模块】，用【具体机制】解决【困难】，通过【日志/测试/上线记录】验证。数字没有记录就说清规模未知，不把开源项目整体能力算成个人贡献。\n\n**追问 / 易错点：** 你最希望面试官追问哪个点？准备一个能讲清取舍、实现与故障边界的真实细节。\n\n**原章示例（移至对应题目）：**\n以下空格是**个人经历替换项**，不是要求背诵的答案，也不表示你已拥有相应经历。\n\n| 项目事实 | 你的记录 |\n| --- | --- |\n| 谁使用、解决什么问题 | 待填写真实事实 |\n| 你负责的类/接口/流程 | 待填写真实事实 |\n| 关键表、业务主键、索引 | 待填写真实事实 |\n| 事务与权限边界 | 待填写真实事实 |\n| 一个明确Bug与证据链 | 待填写真实事实 |\n| 测试/压测环境与实际结果 | 未测就写未测 |\n| 失败、重复、撤回后的行为 | 待填写真实事实 |\n| 有记录的优化前后数据 | 没有记录就不编数字 |\n| 未实现但可考虑的改进 | 明确标为方案而非成果 |\n\n可以把项目介绍练成30秒、2分钟和5分钟三个版本，事实保持一致，仅调整展开程度。",
       "sourceIds": [
-        "N035"
+        "N035",
+        "NI007",
+        "NI010"
       ],
       "keywords": [
         "Q12-001",
         "项目 / 实习拷打",
-        "快手"
+        "快手",
+        "美团",
+        "拼多多"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -6599,7 +6958,8 @@ window.QUESTION_BANK_DATA = {
         "N044",
         "N045",
         "N051",
-        "N056"
+        "N056",
+        "NI016"
       ],
       "keywords": [
         "Q12-002",
@@ -6610,7 +6970,8 @@ window.QUESTION_BANK_DATA = {
         "腾讯",
         "字节跳动",
         "京东",
-        "阿里"
+        "阿里",
+        "滴滴"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -6626,14 +6987,21 @@ window.QUESTION_BANK_DATA = {
         "N005",
         "N046",
         "N053",
-        "N056"
+        "N056",
+        "NI005",
+        "NI011",
+        "NI014",
+        "NI025"
       ],
       "keywords": [
         "Q12-003",
         "项目 / 实习拷打",
         "美团",
         "小鹅通",
-        "阿里"
+        "阿里",
+        "携程",
+        "BIGO",
+        "腾讯"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -6648,7 +7016,8 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N006",
         "N016",
-        "N035"
+        "N035",
+        "NI007"
       ],
       "keywords": [
         "Q12-004",
@@ -6668,12 +7037,20 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n先讲业务实体和它们的关系，再讲主键、业务唯一约束、状态字段和索引。用“哪些数据必须一起成功”和“最常查什么”解释设计，而不是照页面输入框建表。历史记录、软删除和并发规则也要说明。\n\n**深入补充（选读）：**\n先讲实体和一对多/多对多关系，再讲主键、业务唯一键、外键或应用约束、状态和审计字段。用主查询解释索引，用并发约束解释条件更新或版本字段，明确软删除后的唯一性处理。数据库字段不是只照页面每个输入框复制一遍。\n\n**追问 / 易错点：** 为什么这两张表分开？独立生命周期、基数、查询方式或事务边界要有依据。",
       "sourceIds": [
-        "N010"
+        "N010",
+        "NI007",
+        "NI009",
+        "NI014",
+        "NI018"
       ],
       "keywords": [
         "Q12-005",
         "项目 / 实习拷打",
-        "京东"
+        "京东",
+        "美团",
+        "拼多多",
+        "腾讯",
+        "实在智能"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -6705,7 +7082,12 @@ window.QUESTION_BANK_DATA = {
         "N019",
         "N029",
         "N030",
-        "X07"
+        "X07",
+        "NI003",
+        "NI006",
+        "NI012",
+        "NI016",
+        "NI023"
       ],
       "keywords": [
         "Q12-007",
@@ -6714,7 +7096,12 @@ window.QUESTION_BANK_DATA = {
         "字节跳动",
         "熙牛医疗",
         "科大讯飞",
-        "腾讯"
+        "腾讯",
+        "招银网络科技",
+        "携程",
+        "得物",
+        "滴滴",
+        "未具名公司"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -6727,12 +7114,16 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n先说原来慢在哪里，再说改动为什么能减少成本，最后给真实测量。比如把逐条查询改批量、把全量加载改分页、给高频 SQL 加合适索引。没有可靠数据就说减少了哪些操作，不编造提升百分比。\n\n**深入补充（选读）：**\n拿真实基线说明慢在哪，例如一次请求执行N+1查询或全量拉取，再解释批量查询/索引/分页为何降低成本。报告实际记录的耗时与环境，没有测量就只说减少某类操作、未做系统压测。优化后还需验证结果一致与写入成本，不应只有单个漂亮数字。\n\n**追问 / 易错点：** 缓存命中造成的快还是 SQL 真快？分开测冷缓存、热缓存与数据库执行。",
       "sourceIds": [
-        "N053"
+        "N053",
+        "NI012",
+        "NI016"
       ],
       "keywords": [
         "Q12-008",
         "项目 / 实习拷打",
-        "小鹅通"
+        "小鹅通",
+        "得物",
+        "滴滴"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -6857,13 +7248,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n认证确认你是谁，授权确认你能做什么，多租户隔离确认你能操作哪一家的数据。服务端根据可信身份检查资源归属，查询、导出和缓存都要带隔离维度。隐藏按钮、字段只读都不能替代后端权限检查。\n\n**深入补充（选读）：**\n认证确认身份，授权检查操作权限和资源归属。服务端把用户、角色、租户与目标记录关联，数据库访问必须带相应范围，缓存键也包含必要隔离维度。前端只读/隐藏是体验，不是防越权措施。不要仅按客户端传入 creator_id 判断可以修改。\n\n**追问 / 易错点：** 知道别人的单据ID能查到吗？需要对象级授权，避免水平越权。",
       "sourceIds": [
         "N022",
-        "N038"
+        "N038",
+        "NI003"
       ],
       "keywords": [
         "Q12-015",
         "项目 / 实习拷打",
         "BIGO",
-        "百度"
+        "百度",
+        "招银网络科技"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -6876,12 +7269,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "面经考点改写/延展",
       "answer": "**直接回答：**\n日志围绕 traceId、业务单据 ID 和事件 ID 串起关键步骤：收到什么、处理到哪、结果是什么、为什么失败。异常保留根因和堆栈，敏感信息脱敏。指标用来发现异常，日志用来解释细节，别把整个大对象每次都打印。\n\n**深入补充（选读）：**\n按请求 traceId、业务单据ID、事件ID记录关键阶段和结果，异常保留堆栈与 cause，敏感字段脱敏。成功业务不必打印整份大对象，重复异常避免刷屏。跨服务传播 trace，异步消息携带关联信息，并用指标发现问题、日志解释细节。\n\n**追问 / 易错点：** 日志量太大怎么办？分级、采样、保留策略和结构化索引，核心审计不能随意丢。\n\n**面经线索：** [X05 · 得物后端一面9.1](https://www.nowcoder.com/discuss/926058684231225344?sourceSSR=post)。",
       "sourceIds": [
-        "X05"
+        "X05",
+        "NI018"
       ],
       "keywords": [
         "Q12-016",
         "项目 / 实习拷打",
-        "得物"
+        "得物",
+        "实在智能"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -6898,7 +7293,8 @@ window.QUESTION_BANK_DATA = {
         "N019",
         "N026",
         "N027",
-        "N039"
+        "N039",
+        "NI019"
       ],
       "keywords": [
         "Q12-017",
@@ -6907,7 +7303,8 @@ window.QUESTION_BANK_DATA = {
         "字节跳动",
         "顺丰",
         "车300",
-        "京东"
+        "京东",
+        "新蛋"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -6919,10 +7316,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\n按实际流程讲清构建、保存旧版本、注入配置、停止接流量、启动、健康检查和回滚。只做过替换 jar 也可以讲具体命令和验证步骤，不必虚构 CI/CD。进程存在不等于发布成功，还要确认端口和核心接口。\n\n**深入补充（选读）：**\n说明真实流程：构建产物、配置注入、备份或版本保留、停止接流量、启动健康检查和日志验证。回滚需确认新旧配置与表结构兼容。若只是参与替换 jar，就讲清命令、工作目录、端口和检查步骤，不虚构流水线或集群灰度经验。\n\n**追问 / 易错点：** 启动进程存在就代表发布成功吗？还需就绪、依赖连接、核心接口和错误监控。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI018"
+      ],
       "keywords": [
         "Q12-018",
-        "项目 / 实习拷打"
+        "项目 / 实习拷打",
+        "实在智能"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -7016,10 +7416,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\n先明确接口契约和鉴权，再设置连接、读取和整体超时。每次业务操作使用稳定请求 ID，超时视为结果未知，按幂等键查询或重试。日志保留脱敏摘要和状态，不要重试一次就换一个新业务 ID。\n\n**深入补充（选读）：**\n明确请求/响应契约与错误码，使用规范鉴权或签名并校验时间与重放规则；设置连接、读取和整体超时。稳定请求ID贯穿双方，超时先视为结果未知，按幂等键查询或重试。记录脱敏请求摘要与响应状态，避免每次重试生成新业务ID。\n\n**追问 / 易错点：** HTTP200但返回业务失败码算成功吗？必须按双方契约解析业务结果。",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI007"
+      ],
       "keywords": [
         "Q12-024",
-        "项目 / 实习拷打"
+        "项目 / 实习拷打",
+        "美团"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -7036,7 +7439,11 @@ window.QUESTION_BANK_DATA = {
         "N011",
         "N015",
         "N026",
-        "N027"
+        "N027",
+        "NI007",
+        "NI009",
+        "NI012",
+        "NI021"
       ],
       "keywords": [
         "Q12-025",
@@ -7045,7 +7452,8 @@ window.QUESTION_BANK_DATA = {
         "阿里",
         "拼多多",
         "顺丰",
-        "车300"
+        "车300",
+        "得物"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -7077,12 +7485,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "面经考点改写/延展",
       "answer": "**直接回答：**\n工具协议要讲清名称、用途、输入参数、输出、错误、权限和超时。模型只提出调用，服务端还要校验参数和授权；有副作用的调用要有稳定 ID 与幂等规则。大结果返回摘要和引用，不把整份日志硬塞给模型。\n\n**深入补充（选读）：**\n工具定义名称、用途、参数 Schema、权限、超时、输出结构和错误类型；执行前做服务端校验，不能只信模型生成JSON。给调用分配ID与幂等键，结果包含状态、摘要和必要引用，避免把大量无关内容全部塞回上下文。需要变更的数据操作还需审计与合理审批。\n\n**追问 / 易错点：** 工具返回超大日志怎么办？分页、截断摘要、持久引用和按需检索。\n\n**面经线索：** [X01 · 腾讯后端暑期实习面试记录](https://www.nowcoder.com/discuss/863532788627116032)。",
       "sourceIds": [
-        "X01"
+        "X01",
+        "NI020"
       ],
       "keywords": [
         "Q12-027",
         "项目 / 实习拷打",
-        "腾讯"
+        "腾讯",
+        "新蛋"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -7097,14 +7507,18 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N011",
         "N030",
-        "X01"
+        "X01",
+        "NI011",
+        "NI012"
       ],
       "keywords": [
         "Q12-028",
         "项目 / 实习拷打",
         "阿里",
         "科大讯飞",
-        "腾讯"
+        "腾讯",
+        "BIGO",
+        "得物"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -7155,7 +7569,13 @@ window.QUESTION_BANK_DATA = {
         "N030",
         "N041",
         "X03",
-        "X07"
+        "X07",
+        "NI004",
+        "NI005",
+        "NI007",
+        "NI008",
+        "NI021",
+        "NI023"
       ],
       "keywords": [
         "Q12-031",
@@ -7163,7 +7583,11 @@ window.QUESTION_BANK_DATA = {
         "美团",
         "BIGO",
         "科大讯飞",
-        "腾讯"
+        "腾讯",
+        "招银网络科技",
+        "携程",
+        "阿里",
+        "未具名公司"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -7177,12 +7601,14 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n上下文先保留当前目标、硬约束、最近相关操作和未完成事项；历史压成结构化摘要，完整记录留在外部按需取。工具大输出先摘要或分页，并给生成答案留预算。订单号和授权等关键状态应单独存储，不能只靠摘要记住。\n\n**深入补充（选读）：**\n先做 token 预算，为输出和在途工具返回留空间，保留目标、约束、最近相关操作和未完成事项。旧历史可结构化摘要，原始轨迹存储后按需检索；大工具输出用分页与引用。摘要要保留事实来源，用户内容与工具内容保持低信任身份，不提升成系统指令。\n\n**追问 / 易错点：** 压缩后漏掉约束怎么办？关键约束结构化持久化并在每次执行前验证。\n\n**面经线索：** [X01 · 腾讯后端暑期实习面试记录](https://www.nowcoder.com/discuss/863532788627116032)；[X03 · 微信后端开发秋招一面](https://www.nowcoder.com/discuss/924429259429421056?sourceSSR=post)。",
       "sourceIds": [
         "X01",
-        "X03"
+        "X03",
+        "NI021"
       ],
       "keywords": [
         "Q12-032",
         "项目 / 实习拷打",
-        "腾讯"
+        "腾讯",
+        "阿里"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -7196,13 +7622,15 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n执行代码要靠隔离环境和最小权限，限制文件路径、网络、CPU、内存、时长及进程数；高影响操作先获得应用层授权，再记录审计。工具输出只能当数据，不能升级成系统指令。提示词里写“不许乱来”不是沙箱。\n\n**深入补充（选读）：**\n使用隔离环境和最小权限，限制文件范围、网络、CPU、内存、运行时间与进程数，区分只读工具和有副作用工具。对高影响操作采用应用层授权与审计，工具结果视为数据而非可信指令。只把危险命令写进提示词黑名单不构成可靠沙箱。\n\n**追问 / 易错点：** 容器是否绝对安全？不是，仍需配置隔离、限制能力并考虑宿主边界。\n\n**面经线索：** [X01 · 腾讯后端暑期实习面试记录](https://www.nowcoder.com/discuss/863532788627116032)。",
       "sourceIds": [
         "N022",
-        "X01"
+        "X01",
+        "NI007"
       ],
       "keywords": [
         "Q12-033",
         "项目 / 实习拷打",
         "BIGO",
-        "腾讯"
+        "腾讯",
+        "美团"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -7215,12 +7643,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n评价 Agent 先定义一批真实任务和成功标准，再测完成率、错误副作用、人工介入、步骤、延迟和成本。分析失败是路由、参数、工具还是检索问题。演示成功一次不能证明稳定，降低成本也要同步观察质量。\n\n**深入补充（选读）：**\n建立真实任务集，记录成功标准、完成率、人工介入率、错误副作用、步数、总延迟与token/工具成本。比较固定工作流与Agent方案，分析失败是在规划、参数、工具、检索还是权限。不能以“回答很像人”或一个演示成功证明可靠性。\n\n**追问 / 易错点：** 如何降低成本而不牺牲质量？缩小工具输出、缓存稳定结果、按任务分层模型并做对照评估。",
       "sourceIds": [
-        "N031"
+        "N031",
+        "NI007"
       ],
       "keywords": [
         "Q12-034",
         "项目 / 实习拷打",
-        "拼多多"
+        "拼多多",
+        "美团"
       ],
       "sourceFile": "12_项目与实习拷打.md"
     },
@@ -7369,10 +7799,13 @@ window.QUESTION_BANK_DATA = {
       "priority": "P0",
       "kind": "体系补全",
       "answer": "**直接回答：**\n先按区间起点排序。每次和结果中最后一个区间比较：重叠就把终点扩到更远，不重叠就另加一个区间。排序后只需扫一遍，总时间 O(n log n)。端点相接算不算重叠，要按题目边界定义。\n\n**举个例子：**\n闭区间 [1,3] 和 [2,6] 合成 [1,6]；再遇到 [8,10]，就新开一个区间。\n\n**深入补充（选读）：**\n先按起点升序排序，依次把当前区间和结果末尾比较，重叠则扩大末尾终点，否则新开区间。时间 O(n log n)，额外输出 O(n)。起点相同、端点相接是否算重叠要看闭区间/开区间题意，比较器用 Integer.compare 避免相减溢出。\n\n**追问 / 易错点：** 边界：空输入、包含关系、负端点。Java 示例见代码07。\n\n**Java 核心代码07：**\n\n```java\nstatic int[][] mergeIntervals(int[][] input) {\n    if (input.length == 0) return new int[0][];\n    int[][] a = new int[input.length][];\n    for (int i = 0; i < input.length; i++) a[i] = input[i].clone();\n    Arrays.sort(a, (x, y) -> Integer.compare(x[0], y[0]));\n    List<int[]> out = new ArrayList<>();\n    for (int[] cur : a) {\n        if (out.isEmpty() || out.get(out.size() - 1)[1] < cur[0]) {\n            out.add(cur);\n        } else {\n            int[] last = out.get(out.size() - 1);\n            last[1] = Math.max(last[1], cur[1]);\n        }\n    }\n    return out.toArray(new int[out.size()][]);\n}\n```",
-      "sourceIds": [],
+      "sourceIds": [
+        "NI003"
+      ],
       "keywords": [
         "Q13-007",
-        "算法与数据结构"
+        "算法与数据结构",
+        "招银网络科技"
       ],
       "sourceFile": "13_算法与数据结构.md"
     },
@@ -7487,12 +7920,14 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n用 dummy 和尾指针，每次比较两条链表当前头，把较小节点接到结果尾部，并推进那条链。某一条用完，直接接上另一条剩余部分。时间 O(m+n)，复用节点时额外空间 O(1)。\n\n**深入补充（选读）：**\n哑节点加尾指针，每次从两个头中取较小节点接到尾后，推进对应链表；某条耗尽后接上另一条剩余部分。时间 O(m+n)，若复用原节点额外空间 O(1)。要说明会改变原链表连接关系，若要求不修改输入则需新建节点。\n\n**追问 / 易错点：** 边界：某条为空、重复值、两条链是否可能共享节点需按题目约束。Java 示例见代码14。\n\n**Java 核心代码14：**\n\n```java\nstatic ListNode mergeTwo(ListNode a, ListNode b) {\n    ListNode dummy = new ListNode(0), tail = dummy;\n    while (a != null && b != null) {\n        if (a.val <= b.val) { tail.next = a; a = a.next; }\n        else { tail.next = b; b = b.next; }\n        tail = tail.next;\n    }\n    tail.next = a != null ? a : b;\n    return dummy.next;\n}\n```",
       "sourceIds": [
-        "N042"
+        "N042",
+        "NI025"
       ],
       "keywords": [
         "Q13-014",
         "算法与数据结构",
-        "美团"
+        "美团",
+        "阿里"
       ],
       "sourceFile": "13_算法与数据结构.md"
     },
@@ -7599,13 +8034,17 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nLRU 用哈希表快速找到节点，用双向链表记录最近使用顺序。访问或更新就移到最新位置，容量满时删最久没用的尾节点，同时删哈希映射。平均 get/put 都是 O(1)，仅一个普通队列不够快速移动任意节点。\n\n**深入补充（选读）：**\n哈希表把key映射到双向链表节点，链表按最近使用顺序排列。get命中与put更新都移动节点到头，新增超过容量从尾淘汰并删映射。平均get/put均O(1)，空间O(capacity)。哑头尾简化边界，生产并发版本还需锁或成熟缓存库。\n\n**追问 / 易错点：** 边界：容量0、覆盖既有key、尾节点被更新。Java 示例见代码21。\n\n**Java 核心代码21：**\n\n```java\nstatic class LRUCache {\n    private static class Node {\n        int key, value; Node prev, next;\n        Node(int key, int value) { this.key = key; this.value = value; }\n    }\n    private final int capacity;\n    private final Map<Integer, Node> map = new HashMap<>();\n    private final Node head = new Node(0, 0), tail = new Node(0, 0);\n    LRUCache(int capacity) {\n        if (capacity < 0) throw new IllegalArgumentException();\n        this.capacity = capacity;\n        head.next = tail; tail.prev = head;\n    }\n    private void unlink(Node n) {\n        n.prev.next = n.next; n.next.prev = n.prev;\n    }\n    private void addFirst(Node n) {\n        n.next = head.next; n.prev = head;\n        head.next.prev = n; head.next = n;\n    }\n    int get(int key) {\n        Node n = map.get(key);\n        if (n == null) return -1; // 教学约定：-1表示未命中\n        unlink(n); addFirst(n); return n.value;\n    }\n    void put(int key, int value) {\n        Node n = map.get(key);\n        if (n != null) { n.value = value; unlink(n); addFirst(n); return; }\n        n = new Node(key, value); map.put(key, n); addFirst(n);\n        if (map.size() > capacity) {\n            Node old = tail.prev; unlink(old); map.remove(old.key);\n        }\n    }\n}\n```",
       "sourceIds": [
         "N024",
-        "N052"
+        "N052",
+        "NI014",
+        "NI025"
       ],
       "keywords": [
         "Q13-021",
         "算法与数据结构",
         "BIGO",
-        "快手"
+        "快手",
+        "腾讯",
+        "阿里"
       ],
       "sourceFile": "13_算法与数据结构.md"
     },
@@ -7677,7 +8116,8 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n层序遍历用队列。每层开始先记住队列大小，只处理这几个节点，并把孩子放进队列留给下一层。锯齿遍历按层交替记录方向即可。时间 O(n)，辅助空间与最大层宽有关。\n\n**举个例子：**\n不能一边加入孩子，一边重新拿 queue.size() 当本层次数，否则会把下一层也混进来。\n\n**深入补充（选读）：**\n用队列BFS，每层开始保存当前队列大小，只处理这一层节点并加入下一层。锯齿可按层交替把值放到双端队列头尾，避免每次向ArrayList头部插导致额外成本。时间O(n)，辅助空间O(w)，w为最大层宽，输出另计。\n\n**追问 / 易错点：** 边界：层大小必须在本层循环前保存，不能边加节点边动态扩大本层次数。Java 示例见代码25。\n\n**面经线索：** [X08 · 美团java后端日常实习一二面](https://www.nowcoder.com/feed/main/detail/d27704499b5c41e0bd0019a8d158a052)。\n\n**Java 核心代码25：**\n\n```java\nstatic List<List<Integer>> levels(TreeNode root, boolean zigzag) {\n    List<List<Integer>> out = new ArrayList<>();\n    if (root == null) return out;\n    Queue<TreeNode> q = new ArrayDeque<>(); q.offer(root);\n    boolean reverse = false;\n    while (!q.isEmpty()) {\n        int size = q.size();\n        Deque<Integer> row = new ArrayDeque<>();\n        for (int i = 0; i < size; i++) {\n            TreeNode n = q.poll();\n            if (reverse) row.addFirst(n.val); else row.addLast(n.val);\n            if (n.left != null) q.offer(n.left);\n            if (n.right != null) q.offer(n.right);\n        }\n        out.add(new ArrayList<>(row));\n        if (zigzag) reverse = !reverse;\n    }\n    return out;\n}\n```",
       "sourceIds": [
         "N006",
-        "X08"
+        "X08",
+        "NI007"
       ],
       "keywords": [
         "Q13-025",
@@ -7758,12 +8198,15 @@ window.QUESTION_BANK_DATA = {
       "kind": "体系补全",
       "answer": "**直接回答：**\n把先修课关系建成有向图。先把入度为 0 的课程入队，每学完一门就减少后续课的入度，新变 0 的继续入队。能处理全部课程就无环、可以学完，否则有循环依赖。时间 O(V+E)。\n\n**深入补充（选读）：**\n把先修关系构成有向图，计算入度，队列放入度0节点，不断移除并降低后继入度。若处理节点数等于课程数则无环，可完成。时间O(V+E)，空间O(V+E)。也可DFS三色检测环，但不能把普通visited单一布尔当递归栈状态。\n\n**追问 / 易错点：** 边界：孤立课程、自环、重复边处理的一致性。Java 示例见代码30。\n\n**Java 核心代码30：**\n\n```java\nstatic boolean canFinish(int n, int[][] prerequisites) {\n    List<List<Integer>> graph = new ArrayList<>();\n    for (int i = 0; i < n; i++) graph.add(new ArrayList<>());\n    int[] indegree = new int[n];\n    for (int[] p : prerequisites) { graph.get(p[1]).add(p[0]); indegree[p[0]]++; }\n    Queue<Integer> q = new ArrayDeque<>();\n    for (int i = 0; i < n; i++) if (indegree[i] == 0) q.offer(i);\n    int visited = 0;\n    while (!q.isEmpty()) {\n        int u = q.poll(); visited++;\n        for (int v : graph.get(u)) if (--indegree[v] == 0) q.offer(v);\n    }\n    return visited == n;\n}\n```",
       "sourceIds": [
-        "N007"
+        "N007",
+        "NI009",
+        "NI010"
       ],
       "keywords": [
         "Q13-030",
         "算法与数据结构",
-        "腾讯"
+        "腾讯",
+        "拼多多"
       ],
       "sourceFile": "13_算法与数据结构.md"
     },
@@ -7895,14 +8338,20 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "N018",
         "N042",
-        "N047"
+        "N047",
+        "NI015",
+        "NI019",
+        "NI021"
       ],
       "keywords": [
         "Q13-038",
         "算法与数据结构",
         "携程",
         "美团",
-        "网易"
+        "网易",
+        "腾讯",
+        "新蛋",
+        "阿里"
       ],
       "sourceFile": "13_算法与数据结构.md"
     },
@@ -8786,12 +9235,14 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "面经考点改写 / 延展",
       "sourceIds": [
-        "N035"
+        "N035",
+        "NI007"
       ],
       "keywords": [
         "Q11-041",
         "场景题 / 故障排查",
-        "快手"
+        "快手",
+        "美团"
       ],
       "sourceFile": "公司补充题库_2026-09-08"
     },
@@ -8879,13 +9330,15 @@ window.QUESTION_BANK_DATA = {
       "kind": "面经考点改写 / 延展",
       "sourceIds": [
         "N034",
-        "N041"
+        "N041",
+        "NI007"
       ],
       "keywords": [
         "Q12-038",
         "项目 / 实习拷打",
         "小米",
-        "BIGO"
+        "BIGO",
+        "美团"
       ],
       "sourceFile": "公司补充题库_2026-09-08"
     },
@@ -9061,12 +9514,14 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "面经考点改写 / 延展",
       "sourceIds": [
-        "N002"
+        "N002",
+        "NI001"
       ],
       "keywords": [
         "Q13-045",
         "算法与数据结构",
-        "美团"
+        "美团",
+        "招银网络科技"
       ],
       "sourceFile": "公司补充题库_2026-09-08"
     },
@@ -9383,7 +9838,8 @@ window.QUESTION_BANK_DATA = {
       "sourceIds": [
         "R001",
         "R011",
-        "R019"
+        "R019",
+        "NI005"
       ],
       "keywords": [
         "LX010",
@@ -9393,7 +9849,8 @@ window.QUESTION_BANK_DATA = {
         "去哪儿",
         "R001",
         "R011",
-        "R019"
+        "R019",
+        "携程"
       ],
       "sourceFile": "91_本轮新增41道问法与回答.md"
     },
@@ -9703,13 +10160,15 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "面经考点改写 / 延展",
       "sourceIds": [
-        "R011"
+        "R011",
+        "NI005"
       ],
       "keywords": [
         "LX026",
         "项目 / 实习拷打",
         "阿里",
-        "R011"
+        "R011",
+        "携程"
       ],
       "sourceFile": "91_本轮新增41道问法与回答.md"
     },
@@ -9726,7 +10185,16 @@ window.QUESTION_BANK_DATA = {
         "R007",
         "R011",
         "R012",
-        "R014"
+        "R014",
+        "NI005",
+        "NI006",
+        "NI007",
+        "NI008",
+        "NI012",
+        "NI013",
+        "NI014",
+        "NI016",
+        "NI018"
       ],
       "keywords": [
         "LX027",
@@ -9740,7 +10208,13 @@ window.QUESTION_BANK_DATA = {
         "R007",
         "R011",
         "R012",
-        "R014"
+        "R014",
+        "携程",
+        "美团",
+        "得物",
+        "腾讯",
+        "滴滴",
+        "实在智能"
       ],
       "sourceFile": "91_本轮新增41道问法与回答.md"
     },
@@ -9778,13 +10252,17 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "面经考点改写 / 延展",
       "sourceIds": [
-        "R019"
+        "R019",
+        "NI009",
+        "NI023"
       ],
       "keywords": [
         "LX030",
         "项目 / 实习拷打",
         "去哪儿",
-        "R019"
+        "R019",
+        "拼多多",
+        "未具名公司"
       ],
       "sourceFile": "91_本轮新增41道问法与回答.md"
     },
@@ -9955,13 +10433,15 @@ window.QUESTION_BANK_DATA = {
       "priority": "P1",
       "kind": "面经考点改写 / 延展",
       "sourceIds": [
-        "R015"
+        "R015",
+        "NI015"
       ],
       "keywords": [
         "LX039",
         "消息队列 MQ",
         "XTransfer",
-        "R015"
+        "R015",
+        "腾讯"
       ],
       "sourceFile": "91_本轮新增41道问法与回答.md"
     },
@@ -10217,7 +10697,8 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n镜像是创建运行环境的模板，容器是基于镜像启动的隔离进程及其运行环境，数据卷用来保存需要独立于容器生命周期的数据。容器被删除后，它的可写层数据会丢失；正确挂载且未被删除的数据卷可以继续保留。停止容器和删除容器也不是同一个操作。\n\n**举个例子：**\n应用容器可以删掉重建；MySQL 的数据放在明确管理的数据卷中。重建时挂回同一个卷，而不是无意中创建一个空卷。\n\n**深入补充（选读）：**\n数据库数据目录不能只放容器可写层。更新镜像不等于自动更新数据库结构；重新创建容器时要挂回原数据卷。命名卷、匿名卷以及 --rm 等清理选项的行为有差异，删除前明确实际挂载和备份。\n\n**本轮补充说明：** 本题为补充知识题，不是新发现的公司面经。\n\n**本轮查阅资料：** [Docker：容器基础](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/)；[Docker：Volumes](https://docs.docker.com/engine/storage/volumes/)。",
       "sourceIds": [
         "OPT-S10",
-        "OPT-S11"
+        "OPT-S11",
+        "NI018"
       ],
       "keywords": [
         "UX010",
@@ -10225,7 +10706,9 @@ window.QUESTION_BANK_DATA = {
         "Docker",
         "镜像",
         "容器",
-        "Volume"
+        "Volume",
+        "官方资料（补充题）",
+        "实在智能"
       ],
       "sourceFile": "2026-09-13_补充题.md"
     },
@@ -10299,14 +10782,17 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\nEmbedding 把文本变成向量，方便从大量材料中先找出可能相关的一批；Reranker 再结合问题和每条候选材料重新评分，把更相关的排前面。可以记成“先广泛找候选，再精细排顺序”。它们判断相关性，不等于证明内容真实。\n\n**深入补充（选读）：**\n查询和文档向量要使用兼容的模型与处理方式；两个模型即使输出维度一样，也不代表向量空间可混用。先召回 30 条再重排取 5 条只是说明流程，实际数量要评测。候选本身漏了关键证据，重排也无法凭空补回来。\n\n**本轮补充说明：** 本题为补充知识题，不是新发现的公司面经。\n\n**本轮查阅资料：** [Spring AI：Embedding Models](https://docs.spring.io/spring-ai/reference/api/embeddings.html)；[Cohere：Rerank 概念](https://docs.cohere.com/docs/rerank-overview)。",
       "sourceIds": [
         "OPT-S15",
-        "OPT-S16"
+        "OPT-S16",
+        "NI007"
       ],
       "keywords": [
         "UX014",
         "项目 / 实习拷打",
         "Embedding",
         "Rerank",
-        "向量检索"
+        "向量检索",
+        "官方资料（补充题）",
+        "美团"
       ],
       "sourceFile": "2026-09-13_补充题.md"
     },
@@ -10340,14 +10826,17 @@ window.QUESTION_BANK_DATA = {
       "answer": "**直接回答：**\n不是。Tool Calling 是让模型用结构化形式提出工具调用；MCP 是应用连接外部工具和资源的一套协议。可以先通过 MCP 发现工具，再把工具描述提供给模型，由应用执行模型提出的合法调用。没有 MCP，也可以调用本地注册的工具。\n\n**深入补充（选读）：**\n按 MCP 2025-06-18 的工具部分，客户端可用 tools/list 获取工具、用 tools/call 调用工具。模型本身不会因为输出一个工具名，就真的执行了业务；执行、授权、错误处理和结果回传仍由应用及工具服务负责。\n\n**本轮补充说明：** 本题为补充知识题，不是新发现的公司面经。\n\n**本轮查阅资料：** [MCP 2025-06-18：Tools](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)；[Spring AI：Tool Calling](https://docs.spring.io/spring-ai/reference/api/tools.html)。",
       "sourceIds": [
         "OPT-S18",
-        "OPT-S19"
+        "OPT-S19",
+        "NI008"
       ],
       "keywords": [
         "UX016",
         "项目 / 实习拷打",
         "MCP",
         "Tool Calling",
-        "工具调用"
+        "工具调用",
+        "官方资料（补充题）",
+        "美团"
       ],
       "sourceFile": "2026-09-13_补充题.md"
     },
@@ -10433,6 +10922,741 @@ window.QUESTION_BANK_DATA = {
         "数组"
       ],
       "sourceFile": "2026-09-13_补充题.md"
+    },
+    {
+      "id": "bank-RM001",
+      "number": "RM001",
+      "question": "一亿个 Redis key 中找固定前缀，能用 KEYS 吗？",
+      "answer": "**直接回答：**\n线上不要用一次扫完的 KEYS。用 SCAN 配合 MATCH 分批迭代，保存返回的游标，直到游标为0。COUNT 是工作量提示，不保证每批刚好这么多条，也不保证每批有匹配结果。集群要覆盖相关主节点。\n\n**举个例子：**\n查 order: 开头的键，可从 SCAN 0 MATCH order:* COUNT 1000 开始，把返回游标放进下一次请求。扫描时限速，结果去重。\n\n**追问 / 易错点：**\nSCAN 不是快照，写入期间结果可能变化。前缀检索频繁时，应另建业务索引，不要每次全库扫描。普通扫描整体仍可能遍历全键空间。\n\n**技术依据：** [Redis SCAN](https://redis.io/docs/latest/commands/scan/)。\n\n**关联旧题：** Q07-027。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "Redis",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI002"
+      ],
+      "keywords": [
+        "RM001",
+        "Redis",
+        "招银网络科技"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM002",
+      "number": "RM002",
+      "question": "ThreadLocalMap 的 key 为什么不是线程 ID？",
+      "answer": "**直接回答：**\n因为 Map 已经放在每个线程内部了，先找当前线程，就已经知道是哪一个线程。这个线程还可能存 userId、tenantId、traceId 等多个独立变量，所以 key 要区分“哪一个 ThreadLocal”，而不是再区分线程。\n\n**举个例子：**\n把线程看成一个人的柜子，ThreadLocal 是柜子里不同抽屉的标签；线程ID只是柜子的名字。\n\n**追问 / 易错点：**\n不是所有线程共用一张 ThreadLocalMap。线程池复用时仍要在 finally 清理或恢复上下文，值也不会自动深拷贝。\n\n**技术依据：** [Java 21 ThreadLocal](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/ThreadLocal.html)。\n\n**关联旧题：** Q03-020。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "多线程 / 并发",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI011"
+      ],
+      "keywords": [
+        "RM002",
+        "多线程 / 并发",
+        "BIGO"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM003",
+      "number": "RM003",
+      "question": "都有 ArrayBlockingQueue 了，为什么还需要 LinkedBlockingQueue？",
+      "answer": "**直接回答：**\n它们是不同取舍，不是谁淘汰谁。前者是固定容量数组，节点分配少，空间更可预测，还可选择公平访问；后者按链式节点保存，也能设置容量，入队出队可采用分离协调，吞吐和内存特征不同。\n\n**举个例子：**\n内存预算严格、容量固定时先考虑数组队列；需要链式特征时也能用显式有界的 LinkedBlockingQueue。最终用实际生产消费比例压测。\n\n**追问 / 易错点：**\nLinkedBlockingQueue 不写容量时上限是 Integer.MAX_VALUE，不能当成安全的容量规划；不要背成“一个有界、另一个一定无界”。\n\n**技术依据：** [Java 21 ArrayBlockingQueue](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ArrayBlockingQueue.html)；[Java 21 LinkedBlockingQueue](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/LinkedBlockingQueue.html)。\n\n**关联旧题：** Q02-023。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "Java 集合",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI011"
+      ],
+      "keywords": [
+        "RM003",
+        "Java 集合",
+        "BIGO"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM004",
+      "number": "RM004",
+      "question": "static 字段加 @Autowired 为什么不注入？怎么改？",
+      "answer": "**直接回答：**\nSpring 常规依赖注入针对受管对象；注入后处理器会跳过标注在 static 字段或静态方法上的 @Autowired。最稳妥的改法是把调用者也交给 Spring 管理，使用实例字段和构造器注入。\n\n**举个例子：**\n不要写 static OrderService service 再等框架赋值；改成构造器接收 OrderService，然后通过这个实例调用。纯工具方法则让调用方显式传参。\n\n**追问 / 易错点：**\n可由受管实例的初始化方法给静态变量赋值，但会引入初始化顺序、多容器、测试污染等问题，只适合受控遗留适配，不是优先方案。\n\n**技术依据：** [Spring 6.2.0 注入后处理器源码](https://raw.githubusercontent.com/spring-projects/spring-framework/v6.2.0/spring-beans/src/main/java/org/springframework/beans/factory/annotation/AutowiredAnnotationBeanPostProcessor.java)。\n\n**关联旧题：** Q05-005。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "Spring / Spring Boot",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI004"
+      ],
+      "keywords": [
+        "RM004",
+        "Spring / Spring Boot",
+        "招银网络科技"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM005",
+      "number": "RM005",
+      "question": "守护线程和普通线程有什么区别？",
+      "answer": "**直接回答：**\n主要区别是会不会阻止 JVM 正常开始退出。当已启动的非守护线程都结束，JVM 可以进入关闭流程，不会为了守护线程的业务继续等下去。守护线程不是优先级更低，也不是自动负责垃圾回收。\n\n**举个例子：**\n后台统计任务可以考虑守护线程；重要文件写入、订单投递不能仅靠守护线程“应该会执行完”。要有等待退出或持久化保障。\n\n**追问 / 易错点：**\n普通平台线程的 daemon 状态要在启动前设好。Java 21 虚拟线程始终是守护线程，主线程退出前可能需要 join 等等待。\n\n**技术依据：** [Java 21 Thread](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Thread.html)。",
+      "category": "多线程 / 并发",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI019"
+      ],
+      "keywords": [
+        "RM005",
+        "多线程 / 并发",
+        "新蛋"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM006",
+      "number": "RM006",
+      "question": "CHAR 和 VARCHAR 怎么选？长度是字符数还是字节数？",
+      "answer": "**直接回答：**\nCHAR 表达固定长度字符串，VARCHAR 表达可变长度字符串，并需要长度信息。声明中的长度通常按字符数理解，实际存储字节数受字符集影响。固定长度代码可考虑 CHAR；长度变化明显的名称描述通常用 VARCHAR。\n\n**举个例子：**\nVARCHAR(20) 不等于永远只占20字节；utf8mb4 下一个字符可能占多个字节。不要为了手机号固定11位，就把它当整数存储。\n\n**追问 / 易错点：**\nCHAR 的补空格和读取、比较时的尾空格规则要看类型与排序规则；不能笼统认为CHAR永远比VARCHAR快，也不能把声明字符数当索引字节限制。\n\n**技术依据：** [MySQL 8.4 CHAR与VARCHAR](https://dev.mysql.com/doc/refman/8.4/en/char.html)。",
+      "category": "MySQL",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI019"
+      ],
+      "keywords": [
+        "RM006",
+        "MySQL",
+        "新蛋"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM007",
+      "number": "RM007",
+      "question": "Disruptor 是什么？能替代 RabbitMQ 吗？",
+      "answer": "**直接回答：**\nDisruptor 是同一进程内的高性能线程间事件传递库，常用环形缓冲区、序号和消费者依赖关系协调处理，并可预分配事件对象，减少分配压力。RabbitMQ 则用于跨进程消息传递及相应可靠交付，两者不是同一个层次。\n\n**举个例子：**\n同一服务内把采集事件交给多个处理步骤，可以评估 Disruptor；订单服务宕机后还要恢复投递，就不能只把事件放内存环形缓冲区。\n\n**追问 / 易错点：**\n等待策略有阻塞和忙等的取舍，不能概括成所有路径都完全无锁；慢消费者会限制生产进度，复用事件对象也不能被下游无限持有。\n\n**技术依据：** [LMAX Disruptor User Guide](https://lmax-exchange.github.io/disruptor/user-guide/index.html)。\n\n**关联旧题：** Q08-001。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "多线程 / 并发",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI017"
+      ],
+      "keywords": [
+        "RM007",
+        "多线程 / 并发",
+        "深轻科技"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM008",
+      "number": "RM008",
+      "question": "Tomcat 的 maxThreads、maxConnections、acceptCount 分别限制什么？",
+      "answer": "**直接回答：**\n按Tomcat 10.1常规平台线程连接器理解：maxThreads限制请求处理线程，maxConnections限制连接器接收处理的连接数量，acceptCount关联操作系统等待接受的连接队列。连接、排队连接、正在执行业务的请求，不是同一个数。\n\n**举个例子：**\n像餐厅：服务员数量、店内已接待客人数、门口候位队列分别是不同限制。长连接即使空闲也可能占连接，但未必一直占业务线程。\n\n**追问 / 易错点：**\n配置共享Executor后，连接器的maxThreads会被忽略；HTTP/2、异步请求和其他执行器模式要另看。acceptCount不是线程池任务队列长度，也不能直接等同SYN半连接队列。\n\n**技术依据：** [Tomcat 10.1 HTTP Connector](https://tomcat.apache.org/tomcat-10.1-doc/config/http.html)。\n\n**关联旧题：** Q03-022。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "Spring / Spring Boot",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI024"
+      ],
+      "keywords": [
+        "RM008",
+        "Spring / Spring Boot",
+        "即时设计"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM009",
+      "number": "RM009",
+      "question": "MCP Session 和 Agent 对话 Session 是一回事吗？",
+      "answer": "**直接回答：**\n不是。以MCP 2025-11-25为例，协议会话组织客户端和某个MCP服务端之间的相关交互；Agent对话会话保存用户消息、任务状态和记忆。它们的生命周期和标识可以不同，应用需要自己维护关联。\n\n**举个例子：**\n一次用户会话可能访问多个MCP Server，也就可能关联多个协议会话；协议连接恢复后，用户聊天记录不该因此被清空。\n\n**追问 / 易错点：**\nMCP-Session-Id不是登录凭证，更不是长期记忆数据库。2025-11-25是本题说明基线，不宣称是检索日最新规范。\n\n**技术依据：** [MCP 2025-11-25 Transports（固定版本）](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports)。\n\n**关联旧题：** Q12-028。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI008"
+      ],
+      "keywords": [
+        "RM009",
+        "项目 / 实习拷打",
+        "美团"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM010",
+      "number": "RM010",
+      "question": "MCP 有哪些传输方式？连上 MCP 就有资源访问权限吗？",
+      "answer": "**直接回答：**\n以MCP 2025-11-25为基线，标准传输包括stdio和Streamable HTTP；更早还有旧式HTTP+SSE，不能把新旧机制混说。连通只表示能通信。HTTP授权验证访问凭据后，工具实现仍必须校验当前用户能否执行该操作、访问该租户和资源。\n\n**举个例子：**\n用户能调用查订单工具，不表示他能查任意订单。userId应来自可信身份上下文，不能直接相信模型给出的userId参数。\n\n**追问 / 易错点：**\n不要用会话ID代替授权，也不要把上游令牌原样透传到任意下游。写工具还需审批、幂等和审计；stdio凭据管理与HTTP的授权流不同。\n\n**技术依据：** [MCP 2025-11-25 Transports（固定版本）](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports)；[MCP 2025-11-25 Authorization（固定版本）](https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization)。\n\n**关联旧题：** UX016、LX028。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI008",
+        "NI011"
+      ],
+      "keywords": [
+        "RM010",
+        "项目 / 实习拷打",
+        "美团",
+        "BIGO"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM011",
+      "number": "RM011",
+      "question": "本地缓存、Redis、数据库三层缓存，更新后怎样失效？",
+      "answer": "**直接回答：**\n要处理的不只是Redis，还包括每个应用实例里的本地副本。一个参考方案是先提交数据库，再可靠发送失效事件；各实例删除相应本地缓存，并使Redis缓存失效。辅以TTL、数据版本和失败重试，避免漏通知后长期读旧值。\n\n**举个例子：**\nA实例修改商品后只删Redis，B实例仍可能从本地缓存返回旧价格。所以要通知B，或者让B识别版本、在可接受时间内过期。\n\n**追问 / 易错点：**\n普通Redis Pub/Sub会漏掉离线实例，不足以承诺可靠交付。严格准确的余额扣减走数据库条件更新；三层缓存不会自然形成强一致。此处是独立设计方案。\n\n**关联旧题：** Q07-019、Q12-042。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "场景题 / 故障排查",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI007"
+      ],
+      "keywords": [
+        "RM011",
+        "场景题 / 故障排查",
+        "美团"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM012",
+      "number": "RM012",
+      "question": "对话每 N 轮摘要，N 怎么确定？",
+      "answer": "**直接回答：**\n轮数只能作简单触发器，因为一轮可能只有几句话，也可能有几万token。更合理的参考方案是先给系统提示、当前输入、工具返回和预期输出留预算，历史快超预算时再摘要或截断。订单号、金额、权限结论等放结构化状态，不只依赖摘要文本。\n\n**举个例子：**\n10轮短对话可能无需压缩；一次很长的日志工具返回就可能需要压缩。测摘要后关键信息召回率、任务成功率和成本，再决定阈值。\n\n**追问 / 易错点：**\n不要层层摘要后丢掉证据。保存原始记录与可检索指针，摘要中区分已确认事实、未完成任务和推测。具体阈值是实验结果，不是通用固定值。\n\n**技术依据：** [Anthropic：长任务Agent的运行框架](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)。\n\n**关联旧题：** LX011、Q12-039。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI005",
+        "NI023"
+      ],
+      "keywords": [
+        "RM012",
+        "项目 / 实习拷打",
+        "携程",
+        "未具名公司"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM013",
+      "number": "RM013",
+      "question": "用了 Apache Tika，就能把所有文档正确切成 RAG 片段吗？",
+      "answer": "**直接回答：**\n不能。Tika主要负责识别文件类型、提取文本与元数据，解析接口可输出XHTML事件，供上层保留结构。RAG还要处理标题、段落、表格、阅读顺序、噪声和切块。提取出文字不代表原文的关系也被完整保留。\n\n**举个例子：**\n表格里“产品—单价—生效日期”若被抽成无序文字，检索到了也可能答错。应保留表头、行关联、页码与文档版本，再按语义边界切分。\n\n**追问 / 易错点：**\n扫描件是否可识别取决于OCR等额外配置，不是Tika默认保证。用代表性文档验收缺字、跨页表格和结构完整性；本例为独立处理设计。\n\n**技术依据：** [Apache Tika 3.2 Parser interface](https://tika.apache.org/3.2.0/parser.html)。\n\n**关联旧题：** LX010。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI005"
+      ],
+      "keywords": [
+        "RM013",
+        "项目 / 实习拷打",
+        "携程"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM014",
+      "number": "RM014",
+      "question": "RAG 知识库存在同一文档的多个版本，怎么避免混答？",
+      "answer": "**直接回答：**\n每个片段至少关联稳定文档ID、版本、有效时间、权限和发布状态。普通查询默认只检索已生效版本；历史问题按指定时间检索。更新时先完成新版本解析与校验，再切换可见版本，旧片段按策略失效或保留为历史。\n\n**举个例子：**\n报销上限旧版500元、新版800元，不能只凭相似度把两段一起给模型。先判断用户问的是现在规则还是某个历史时期。\n\n**追问 / 易错点：**\n同一文件名不等于同一版本；失效要覆盖向量索引、检索缓存和已保存摘要。版本管理方案为本包推导，元数据过滤能力参考官方资料。\n\n**技术依据：** [Spring AI RAG](https://docs.spring.io/spring-ai/reference/api/retrieval-augmented-generation.html)。\n\n**关联旧题：** UX017、Q12-037。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI008"
+      ],
+      "keywords": [
+        "RM014",
+        "项目 / 实习拷打",
+        "美团"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM015",
+      "number": "RM015",
+      "question": "秒杀库存拆到多个 Redis 分片，怎么保证不超卖？",
+      "answer": "**直接回答：**\n不能在每片都放一份完整库存再各自扣减。一个参考方案是先把总库存拆成有限配额，每片只卖自己的配额，用片内原子操作扣减。同一订单有幂等标识；跨片调拨要先冻结原配额，再确认转移，防止两边同时可售。\n\n**举个例子：**\n总库存1000件分成4份各250件。某片卖完、其他片还有货时，可换路由或受控调配，但不能直接给空片凭空补库存。\n\n**追问 / 易错点：**\n多key Lua不能跨任意槽原子执行；失败、回滚、配额回收和切换丢写仍需持久账本与对账。吞吐提升是待压测假设，不保证拆分后线性提升。\n\n**关联旧题：** Q11-009、Q07-013、Q07-023。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "场景题 / 故障排查",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI005"
+      ],
+      "keywords": [
+        "RM015",
+        "场景题 / 故障排查",
+        "携程"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM016",
+      "number": "RM016",
+      "question": "Agent Harness 和 Hooks 是什么？和模型本身有什么区别？",
+      "answer": "**直接回答：**\nHarness通常指包围模型的运行框架：上下文管理、工具执行、权限、预算、状态保存、恢复和测试。它不是统一的协议名称。Hooks是框架在工具前后、会话开始结束等时机提供的扩展点，具体名字和语义依产品而异。\n\n**举个例子：**\n工具执行前校验路径和审批，执行后截断超长输出、记录结果；任务切换会话时用进度文件或检查点恢复。这些不是只靠换一个模型完成的。\n\n**追问 / 易错点：**\nHook不是天然安全边界：真正执行端仍要鉴权与隔离。面试先用你的实际调用链说明职责，不要只堆Harness、ReAct等名词。\n\n**技术依据：** [Anthropic：长任务Agent的运行框架](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)。\n\n**关联旧题：** Q12-026、Q12-033。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI007",
+        "NI023"
+      ],
+      "keywords": [
+        "RM016",
+        "项目 / 实习拷打",
+        "美团",
+        "未具名公司"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM017",
+      "number": "RM017",
+      "question": "Agent 如何主动提醒或主动排障，而不是等用户发消息？",
+      "answer": "**直接回答：**\n主动不是模型自己凭空醒来，而是外部事件或调度器触发任务。参考链路是：监控事件或定时器→队列→去重与权限检查→收集证据→Agent分析→按条件通知或提交审批。用户授权、打扰频率和成本上限要预先定义。\n\n**举个例子：**\n错误率连续超阈值才创建诊断任务；同一事故只建一个活动任务。只读诊断可以自动执行，重启、删数据等高风险操作必须受控。\n\n**追问 / 易错点：**\n重复事件、迟到事件、静默时段、任务失败和误报都要处理。实时通知能力来自整个系统，不来自模型训练参数。此处是参考设计，不是对某个产品现成功能的背书。\n\n**关联旧题：** Q11-021、Q11-029、Q12-038。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI007",
+        "NI023"
+      ],
+      "keywords": [
+        "RM017",
+        "项目 / 实习拷打",
+        "美团",
+        "未具名公司"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM018",
+      "number": "RM018",
+      "question": "LangChain、LangGraph、自研 Agent Loop 怎么选择？",
+      "answer": "**直接回答：**\n把它们看成不同抽象层。LangChain提供模型、工具和应用编排等集成；LangGraph更强调带状态的图执行、检查点和人机介入；自研Loop适合流程简单或需要强定制的情况，但要自己承担恢复、重试、状态与可观测性。\n\n**举个例子：**\n一个“检索后回答”的短链路不必先搭复杂图；需要跨进程恢复、长任务暂停审批的流程，图状态和持久检查点更值得评估。\n\n**追问 / 易错点：**\n它们可以组合使用，不是互斥产品。接口、实现与语言生态会变，回答应说明项目版本；不要把“框架能保存状态”误认为“外部副作用自动只执行一次”。\n\n**技术依据：** [LangGraph Overview](https://docs.langchain.com/oss/python/langgraph/overview)；[LangGraph Persistence](https://docs.langchain.com/oss/python/langgraph/persistence)。\n\n**关联旧题：** Q12-025。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI021",
+        "NI023"
+      ],
+      "keywords": [
+        "RM018",
+        "项目 / 实习拷打",
+        "阿里",
+        "未具名公司"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM019",
+      "number": "RM019",
+      "question": "开放式 Agent 任务没有唯一标准答案，怎样评测？",
+      "answer": "**直接回答：**\n没有唯一措辞，不等于没有验收标准。参考做法是按目标完成度、证据准确性、约束遵守、权限、成本和耗时分别评分。能自动校验的用测试或规则；主观质量用清晰评分量表、成对比较和人工抽检。保留失败轨迹便于定位。\n\n**举个例子：**\n“修复登录Bug”可检查复现用例是否通过、其他用例是否回归、是否改了禁止修改的文件，而不是只看解释文字流畅不流畅。\n\n**追问 / 易错点：**\nLLM裁判会有偏差，需与人工样本校准；固定测试集、模型配置和预算，不能把一次成功截图当总体成功率。此处是本包独立评估方案。\n\n**关联旧题：** Q12-034、Q12-036。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI023"
+      ],
+      "keywords": [
+        "RM019",
+        "项目 / 实习拷打",
+        "未具名公司"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM020",
+      "number": "RM020",
+      "question": "密码用 MD5 加盐保存安全吗？忘记密码要解密吗？",
+      "answer": "**直接回答：**\n密码不应保存为可恢复明文，也不该只用MD5这类快速哈希。优先采用专用、带随机盐和可调成本的密码哈希方案，如Argon2id；已有bcrypt等方案按环境评估迁移。登录时验证哈希，忘记密码走身份验证后的重置，不是把原密码解密出来。\n\n**举个例子：**\n每个账号独立随机盐，即使两个人密码相同，保存结果也应不同。盐可与哈希一起保存；可选pepper作为额外秘密分开管理。\n\n**追问 / 易错点：**\n加盐能阻止通用预计算复用，但不能把快速MD5变成高成本密码哈希。重置凭据还需短时、单次有效和防账号枚举。\n\n**技术依据：** [OWASP Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)。\n\n**关联旧题：** Q11-042。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "场景题 / 故障排查",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI009",
+        "NI017"
+      ],
+      "keywords": [
+        "RM020",
+        "场景题 / 故障排查",
+        "拼多多",
+        "深轻科技"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM021",
+      "number": "RM021",
+      "question": "布隆过滤器误判是什么？为什么不能直接删除某一位？",
+      "answer": "**直接回答：**\n标准布隆过滤器把一个元素映射到多个位。查到某位为0可判不存在；相关位全为1，只能说可能存在，因为不同元素可能共用位。删除一个元素就把这些位清零，可能误伤其他元素，造成错误的“不存在”。\n\n**举个例子：**\nA和B共用第5位。删除A时把第5位改0，B就可能再也查不到。可考虑重建、计数型过滤器或适合删除的其他结构，但需按实现约束选择。\n\n**追问 / 易错点：**\n误判存在不是“假阴性”。新增数据必须先保证能通过过滤器或有同步顺序保护；资金去重不能仅靠概率结构。删除部分是由共享位结构推导。\n\n**技术依据：** [Redis Bloom filter](https://redis.io/docs/latest/develop/data-types/probabilistic/bloom-filter/)。\n\n**关联旧题：** Q07-006。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "Redis",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI015"
+      ],
+      "keywords": [
+        "RM021",
+        "Redis",
+        "腾讯"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM022",
+      "number": "RM022",
+      "question": "Kubernetes Pod 一直 Pending，怎么查？",
+      "answer": "**直接回答：**\n先看Pod状态和事件，而不是盲目重启。Pending可能在等调度，也可能已调度但还没完成启动准备。检查是否已分配节点，再查requests是否超可用资源、亲和性、污点容忍、PVC绑定、镜像拉取等具体原因。\n\n**举个例子：**\nkubectl describe pod 名称 -n 命名空间，重点读Events和Node；若提示Insufficient cpu，核对节点可分配资源与各Pod的requests，不只看CPU当前利用率。\n\n**追问 / 易错点：**\n调度主要按请求资源等约束判断，不是看到机器“空闲”就一定能放下。kubectl的展示状态如ImagePullBackOff不等于Pod phase就叫这个名字。\n\n**技术依据：** [Kubernetes Pod Lifecycle](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/)；[Kubernetes Resource Management](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)。",
+      "category": "操作系统 / Linux",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI015"
+      ],
+      "keywords": [
+        "RM022",
+        "操作系统 / Linux",
+        "腾讯"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM023",
+      "number": "RM023",
+      "question": "不同 Kubernetes Namespace 天然互相隔离吗？",
+      "answer": "**直接回答：**\nNamespace首先划分资源名称和管理范围，不自动提供完整的租户安全隔离。还需要RBAC控制API权限，NetworkPolicy配合支持它的网络插件限制流量，ResourceQuota等约束资源，并限制容器特权和宿主机访问。\n\n**举个例子：**\n两个Namespace里的同名Service可以分别存在，但只建Namespace不会自动阻止A里的Pod连接B的服务。\n\n**追问 / 易错点：**\n强不信任租户可能还需节点或集群层面的隔离。Namespace、容器进程隔离和网络防火墙不是一回事。\n\n**技术依据：** [Kubernetes Multi-tenancy](https://kubernetes.io/docs/concepts/security/multi-tenancy/)。",
+      "category": "操作系统 / Linux",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI015"
+      ],
+      "keywords": [
+        "RM023",
+        "操作系统 / Linux",
+        "腾讯"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM024",
+      "number": "RM024",
+      "question": "WHERE id > 上次ID，ORDER BY create_time，这样的游标分页一定对吗？",
+      "answer": "**直接回答：**\n不一定。筛选边界按id，排序却按create_time，两种顺序未必一致，可能漏行或重复。游标必须与稳定排序一致，比如按created_at、id升序，就记录两个值，筛选比这对值更靠后的行。\n\n**举个例子：**\n记录id=100创建得早，id=90创建得晚。第一批读到100后用id>100继续，就可能永远漏掉90。正确条件可写为时间更大，或时间相同且id更大。\n\n**追问 / 易错点：**\n需要配套索引并检查真实执行计划。排序字段要稳定且非空或明确空值规则；分页不是天然快照，处理期间更新排序字段仍会改变结果。此例为独立反例。\n\n**关联旧题：** Q06-027。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "MySQL",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI018"
+      ],
+      "keywords": [
+        "RM024",
+        "MySQL",
+        "实在智能"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM025",
+      "number": "RM025",
+      "question": "并发调用十次接口，耗时不同，怎样求返回值的最大值？",
+      "answer": "**直接回答：**\n先确认需要十次都成功，还是只取超时前成功结果。前者可用CompletableFuture.allOf后统一取值，或CompletionService按完成顺序收集十个结果；最大值不依赖完成顺序。线程池、整体deadline和单次客户端超时都要明确。\n\n**举个例子：**\n第10次很快返回最大值，也不能在要求“十次全部成功”的情况下立刻宣布最终结果，因为其他调用可能失败。用单线程汇总局部max就无需多人竞争同一个变量。\n\n**追问 / 易错点：**\n最大值初始化不要写0，否则全为负数会错；没有成功结果不能伪装最大值为0。Future超时不等于底层HTTP工作停止。\n\n**技术依据：** [Java 21 ExecutorCompletionService](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ExecutorCompletionService.html)。\n\n**关联旧题：** Q03-029、Q03-030、Q11-005。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "多线程 / 并发",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI024"
+      ],
+      "keywords": [
+        "RM025",
+        "多线程 / 并发",
+        "即时设计"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM026",
+      "number": "RM026",
+      "question": "用户提交 prompt 生成长视频，后端怎样设计任务表和流程？",
+      "answer": "**直接回答：**\n不要把生成过程塞进一个长HTTP请求或数据库事务。参考方案是先鉴权和校验预算，在短事务里写任务与待发事件，返回taskId和处理中状态；后台执行器认领任务、调用生成服务，完成后保存文件位置、更新状态，客户端查询或订阅进度。\n\n**举个例子：**\n任务记录可含用户、幂等键、状态、版本、重试次数、外部jobId、结果地址和错误原因。状态按待处理→运行→成功/失败/取消推进，重复回调不能重复扣费。\n\n**追问 / 易错点：**\n同一幂等键要校验参数摘要；超时先查外部job状态，别盲目重新生成。结果访问要鉴权，取消、费用和迟到结果要有明确规则。这是独立参考设计。\n\n**关联旧题：** Q11-029、Q08-010、Q11-011。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "场景题 / 故障排查",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI024"
+      ],
+      "keywords": [
+        "RM026",
+        "场景题 / 故障排查",
+        "即时设计"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM027",
+      "number": "RM027",
+      "question": "MQ 消息有时效要求，排队过久怎么办？",
+      "answer": "**直接回答：**\n消息中携带业务截止时间，发布前和消费前都校验。过期消息按业务规则丢弃、记录或进入补偿通道；重要时效流量与大批普通消息隔离，并监控最老消息年龄。Broker的TTL可以辅助清理，但不等于业务一定准时处理。\n\n**举个例子：**\n验证码有效5分钟，消费时已过期就不该照发，让用户收到无效验证码。订单自动关闭则先查当前状态，不应因为延迟就无条件关单。\n\n**追问 / 易错点：**\n发送成功、按时入队和按时完成是三个不同承诺。长期生产速度超过消费速度，MQ只能延缓，不会消灭积压；这里是参考设计。\n\n**关联旧题：** Q08-007、Q08-009、LX024。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "消息队列 MQ",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI025"
+      ],
+      "keywords": [
+        "RM027",
+        "消息队列 MQ",
+        "阿里"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM028",
+      "number": "RM028",
+      "question": "服务重启后，RPC 为什么还可能调用失败？",
+      "answer": "**直接回答：**\n可能是客户端还缓存旧地址、连接池复用失效连接，或者服务虽然注册了但尚未就绪；正在执行的请求也可能被重启打断。结合注册中心时间线、实例版本、连接异常、readiness和trace定位是哪一层。\n\n**举个例子：**\n重启前摘流量并等待在途调用；重启后先完成依赖初始化再接流量。客户端更新地址、剔除坏连接，按整体时间预算对可重试且幂等的请求有限重试。\n\n**追问 / 易错点：**\n注册中心删除地址不会让所有客户端在同一毫秒更新。请求超时也不证明服务端没执行，需要幂等键或结果查询；本题是故障分析框架。\n\n**关联旧题：** Q11-035、Q09-025、Q05-040。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "场景题 / 故障排查",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI025"
+      ],
+      "keywords": [
+        "RM028",
+        "场景题 / 故障排查",
+        "阿里"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM029",
+      "number": "RM029",
+      "question": "历史日志怎么归档？如何避免把线上服务拖慢？",
+      "answer": "**直接回答：**\n先分清检索日志和必须留存的审计记录，定义保留期、权限和删除规则。参考方案是近期日志保留在线检索，较老分区批量压缩转冷存储，保留时间段和对象位置索引；校验记录数和可读性后再清理原数据。\n\n**举个例子：**\n每天按日期封存已完成分区，限速上传并记录批次状态。归档任务失败可从批次继续，而不是每次重新扫描全历史。\n\n**追问 / 易错点：**\n归档不等于备份。需要验证恢复读取、加密与访问权限；文件轮转不能只改文件名就假设写入进程自动切换。此处不替用户决定合规保留年限。\n\n**关联旧题：** Q10-014、Q12-016。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "场景题 / 故障排查",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI003"
+      ],
+      "keywords": [
+        "RM029",
+        "场景题 / 故障排查",
+        "招银网络科技"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM030",
+      "number": "RM030",
+      "question": "有序数组原地去重，每个不同数字只保留一次，怎么做？",
+      "answer": "**直接回答：**\n用快慢指针。快指针遍历原数组，慢指针表示下一个写入位置；当前值与上一个已保留值不同，才写到慢指针位置。返回新长度，前面这段是答案，后面的旧内容不必清零。时间O(n)，额外空间O(1)。\n\n**举个例子：**\n[1,1,2,2,3]处理后前3个位置为[1,2,3]，返回3。空数组返回0。\n\n**追问 / 易错点：**\n本题假设数组已排序。如果要求每个值最多保留两次、或者数组无序，条件与复杂度要另谈；源帖只说有序数组去重，本包明确采用保留一个的版本。\n\n**Java 核心代码（本包练习）：**\n\n```java\n    static int deduplicate(int[] a) {\n        Objects.requireNonNull(a, \"array\");\n        int write = 0;\n        for (int read = 0; read < a.length; read++) {\n            if (write == 0 || a[read] != a[write - 1]) a[write++] = a[read];\n        }\n        return write;\n    }\n```\n\n完整类、节点定义及测试见资料包 code/InterviewPractice.java；单独片段需补齐相应上下文。",
+      "category": "算法与数据结构",
+      "priority": "P0",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI009"
+      ],
+      "keywords": [
+        "RM030",
+        "算法与数据结构",
+        "拼多多"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM031",
+      "number": "RM031",
+      "question": "从链表头部每 k 个节点反转，最后不足 k 个保留，怎么写？",
+      "answer": "**直接回答：**\n每次先检查当前组是否有k个节点；不足就结束。有足够节点时记住下一组起点，在当前组内部反转链接，再把前一组尾接到新组头。使用哑节点统一处理头部变化。时间O(n)，额外空间O(1)。\n\n**举个例子：**\n1→2→3→4→5，k=2，结果2→1→4→3→5。k=1不变，k必须为正数。\n\n**追问 / 易错点：**\n这与旧题“从尾部分组反转”不一样。要先确认分组方向与不足k个节点的处理；这里为明确约定的从头版本。\n\n**关联旧题：** Q13-046。本题是具体追问补充，不代表与旧知识点完全独立。\n\n**Java 核心代码（本包练习）：**\n\n```java\n    static Node reverseKGroup(Node head, int k) {\n        if (k <= 0) throw new IllegalArgumentException(\"k must be positive\");\n        Node dummy = new Node(0); dummy.next = head;\n        Node before = dummy;\n        while (true) {\n            Node end = before;\n            for (int i = 0; i < k && end != null; i++) end = end.next;\n            if (end == null) return dummy.next;\n            Node after = end.next;\n            Node oldHead = before.next, current = oldHead, previous = after;\n            while (current != after) {\n                Node next = current.next;\n                current.next = previous;\n                previous = current;\n                current = next;\n            }\n            before.next = end;\n            before = oldHead;\n        }\n    }\n```\n\n完整类、节点定义及测试见资料包 code/InterviewPractice.java；单独片段需补齐相应上下文。",
+      "category": "算法与数据结构",
+      "priority": "P0",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI005"
+      ],
+      "keywords": [
+        "RM031",
+        "算法与数据结构",
+        "携程"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM032",
+      "number": "RM032",
+      "question": "三个线程依次输出 ABC，循环100次，除信号量外还能怎么实现？",
+      "answer": "**直接回答：**\n方案一：三个信号量初值为1、0、0，A输出后释放B，B释放C，C再释放A。方案二：同一把锁保护turn，A/B/C分别等turn为0/1/2，输出后推进turn并通知。必须while检查条件，不能靠sleep赌顺序。\n\n**举个例子：**\n每个线程只负责自己的字母，完成100轮得到300个字符。中断时通知其他参与者终止，避免一个退出、另两个永久等待。\n\n**追问 / 易错点：**\n普通volatile变量不能同时保证“检查轮次→输出→改轮次”的复合原子性。附文件用同一锁+条件等待实现，并给信号量实现；只测正常路径不能证明所有调度下都无故障。\n\n**技术依据：** [JLS 21 线程与锁](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html)。\n\n**关联旧题：** Q03-035。本题是具体追问补充，不代表与旧知识点完全独立。\n\n**Java 核心代码（本包练习）：**\n\n```java\n// 监视器方案核心：turn、cancelled、out必须由同一把lock保护。\n// id=0/1/2分别属于A/B/C线程；每个线程循环100次。\nsynchronized (lock) {\n    while (turn != id && !cancelled) lock.wait();\n    if (cancelled) return;\n    out.append((char) ('A' + id));\n    turn = (turn + 1) % 3;\n    lock.notifyAll();\n}\n// 完整示例还处理InterruptedException、通知退出和join；见code/InterviewPractice.java。\n```\n\n完整类、节点定义及测试见资料包 code/InterviewPractice.java；单独片段需补齐相应上下文。",
+      "category": "多线程 / 并发",
+      "priority": "P0",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI011"
+      ],
+      "keywords": [
+        "RM032",
+        "多线程 / 并发",
+        "BIGO"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM033",
+      "number": "RM033",
+      "question": "公网传输数据必须有 HTTP 头吗？TCP 握手也有 HTTP 头吗？",
+      "answer": "**直接回答：**\n不必。IP、TCP、HTTP分属不同层。网络传输可以承载DNS、SSH、数据库协议或自定义协议，不要求应用层一定是HTTP。TCP握手用TCP首部中的标志、序号等建立连接，不靠HTTP请求头。\n\n**举个例子：**\n浏览器访问HTTPS时，先有网络和传输连接，再按协议完成TLS及HTTP交换；SSH能跨公网连服务器，但不是通过HTTP头识别用户命令。\n\n**追问 / 易错点：**\n只有你声称这段数据是某种HTTP消息时，才需要符合该HTTP版本的格式。不要把某个公司的业务使用HTTP，误说成所有互联网通信都必须HTTP。\n\n**关联旧题：** Q09-002、Q09-004。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "计算机网络",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI006"
+      ],
+      "keywords": [
+        "RM033",
+        "计算机网络",
+        "携程"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM034",
+      "number": "RM034",
+      "question": "哈希、加密、数字签名各解决什么问题？",
+      "answer": "**直接回答：**\n哈希把数据映射为摘要，用于校验或索引等，本身通常不保密；加密用密钥保护内容，授权方可解密；数字签名用私钥签署、公钥验证，用来验证来源与完整性。普通哈希不能证明发送者身份，因为攻击者也能重算。\n\n**举个例子：**\n下载文件比对可信渠道的摘要是在查完整性；HTTPS会话保护传输；软件包签名帮助验证发布者。签名不是“用私钥把整个文件加密”。\n\n**追问 / 易错点：**\n签名验证还依赖可信公钥与正确上下文。密码存储另用专用慢哈希；不要因为“不可逆”就认为任何哈希都适合存密码。\n\n**技术依据：** [OWASP Cryptographic Storage](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)；[OWASP Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)。\n\n**关联旧题：** Q09-014。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "计算机网络",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI013",
+        "NI014"
+      ],
+      "keywords": [
+        "RM034",
+        "计算机网络",
+        "腾讯"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM035",
+      "number": "RM035",
+      "question": "向量检索的 HNSW 是怎么找近邻的？",
+      "answer": "**直接回答：**\nHNSW把向量组织成分层近邻图。搜索先在稀疏高层快速接近目标，再逐层下降，在底层探索候选并返回近似近邻。它不是每次把全部向量逐一精确比较，速度、召回率和索引内存需要权衡。\n\n**举个例子：**\n可把高层看成跨区域的快速入口，底层做更细的邻居探索。增大搜索候选范围通常更有利于召回，但会增加工作量，要在固定数据集上测。\n\n**追问 / 易错点：**\n不能承诺总能找到精确最近邻或所有情况下都是O(log n)。元数据权限过滤、数据更新与索引参数会影响实际效果；图类比不代替数学保证。\n\n**技术依据：** [HNSW原始论文（摘要页）](https://arxiv.org/abs/1603.09320)。\n\n**关联旧题：** UX014。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI009"
+      ],
+      "keywords": [
+        "RM035",
+        "项目 / 实习拷打",
+        "拼多多"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM036",
+      "number": "RM036",
+      "question": "模型总参数、激活参数、数值精度和 MoE 有什么关系？",
+      "answer": "**直接回答：**\n总参数是模型保存的全部权重规模；MoE通过路由让每个token只使用部分专家，因此激活参数可能小于总参数。数值精度描述权重或计算使用的表示格式。三者共同影响显存、计算和精度，不能只看总参数判断每次推理成本。\n\n**举个例子：**\n一个大MoE模型并不意味着每个token都计算所有专家，但未参与本次计算的权重仍需要某种存储或装载安排。降低位宽也不保证时延同比例下降。\n\n**追问 / 易错点：**\n具体模型的激活数、量化方法和硬件吞吐需查模型卡并实测；本题不填任何未经核实的商业模型参数。MoE还带来路由和专家负载问题。\n\n**技术依据：** [Switch Transformers原始论文（摘要页）](https://arxiv.org/abs/2101.03961)。\n\n**关联旧题：** Q12-034。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI010"
+      ],
+      "keywords": [
+        "RM036",
+        "项目 / 实习拷打",
+        "拼多多"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM037",
+      "number": "RM037",
+      "question": "首页慢在数据权限计算，能直接把权限结果缓存起来吗？",
+      "answer": "**直接回答：**\n可以评估缓存，但必须先明确权限结果依赖用户、租户、角色、资源范围和规则版本。避免一条数据一次远程鉴权，改成批量决策或数据库可执行过滤。缓存键包含必要维度，权限变更使旧结果失效；高风险写操作在执行端再次校验。\n\n**举个例子：**\n同一个用户调到另一个部门后，旧部门可见清单不能继续沿用30分钟。可在权限版本变更后使用新缓存键，并清理旧结果。\n\n**追问 / 易错点：**\n不能用“平均延迟变快”掩盖越权风险。分别测权限计算耗时、业务查询耗时和端到端P95；此处为参考优化方案。\n\n**关联旧题：** LX012、LX013、Q12-015。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "场景题 / 故障排查",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI012"
+      ],
+      "keywords": [
+        "RM037",
+        "场景题 / 故障排查",
+        "得物"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM038",
+      "number": "RM038",
+      "question": "单例怎么写？反射和序列化会不会破坏它？",
+      "answer": "**直接回答：**\n简单场景可用静态内部类或枚举；双重检查写法需要volatile。普通私有构造器主要阻止正常外部new，不自动抵御所有反射访问。实现Serializable的普通单例还要考虑反序列化创建新对象的问题，常用readResolve维护语义。\n\n**举个例子：**\n枚举单例可写enum Registry { INSTANCE }，但实例里的可变Map仍要做并发保护，单例不是“所有操作自动线程安全”。\n\n**追问 / 易错点：**\n不同类加载器定义的类可以各有实例，Spring singleton则是容器内某个Bean定义的范围。模块访问限制也会影响反射，不要笼统说任何私有构造器都能被任意代码绕过。\n\n**关联旧题：** Q01-035、Q01-040、Q05-007。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "Java 基础",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI004"
+      ],
+      "keywords": [
+        "RM038",
+        "Java 基础",
+        "招银网络科技"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM039",
+      "number": "RM039",
+      "question": "MySQL 和 PostgreSQL 怎么选？Redis又处在哪一层？",
+      "answer": "**直接回答：**\nMySQL和PostgreSQL都是关系数据库，先按事务模型、查询复杂度、扩展需求、运维经验和已有生态选择，不要简单排名。PostgreSQL的jsonb及相应索引等能力可作为具体评估项，但不意味着MySQL不能处理JSON。Redis常用于缓存和其他内存数据结构需求，不是默认替代关系库。\n\n**举个例子：**\n团队已有稳定MySQL事务系统，不能为了“技术更新”盲目迁移；需要某些PostgreSQL扩展或复杂检索能力时，拿真实查询和数据验证收益。\n\n**追问 / 易错点：**\n不能说MySQL一定快、PG一定慢，或者Redis永不落盘。说明实际使用过哪一个，没有做过生产迁移就把结论标为选型分析。\n\n**技术依据：** [PostgreSQL JSON Types](https://www.postgresql.org/docs/current/datatype-json.html)。\n\n**关联旧题：** Q12-003、Q12-010。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "项目 / 实习拷打",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI014",
+        "NI021"
+      ],
+      "keywords": [
+        "RM039",
+        "项目 / 实习拷打",
+        "腾讯",
+        "阿里"
+      ],
+      "sourceFile": "recent-interviews-study.md"
+    },
+    {
+      "id": "bank-RM040",
+      "number": "RM040",
+      "question": "付款方没网、收款方有网，如何讨论扫码支付？两边都没网呢？",
+      "answer": "**直接回答：**\n先明确这是系统设计题，不直接断言某款支付产品支持什么。付款方离线并不必然要求后台也离线：在预先授权等前提下，付款端可展示短期凭据，在线收款端把凭据交给可信支付后台验证、风控和记账。最终结果仍由后台确认。\n\n**举个例子：**\n付款码可看成短期受限凭据而非永久账号密码，需要过期、一次性使用、金额或场景约束，以及服务端防重放。不能只凭扫码页面动画就认为已到账。\n\n**追问 / 易错点：**\n双方都离线时无法即时向同一权威账本确认余额和重复花费；只能在额外的安全硬件、预授权额度、信用与事后清算等假设下讨论，不能当成普通联网支付的同等保证。此处完全是参考设计。\n\n**关联旧题：** LX040、Q11-036。本题是具体追问补充，不代表与旧知识点完全独立。",
+      "category": "场景题 / 故障排查",
+      "priority": "P1",
+      "kind": "面经具体追问 / 练习",
+      "sourceIds": [
+        "NI014"
+      ],
+      "keywords": [
+        "RM040",
+        "场景题 / 故障排查",
+        "腾讯"
+      ],
+      "sourceFile": "recent-interviews-study.md"
     }
   ],
   "sources": [
@@ -12273,6 +13497,532 @@ window.QUESTION_BANK_DATA = {
       "questionIds": [
         "bank-UX003"
       ]
+    },
+    {
+      "id": "NI001",
+      "company": "招银网络科技",
+      "title": "招银网络科技 · 9.10 招银网络科技一面",
+      "url": "https://www.nowcoder.com/discuss/927652240695783424",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-10 19:59 已编辑；实际面试：9.10（原帖仅月日）。\n阶段：后端一面。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：JVM与Full GC、并发Map、CAS与锁、索引与隔离级别、设计模式、缓存、HTTPS、Kafka顺序、区间反转链表。\n边界：页面评论的年份不作为面试年份证明。",
+      "questionIds": [
+        "bank-Q01-035",
+        "bank-Q02-010",
+        "bank-Q02-013",
+        "bank-Q03-009",
+        "bank-Q03-012",
+        "bank-Q03-013",
+        "bank-Q04-002",
+        "bank-Q04-009",
+        "bank-Q04-011",
+        "bank-Q06-002",
+        "bank-Q06-004",
+        "bank-Q06-007",
+        "bank-Q06-014",
+        "bank-Q07-016",
+        "bank-Q08-006",
+        "bank-Q09-014",
+        "bank-Q13-045"
+      ]
+    },
+    {
+      "id": "NI002",
+      "company": "招银网络科技",
+      "title": "招银网络科技 · 招银网络科技9.11 一面",
+      "url": "https://www.nowcoder.com/discuss/927904695018885120",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-11 12:41；实际面试：9.11（原帖仅月日）。\n阶段：后端一面。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：Redis结构与锁、海量key按前缀查找、缓存异常、SQL优化、Integer比较、CPU定位、字符串提取数字。\n边界：提取数字题缺少输入输出规则，只附明确假设的练习版本。",
+      "questionIds": [
+        "bank-Q01-009",
+        "bank-Q04-023",
+        "bank-Q06-012",
+        "bank-Q07-002",
+        "bank-Q07-015",
+        "bank-Q07-016",
+        "bank-Q07-017",
+        "bank-Q07-021",
+        "bank-RM001"
+      ]
+    },
+    {
+      "id": "NI003",
+      "company": "招银网络科技",
+      "title": "招银网络科技 · 9.11招银网科秋招一面",
+      "url": "https://www.nowcoder.com/feed/main/detail/ce64c8083f5348f8ac5942bf7b18bc6c",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-11 15:40；实际面试：9.11（原帖仅月日）。\n阶段：秋招一面。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：越权、缓存雪崩、GC、HTTPS与DNS、Kafka、B+树与慢SQL、日志归档、批量导入、线程池、合并区间。",
+      "questionIds": [
+        "bank-Q01-035",
+        "bank-Q03-022",
+        "bank-Q03-023",
+        "bank-Q04-009",
+        "bank-Q06-004",
+        "bank-Q06-009",
+        "bank-Q06-012",
+        "bank-Q06-035",
+        "bank-Q07-017",
+        "bank-Q08-005",
+        "bank-Q08-012",
+        "bank-Q08-013",
+        "bank-Q08-017",
+        "bank-Q09-014",
+        "bank-Q09-016",
+        "bank-RM029",
+        "bank-Q12-007",
+        "bank-Q12-015",
+        "bank-Q13-007"
+      ]
+    },
+    {
+      "id": "NI004",
+      "company": "招银网络科技",
+      "title": "招银网络科技 · 招银网络科技一面",
+      "url": "https://www.nowcoder.com/feed/main/detail/dc3f036646d14a0083b5175335ba365b",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-11 15:53；实际面试：9.11（正文仅月日）。\n阶段：秋招一面。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：动态代理、单例、SSE与WebSocket、虚拟线程、慢SQL、静态字段注入、Controller绑定、Redis锁与降级、RAG局限。",
+      "questionIds": [
+        "bank-Q01-023",
+        "bank-RM038",
+        "bank-Q03-033",
+        "bank-Q05-023",
+        "bank-RM004",
+        "bank-Q06-012",
+        "bank-Q07-021",
+        "bank-Q07-023",
+        "bank-Q09-020",
+        "bank-Q11-006",
+        "bank-Q12-031"
+      ]
+    },
+    {
+      "id": "NI005",
+      "company": "携程",
+      "title": "携程 · 携程后端一面",
+      "url": "https://www.nowcoder.com/discuss/927876861525258240",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-11 10:51；实际面试：未写实际面试日。\n阶段：后端一面。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：RAG目标与评测、文档解析和切分、摘要触发、秒杀压测、Redis库存拆分、AI编码、每k个节点反转。\n边界：链表题为口述；正文未明确从尾分组，本包采用从头分组的练习题，并说明尾部不足k个的处理。",
+      "questionIds": [
+        "bank-Q12-031",
+        "bank-Q07-013",
+        "bank-Q11-009",
+        "bank-Q11-027",
+        "bank-RM015",
+        "bank-Q12-003",
+        "bank-LX010",
+        "bank-LX026",
+        "bank-LX027",
+        "bank-RM012",
+        "bank-RM013",
+        "bank-RM031"
+      ]
+    },
+    {
+      "id": "NI006",
+      "company": "携程",
+      "title": "携程 · 携程一面-后端agent开发",
+      "url": "https://www.nowcoder.com/feed/main/detail/d1f7488986444f50b9bd99894cd7cbf5",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-11 16:58；实际面试：未写实际面试日。\n阶段：后端Agent一面。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：实习、AI代码质量、count++丢更新的交错过程、字符串引用比较、URL协议分层、HTTP头是否必要。\n边界：与9月12日另一作者的同题题解合并，优先保留较早的题目记录；String变量完整声明缺失，不臆断原程序输出。",
+      "questionIds": [
+        "bank-Q12-007",
+        "bank-Q01-013",
+        "bank-Q03-007",
+        "bank-Q09-001",
+        "bank-RM033",
+        "bank-LX027"
+      ]
+    },
+    {
+      "id": "NI007",
+      "company": "美团",
+      "title": "美团 · 美团AI后端一面9.10",
+      "url": "https://www.nowcoder.com/discuss/927579574932705280",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-11 10:50 已编辑；实际面试：9.10（正文仅月日）。\n阶段：AI后端一面。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：故障诊断Skill、路由与幻觉、视频分片与RPC幂等、RAG定位、Agent边界、Harness与Hooks、三级缓存、线程池、树层序。\n边界：工程案例以原作者项目为背景，不写成用户本人已落地。",
+      "questionIds": [
+        "bank-Q01-035",
+        "bank-Q04-009",
+        "bank-Q12-031",
+        "bank-LX027",
+        "bank-Q03-025",
+        "bank-Q11-041",
+        "bank-RM011",
+        "bank-Q12-001",
+        "bank-Q12-004",
+        "bank-Q12-005",
+        "bank-Q12-024",
+        "bank-Q12-025",
+        "bank-Q12-034",
+        "bank-UX014",
+        "bank-Q12-033",
+        "bank-Q12-038",
+        "bank-RM016",
+        "bank-RM017",
+        "bank-Q13-025"
+      ]
+    },
+    {
+      "id": "NI008",
+      "company": "美团",
+      "title": "美团 · 美团容器平台JAVA开发",
+      "url": "https://www.nowcoder.com/feed/main/detail/91e3b76eabd140bdbed20dc43724b396",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：昨天 11:41 已编辑；实际面试：一面9.2；二面9.7；结果9.12（正文仅月日）。\n阶段：实习面试；一面技术题为主。读取范围：正文题目区可读。日期等级：B。\n可见考点概括：数据库诊断、MVCC、Redis热点、MQ双写、CAP、服务发现、MCP权限与会话、RAG版本、Controller审查、K8s。\n边界：作者称一面前15分钟未录到；二面题目不完整，不填造代码题。 K8s仅为泛问，未据此虚构具体Pod调度原题。",
+      "questionIds": [
+        "bank-Q02-010",
+        "bank-Q06-012",
+        "bank-Q06-014",
+        "bank-Q08-005",
+        "bank-Q12-031",
+        "bank-LX027",
+        "bank-Q05-007",
+        "bank-Q06-015",
+        "bank-Q06-020",
+        "bank-Q07-026",
+        "bank-Q07-006",
+        "bank-Q08-001",
+        "bank-Q08-010",
+        "bank-Q11-003",
+        "bank-Q11-031",
+        "bank-Q11-035",
+        "bank-UX016",
+        "bank-RM009",
+        "bank-RM010",
+        "bank-RM014"
+      ]
+    },
+    {
+      "id": "NI009",
+      "company": "拼多多",
+      "title": "拼多多 · 9.12 pdd线下 一二三四面",
+      "url": "https://www.nowcoder.com/feed/main/detail/9c22ace032b44a1b8ab1b8f47c96b10e",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：昨天 20:10 已编辑；实际面试：9.12（标题仅月日）。\n阶段：线下面试，含HR轮。读取范围：正文题目区可读。日期等级：B。\n可见考点概括：拓扑排序变体、Agent记忆、数据库、密码与JWT、TCP、mmap、路由匹配、HNSW、有序数组去重。\n边界：四轮中包含HR轮，不称四轮技术面；树路径、路由通配符和Git题意不全，只登记缺失条件。 结构体对齐属于跨语言内容，此次没有把它改成Java原题。",
+      "questionIds": [
+        "bank-Q12-005",
+        "bank-Q12-025",
+        "bank-Q04-021",
+        "bank-Q09-004",
+        "bank-Q09-017",
+        "bank-Q09-023",
+        "bank-RM020",
+        "bank-LX030",
+        "bank-RM035",
+        "bank-Q13-030",
+        "bank-RM030"
+      ]
+    },
+    {
+      "id": "NI010",
+      "company": "拼多多",
+      "title": "拼多多 · 拼多多9.12正式批南京一面",
+      "url": "https://www.nowcoder.com/feed/main/detail/912ae02efb854c5c99b763c8cd200a99",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：列表：昨天 22:52；实际面试：9.12（标题仅月日）。\n阶段：正式批后端一面。读取范围：仅列表公开摘要。日期等级：B。\n可见考点概括：拓扑排序、Agent项目、模型参数与精度及MoE、Spring Boot/AOP、索引未被选中。\n边界：详情页未成功返回正文；只使用Java面经列表公开摘要，不能视为全文。",
+      "questionIds": [
+        "bank-Q06-009",
+        "bank-Q12-001",
+        "bank-Q05-001",
+        "bank-Q05-011",
+        "bank-RM036",
+        "bank-Q13-030"
+      ]
+    },
+    {
+      "id": "NI011",
+      "company": "BIGO",
+      "title": "BIGO · Bigo后端一面",
+      "url": "https://www.nowcoder.com/feed/main/detail/329b5bc5a7fc44c89fad3631d028aeff",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：昨天 07:36；实际面试：未写实际面试日。\n阶段：秋招后端一面。读取范围：正文题目区可读。日期等级：B。\n可见考点概括：HashMap与锁、ThreadLocal键设计、阻塞队列、GC与死锁、TCP、缓存覆盖竞态、SSE/MCP、内网Agent、ABC交替。",
+      "questionIds": [
+        "bank-Q02-010",
+        "bank-Q02-013",
+        "bank-Q03-012",
+        "bank-Q03-022",
+        "bank-Q03-023",
+        "bank-Q09-020",
+        "bank-Q09-001",
+        "bank-Q12-003",
+        "bank-RM010",
+        "bank-Q02-005",
+        "bank-Q02-009",
+        "bank-RM003",
+        "bank-Q03-010",
+        "bank-Q03-017",
+        "bank-Q03-020",
+        "bank-RM032",
+        "bank-RM002",
+        "bank-Q04-001",
+        "bank-Q04-010",
+        "bank-Q04-028",
+        "bank-Q07-019",
+        "bank-Q09-005",
+        "bank-Q09-006",
+        "bank-Q12-028"
+      ]
+    },
+    {
+      "id": "NI012",
+      "company": "得物",
+      "title": "得物 · 得物Java二面",
+      "url": "https://www.nowcoder.com/feed/main/detail/13fb5808e2fe4bb8b2117b6470dcb261",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：昨天 18:15 已编辑；实际面试：未写实际面试日。\n阶段：Java二面。读取范围：正文题目区可读。日期等级：B。\n可见考点概括：首页延迟优化、权限计算与缓存、AI贯穿研发流程、项目困难与产出、Agent/MCP。\n边界：作者给出的1.5s、800ms是其项目背景，不是本用户的性能数据。",
+      "questionIds": [
+        "bank-Q12-007",
+        "bank-LX027",
+        "bank-Q12-025",
+        "bank-Q12-028",
+        "bank-Q11-001",
+        "bank-RM037",
+        "bank-Q12-008"
+      ]
+    },
+    {
+      "id": "NI013",
+      "company": "腾讯",
+      "title": "腾讯 · 腾讯WXG后台秋招一面",
+      "url": "https://www.nowcoder.com/feed/main/detail/e2ab13283cbe47e8859c8280e3e5ad96",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：今天 02:55；实际面试：正文说两三周前；不把发帖日当面试日。\n阶段：WXG秋招一面。读取范围：正文题目区可读。日期等级：B。\n可见考点概括：算法片段、哈希与加密及签名、SQL注入、数据库基础、AI协作。\n边界：球题、特殊树题、差1子序列均缺条件；不生成假原题。",
+      "questionIds": [
+        "bank-LX027",
+        "bank-Q05-031",
+        "bank-RM034"
+      ]
+    },
+    {
+      "id": "NI014",
+      "company": "腾讯",
+      "title": "腾讯 · 腾讯WXG后端一二面日常实习",
+      "url": "https://www.nowcoder.com/feed/main/detail/8a21555d1a9947e3a45ced76ef586c29",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-11 23:45 已编辑；实际面试：技术面9.1、9.4（正文仅月日）。\n阶段：日常实习，两轮技术面。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：LRU变体、通信安全、离线付款设计讨论、MySQL/PostgreSQL、Go/Java选型、项目表与键、AI与学习。\n边界：LRU只附标准版，未知变体不补写；离线付款仅给一般系统设计边界，不宣称微信当前具体产品能力。",
+      "questionIds": [
+        "bank-Q09-014",
+        "bank-Q12-003",
+        "bank-LX027",
+        "bank-Q12-005",
+        "bank-RM034",
+        "bank-RM040",
+        "bank-RM039",
+        "bank-Q13-021"
+      ]
+    },
+    {
+      "id": "NI015",
+      "company": "腾讯",
+      "title": "腾讯 · 腾讯IEG运开面经",
+      "url": "https://www.nowcoder.com/feed/main/detail/233455fc26174a98955784a653c8cd4a",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-11 09:19；实际面试：未写实际面试日。\n阶段：运开／Go背景，后端通用拓展。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：排序与哈希、数据库索引、Redis与布隆过滤器、Kafka组、网络、IPC/cgroups、Pod调度与命名空间。\n边界：Go语法细节不改编成Java原题；本包筛选可迁移后端与K8s考点。",
+      "questionIds": [
+        "bank-Q07-002",
+        "bank-Q07-015",
+        "bank-Q07-016",
+        "bank-Q07-017",
+        "bank-Q08-012",
+        "bank-Q09-001",
+        "bank-Q07-006",
+        "bank-Q02-005",
+        "bank-Q06-005",
+        "bank-Q07-008",
+        "bank-RM021",
+        "bank-LX039",
+        "bank-Q09-003",
+        "bank-Q09-008",
+        "bank-Q10-004",
+        "bank-RM022",
+        "bank-RM023",
+        "bank-Q13-038"
+      ]
+    },
+    {
+      "id": "NI016",
+      "company": "滴滴",
+      "title": "滴滴 · 滴滴秋招后端一面",
+      "url": "https://www.nowcoder.com/feed/main/detail/4b2ea79abe59488cbd845a4eb00bfbb7",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：昨天 14:15；实际面试：未写实际面试日。\n阶段：秋招后端一面；作者为Go背景。读取范围：正文题目区可读。日期等级：B。\n可见考点概括：实习贡献与难点、AI提效落地、数据库索引事务锁、接口优化幂等、Redis锁与集群。",
+      "questionIds": [
+        "bank-Q07-021",
+        "bank-Q12-007",
+        "bank-Q07-013",
+        "bank-LX027",
+        "bank-Q12-008",
+        "bank-Q06-003",
+        "bank-Q06-013",
+        "bank-Q06-018",
+        "bank-Q11-011",
+        "bank-Q12-002"
+      ]
+    },
+    {
+      "id": "NI017",
+      "company": "深轻科技",
+      "title": "深轻科技 · 9.9 深轻科技---Java后端方向（一面）",
+      "url": "https://www.nowcoder.com/discuss/927618502473547776",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-10 17:44；实际面试：9.9（标题仅月日）。\n阶段：Java后端一面。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：集合、Redis、Boot启动、分库分表、Disruptor、线程池、锁、JVM、密码存储、WebSocket、RabbitMQ。",
+      "questionIds": [
+        "bank-Q02-010",
+        "bank-Q03-012",
+        "bank-Q06-004",
+        "bank-Q07-002",
+        "bank-Q09-020",
+        "bank-Q04-021",
+        "bank-RM020",
+        "bank-Q04-001",
+        "bank-Q03-024",
+        "bank-Q01-010",
+        "bank-Q02-002",
+        "bank-RM007",
+        "bank-Q05-028",
+        "bank-Q06-021",
+        "bank-Q06-034",
+        "bank-Q08-002"
+      ]
+    },
+    {
+      "id": "NI018",
+      "company": "实在智能",
+      "title": "实在智能 · 2026.7.9 实在智能Java开发面经",
+      "url": "https://www.nowcoder.com/feed/main/detail/06595dc27127476c9b544d20eb99cfe8",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：08-25 15:15 已编辑；实际面试：2026-07-09（标题明确完整日期）。\n阶段：Java开发面试，批次未明确。读取范围：正文题目区可读。日期等级：A。\n可见考点概括：HashMap源码、框架源码经验、Docker/K8s、日志、表设计与JOIN、深分页与回表、游标和排序不匹配、AI编码。\n边界：本包少量较早补充；不能用8月页面更新日期把7月面试说成8月新面试。",
+      "questionIds": [
+        "bank-Q02-010",
+        "bank-LX027",
+        "bank-Q12-005",
+        "bank-Q06-005",
+        "bank-Q02-006",
+        "bank-Q06-006",
+        "bank-Q06-027",
+        "bank-Q06-032",
+        "bank-RM024",
+        "bank-UX010",
+        "bank-Q12-016",
+        "bank-Q12-018"
+      ]
+    },
+    {
+      "id": "NI019",
+      "company": "新蛋",
+      "title": "新蛋 · 新蛋Newegg一面",
+      "url": "https://www.nowcoder.com/feed/main/detail/acb6147f9ad04249b655880801ece1a0",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-11 23:50；实际面试：未写实际面试日。\n阶段：后端一面，批次未明确。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：排序稳定性、CHAR/VARCHAR、类加载、集合与并发Map、守护线程、GC、Redis持久化、单元测试。",
+      "questionIds": [
+        "bank-Q04-009",
+        "bank-Q13-038",
+        "bank-Q02-001",
+        "bank-Q02-012",
+        "bank-RM005",
+        "bank-Q04-018",
+        "bank-RM006",
+        "bank-Q07-009",
+        "bank-Q12-017"
+      ]
+    },
+    {
+      "id": "NI020",
+      "company": "新蛋",
+      "title": "新蛋 · 新蛋Newegg二面",
+      "url": "https://www.nowcoder.com/feed/main/detail/87a7e365d0544f829fdd88ce4b9f5ed5",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-11 23:41；实际面试：未写实际面试日。\n阶段：后端二面，与NI019同作者。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：Function Calling实现、项目收获、RabbitMQ与幂等、IoC和AOP。\n边界：原帖遗忘的项目追问不补造；仅提到还有三面，不补三面题单。 RabbitMQ与幂等是作者举的收获例子，复习题是围绕该例子展开，不是独立原问句。",
+      "questionIds": [
+        "bank-Q08-005",
+        "bank-Q05-011",
+        "bank-Q05-002",
+        "bank-Q08-020",
+        "bank-Q12-027"
+      ]
+    },
+    {
+      "id": "NI021",
+      "company": "阿里",
+      "title": "阿里（千问／飞猪） · 千问事业部一面 9.7",
+      "url": "https://www.nowcoder.com/feed/main/detail/415f38423022461f87767cca1a0d48f2",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：昨天 00:02；实际面试：9.7（标题仅月日）。\n阶段：秋招／全栈背景，Java与Agent部分。读取范围：正文题目区可读。日期等级：B。\n可见考点概括：JVM与面向对象、反射和模式、索引、MySQL/Redis、快排、TLS、Agent边界与框架。\n边界：原帖另有RN跨端与训练流程；本包未整理该部分，不当成Java岗位统一要求。随机基准不等于固定取中间元素。",
+      "questionIds": [
+        "bank-Q01-035",
+        "bank-Q06-004",
+        "bank-Q12-031",
+        "bank-Q12-025",
+        "bank-Q05-001",
+        "bank-RM039",
+        "bank-Q13-038",
+        "bank-Q01-001",
+        "bank-Q01-002",
+        "bank-Q01-021",
+        "bank-Q09-015",
+        "bank-Q12-032",
+        "bank-RM018"
+      ]
+    },
+    {
+      "id": "NI022",
+      "company": "得物",
+      "title": "得物 · 得物一面",
+      "url": "https://www.nowcoder.com/feed/main/detail/21a1f8c1bea1472a858ffb7e35ae63c4",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：今天 10:55；实际面试：未写实际面试日。\n阶段：一面，批次未明确。读取范围：正文题目区可读。日期等级：B。\n可见考点概括：拷贝、finally、AOP失效、CallerRuns、阻塞队列、线程池、HashMap冲突、分号器／雪花ID。\n边界：作者回忆“分号器”，按其明确关联的雪花算法准备ID生成；不推测缺失的具体分配规则。",
+      "questionIds": [
+        "bank-Q02-010",
+        "bank-Q03-023",
+        "bank-Q02-005",
+        "bank-Q01-017",
+        "bank-Q01-024",
+        "bank-Q02-023",
+        "bank-Q03-024",
+        "bank-Q05-012",
+        "bank-Q11-012"
+      ]
+    },
+    {
+      "id": "NI023",
+      "company": "未具名公司",
+      "title": "未具名公司 · 9.8 小厂 agent开发实习 面经",
+      "url": "https://www.nowcoder.com/feed/main/detail/2f4e4cde4e524a16aae5f55a89c49273",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：09-11 11:54；实际面试：9.8（标题仅月日）。\n阶段：Agent开发实习。读取范围：正文题目区可读。日期等级：C。\n可见考点概括：代码图与RAG、项目迭代、框架与Harness、上下文和记忆、开放式评测、Agent主动触发。\n边界：公司未披露；正文小米是作者过往实习，不能误标为小米面经。具体产品名只保留为线索，不臆断版本能力。",
+      "questionIds": [
+        "bank-Q12-007",
+        "bank-Q12-031",
+        "bank-RM012",
+        "bank-RM016",
+        "bank-RM017",
+        "bank-LX030",
+        "bank-RM018",
+        "bank-RM019"
+      ]
+    },
+    {
+      "id": "NI024",
+      "company": "即时设计",
+      "title": "即时设计 · 即时设计 Java后端社招二面",
+      "url": "https://www.nowcoder.com/discuss/928253869648248832",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：昨天 11:49；实际面试：未写实际面试日。\n阶段：社招二面，进阶拓展。读取范围：正文题目区可读。日期等级：B。\n可见考点概括：高并发读、缓存一致性、事务后回调、Tomcat参数与网络队列、并行取最大值、索引、OOM、长视频任务、幂等、奇偶交替。\n边界：社招独立标记，不冒充校招；视频任务解法为本包参考设计。",
+      "questionIds": [
+        "bank-Q04-002",
+        "bank-Q06-009",
+        "bank-Q08-005",
+        "bank-Q09-001",
+        "bank-Q04-021",
+        "bank-Q07-019",
+        "bank-Q11-001",
+        "bank-Q11-011",
+        "bank-Q01-010",
+        "bank-Q02-012",
+        "bank-Q03-006",
+        "bank-Q03-035",
+        "bank-RM025",
+        "bank-Q05-014",
+        "bank-Q05-020",
+        "bank-RM008",
+        "bank-Q06-010",
+        "bank-RM026"
+      ]
+    },
+    {
+      "id": "NI025",
+      "company": "阿里",
+      "title": "阿里（千问／飞猪） · 飞猪-智能客服 Java后端社招一面",
+      "url": "https://www.nowcoder.com/discuss/928250697634545664",
+      "description": "检索日：2026-09-13。考点重组，非现场逐字题单；答案为复习参考。\n页面日期：昨天 11:36；实际面试：未写实际面试日。\n阶段：社招一面，进阶拓展。读取范围：正文题目区可读。日期等级：B。\n可见考点概括：平台化成本与可靠性、时效消息、RPC注册发现与重启、OOM/GC、并发分配、链表合并、LRU。\n边界：与千问分开标轮次和招聘阶段，合并文件仅为公司集团归档。",
+      "questionIds": [
+        "bank-Q12-003",
+        "bank-Q11-035",
+        "bank-Q04-021",
+        "bank-Q04-028",
+        "bank-Q13-021",
+        "bank-Q04-003",
+        "bank-Q04-005",
+        "bank-RM027",
+        "bank-Q11-017",
+        "bank-RM028",
+        "bank-Q13-014"
+      ]
     }
   ],
   "supplements": [
@@ -12626,6 +14376,235 @@ window.QUESTION_BANK_DATA = {
       "provenance": "attachment-only",
       "missingQuestionNumbers": [
         "LX029"
+      ]
+    },
+    {
+      "id": "recent-interviews-2026-09-13",
+      "companies": 14,
+      "sources": 25,
+      "companyEntries": 286,
+      "uniqueCompanyQuestions": 193,
+      "questionIds": [
+        "bank-LX010",
+        "bank-LX026",
+        "bank-LX027",
+        "bank-LX030",
+        "bank-LX039",
+        "bank-Q01-001",
+        "bank-Q01-002",
+        "bank-Q01-009",
+        "bank-Q01-010",
+        "bank-Q01-013",
+        "bank-Q01-017",
+        "bank-Q01-021",
+        "bank-Q01-023",
+        "bank-Q01-024",
+        "bank-Q01-035",
+        "bank-Q02-001",
+        "bank-Q02-002",
+        "bank-Q02-005",
+        "bank-Q02-006",
+        "bank-Q02-009",
+        "bank-Q02-010",
+        "bank-Q02-012",
+        "bank-Q02-013",
+        "bank-Q02-023",
+        "bank-Q03-006",
+        "bank-Q03-007",
+        "bank-Q03-009",
+        "bank-Q03-010",
+        "bank-Q03-012",
+        "bank-Q03-013",
+        "bank-Q03-017",
+        "bank-Q03-020",
+        "bank-Q03-022",
+        "bank-Q03-023",
+        "bank-Q03-024",
+        "bank-Q03-025",
+        "bank-Q03-033",
+        "bank-Q03-035",
+        "bank-Q04-001",
+        "bank-Q04-002",
+        "bank-Q04-003",
+        "bank-Q04-005",
+        "bank-Q04-009",
+        "bank-Q04-010",
+        "bank-Q04-011",
+        "bank-Q04-018",
+        "bank-Q04-021",
+        "bank-Q04-023",
+        "bank-Q04-028",
+        "bank-Q05-001",
+        "bank-Q05-002",
+        "bank-Q05-007",
+        "bank-Q05-011",
+        "bank-Q05-012",
+        "bank-Q05-014",
+        "bank-Q05-020",
+        "bank-Q05-023",
+        "bank-Q05-028",
+        "bank-Q05-031",
+        "bank-Q06-002",
+        "bank-Q06-003",
+        "bank-Q06-004",
+        "bank-Q06-005",
+        "bank-Q06-006",
+        "bank-Q06-007",
+        "bank-Q06-009",
+        "bank-Q06-010",
+        "bank-Q06-012",
+        "bank-Q06-013",
+        "bank-Q06-014",
+        "bank-Q06-015",
+        "bank-Q06-018",
+        "bank-Q06-020",
+        "bank-Q06-021",
+        "bank-Q06-027",
+        "bank-Q06-032",
+        "bank-Q06-034",
+        "bank-Q06-035",
+        "bank-Q07-002",
+        "bank-Q07-006",
+        "bank-Q07-008",
+        "bank-Q07-009",
+        "bank-Q07-013",
+        "bank-Q07-015",
+        "bank-Q07-016",
+        "bank-Q07-017",
+        "bank-Q07-019",
+        "bank-Q07-021",
+        "bank-Q07-023",
+        "bank-Q07-026",
+        "bank-Q08-001",
+        "bank-Q08-002",
+        "bank-Q08-005",
+        "bank-Q08-006",
+        "bank-Q08-010",
+        "bank-Q08-012",
+        "bank-Q08-013",
+        "bank-Q08-017",
+        "bank-Q08-020",
+        "bank-Q09-001",
+        "bank-Q09-003",
+        "bank-Q09-004",
+        "bank-Q09-005",
+        "bank-Q09-006",
+        "bank-Q09-008",
+        "bank-Q09-014",
+        "bank-Q09-015",
+        "bank-Q09-016",
+        "bank-Q09-017",
+        "bank-Q09-020",
+        "bank-Q09-023",
+        "bank-Q10-004",
+        "bank-Q11-001",
+        "bank-Q11-003",
+        "bank-Q11-006",
+        "bank-Q11-009",
+        "bank-Q11-011",
+        "bank-Q11-012",
+        "bank-Q11-017",
+        "bank-Q11-027",
+        "bank-Q11-031",
+        "bank-Q11-035",
+        "bank-Q11-041",
+        "bank-Q12-001",
+        "bank-Q12-002",
+        "bank-Q12-003",
+        "bank-Q12-004",
+        "bank-Q12-005",
+        "bank-Q12-007",
+        "bank-Q12-008",
+        "bank-Q12-015",
+        "bank-Q12-016",
+        "bank-Q12-017",
+        "bank-Q12-018",
+        "bank-Q12-024",
+        "bank-Q12-025",
+        "bank-Q12-027",
+        "bank-Q12-028",
+        "bank-Q12-031",
+        "bank-Q12-032",
+        "bank-Q12-033",
+        "bank-Q12-034",
+        "bank-Q12-038",
+        "bank-Q13-007",
+        "bank-Q13-014",
+        "bank-Q13-021",
+        "bank-Q13-025",
+        "bank-Q13-030",
+        "bank-Q13-038",
+        "bank-Q13-045",
+        "bank-RM001",
+        "bank-RM002",
+        "bank-RM003",
+        "bank-RM004",
+        "bank-RM005",
+        "bank-RM006",
+        "bank-RM007",
+        "bank-RM008",
+        "bank-RM009",
+        "bank-RM010",
+        "bank-RM011",
+        "bank-RM012",
+        "bank-RM013",
+        "bank-RM014",
+        "bank-RM015",
+        "bank-RM016",
+        "bank-RM017",
+        "bank-RM018",
+        "bank-RM019",
+        "bank-RM020",
+        "bank-RM021",
+        "bank-RM022",
+        "bank-RM023",
+        "bank-RM024",
+        "bank-RM025",
+        "bank-RM026",
+        "bank-RM027",
+        "bank-RM028",
+        "bank-RM029",
+        "bank-RM030",
+        "bank-RM031",
+        "bank-RM032",
+        "bank-RM033",
+        "bank-RM034",
+        "bank-RM035",
+        "bank-RM036",
+        "bank-RM037",
+        "bank-RM038",
+        "bank-RM039",
+        "bank-RM040",
+        "bank-UX010",
+        "bank-UX014",
+        "bank-UX016"
+      ],
+      "sourceIds": [
+        "NI001",
+        "NI002",
+        "NI003",
+        "NI004",
+        "NI005",
+        "NI006",
+        "NI007",
+        "NI008",
+        "NI009",
+        "NI010",
+        "NI011",
+        "NI012",
+        "NI013",
+        "NI014",
+        "NI015",
+        "NI016",
+        "NI017",
+        "NI018",
+        "NI019",
+        "NI020",
+        "NI021",
+        "NI022",
+        "NI023",
+        "NI024",
+        "NI025"
       ]
     }
   ]
