@@ -175,7 +175,7 @@
         const stats = applicationStats();
         const feedCount = state.feed?.length || 0;
         const fresh = state.feed?.filter(job => String(job.last_seen || job.first_seen || '').slice(0,10) >= new Date(Date.now()-3*86400000).toISOString().slice(0,10)).length || 0;
-        return `<section class="recruit-overview"><div class="recruit-overview-main"><span class="recruit-kicker">JOB RADAR · 2027 CAMPUS</span><h2>今天有哪些新岗位？</h2><p>集中浏览校招、提前批和实习转正机会。岗位信息按更新时间更新，投递前请回到官网核验。</p><div class="recruit-overview-actions"><button class="career-primary" onclick="refreshRecruitmentFeed()">↻ 更新岗位</button><button class="career-secondary" onclick="setRecruitmentFit(true)">只看 Java / 后端 / AI</button></div></div><div class="recruit-overview-stats"><div><strong>${feedCount}</strong><span>已收录岗位</span></div><div><strong>${fresh}</strong><span>近 3 天更新</span></div><div><strong>${stats.total}</strong><span>我的投递</span></div><small>当前：${phase.title} · ${phase.date}</small></div></section>`;
+        return `<section class="recruit-overview"><div class="recruit-overview-main"><h2>2027 届校招</h2><p>${esc(phase.title)} · ${esc(phase.date)}</p></div><div class="recruit-overview-stats"><div><strong>${feedCount}</strong><span>已收录岗位</span></div><div><strong>${fresh}</strong><span>近 3 天更新</span></div><div><strong>${stats.total}</strong><span>我的投递</span></div></div></section>`;
     }
 
     function filteredJobs() {
@@ -221,7 +221,7 @@
             : jobs.length ? `<div class="recruit-job-grid">${jobs.slice(0, state.limit).map(({ job, index }) => jobCard(job, index)).join("")}</div>${jobs.length > state.limit ? `<button class="recruit-load-more" onclick="loadMoreRecruitmentJobs()">再看 ${Math.min(12, jobs.length - state.limit)} 条</button>` : ""}`
             : `<div class="recruit-feed-state"><b>没有匹配结果</b><small>换个关键词或查看全部岗位。</small><button onclick="resetRecruitmentFilters()">清空筛选</button></div>`;
         return `${heroHTML()}<section class="recruit-panel">
-            <div class="recruit-panel-head"><div><h2>发现下一份机会</h2><p>按方向找岗位，感兴趣就加入投递记录。</p></div><button onclick="refreshRecruitmentFeed()" ${state.loading ? "disabled" : ""}>${state.loading ? "更新中…" : "↻ 更新岗位"}</button></div>
+            <div class="recruit-panel-head"><div><h2>岗位列表</h2></div><button onclick="refreshRecruitmentFeed()" ${state.loading ? "disabled" : ""}>${state.loading ? "更新中…" : "↻ 更新岗位"}</button></div>
             <div class="recruit-toolbar"><div class="recruit-toggle"><button class="${state.fitOnly ? "active" : ""}" onclick="setRecruitmentFit(true)">Java / 后端 / AI</button><button class="${!state.fitOnly ? "active" : ""}" onclick="setRecruitmentFit(false)">全部岗位</button></div>
             <form onsubmit="searchRecruitment(event)"><input aria-label="搜索公司、岗位或城市" type="search" name="keyword" value="${esc(state.search)}" placeholder="公司、岗位、城市、关键词…"><button>搜索</button></form>
             <select aria-label="按行业筛选" onchange="setRecruitmentIndustry(this.value)">${industries.map(item => `<option${state.industry === item ? " selected" : ""}>${esc(item)}</option>`).join("")}</select><select aria-label="按届次筛选" onchange="setRecruitmentCohort(this.value)">${['全部届次', ...new Set((state.feed || []).map(item => item.cohort).filter(Boolean))].map(item => `<option${state.cohort === item ? ' selected' : ''}>${esc(item)}</option>`).join('')}</select><select aria-label="按批次筛选" onchange="setRecruitmentBatch(this.value)">${['全部批次', ...new Set((state.feed || []).map(item => item.batch).filter(Boolean))].map(item => `<option${state.batch === item ? ' selected' : ''}>${esc(item)}</option>`).join('')}</select><select aria-label="按截止日期排序" onchange="setRecruitmentSort(this.value)"><option value="latest"${state.sort === 'latest' ? ' selected' : ''}>最新更新</option><option value="deadline"${state.sort === 'deadline' ? ' selected' : ''}>即将截止</option><option value="company"${state.sort === 'company' ? ' selected' : ''}>按公司</option></select></div>
@@ -252,9 +252,9 @@
     }
     function applicationsHTML() {
         const visible = applications.filter(item => state.stageFilter === "全部" || item.stage === state.stageFilter);
-        return `<section class="recruit-panel"><div class="recruit-panel-head"><div><h2>我的投递</h2><p>记录当前进展，让每次投递都有下一步。</p></div><button class="primary" onclick="openRecruitmentForm()">＋ 新增投递</button></div>
+        return `<section class="recruit-panel"><div class="recruit-panel-head"><div><h2>我的投递</h2></div><button class="primary" onclick="openRecruitmentForm()">＋ 新增投递</button></div>
         <div class="recruit-pipeline" aria-label="按投递阶段筛选">${["全部", ...STAGES].map(stage => `<button aria-pressed="${state.stageFilter === stage}" class="${state.stageFilter === stage ? "active" : ""}" onclick="setRecruitmentStageFilter('${stage}')"><span>${stage}</span><strong>${stage === "全部" ? applications.length : applications.filter(item => item.stage === stage).length}</strong></button>`).join("")}</div>
-        ${visible.length ? `<div class="recruit-application-grid">${visible.slice().sort((a, b) => String(b.date).localeCompare(String(a.date))).map(applicationCard).join("")}</div>` : applications.length ? `<div class="career-empty"><span aria-hidden="true">◷</span><h3>这个阶段还没有记录</h3><p>选择其他阶段，或查看全部投递。</p><button class="career-secondary" onclick="setRecruitmentStageFilter('全部')">查看全部投递</button></div>` : `<div class="career-empty"><span aria-hidden="true">＋</span><h3>从第一个目标岗位开始</h3><p>发现心仪岗位后点“加入投递”，也可以手动记录。</p><button class="career-primary" onclick="setRecruitmentTab('radar')">去找岗位 →</button></div>`}</section>${formHTML()}`;
+        ${visible.length ? `<div class="recruit-application-grid">${visible.slice().sort((a, b) => String(b.date).localeCompare(String(a.date))).map(applicationCard).join("")}</div>` : applications.length ? `<div class="career-empty"><span aria-hidden="true">◷</span><h3>这个阶段还没有记录</h3><p>选择其他阶段，或查看全部投递。</p><button class="career-secondary" onclick="setRecruitmentStageFilter('全部')">查看全部投递</button></div>` : `<div class="career-empty"><span aria-hidden="true">＋</span><h3>暂无投递记录</h3><p>发现心仪岗位后点“加入投递”，也可以手动记录。</p><button class="career-primary" onclick="setRecruitmentTab('radar')">去找岗位 →</button></div>`}</section>${formHTML()}`;
     }
 
     function timelineHTML() {
@@ -262,11 +262,11 @@
         const completed = WEEKLY_ACTIONS.filter(item => actionChecks[item.id]).length;
         return `<section class="recruit-panel"><div class="recruit-panel-head"><div><h2>2027 届秋招时间线</h2><p>时间以常见校招节奏为参考，不同企业会提前或延后；当前阶段由日期自动定位。</p></div><div class="recruit-current-pill">现在：${phase.title}</div></div>
         <div class="recruit-timeline">${TIMELINE.map((item, index) => `<article class="${item.id === phase.id ? "current" : ""}"><div class="recruit-time-marker"><i>${index + 1}</i><span></span></div><div><small>${item.date}</small><h3>${item.title}${item.id === phase.id ? " <b>进行中</b>" : ""}</h3><p>${item.desc}</p><em>${item.action}</em></div></article>`).join("")}</div>
-        <div class="recruit-weekly"><div class="recruit-weekly-head"><div><span>本周执行</span><h2>把阶段目标落到五个动作</h2></div><strong>${completed}/${WEEKLY_ACTIONS.length}</strong></div><div class="recruit-weekly-progress"><span style="width:${completed / WEEKLY_ACTIONS.length * 100}%"></span></div>
+        <div class="recruit-weekly"><div class="recruit-weekly-head"><div><h2>本周清单</h2></div><strong>${completed}/${WEEKLY_ACTIONS.length}</strong></div><div class="recruit-weekly-progress"><span style="width:${completed / WEEKLY_ACTIONS.length * 100}%"></span></div>
         ${WEEKLY_ACTIONS.map(item => `<button class="${actionChecks[item.id] ? "checked" : ""}" onclick="toggleRecruitmentAction('${item.id}')"><i>${actionChecks[item.id] ? "✓" : ""}</i><span>${item.text}</span></button>`).join("")}</div></section>`;
     }
     function resourcesHTML() {
-        return `<section class="recruit-panel recruit-resource-panel"><div class="recruit-panel-head"><div><h2>校招信息入口</h2><p>这里集中放聚合平台、校招日程和综合求职网站，方便一次查看更多岗位线索。</p></div></div>
+        return `<section class="recruit-panel recruit-resource-panel"><div class="recruit-panel-head"><div><h2>校招信息入口</h2></div></div>
         <div class="recruit-resource-grid">${RESOURCES.map(item => `<a href="${item.url}" target="_blank" rel="noopener"><header><span>${item.icon}</span><i>${item.tag}</i></header><h3>${item.name}</h3><p>${item.desc}</p><b>${new URL(item.url).hostname} ↗</b></a>`).join("")}</div>
         <div class="recruit-source-note">信息校验原则：聚合页、群聊和公众号只能作为线索；涉及网申、截止日期、笔试安排和个人状态时，一律回到企业招聘官网确认。不要为内推付费。</div></section>`;
     }

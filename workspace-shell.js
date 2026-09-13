@@ -67,10 +67,10 @@ function renderWorkspaceShell() {
 function initWorkspaceShell() {
     const header = document.createElement('header');
     header.className = 'workspace-header';
-    header.innerHTML = `<a class="workspace-brand" href="#" data-workspace-link="bank"><span><img src="./icon.svg?v=2" alt=""></span><strong>面试工作台<small>JAVA BACKEND</small></strong></a><nav aria-label="功能导航">${[['bank','题库'],['personal','我的笔记'],['interviews','公司面经'],['quiz','随机抽查'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源']].map(([id,label])=>`<button data-workspace-link="${id}">${label}</button>`).join('')}</nav><div class="workspace-tools"><button data-workspace-link="trash">回收站 <small id="workspaceTrashCount" hidden></small></button><button data-workspace-link="sync">数据同步</button></div>`;
+    header.innerHTML = `<a class="workspace-brand" href="#" data-workspace-link="bank"><span><img src="./icon.svg?v=2" alt=""></span><strong>面试工作台</strong></a><nav aria-label="功能导航">${[['bank','题库'],['personal','我的笔记'],['interviews','公司面经'],['quiz','随机抽查'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源']].map(([id,label])=>`<button data-workspace-link="${id}">${label}</button>`).join('')}</nav><div class="workspace-tools"><button data-workspace-link="trash">回收站 <small id="workspaceTrashCount" hidden></small></button><button data-workspace-link="sync">数据同步</button></div>`;
     document.body.prepend(header);
     const sideTitle = document.createElement('div');
-    sideTitle.className = 'workspace-directory-title'; sideTitle.innerHTML = `<span class="study-eyebrow">STUDY DIRECTORY</span><h2>知识目录</h2><button class="workspace-marked-link" data-workspace-link="marked">${workspaceIcon('marked')}重点复习</button>`;
+    sideTitle.className = 'workspace-directory-title'; sideTitle.innerHTML = `<h2>知识目录</h2><button class="workspace-marked-link" data-workspace-link="marked">${workspaceIcon('marked')}重点复习</button>`;
     document.querySelector('.sidebar').prepend(sideTitle);
     const search = document.querySelector('.search-wrap');
     document.querySelector('.main-header').appendChild(search);

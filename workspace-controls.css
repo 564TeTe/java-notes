@@ -155,3 +155,83 @@ body:has(.modal-overlay.open),body:has(.interview-dialog[open]),body:has(.recrui
 
 .app-version-row { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 0 18px; color:#738474; font-size:12px; }
 .app-version-row button { min-height:38px; border:1px solid #dce6d8; border-radius:7px; padding:8px 12px; background:#f4f7f0; color:#315e46; cursor:pointer; }
+
+/* Compact content tools; answer typography and mobile hit areas stay readable. */
+body .study-summary { padding:10px 0 12px; gap:12px; border-top:0; }
+body .study-summary-count { gap:10px; width:auto; }
+body .study-summary-count strong { font-family:inherit; font-size:22px; font-weight:650; font-variant-numeric:tabular-nums; }
+body .study-summary-actions { gap:8px; }
+body .study-summary-actions button { min-height:36px; padding:7px 12px; }
+.study-list-bar { display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:24px; align-items:center; margin:8px 0 10px; }
+.study-list-bar > .study-list-heading { margin:0; min-height:44px; gap:16px; }
+.study-list-bar > .study-list-heading h2 { font-size:14px; }
+.study-list-bar > .study-pagination.pagination-compact { min-width:260px; padding:0; }
+.study-list-bar:has(.page-settings[open]) > .study-pagination { grid-column:1 / -1; grid-row:3; }
+body .study-list-heading .study-filter-toggle { display:flex; align-items:center; justify-content:center; gap:5px; flex:none; width:auto; min-height:36px; margin:0; padding:4px 0; border:0; background:none; color:var(--shell-muted); font-size:12px; cursor:pointer; }
+body .study-filter-toggle::before { content:""; width:12px; height:10px; background:linear-gradient(currentColor,currentColor) center top / 12px 1px no-repeat,linear-gradient(currentColor,currentColor) center / 8px 1px no-repeat,linear-gradient(currentColor,currentColor) center bottom / 4px 1px no-repeat; }
+body .study-filter-toggle[aria-expanded="true"] { color:var(--shell-accent); font-weight:600; }
+body #studyLibraryFilters { grid-column:1 / -1; padding:12px 0 2px; border:0; margin:0; background:none; }
+body #studyLibraryFilters:not(.filters-expanded) { display:none; }
+body #studyLibraryFilters.filters-expanded { display:flex; align-items:end; gap:14px; }
+body #studyLibraryFilters label { flex:0 1 180px; min-width:0; }
+body #studyLibraryFilters .study-text { min-height:40px; }
+body .study-card.note,body .interview-question-card { padding:12px 16px 6px; margin-bottom:8px; }
+body .study-card-meta { gap:10px; margin-bottom:6px; }
+body .study-question { padding:0 0 8px; line-height:1.7; }
+body .study-card-footer { padding-top:3px; gap:8px; align-items:center; }
+body .study-card-footer button { min-height:32px; padding:5px 2px; }
+body .study-card-footer > div { gap:12px; }
+body .study-card.note:hover { transform:none; }
+body .study-quiz-sources { display:flex; gap:8px; }
+body .study-quiz-sources > button { min-width:150px; padding:10px 14px; border-radius:7px; }
+body .study-quiz-sources strong { flex-direction:row; align-items:center; gap:18px; font-size:13px; }
+body .study-quiz-sources strong small { font-size:11px; }
+body .quiz-config { gap:12px; padding:16px 0; }
+body .study-quiz-card { padding:18px 20px; margin-bottom:10px; }
+body .study-quiz-card h3 { margin-bottom:12px; }
+body .interview-company-layout { grid-template-columns:180px minmax(0,1fr); gap:22px; }
+body .interview-company-nav { top:78px; max-height:calc(100dvh - 100px); padding:12px 10px; }
+body .interview-nav-title { padding:0 8px 10px; }
+body .interview-nav-title h2 { font-size:14px; }
+body .interview-company-nav button { padding:8px; }
+body .interview-company-head { padding:0 0 12px; }
+body .interview-company-head h2 { font-size:19px; }
+body .interview-company-actions button { min-height:36px; padding:7px 12px; }
+body .interview-search-row { margin-top:12px; }
+body .interview-citations { margin-top:4px; padding-top:6px; }
+body .resource-grid { gap:12px; }
+body .resource-card { padding:16px 18px; }
+body :is(.study-filter-toggle,.study-question,.study-card-footer button):focus-visible { outline:2px solid var(--shell-accent); outline-offset:3px; border-radius:4px; }
+@media (max-width:1100px) {
+    .study-list-bar { grid-template-columns:minmax(0,1fr); column-gap:0; margin-top:4px; }
+    .study-list-bar > .study-pagination.pagination-compact { min-width:0; padding:0 0 4px; }
+    .study-list-bar > #studyLibraryFilters { grid-row:2; padding:4px 0 12px; }
+    body .interview-company-layout { grid-template-columns:160px minmax(0,1fr); gap:18px; }
+}
+@media (max-width:768px) {
+    body .main,body.study-mode .main,body.context-directory .main { padding-top:12px; }
+    body .main-header .search-wrap { margin-top:10px; }
+    body .study-summary { gap:8px; padding:0 0 8px; }
+    body .study-summary-count { gap:8px; }
+    body .study-summary-count strong { font-size:20px; }
+    body .study-summary-actions button { min-height:44px; padding:7px 6px; }
+    .study-list-bar { margin:0 0 6px; }
+    .study-list-bar > .study-list-heading { min-height:44px; gap:14px; }
+    body .study-list-heading :is(.study-filter-toggle,.study-list-tools button) { min-height:44px; }
+    body #studyLibraryFilters.filters-expanded { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    body #studyLibraryFilters label { min-width:0; }
+    body .study-card.note,body .interview-question-card { padding:12px 12px 4px; }
+    body .study-card-meta { gap:8px; }
+    body .study-question { min-height:44px; padding-bottom:8px; }
+    body .study-card-footer { flex-wrap:wrap; }
+    body .study-card-footer > div { gap:10px; margin-left:auto; }
+    body .study-card-footer button { min-height:44px; padding:5px 3px; }
+    body .study-quiz-sources > button { flex:1; min-width:0; padding:10px 12px; min-height:44px; }
+    body .study-quiz-sources strong { gap:8px; }
+    body .quiz-config { padding:12px 0; }
+    body .study-quiz-card { padding:16px 14px; }
+    body .interview-company-layout { display:block; }
+    body .interview-company-actions button { min-height:44px; }
+    body .interview-mobile-tools { padding-bottom:10px; margin-bottom:10px; }
+    body .interview-search-row input { min-height:44px; }
+}

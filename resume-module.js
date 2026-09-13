@@ -82,27 +82,27 @@
         const weak = progress.fuzzy + progress.hard;
         const nextQuestion = data().questions.find(item => !state.mastery[item.id] || ["hard", "fuzzy"].includes(state.mastery[item.id]));
         const nextSource = nextQuestion ? sourceName(nextQuestion.source) : "全部经历";
-        const nextAction = nextQuestion ? `建议先练 ${nextSource} 的「${nextQuestion.question}」` : "所有问题都已练习，继续随机抽查保持状态";
+        const nextAction = nextQuestion ? `${nextSource} · ${nextQuestion.question}` : "本轮已完成";
         return `<section class="prep-start">
-            <div class="prep-start-copy"><span class="prep-kicker">面试练习台</span><h2>从一段经历，开始今天的准备。</h2><p>讲清做了什么、为什么这样做，以及如何验证。</p>
+            <div class="prep-start-copy"><h2>问答练习</h2>
                 <div class="prep-start-actions"><button class="career-primary" onclick="startResumePractice()">开始练习 <span aria-hidden="true">→</span></button><button class="career-secondary" onclick="reviewResumeWeak()">复习薄弱题${weak ? ` · ${weak}` : ""}</button></div></div>
             <div class="prep-progress"><span>练习进度</span><strong>${progress.known}<small> / ${progress.questionTotal}</small></strong><span>道问答已掌握</span><div class="resume-mini-progress"><span style="width:${progress.questionTotal ? Math.round(progress.known / progress.questionTotal * 100) : 0}%"></span></div><div class="prep-progress-stats"><span>薄弱 ${weak}</span><span>清单 ${progress.checked}/${progress.checklistTotal}</span></div><button onclick="setResumePrepTab('checklist')">查看冲刺清单 <span aria-hidden="true">↗</span></button></div>
         </section>
-        <section class="resume-today"><div><span class="prep-kicker">TODAY</span><strong>${escape(nextAction)}</strong><p>建议顺序：口述练习 → 经历深挖 → 模拟问答 → 冲刺核对</p></div><button class="career-secondary" onclick="${nextQuestion ? `practiceResumeQuestion('${nextQuestion.id}')` : "startResumePractice()"}">${nextQuestion ? "去练这道题" : "开始抽查"} →</button></section>
-        <div class="resume-section-heading"><div><h2>按经历准备</h2><p>先练口述，再深入技术细节。</p></div><span class="prep-count">${data().sources.length} 段经历</span></div>
+        <section class="resume-today"><div><span class="prep-kicker">${nextQuestion ? '待练' : '进度'}</span><strong>${escape(nextAction)}</strong></div><button class="career-secondary" onclick="${nextQuestion ? `practiceResumeQuestion('${nextQuestion.id}')` : "startResumePractice()"}">${nextQuestion ? "继续练习" : "开始抽查"} →</button></section>
+        <div class="resume-section-heading"><h2>按经历准备</h2><span class="prep-count">${data().sources.length} 段经历</span></div>
         <section class="resume-source-list">${data().sources.map((source, index) => {
             const questions = data().questions.filter(item => item.source === source.id);
             const known = questions.filter(item => state.mastery[item.id] === "known").length;
             const percent = questions.length ? Math.round(known / questions.length * 100) : 0;
             return `<article class="resume-source-row"><span class="prep-source-number">0${index + 1}</span><div class="resume-source-main"><h3>${escape(source.shortName)}</h3><p>${escape(source.role)} · ${escape(source.summary)}</p></div><div class="resume-source-meter"><span>已掌握 ${known}/${questions.length}</span><div class="resume-mini-progress"><span style="width:${percent}%"></span></div></div><button class="career-secondary" onclick="openResumeSource('${source.id}')">${source.id === "resume" ? "练自我介绍" : "继续练习"} →</button></article>`;
         }).join("")}</section>
-        <div class="prep-bottom-note"><span>需要核对原文或补充内容？</span><button onclick="setResumePrepTab('sources')">查看原始资料 ↗</button></div>`;
+        `;
     }
 
     function renderPitches() {
         const pitches = data().pitches.filter(item => state.source === "all" || item.source === state.source);
         return `${renderSourceFilters()}
-            <div class="resume-section-heading"><div><h2>先讲顺，再压缩时间</h2></div><small>选一个时长，尝试脱稿复述</small></div>
+            <div class="resume-section-heading"><div><h2>口述练习</h2></div><small>选择练习时长</small></div>
             <section class="resume-pitch-list">${pitches.map(item => `
                 <article class="resume-pitch-card">
                     <header><div><span class="resume-duration">${item.duration}</span><span class="resume-source-chip">${sourceName(item.source)}</span></div><button onclick="copyResumePitch('${item.id}')">复制话术</button></header>
@@ -113,7 +113,7 @@
 
     function renderStories() {
         const stories = data().stories.filter(item => state.source === "all" || item.source === state.source);
-        return `<div class="resume-section-heading"><div><h2>把经历讲清楚</h2><p>背景 → 目标 → 行动 → 结果，点击展开一段故事。</p></div></div>${renderSourceFilters(["zhishu", "yonyou", "beiruan"])}
+        return `<div class="resume-section-heading"><h2>经历深挖</h2></div>${renderSourceFilters(["zhishu", "yonyou", "beiruan"])}
             <section class="resume-story-list">${stories.map(item => `
                 <details class="resume-story-card" ${state.openStory === item.id ? "open" : ""} ontoggle="rememberResumeStory('${item.id}',this.open)">
                     <summary><span class="resume-source-chip">${sourceName(item.source)}</span><h3>${escape(item.title)}</h3><span class="prep-story-toggle" aria-hidden="true">＋</span></summary>
@@ -152,7 +152,7 @@
 
     function renderQuestions() {
         const questions = filteredQuestions();
-        return `<div class="resume-section-heading"><div><h2>模拟问答</h2><p>先口答或记录自己的回答，再看参考；涉及实现细节时，用真实代码和测试记录核对。</p></div><button class="career-primary" onclick="randomResumeQuestion()" ${questions.length ? "" : "disabled"}>随机抽题 ↗</button></div>
+        return `<div class="resume-section-heading"><h2>模拟问答</h2><button class="career-primary" onclick="randomResumeQuestion()" ${questions.length ? "" : "disabled"}>随机抽题 ↗</button></div>
             <section class="prep-question-filters">${renderSourceFilters()}<div class="prep-question-toolbar"><label class="career-search"><span aria-hidden="true">⌕</span><input type="search" aria-label="搜索简历问题" value="${escape(state.search)}" placeholder="搜索问题、技术词…" oninput="filterResumeQuestions(this.value)"></label><select aria-label="按掌握程度筛选" onchange="setResumePrepMastery(this.value)">${[["all", "全部掌握程度"], ["new", "未练习"], ["weak", "薄弱题（不会 / 模糊）"], ["known", "已掌握"]].map(([id, label]) => `<option value="${id}" ${state.level === id ? "selected" : ""}>${label}</option>`).join("")}</select><button class="career-text" onclick="resetResumeFilters()">清空筛选</button></div></section>
             <div class="prep-results-count" id="resume-result-count" role="status">${questions.length} 道问题</div><section class="resume-question-list" id="resume-question-results">${questionCardsHTML(questions)}</section>`;
     }
@@ -161,7 +161,7 @@
         const groups = {};
         data().checklist.forEach(item => { (groups[item.group] ||= []).push(item); });
         const progress = getProgress();
-        return `<section class="resume-check-head"><div><span>面试冲刺</span><h2>完成一项，勾掉一项</h2><p>进度会保存在本机；登录后可随其他数据同步。</p></div><strong>${progress.checked}/${progress.checklistTotal}</strong></section>
+        return `<section class="resume-check-head"><h2>冲刺清单</h2><strong>${progress.checked}/${progress.checklistTotal}</strong></section>
             <div class="resume-check-progress"><span style="width:${Math.round(progress.checked / progress.checklistTotal * 100)}%"></span></div>
             <section class="resume-check-groups">${Object.entries(groups).map(([group, items]) => `
                 <article><h3>${escape(group)}<span>${items.filter(item => state.checklist[item.id]).length}/${items.length}</span></h3>
@@ -170,7 +170,7 @@
     }
 
     function renderSources() {
-        return `<section class="resume-library-head"><span>REFERENCE LIBRARY</span><h2>原始资料库</h2><p>PDF 已更新为本次提供的最新简历。DOCX 保留原准备手册，涉及测试数量和职责时，以最新简历与对应代码、运行记录核对。</p></section>
+        return `<section class="resume-library-head"><h2>原始资料库</h2><p>实现细节、职责和测试结果，请结合最新简历、对应代码与运行记录核对。</p></section>
             <section class="resume-library-grid">${data().sources.map(source => `
                 <a class="resume-library-card" href="${source.file}" target="_blank" rel="noopener">
                     <div><span>${source.icon}</span><i>${source.fileType}</i></div>

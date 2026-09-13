@@ -6,7 +6,7 @@
     <meta name="description" content="可离线使用、支持多端同步的 Java 后端面试复习工具">
     <meta name="theme-color" content="#f3f5f2">
     <script src="./workspace-theme.js?v=2"></script>
-    <meta name="app-version" content="34">
+    <meta name="app-version" content="35">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Java 面试复习工作台 · 题库与笔记</title>
@@ -16,8 +16,8 @@
     <link rel="stylesheet" href="./recruitment.css?v=4">
     <script src="./sync-config.js?v=3"></script>
     <script src="./resume-data.js?v=2"></script>
-    <script src="./resume-module.js?v=4"></script>
-    <script src="./recruitment-module.js?v=12"></script>
+    <script src="./resume-module.js?v=5"></script>
+    <script src="./recruitment-module.js?v=13"></script>
     <script src="./data/question-bank.js?v=3"></script>
     <script src="./data/question-curation.js?v=1"></script>
     <script src="./study-core.js?v=3"></script>
@@ -790,10 +790,10 @@ pre code { background: transparent; color: inherit; padding: 0; }
 }
 
 </style>
-    <link rel="stylesheet" href="./career-workspace.css?v=2">
+    <link rel="stylesheet" href="./career-workspace.css?v=3">
     <link rel="stylesheet" href="./study-workspace.css?v=3">
-    <link rel="stylesheet" href="./workspace-shell.css?v=3">
-    <link rel="stylesheet" href="./workspace-controls.css?v=1">
+    <link rel="stylesheet" href="./workspace-shell.css?v=4">
+    <link rel="stylesheet" href="./workspace-controls.css?v=2">
     <link rel="stylesheet" href="./workspace-theme.css?v=3">
 </head>
 <body>
@@ -850,7 +850,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
 <main class="main" id="mainContent">
     <div class="main-header">
         <h1 id="mainTitle">Java 后端知识点笔记</h1>
-        <p class="subtitle" id="mainSubtitle">题目 + 答案，分类整理，快速查找</p>
+        <p class="subtitle" id="mainSubtitle"></p>
         <p class="stats">共 <span id="totalCount">0</span> 条笔记，当前显示 <span id="visibleCount">0</span> 条
             <button class="toggle-all-btn" id="collapseAllBtn" title="折叠全部答案">📕 全部折叠</button>
             <button class="toggle-all-btn" id="expandAllBtn" title="展开全部答案">📖 全部展开</button>
@@ -986,7 +986,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
         </div>
 
         <div class="backup-section">
-            <div class="app-version-row"><span id="appVersion">当前版本 34</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
+            <div class="app-version-row"><span id="appVersion">当前版本 35</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
             <h4>本地备份</h4>
             <p>导出文件可用于迁移设备，即使未配置云同步也能使用。</p>
             <div class="btn-row backup-actions">
@@ -1502,7 +1502,7 @@ function renderNotes(filtered) {
     // ===== 秋招专区 =====
     if (showRecruitment) {
         titleEl.textContent = "秋招专区";
-        subtitleEl.textContent = "找岗位、跟进投递，把求职安排在一处。";
+        subtitleEl.textContent = "";
         statsEl.style.display = "none";
         container.innerHTML = renderRecruitment();
         document.getElementById("topbarTitle").textContent = "2027 届秋招";
@@ -1512,7 +1512,7 @@ function renderNotes(filtered) {
     // ===== 简历准备中心 =====
     if (showResumePrep) {
         titleEl.textContent = "简历准备";
-        subtitleEl.textContent = "围绕你的项目与实习，练好每一次面试表达。";
+        subtitleEl.textContent = "";
         statsEl.style.display = "none";
         container.innerHTML = renderResumePrep();
         document.getElementById("topbarTitle").textContent = "简历准备中心";
@@ -1523,7 +1523,7 @@ function renderNotes(filtered) {
     // ===== 面经专区模式 =====
     if (showInterviewExp) {
         titleEl.textContent = "📝 面经专区";
-        subtitleEl.textContent = "各大平台面试经验，点击跳转查看";
+        subtitleEl.textContent = "";
 
         let html = `<div class="resource-grid">`;
         INTERVIEW_EXP.forEach(r => {
@@ -1547,8 +1547,9 @@ function renderNotes(filtered) {
 
     // ===== 外部资源模式 =====
     if (showResources) {
-        titleEl.textContent = "🔗 外部刷题资源";
-        subtitleEl.textContent = "优质面试/学习网站，点击跳转";
+        titleEl.textContent = "学习资源";
+        statsEl.style.display = "none";
+        subtitleEl.textContent = "";
 
         let html = `<div class="resource-grid">`;
         RESOURCES.forEach(r => {
@@ -1573,7 +1574,7 @@ function renderNotes(filtered) {
     // ===== 随机抽查模式 =====
     if (showQuiz) {
         titleEl.textContent = "🎲 随机抽查";
-        subtitleEl.textContent = "先自己想一想，再点击显示答案";
+        subtitleEl.textContent = "";
 
         let html = `<div class="quiz-banner">
             <div>
@@ -1613,13 +1614,13 @@ function renderNotes(filtered) {
     // ===== 正常模式 =====
     if (showTrash) {
         titleEl.textContent = "🗑️ 回收站";
-        subtitleEl.textContent = "已删除的笔记，可恢复或永久删除";
+        subtitleEl.textContent = "";
     } else if (showMarkedOnly) {
         titleEl.textContent = "⭐ 已标记的笔记";
-        subtitleEl.textContent = "你标记为需要重点复习的题目";
+        subtitleEl.textContent = "";
     } else {
         titleEl.textContent = "Java 后端知识点笔记";
-        subtitleEl.textContent = "题目 + 答案，分类整理，快速查找";
+        subtitleEl.textContent = "";
     }
 
     // 回收站顶部操作栏
@@ -2392,11 +2393,11 @@ function init() {
     if (syncSession && isSyncConfigured()) syncNow();
 }
 </script>
-<script src="./study-module.js?v=7"></script>
-<script src="./interview-module.js?v=4"></script>
-<script src="./app-updates.js?v=34"></script>
+<script src="./study-module.js?v=8"></script>
+<script src="./interview-module.js?v=5"></script>
+<script src="./app-updates.js?v=35"></script>
 <script src="./workspace-controls.js?v=1"></script>
-<script src="./workspace-shell.js?v=3"></script>
+<script src="./workspace-shell.js?v=4"></script>
 <script>initStudyWorkspace(); init(); initWorkspaceShell();</script>
 </body>
 </html>
