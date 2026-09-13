@@ -175,21 +175,31 @@ function studyRatings(note, index) {
     return `<div class="study-ratings" aria-label="掌握程度">${['hard', 'fuzzy', 'known'].map(level =>
         `<button data-study="rate" data-id="${studyEsc(note.id)}" data-level="${level}"${index == null ? '' : ` data-index="${index}"`} class="${mastery[note.id]?.level === level ? 'selected ' : ''}${level}" aria-pressed="${mastery[note.id]?.level === level}">${studyLevelNames[level]}</button>`).join('')}</div>`;
 }
+function studyCardIcon(name) {
+    const paths = {
+        chevron: '<path d="m6 9 6 6 6-6"/>',
+        more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+        mark: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
+        note: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>'
+    };
+    return `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]}</svg>`;
+}
 function studyCard(n) {
     const isBank = studySource === 'bank' && !showTrash;
     const copied = getPersonalNotes().some(u => u.sourceId === n.id || u.id === n.id);
     const level = mastery[n.id]?.level || 'new';
     const expanded = !collapsedNotes.has(n.id);
     return `<article class="study-card note${markedIds.has(n.id) ? ' marked' : ''}" id="note-${studyEsc(n.id)}">
-        <div class="study-card-meta"><span class="study-number">${studyEsc(n.number || n.sourceNumber || (n.id.startsWith('custom-bank-') ? '自建题目' : '个人笔记'))}</span><span>${studyEsc(n.category)}</span>${n.priority ? `<span class="study-priority">${studyEsc(n.priority)}</span>` : ''}<span class="study-status ${level}">${studyLevelNames[level]}</span></div>
-        <button class="study-question" data-study="expand" data-id="${studyEsc(n.id)}" aria-expanded="${expanded}" aria-controls="answer-${studyEsc(n.id)}"><span>${studyEsc(n.question)}</span><span class="study-chevron">${expanded ? '−' : '+'}</span></button>
-        <div class="study-answer answer${expanded ? '' : ' collapsed'}" id="answer-${studyEsc(n.id)}">${studyMarkdown(n.answer)}${studyRatings(n)}</div>
-        ${showTrash && window.QUESTION_BANK_CURATION?.reasons[n.id] ? `<p class="study-linked">Java 后端复习整理：${studyEsc(window.QUESTION_BANK_CURATION.reasons[n.id])}</p>` : ''}
-        <footer class="study-card-footer"><span>${showTrash ? (n.id.startsWith('bank-') ? '内置题库' : n.id.startsWith('custom-bank-') ? (n.company ? '公司面经 · ' + studyEsc(n.company) : '自建题库') : '我的笔记') : isBank ? studyEsc(n.kind || '我的笔记 · 自动收录') : n.sourceId ? '来自题库' : n.id.startsWith('user-') ? '我的记录' : '原有笔记'}</span><div>
+        <h3 class="study-card-heading"><button class="study-question" data-study="expand" data-id="${studyEsc(n.id)}" aria-expanded="${expanded}" aria-controls="answer-${studyEsc(n.id)}"><span class="study-question-title">${studyEsc(n.question)}</span><span class="study-status ${level}">${studyLevelNames[level]}</span><span class="study-chevron">${studyCardIcon('chevron')}</span></button></h3>
+        <div class="study-card-footer"><div class="study-card-meta"><span class="study-number">${studyEsc(n.number || n.sourceNumber || (n.id.startsWith('custom-bank-') ? '自建题目' : '个人笔记'))}</span><span>${studyEsc(n.category)}</span>${n.priority ? `<span class="study-priority" title="${studyEsc({ P0: 'P0 · 先掌握', P1: 'P1 · 第二轮', P2: 'P2 · 按岗位补充' }[n.priority] || n.priority)}">${studyEsc(n.priority)}</span>` : ''}</div><div class="study-card-actions">
             ${showTrash ? `<button data-action="restore" data-id="${studyEsc(n.id)}">恢复</button><button data-action="perm-delete" data-id="${studyEsc(n.id)}">永久删除</button>` : `
-            <button data-study="mark" data-id="${studyEsc(n.id)}" aria-pressed="${markedIds.has(n.id)}" aria-label="${markedIds.has(n.id) ? '取消重点' : '标记重点'}：${studyEsc(n.question)}">${markedIds.has(n.id) ? '★ 已标重点' : '☆ 重点'}</button>
-            ${isBank ? `<button data-study="copy" data-id="${studyEsc(n.id)}">${copied ? '✓ 已存笔记' : '＋ 记入笔记'}</button>${n.id.startsWith('custom-bank-') ? `<button data-study="edit-bank" data-id="${studyEsc(n.id)}">编辑题目</button>` : userNotes.some(u => u.id === n.id) ? `<button data-study="edit" data-id="${studyEsc(n.id)}">编辑笔记</button>` : ''}<button data-action="delete" data-id="${studyEsc(n.id)}">删除</button>` : `<button data-study="edit" data-id="${studyEsc(n.id)}">编辑</button><button data-action="delete" data-id="${studyEsc(n.id)}" title="从我的笔记移到题库" aria-label="删除笔记并移到题库：${studyEsc(n.question)}">删除</button>`}`}
-        </div></footer>
+            <button data-study="mark" data-id="${studyEsc(n.id)}" aria-pressed="${markedIds.has(n.id)}" aria-label="${markedIds.has(n.id) ? '取消重点' : '标记重点'}：${studyEsc(n.question)}">${studyCardIcon('mark')}${markedIds.has(n.id) ? '已标重点' : '重点'}</button>
+            ${isBank ? `<button data-study="copy" data-id="${studyEsc(n.id)}">${studyCardIcon('note')}${copied ? '已存笔记' : '记入笔记'}</button>` : `<button data-study="edit" data-id="${studyEsc(n.id)}">${studyCardIcon('note')}编辑笔记</button>`}
+            <details class="study-card-more"><summary aria-label="更多操作：${studyEsc(n.question)}">${studyCardIcon('more')}<span>更多</span></summary><div class="study-card-menu">
+            ${isBank && n.id.startsWith('custom-bank-') ? `<button data-study="edit-bank" data-id="${studyEsc(n.id)}">编辑题目</button>` : isBank && userNotes.some(u => u.id === n.id) ? `<button data-study="edit" data-id="${studyEsc(n.id)}">编辑笔记</button>` : ''}
+            <button data-action="delete" data-id="${studyEsc(n.id)}"${isBank ? '' : ` title="从我的笔记移到题库" aria-label="删除笔记并移到题库：${studyEsc(n.question)}"`}>${isBank ? '删除题目' : '删除笔记'}</button></div></details>`}
+        </div></div>
+        <div class="study-answer answer${expanded ? '' : ' collapsed'}" id="answer-${studyEsc(n.id)}"><div class="study-card-source">来源：${showTrash ? (n.id.startsWith('bank-') ? '内置题库' : n.id.startsWith('custom-bank-') ? (n.company ? '公司面经 · ' + studyEsc(n.company) : '自建题库') : '我的笔记') : isBank ? studyEsc(n.kind || '我的笔记 · 自动收录') : n.sourceId ? '来自题库' : n.id.startsWith('user-') ? '我的记录' : '原有笔记'}</div>${showTrash && window.QUESTION_BANK_CURATION?.reasons[n.id] ? `<p class="study-linked">Java 后端复习整理：${studyEsc(window.QUESTION_BANK_CURATION.reasons[n.id])}</p>` : ''}${studyMarkdown(n.answer)}${studyRatings(n)}</div>
     </article>`;
 }
 function renderStudyLibrary(filtered) {
@@ -201,7 +211,7 @@ function renderStudyLibrary(filtered) {
     studyPage = Math.min(studyPage, pages);
     const pageItems = filtered.slice((studyPage - 1) * studyPageSize, studyPage * studyPageSize);
     let html = studyHeader();
-    if (!showTrash && !showMarkedOnly) html += `<section class="study-summary" aria-label="学习进度"><div class="study-summary-count"><strong>${pool.length}</strong><span>${bank ? '道题目' : '条笔记'}</span><i></i><span>已掌握 <b>${known}</b></span><span>待巩固 <b>${weak}</b></span></div><div class="study-summary-actions">${bank ? '<button class="study-primary" data-study="add-bank">＋ 添加题目</button><button class="study-secondary" data-study="weak">练习薄弱题</button>' : '<button class="study-primary" data-study="add">＋ 写笔记</button>'}<button class="study-secondary" data-study="quiz" data-source="${studySource}" ${pool.length ? '' : 'disabled'}>${bank ? '开始抽查' : '复习笔记'} →</button></div></section>`;
+    if (!showTrash && !showMarkedOnly) html += `<section class="study-summary" aria-label="学习进度"><div class="study-summary-count"><span>共 <strong>${pool.length}</strong> ${bank ? '道题目' : '条笔记'}</span><span>已掌握 <b>${known}</b></span><span>待巩固 <b>${weak}</b></span></div><div class="study-summary-actions">${bank ? '<button class="study-text" data-study="add-bank">＋ 添加题目</button><button class="study-secondary" data-study="weak">练习薄弱题</button>' : '<button class="study-secondary" data-study="add">＋ 写笔记</button>'}<button class="study-primary" data-study="quiz" data-source="${studySource}" ${pool.length ? '' : 'disabled'}>${bank ? '开始抽查' : '复习笔记'} →</button></div></section>`;
     if (studyLinkedIds && !showTrash) html += `<div class="study-linked">面经关联：${studyEsc(studyLinkedTitle)}<button data-study="clear">查看全部题库 ×</button></div>`;
     html += `<div class="study-list-bar"><div class="study-list-heading"><h2>${showTrash ? '已删除' : showMarkedOnly ? '已标记' : activeCategory !== 'all' ? studyEsc(activeCategory) : bank ? '全部题目' : '全部笔记'} <span>${filtered.length}</span></h2>${!showTrash ? studyFilterToggle() : ''}${studyAnswerToggle(filtered)}</div>${filtered.length ? renderStudyPagination(filtered.length, 'top') : ''}${!showTrash ? studyFilters() : ''}</div>`;
     if (showTrash && filtered.length) html += '<button class="study-secondary" onclick="emptyTrash()">清空回收站</button>';
@@ -342,6 +352,18 @@ addNote = function() {
 };
 function initStudyWorkspace() {
     getStudyPool('bank').forEach(n => collapsedNotes.add(n.id));
+    // Native disclosures retain keyboard support; dismiss menus without changing study state.
+    document.addEventListener('click', e => {
+        document.querySelectorAll('.study-card-more[open]').forEach(menu => {
+            if (!menu.contains(e.target) || e.target.closest('button')) menu.open = false;
+        });
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        document.querySelectorAll('.study-card-more[open]').forEach(menu => {
+            menu.open = false; menu.querySelector('summary').focus();
+        });
+    });
     document.querySelectorAll('[data-study-nav]').forEach(b => b.addEventListener('click', () => openStudy(b.dataset.studyNav)));
     document.getElementById('notesContainer').addEventListener('click', e => {
         const btn = e.target.closest('[data-study]'); if (!btn) return;
@@ -363,7 +385,9 @@ function initStudyWorkspace() {
         else if (action === 'expand') {
             const expanded = collapsedNotes.has(id);
             expanded ? collapsedNotes.delete(id) : collapsedNotes.add(id);
-            btn.setAttribute('aria-expanded', expanded); btn.querySelector('.study-chevron').textContent = expanded ? '−' : '+';
+            btn.setAttribute('aria-expanded', expanded);
+            const chevron = btn.querySelector('.study-chevron');
+            if (!chevron.querySelector('svg')) chevron.textContent = expanded ? '−' : '+';
             document.getElementById('answer-' + id).classList.toggle('collapsed', !expanded);
             const toggle = document.querySelector('.study-list-heading .study-list-tools');
             if (toggle) toggle.outerHTML = studyAnswerToggle(showInterviewExp ? getInterviewFilteredQuestions() : getFilteredNotes());

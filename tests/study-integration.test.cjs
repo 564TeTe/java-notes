@@ -138,7 +138,7 @@ test('deleting a personal note moves it to the bank and preserves content and st
     run('quizSource="personal";');
     assert.equal(run('getQuizPool().length'), 0);
     run('studySource="bank";');
-    assert.ok(run('studyCard(getStudyPool().find(n=>n.id==="user-move")).includes("＋ 记入笔记")'));
+    assert.match(run('studyCard(getStudyPool().find(n=>n.id==="user-move"))'), /data-study="copy"[^>]*>[\s\S]*?记入笔记<\/button>/);
     run('copyStudyNote("user-move"); copyStudyNote("user-move");');
     assert.equal(run('getPersonalNotes().length'), 1);
     assert.equal(run('userNotes.length'), 1);

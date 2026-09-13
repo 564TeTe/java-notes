@@ -6,15 +6,15 @@ html { color-scheme: light; }
 
 /* Daylight: neutral paper surfaces, readable labels, restrained green accents. */
 html:not([data-theme="dark"]) {
-    --day-bg:#f3f5f2;
+    --day-bg:#f5f6f3;
     --day-panel:#ffffff;
     --day-soft:#f7f9f6;
-    --day-line:#dce3dc;
-    --day-ink:#253a30;
-    --day-body:#405348;
-    --day-muted:#596b5f;
-    --day-accent:#28654b;
-    --day-selected:#e7f0e9;
+    --day-line:#e1e7e2;
+    --day-ink:#22312d;
+    --day-body:#39463f;
+    --day-muted:#66736b;
+    --day-accent:#2f5d50;
+    --day-selected:#e7efe9;
 }
 html:not([data-theme="dark"]) body {
     --primary:var(--day-accent); --primary-light:var(--day-selected);
@@ -56,7 +56,7 @@ html:not([data-theme="dark"]) body .study-ratings .fuzzy.selected { background:#
 html:not([data-theme="dark"]) body :is(.study-status.hard,.study-ratings .hard.selected) { color:#a34732; }
 html:not([data-theme="dark"]) body .study-ratings .hard.selected { background:#fbeee8; border-color:#d5aa98; }
 html:not([data-theme="dark"]) body .study-priority { color:#785c26; background:#f7f0df; }
-html:not([data-theme="dark"]) body .study-card.note.marked { background:#fffdf7; border-left-color:#b58a3c; }
+html:not([data-theme="dark"]) body .study-card.note.marked { background:var(--day-panel); border-color:var(--day-accent); }
 html:not([data-theme="dark"]) body :is(.study-answer pre,.study-answer code,.resume-answer pre,.resume-answer code) { background:#f0f4f0; color:#344d3e; }
 html:not([data-theme="dark"]) body :is(.study-answer a,.resource-card a,.interview-citations a,.career-text) { color:var(--day-accent); }
 html:not([data-theme="dark"]) body :is(.page-range span,.page-current span,.page-settings summary,.study-chevron,.study-empty>span,.study-quiz-sources>button>span,.interview-company-head p,.prep-progress small,.prep-source-number,.recruit-overview p,.recruit-overview-stats span,.recruit-overview-stats small,.recruit-toggle button) { color:var(--day-muted); }
@@ -127,7 +127,7 @@ html[data-theme="dark"] body :is(.study-status.known,.study-ratings .known.selec
 html[data-theme="dark"] body :is(.study-status.hard,.study-ratings .hard.selected) { color:#efb49b; }
 html[data-theme="dark"] body .study-ratings .hard.selected { background:#3b2c25; border-color:#a67c62; }
 html[data-theme="dark"] body :is(.study-status.fuzzy,.study-ratings .fuzzy.selected) { color:#e3c686; }
-html[data-theme="dark"] body .study-card.note.marked { border-left-color:#c5a566; }
+html[data-theme="dark"] body .study-card.note.marked { border-color:var(--night-accent); }
 html[data-theme="dark"] body button:disabled { opacity:.45; }
 html[data-theme="dark"] body :is(.workspace-marked-link,.back-top,.interview-company-nav,.recruit-toolbar form,.recruit-toggle button,.recruit-panel-head button,.icon-close,.sync-status-card,.sync-status-icon,.res-tag,.resume-mini-progress,.page-settings[open]) { background:var(--night-raised); color:var(--night-muted); border-color:var(--night-line); }
 html[data-theme="dark"] body :is(.interview-company-nav button,.page-range,.page-current,.recruit-kicker,.recruit-hero p,.recruit-hero strong,.recruit-stats strong,.recruit-panel-head>div>span) { color:var(--night-muted); }
