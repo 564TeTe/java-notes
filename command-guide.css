@@ -1,0 +1,60 @@
+/* A quiet reference reader, sharing the workspace's light and dark tokens. */
+.learning-resource-tabs { display:flex; gap:24px; border-bottom:1px solid var(--border); margin-bottom:18px; }
+.learning-resource-tabs button { padding:10px 1px 13px; border:0; border-bottom:2px solid transparent; background:none; color:var(--text-muted); font:inherit; font-size:14px; cursor:pointer; }
+.learning-resource-tabs button[aria-pressed="true"] { border-bottom-color:var(--primary); color:var(--text); font-weight:700; }
+.command-guide { min-width:0; color:var(--text); }
+.command-guide button { font:inherit; cursor:pointer; }
+.guide-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.guide-modes { display:flex; gap:3px; padding:3px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; }
+.guide-modes button { min-height:36px; border:0; padding:6px 14px; background:none; border-radius:5px; color:var(--text-muted); font-size:13px; white-space:nowrap; }
+.guide-modes button[aria-pressed="true"] { background:var(--primary-light); color:var(--primary); font-weight:700; }
+.guide-search { width:300px; max-width:100%; }
+.guide-search .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.guide-search input { width:100%; height:42px; padding:9px 12px; border:1px solid var(--border); border-radius:7px; font:inherit; font-size:13px; }
+.guide-reading-note { display:flex; align-items:center; flex-wrap:wrap; gap:6px 16px; margin:12px 0 20px; color:var(--text-muted); font-size:12px; }
+.guide-reading-note button { padding:4px 0; border:0; background:none; color:var(--primary); font-size:12px; }
+.guide-downloads { position:relative; margin-left:auto; }
+.guide-downloads summary { padding:5px 0; cursor:pointer; }
+.guide-downloads a { display:block; padding:8px; color:var(--primary); background:var(--card-bg); }
+.guide-downloads[open] { padding:0 10px 8px; border:1px solid var(--border); border-radius:6px; }
+.guide-result-count { display:flex; justify-content:space-between; margin:0 0 12px; color:var(--text-muted); font-size:12px; }
+.guide-core-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.guide-core-card { min-width:0; padding:14px 18px 17px; border:1px solid var(--border); border-radius:9px; background:var(--card-bg); }
+.guide-core-meta { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:11px; color:var(--text-muted); }
+.guide-core-card h2 { font-size:14px; font-weight:600; margin:4px 0 12px; }
+.command-guide .guide-copy { padding:5px 8px; border:1px solid var(--border); border-radius:5px; background:var(--card-bg); color:var(--text-muted); font-size:11px; white-space:nowrap; }
+.command-guide .guide-command { display:block; width:100%; padding:10px 12px; border:0; border-radius:5px; background:var(--bg); color:var(--text); text-align:left; line-height:1.6; }
+.command-guide code { font-family:Consolas,"Cascadia Code",monospace; font-size:12px; overflow-wrap:anywhere; }
+.guide-reading-layout { display:grid; grid-template-columns:214px minmax(0,1fr); gap:24px; align-items:start; }
+.guide-directory { position:sticky; top:74px; max-height:calc(100vh - 100px); overflow:auto; padding-right:12px; border-right:1px solid var(--border); scrollbar-width:thin; }
+.guide-directory>p { margin:0 0 9px; font-size:12px; font-weight:700; }.guide-directory>p span { float:right; color:var(--text-muted); font-weight:400; }
+.guide-directory button { display:block; width:100%; padding:9px 10px; border:0; border-radius:5px; text-align:left; line-height:1.55; color:var(--text-muted); background:none; font-size:12px; }
+.guide-directory button[aria-current="true"] { background:var(--primary-light); color:var(--primary); font-weight:700; }
+.guide-mobile-directory { display:none; }
+.guide-article { min-width:0; padding:24px 28px; border:1px solid var(--border); border-radius:9px; background:var(--card-bg); scroll-margin-top:76px; }
+.guide-article header { border-bottom:1px solid var(--border); padding-bottom:18px; margin-bottom:22px; }
+.guide-article header>span { color:var(--text-muted); font-size:11px; }.guide-article header>h2 { font-size:23px; line-height:1.5; margin:8px 0 0; }
+.guide-prose { font-size:13px; line-height:1.9; overflow-wrap:anywhere; }.guide-prose p { margin:12px 0; }.guide-prose h3 { font-size:16px; margin:26px 0 12px; }.guide-prose h4 { font-size:14px; margin:22px 0 10px; }
+.guide-prose a { color:var(--primary); text-underline-offset:3px; }.guide-prose ul,.guide-prose ol { padding-left:23px; }.guide-prose li { margin:5px 0; }.guide-prose hr { border:0; border-top:1px solid var(--border); margin:22px 0; }
+.guide-prose blockquote { margin:16px 0; padding:10px 16px; border-left:3px solid var(--primary); background:var(--bg); color:var(--text-muted); }
+.command-guide .guide-inline-code { display:inline; border:0; border-radius:3px; padding:2px 4px; background:var(--bg); color:var(--text); text-align:left; line-height:inherit; }
+.guide-inline-code:hover,.guide-command:hover { outline:1px solid var(--primary); }.command-guide button:focus-visible,.command-guide select:focus-visible,.guide-table-scroll:focus-visible,.learning-resource-tabs button:focus-visible { outline:2px solid var(--primary); outline-offset:3px; }
+.guide-reference { border:0; padding:0 2px; color:var(--primary); background:none; font-size:10px !important; vertical-align:super; }
+.guide-code-block { overflow:hidden; border:1px solid var(--border); border-radius:7px; margin:16px 0; background:var(--bg); }
+.guide-code-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:6px 12px; border-bottom:1px solid var(--border); color:var(--text-muted); font:11px Consolas,monospace; }
+.guide-code-block pre { margin:0; padding:14px; overflow-x:auto; line-height:1.7; color:var(--text); background:transparent; white-space:pre; }
+.guide-code-block pre code { background:transparent; color:inherit; padding:0; }
+.guide-table-scroll { max-width:100%; overflow-x:auto; margin:16px 0; border:1px solid var(--border); border-radius:6px; }
+.guide-prose table { width:100%; border-collapse:collapse; text-align:left; font-size:12px; }.guide-prose th { background:var(--bg); font-weight:600; }.guide-prose th,.guide-prose td { padding:10px 12px; vertical-align:top; border-bottom:1px solid var(--border); min-width:110px; }.guide-prose tr:last-child td { border-bottom:0; }
+.guide-empty { text-align:center; padding:70px 20px; border:1px dashed var(--border); border-radius:8px; }.guide-empty h2 { font-size:18px; }.guide-empty p { color:var(--text-muted); font-size:13px; }.guide-empty button { padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--card-bg); color:var(--primary); }
+.guide-copy-status { position:fixed; right:24px; bottom:28px; z-index:200; padding:8px 15px; color:var(--card-bg); background:var(--text); border-radius:6px; font-size:12px; pointer-events:none; }.guide-copy-status:empty { display:none; }
+.guide-site-meta { display:flex; align-items:center; justify-content:space-between; }
+@media(max-width:768px) {
+    .learning-resource-tabs { margin-bottom:14px; }.learning-resource-tabs button { min-height:44px; }
+    .guide-toolbar { align-items:stretch; flex-direction:column; gap:10px; }.guide-modes { align-self:flex-start; }.guide-modes button { min-height:40px; padding:6px 12px; }.guide-search { width:100%; }.guide-search input { height:44px; }
+    .guide-reading-note { font-size:11px; margin:10px 0 16px; gap:3px 12px; }.guide-reading-note button,.guide-downloads summary { min-height:40px; }.guide-reading-note>span { width:100%; }
+    .guide-core-grid { grid-template-columns:minmax(0,1fr); }.guide-core-card { padding:10px 14px 14px; }.command-guide .guide-copy { min-height:40px; min-width:48px; }.guide-core-card h2 { margin-top:0; }
+    .guide-result-count { font-size:11px; }.guide-reading-layout { display:block; }.guide-directory { display:none; }.guide-mobile-directory { display:flex; align-items:center; gap:12px; margin-bottom:12px; font-size:12px; }.guide-mobile-directory label { white-space:nowrap; }.guide-mobile-directory select { min-width:0; flex:1; height:44px; padding:8px; border:1px solid var(--border); border-radius:6px; font:inherit; }
+    .guide-mobile-directory .choice-control { min-width:0; flex:1; }.guide-mobile-directory .choice-trigger { min-height:44px; }
+    .guide-article { padding:18px 14px; }.guide-article header>h2 { font-size:20px; }.guide-prose { font-size:13px; }.guide-prose th,.guide-prose td { padding:8px; min-width:105px; }.guide-copy-status { bottom:88px; right:16px; left:16px; text-align:center; }
+}
