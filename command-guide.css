@@ -4,19 +4,21 @@
 .learning-resource-tabs button[aria-pressed="true"] { border-bottom-color:var(--primary); color:var(--text); font-weight:700; }
 .command-guide { min-width:0; color:var(--text); }
 .command-guide button { font:inherit; cursor:pointer; }
-.guide-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; }
-.guide-modes { display:flex; gap:3px; padding:3px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; }
+.guide-toolbar { display:grid; grid-template-columns:minmax(0,1fr) 300px auto; align-items:center; gap:12px; margin-bottom:14px; }
+.guide-modes { display:flex; justify-self:start; gap:3px; padding:3px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; }
 .guide-modes button { min-height:36px; border:0; padding:6px 14px; background:none; border-radius:5px; color:var(--text-muted); font-size:13px; white-space:nowrap; }
 .guide-modes button[aria-pressed="true"] { background:var(--primary-light); color:var(--primary); font-weight:700; }
 .guide-search { width:300px; max-width:100%; }
 .guide-search .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 .guide-search input { width:100%; height:42px; padding:9px 12px; border:1px solid var(--border); border-radius:7px; font:inherit; font-size:13px; }
-.guide-reading-note { display:flex; align-items:center; flex-wrap:wrap; gap:6px 16px; margin:12px 0 20px; color:var(--text-muted); font-size:12px; }
-.guide-reading-note button { padding:4px 0; border:0; background:none; color:var(--primary); font-size:12px; }
-.guide-downloads { position:relative; margin-left:auto; }
-.guide-downloads summary { padding:5px 0; cursor:pointer; }
-.guide-downloads a { display:block; padding:8px; color:var(--primary); background:var(--card-bg); }
-.guide-downloads[open] { padding:0 10px 8px; border:1px solid var(--border); border-radius:6px; }
+.guide-help { display:contents; }
+.guide-help>summary { display:flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; font-size:12px; color:var(--text-muted); cursor:pointer; list-style:none; }
+.guide-help>summary::-webkit-details-marker { display:none; }
+.guide-help-content { grid-column:1/-1; padding:10px 12px; border:1px solid var(--border); border-radius:6px; background:var(--card-bg); font-size:12px; line-height:1.7; }
+.guide-help:not([open])>.guide-help-content { display:none; }
+.guide-help-content p { margin:0 0 4px; color:var(--text-muted); }
+.guide-help-content :is(button,a) { display:inline-flex; align-items:center; min-height:40px; margin-right:14px; padding:0; border:0; color:var(--primary); background:none; text-decoration:none; font-size:12px; }
+.guide-mobile-websites { display:none; }
 .guide-result-count { display:flex; justify-content:space-between; margin:0 0 12px; color:var(--text-muted); font-size:12px; }
 .guide-core-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
 .guide-core-card { min-width:0; padding:14px 18px 17px; border:1px solid var(--border); border-radius:9px; background:var(--card-bg); }
@@ -50,11 +52,15 @@
 .guide-copy-status { position:fixed; right:24px; bottom:28px; z-index:200; padding:8px 15px; color:var(--card-bg); background:var(--text); border-radius:6px; font-size:12px; pointer-events:none; }.guide-copy-status:empty { display:none; }
 .guide-site-meta { display:flex; align-items:center; justify-content:space-between; }
 @media(max-width:768px) {
-    .learning-resource-tabs { margin-bottom:14px; }.learning-resource-tabs button { min-height:44px; }
-    .guide-toolbar { align-items:stretch; flex-direction:column; gap:10px; }.guide-modes { align-self:flex-start; }.guide-modes button { min-height:40px; padding:6px 12px; }.guide-search { width:100%; }.guide-search input { height:44px; }
-    .guide-reading-note { font-size:11px; margin:10px 0 16px; gap:3px 12px; }.guide-reading-note button,.guide-downloads summary { min-height:40px; }.guide-reading-note>span { width:100%; }
-    .guide-core-grid { grid-template-columns:minmax(0,1fr); }.guide-core-card { padding:10px 14px 14px; }.command-guide .guide-copy { min-height:40px; min-width:48px; }.guide-core-card h2 { margin-top:0; }
-    .guide-result-count { font-size:11px; }.guide-reading-layout { display:block; }.guide-directory { display:none; }.guide-mobile-directory { display:flex; align-items:center; gap:12px; margin-bottom:12px; font-size:12px; }.guide-mobile-directory label { white-space:nowrap; }.guide-mobile-directory select { min-width:0; flex:1; height:44px; padding:8px; border:1px solid var(--border); border-radius:6px; font:inherit; }
+    .learning-resource-tabs { margin-bottom:10px; }.learning-resource-tabs button { min-height:44px; }.learning-resource-tabs.showing-commands { display:none; }
+    .guide-toolbar { grid-template-columns:minmax(0,1fr) auto; gap:6px 8px; margin-bottom:10px; }.guide-modes { grid-column:1/-1; width:100%; padding:0; border:0; border-bottom:1px solid var(--border); background:none; border-radius:0; gap:0; }.guide-modes button { flex:1; min-height:44px; padding:6px; font-size:12px; border-radius:0; }.guide-modes button[aria-pressed="true"] { background:none; box-shadow:inset 0 -2px var(--primary); }.guide-modes .guide-mobile-websites { display:block; flex:0 0 52px; }
+    .guide-search { width:100%; }.guide-search input { height:44px; font-size:16px; }.guide-help>summary { grid-column:2; grid-row:2; }
+    .guide-core-grid { grid-template-columns:minmax(0,1fr); gap:0; border:1px solid var(--border); border-radius:6px; background:var(--card-bg); overflow:hidden; }
+    .guide-core-card { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:3px 8px; padding:10px 12px 8px; border:0; border-bottom:1px solid var(--border); border-radius:0; background:none; }.guide-core-card:last-child { border-bottom:0; }
+    .guide-core-meta { grid-column:2; grid-row:1; font-size:10px; }.guide-core-meta .guide-copy { display:none; }.guide-core-card h2 { grid-column:1; grid-row:1; margin:0; font-size:13px; line-height:1.5; }
+    .command-guide .guide-command { grid-column:1/-1; min-height:40px; padding:7px 0 3px; background:none; }.command-guide .guide-copy { min-height:40px; min-width:48px; }
+    .guide-result-count { font-size:11px; margin-bottom:8px; }.guide-result-count>span { font-size:0; }.guide-result-count>span::after { content:'点命令复制'; font-size:11px; }
+    .guide-reading-layout { display:block; }.guide-directory { display:none; }.guide-mobile-directory { display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:12px; }.guide-mobile-directory label { white-space:nowrap; }.guide-mobile-directory select { min-width:0; flex:1; height:44px; padding:8px; border:1px solid var(--border); border-radius:6px; font:inherit; }
     .guide-mobile-directory .choice-control { min-width:0; flex:1; }.guide-mobile-directory .choice-trigger { min-height:44px; }
-    .guide-article { padding:18px 14px; }.guide-article header>h2 { font-size:20px; }.guide-prose { font-size:13px; }.guide-prose th,.guide-prose td { padding:8px; min-width:105px; }.guide-copy-status { bottom:88px; right:16px; left:16px; text-align:center; }
+    .guide-article { padding:14px 12px; }.guide-article header { margin-bottom:12px; padding-bottom:12px; }.guide-article header>span { display:none; }.guide-article header>h2 { font-size:18px; margin:0; }.guide-prose { font-size:14px; line-height:1.8; }.guide-prose h3 { margin:20px 0 10px; }.guide-prose th,.guide-prose td { padding:8px; min-width:105px; }.guide-copy-status { bottom:78px; right:16px; left:16px; text-align:center; }
 }

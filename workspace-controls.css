@@ -319,3 +319,40 @@ body .pagination-compact :is(.page-range,.page-current,.page-settings>summary) {
 @media (prefers-reduced-motion:reduce) {
     body.study-mode :is(button,input,select,summary,.choice-trigger),body .study-card .study-chevron svg { transition:none; }
 }
+/* Mobile content starts below one title, with compact controls and full touch targets. */
+@media (max-width:768px) {
+    body .main,body.study-mode .main,body.context-directory .main { padding:8px 12px calc(76px + env(safe-area-inset-bottom)); }
+    body .main-header { margin:0 0 8px; }
+    body .main-header h1 { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+    body .main-header .search-wrap { margin:0; }
+    body:not(.context-directory):not([data-workspace="trash"]) .main-header { margin:0; }
+    .mobile-bottombar { height:calc(56px + env(safe-area-inset-bottom)); }
+    .mobile-bottombar .nav-item { padding:3px 0; }
+    body .study-summary { gap:5px; padding:0 0 8px; }
+    body .study-summary-count { gap:12px; }
+    body .study-summary-actions button { min-height:40px; padding:6px 8px; border-radius:6px; }
+    body .study-list-bar { gap:0; margin-bottom:6px; padding-bottom:0; }
+    body .study-list-heading { margin:0; }
+    body .study-card.note { padding:10px 12px; margin-bottom:8px; border-radius:7px; }
+    body .study-card.note .study-question { font-size:15px; line-height:1.65; }
+    body .study-card.note .study-status.new { display:none; }
+    body .study-card.note .study-card-footer { flex-wrap:nowrap; gap:4px; margin-top:2px; }
+    body .study-card.note .study-card-meta { gap:5px; flex-wrap:wrap; font-size:11px; }
+    body .study-card.note .study-number { font-size:11px; }
+    body .study-card.note .study-card-actions { flex-wrap:nowrap; flex-shrink:0; gap:0; }
+    body .study-card.note .study-card-actions > :is(button[data-study="mark"],button[data-study="copy"],button[data-study="edit"]) { width:40px; min-height:40px; padding:8px; font-size:0; gap:0; }
+    html body .study-card.note button[data-copied="true"] { color:var(--primary); background:var(--primary-light); }
+    body .study-card.note .study-card-more summary { width:40px; min-height:40px; padding:8px; }.study-card.note .study-card-more summary>span { display:none; }
+    body .study-card .study-answer { margin-top:8px; padding-top:10px; line-height:1.8; }
+    body .interview-mobile-tools { gap:8px; margin-bottom:6px; padding-bottom:0; border:0; }
+    body .interview-company-head { padding:0 0 4px; gap:0; border:0; }
+    .interview-company-head h2 { display:none; }
+    .interview-company-actions { width:100%; justify-content:flex-end; }
+    .interview-company-actions button { min-height:40px; padding:6px 10px; }
+    body .interview-search-row { margin:6px 0 0; padding-bottom:0; }
+    .interview-company-main .study-list-heading { margin-top:0; }
+    .interview-question-card { padding:12px; margin-bottom:8px; }
+    .interview-question-card>.study-card-meta { font-size:11px; gap:4px 8px; }
+    .app-update-notice { gap:10px; padding:6px 10px; border-radius:6px; bottom:calc(64px + env(safe-area-inset-bottom)); }
+    .app-update-notice button { min-height:40px; padding:6px 10px; }
+}

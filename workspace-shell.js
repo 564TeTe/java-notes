@@ -50,7 +50,7 @@ function renderWorkspaceShell() {
         button.classList.toggle('active', active);
         button.setAttribute('aria-current', active ? 'page' : 'false');
     });
-    document.getElementById('topbarTitle').textContent = 'Java 面试工作台';
+    document.getElementById('topbarTitle').textContent = document.getElementById('mainTitle').textContent || 'Java 面试工作台';
     const input = document.getElementById('searchInput');
     input.placeholder = showTrash ? '搜索回收站内容' : studySource === 'bank' ? '搜索题目、答案或题号' : '搜索我的笔记';
     input.setAttribute('aria-label', input.placeholder);

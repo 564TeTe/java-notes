@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v39";
+const CACHE_NAME = "java-notes-v40";
 const APP_SHELL = [
     "./command-guide.js", "./command-guide.css", "./data/command-guide.js",
     "./assets/guides/core-40.md", "./assets/guides/java-backend-commands.md",

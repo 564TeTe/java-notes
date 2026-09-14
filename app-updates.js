@@ -1,7 +1,7 @@
 /* Check a resumed mobile page as well as a newly opened page. Never clear user data. */
 const AppUpdates = (() => {
-    const version = document.querySelector('meta[name="app-version"]')?.content || '39';
-    let registration, checking, handled = false, started = false, lastCheck = 0;
+    const version = document.querySelector('meta[name="app-version"]')?.content || '40';
+    let registration, checking, notice, handledVersion, manualVersion, started = false, lastCheck = 0;
     const watched = new WeakSet();
     const isEditing = () => !!document.querySelector('.modal-overlay.open,dialog[open],.recruit-modal-backdrop') ||
         document.activeElement?.matches('input,textarea,[contenteditable="true"]');
@@ -11,17 +11,17 @@ const AppUpdates = (() => {
         url.searchParams.set('updated', Date.now());
         location.replace(url.href);
     }
-    function ready() {
-        if (handled) return;
-        handled = true;
-        if (!isEditing()) { reload(); return; }
-        const notice = document.createElement('div');
+    function ready(nextVersion, manual = false) {
+        if (notice || (handledVersion === nextVersion && !manual)) return;
+        handledVersion = nextVersion; manualVersion = null;
+        notice = document.createElement('div');
         notice.className = 'app-update-notice'; notice.setAttribute('role', 'status');
-        notice.innerHTML = '<span>新版本已就绪，保存后刷新</span><button type="button">刷新</button>';
+        notice.innerHTML = '<span>新版本已就绪</span><button type="button">更新</button><button type="button" data-update-later>稍后</button>';
         notice.querySelector('button').addEventListener('click', () => {
             if (isEditing()) { toast('请先保存或关闭正在编辑的内容'); return; }
             reload();
         });
+        notice.querySelector('[data-update-later]').addEventListener('click', () => { notice.remove(); notice = null; });
         document.body.append(notice);
     }
     function workerVersion(worker) {
@@ -67,9 +67,10 @@ const AppUpdates = (() => {
                     activate(registration);
                 }
                 if (Number(remote.version) > Number(version)) {
+                    if (manual) manualVersion = remote.version;
                     // Covers a stale open document whose controller upgraded while it was suspended.
-                    if (!registration || await workerVersion(registration.active) === remote.version) ready();
-                    else if (manual) toast('正在下载新版，完成后会自动切换');
+                    if (!registration || await workerVersion(registration.active) === remote.version) ready(remote.version, manual);
+                    else if (manual) toast('正在下载新版，完成后可点击更新');
                 } else if (manual) toast('已是最新版本');
             } catch (_) {
                 if (manual) toast('暂时无法检查更新，请联网后重试');
@@ -83,9 +84,9 @@ const AppUpdates = (() => {
         if (started || location.protocol === 'file:') return;
         started = true;
         if ('serviceWorker' in navigator) {
-            const wasControlled = !!navigator.serviceWorker.controller;
             navigator.serviceWorker.addEventListener('controllerchange', async () => {
-                if (wasControlled || Number(await workerVersion(navigator.serviceWorker.controller)) > Number(version)) ready();
+                const nextVersion = await workerVersion(navigator.serviceWorker.controller);
+                if (Number(nextVersion) > Number(version)) ready(nextVersion, manualVersion === nextVersion);
             });
             navigator.serviceWorker.register('./sw.js?release=' + version, {updateViaCache:'none'})
                 .then(r => { registration = r; activate(r); return r.update(); }).catch(() => {});
