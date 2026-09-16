@@ -1,5 +1,6 @@
-const CACHE_NAME = "java-notes-v42";
+const CACHE_NAME = "java-notes-v43";
 const APP_SHELL = [
+    "./resume-claims.js", "./resume-workbench.js", "./resume-workbench.css",
     "./command-guide.js", "./command-guide.css", "./data/command-guide.js",
     "./assets/guides/core-40.md", "./assets/guides/java-backend-commands.md",
     "./data/question-curation.js",

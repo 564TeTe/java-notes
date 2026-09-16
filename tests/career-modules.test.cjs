@@ -13,7 +13,7 @@ function setup(module) {
         showRecruitment: true, URL, FormData, console
     });
     context.window = context;
-    for (const file of module === 'resume' ? ['resume-data.js', 'resume-module.js'] : ['recruitment-module.js']) {
+    for (const file of module === 'resume' ? ['resume-data.js', 'resume-claims.js', 'resume-workbench.js', 'resume-module.js'] : ['recruitment-module.js']) {
         vm.runInContext(fs.readFileSync(path.join(__dirname, '..', file), 'utf8'), context);
     }
     return context;
