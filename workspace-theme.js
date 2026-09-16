@@ -1,21 +1,27 @@
-/* Runs in <head> so a saved night theme is applied before the first paint. */
+/* Apply the saved palette before the first paint, without reloading the page. */
 (() => {
     const key = 'workspace-theme';
     const system = matchMedia('(prefers-color-scheme: dark)');
-    const valid = value => value === 'light' || value === 'dark';
+    const themes = [
+        { id:'light', name:'日间', icon:'☀', color:'#f3f5f2' },
+        { id:'blue', name:'雾蓝', icon:'◈', color:'#eef3f9' },
+        { id:'dark', name:'夜间', icon:'☾', color:'#101214' }
+    ];
+    const valid = value => themes.some(theme => theme.id === value);
+    const nextTheme = value => themes[(themes.findIndex(theme => theme.id === value) + 1) % themes.length];
     let preference = null;
     try { const saved = localStorage.getItem(key); if (valid(saved)) preference = saved; } catch (_) {}
 
     function apply(theme) {
-        const dark = theme === 'dark';
+        const selected = themes.find(item => item.id === theme);
+        const next = nextTheme(theme);
         document.documentElement.dataset.theme = theme;
         const meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.content = dark ? '#101214' : '#f3f5f2';
+        if (meta) meta.content = selected.color;
         document.querySelectorAll('[data-theme-toggle]').forEach(button => {
-            button.textContent = dark ? '☀ 日间' : '☾ 夜间';
-            button.setAttribute('aria-label', dark ? '切换到浅色主题' : '切换到黑色主题');
-            button.setAttribute('aria-pressed', String(dark));
-            button.title = dark ? '切换到浅色主题' : '切换到黑色主题';
+            button.textContent = `${next.icon} ${next.name}`;
+            button.setAttribute('aria-label', `当前${selected.name}，切换到${next.name}主题`);
+            button.title = `当前${selected.name} · 点击切换${next.name}`;
         });
     }
     const current = () => preference || (system.matches ? 'dark' : 'light');
@@ -36,7 +42,7 @@
             button.type = 'button'; button.className = 'theme-toggle';
             button.setAttribute('data-theme-toggle', '');
             button.addEventListener('click', () => {
-                preference = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+                preference = nextTheme(document.documentElement.dataset.theme).id;
                 try { localStorage.setItem(key, preference); } catch (_) {}
                 apply(preference);
             });

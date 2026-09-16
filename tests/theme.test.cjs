@@ -29,6 +29,7 @@ test('saved theme takes precedence over the system before page controls initiali
     const app = setup('light', true);
     assert.equal(app.root.dataset.theme, 'light');
     assert.equal(setup('dark').root.dataset.theme, 'dark');
+    assert.equal(setup('blue', true).root.dataset.theme, 'blue');
     assert.equal(setup(undefined, true).root.dataset.theme, 'dark');
     assert.equal(setup('invalid').root.dataset.theme, 'light');
 });
@@ -38,10 +39,15 @@ test('desktop and mobile switches stay in sync and persist the selected theme', 
     app.events.DOMContentLoaded();
     assert.equal(app.buttons.length, 2);
     app.buttons[0].click();
+    assert.equal(app.root.dataset.theme, 'blue');
+    assert.equal(app.meta.content, '#eef3f9');
+    assert.equal(app.store.get('workspace-theme'), 'blue');
+    assert.ok(app.buttons.every(b => b.attrs['aria-label'].includes('当前雾蓝')));
+    app.buttons[1].click();
     assert.equal(app.root.dataset.theme, 'dark');
     assert.equal(app.meta.content, '#101214');
     assert.equal(app.store.get('workspace-theme'), 'dark');
-    assert.ok(app.buttons.every(b => b.attrs['aria-pressed'] === 'true'));
+    assert.ok(app.buttons.every(b => b.attrs['aria-label'].includes('当前夜间')));
     app.buttons[1].click();
     assert.equal(app.root.dataset.theme, 'light');
     assert.equal(app.store.get('workspace-theme'), 'light');
@@ -51,7 +57,7 @@ test('storage restrictions do not prevent switching themes', () => {
     const app = setup(undefined, false, true);
     app.events.DOMContentLoaded();
     app.buttons[0].click();
-    assert.equal(app.root.dataset.theme, 'dark');
+    assert.equal(app.root.dataset.theme, 'blue');
 });
 
 test('system changes apply until an explicit preference is selected', () => {
@@ -69,5 +75,8 @@ test('a theme selected in another tab updates both controls', () => {
     app.events.DOMContentLoaded();
     app.events.storage({key:'workspace-theme',newValue:'dark'});
     assert.equal(app.root.dataset.theme, 'dark');
-    assert.ok(app.buttons.every(b => b.attrs['aria-pressed'] === 'true'));
+    assert.ok(app.buttons.every(b => b.attrs['aria-label'].includes('当前夜间')));
+    app.events.storage({key:'workspace-theme',newValue:'blue'});
+    assert.equal(app.root.dataset.theme,'blue');
+    assert.ok(app.buttons.every(b => b.attrs['aria-label'].includes('当前雾蓝')));
 });
