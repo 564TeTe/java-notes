@@ -1,315 +1,62 @@
 (function () {
-    const MASTERY_KEY = "resume-prep-mastery";
-    const CHECKLIST_KEY = "resume-prep-checklist";
-    const DRAFTS_KEY = "resume-prep-drafts";
-    const TABS = [
-        { id: "overview", icon: "🧭", label: "准备台" },
-        { id: "pitches", icon: "🎙️", label: "口述练习" },
-        { id: "stories", icon: "🧩", label: "逐条准备" },
-        { id: "questions", icon: "🎯", label: "追问练习" },
-        { id: "checklist", icon: "✅", label: "冲刺清单" },
-        { id: "sources", icon: "📚", label: "资料" }
-    ];
-
-    function loadJSON(key) {
-        try { const value = JSON.parse(localStorage.getItem(key) || "{}"); return value && typeof value === "object" && !Array.isArray(value) ? value : {}; }
-        catch (error) { return {}; }
-    }
-
-    const state = {
-        tab: "overview",
-        source: "all",
-        search: "",
-        level: "all",
-        openStory: null,
-        mastery: loadJSON(MASTERY_KEY),
-        checklist: loadJSON(CHECKLIST_KEY),
-        drafts: cleanDrafts(loadJSON(DRAFTS_KEY)),
-        revealed: new Set(),
-        mockId: null
-    };
-
-    function cleanDrafts(value) {
-        return Object.fromEntries(window.RESUME_PREP_DATA.questions
-            .filter(item => typeof value[item.id] === "string" && value[item.id])
-            .map(item => [item.id, value[item.id].slice(0, 6000)]));
-    }
-
-    const data = () => window.RESUME_PREP_DATA;
-    const sourceName = id => data().sources.find(source => source.id === id)?.shortName || "全部";
-    const escape = value => String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
-    function saveProgress() {
-        localStorage.setItem(MASTERY_KEY, JSON.stringify(state.mastery));
-        localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state.checklist));
-        localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
-        if (typeof scheduleCloudSync === "function") scheduleCloudSync();
-    }
-
-    function getProgress() {
-        const questions = data().questions;
-        const checklist = data().checklist;
-        const known = questions.filter(item => state.mastery[item.id] === "known").length;
-        const fuzzy = questions.filter(item => state.mastery[item.id] === "fuzzy").length;
-        const hard = questions.filter(item => state.mastery[item.id] === "hard").length;
-        const checked = checklist.filter(item => state.checklist[item.id]).length;
-        const score = known + checked;
-        const total = questions.length + checklist.length;
-        return { known, fuzzy, hard, checked, questionTotal: questions.length, checklistTotal: checklist.length, percent: Math.round(score / total * 100) };
-    }
-
-    function renderTabs() {
-        return `<div class="prep-navigation"><nav class="resume-tabs" aria-label="简历准备模块导航">${TABS.slice(0, 4).map(tab => `
-            <button class="resume-tab${state.tab === tab.id ? " active" : ""}" aria-current="${state.tab === tab.id ? "page" : "false"}" type="button" onclick="setResumePrepTab('${tab.id}')">${tab.label}</button>`).join("")}</nav>
-            <div class="prep-utilities">${TABS.slice(4).map(tab => `<button class="${state.tab === tab.id ? "active" : ""}" aria-current="${state.tab === tab.id ? "page" : "false"}" onclick="setResumePrepTab('${tab.id}')">${tab.label === "原始资料" ? "资料库" : tab.label}</button>`).join("")}</div></div>`;
-    }
-
-    function renderSourceFilters(allowed = ["resume", "zhishu", "yonyou", "beiruan"]) {
-        const sources = data().sources.filter(source => allowed.includes(source.id));
-        return `<div class="resume-filters">
-            <span class="prep-filter-label">经历</span><button aria-pressed="${state.source === "all"}" class="resume-filter${state.source === "all" ? " active" : ""}" onclick="setResumePrepSource('all')">全部</button>
-            ${sources.map(source => `<button aria-pressed="${state.source === source.id}" class="resume-filter${state.source === source.id ? " active" : ""}" onclick="setResumePrepSource('${source.id}')">${source.shortName}</button>`).join("")}
-        </div>`;
-    }
-
-    function renderOverview() {
-        return ResumeWorkbench.renderOverview(getProgress());
-    }
-
-    function renderPitches() {
-        return `${renderSourceFilters()}${ResumeWorkbench.renderPitches(state.source)}`;
-    }
-
-    function renderStories() {
-        const stories = data().stories.filter(item => state.source === "all" || item.source === state.source);
-        return `${renderSourceFilters(["zhishu", "yonyou", "beiruan"])}${ResumeWorkbench.renderClaims(state.source)}
-            <details class="rw-legacy"><summary>补充案例参考 · ${stories.length} 个</summary><p>来自原准备资料，未必出现在新版简历中；实际职责和结果以自己的记录为准。</p><section class="resume-story-list">${stories.map(item => `
-                <details class="resume-story-card" ${state.openStory === item.id ? "open" : ""} ontoggle="rememberResumeStory('${item.id}',this.open)">
-                    <summary><span class="resume-source-chip">${sourceName(item.source)}</span><h3>${escape(item.title)}</h3><span class="prep-story-toggle" aria-hidden="true">＋</span></summary>
-                    <div class="prep-story-content"><div class="prep-story-tags">${item.tags.map(tag => `<span>${escape(tag)}</span>`).join("")}</div><dl>
-                        <div><dt>S</dt><dd><strong>背景</strong>${escape(item.situation)}</dd></div>
-                        <div><dt>T</dt><dd><strong>目标</strong>${escape(item.task)}</dd></div>
-                        <div><dt>A</dt><dd><strong>行动</strong>${escape(item.action)}</dd></div>
-                        <div><dt>R</dt><dd><strong>结果</strong>${escape(item.result)}</dd></div>
-                    </dl><p class="resume-boundary"><b>表达边界</b>${escape(item.boundary)}</p><button class="career-secondary" onclick="practiceResumeSource('${item.source}')">练这段经历的追问 →</button></div>
-                </details>`).join("") || '<p class="resume-empty">这段经历暂时没有故事。</p>'}</section></details>`;
-    }
-
-    function filteredQuestions() {
-        const query = state.search.trim().toLowerCase();
-        return data().questions.filter(item => {
-            const level = state.mastery[item.id] || "new";
-            return (state.source === "all" || item.source === state.source)
-                && (state.level === "all" || (state.level === "weak" ? ["hard", "fuzzy"].includes(level) : level === state.level))
-                && (!query || `${item.question} ${item.answer} ${item.followup} ${sourceName(item.source)}`.toLowerCase().includes(query));
-        });
-    }
-
-    function questionCardsHTML(questions) {
-        if (!questions.length) return `<div class="career-empty"><span aria-hidden="true">⌕</span><h3>没有匹配的问题</h3><p>${state.level === "weak" ? "标记为“不会”或“模糊”的题会出现在这里。" : "换个关键词，或清空筛选再试。"}</p><button class="career-secondary" onclick="resetResumeFilters()">清空筛选</button></div>`;
-        return questions.map(item => {
-            const level = state.mastery[item.id] || "new";
-            const revealed = state.revealed.has(item.id);
-            const labels = { new: "未练习", known: "已掌握", fuzzy: "模糊", hard: "不会" };
-            return `<article class="resume-qa-card${revealed ? " revealed" : ""}${state.mockId === item.id ? " mock-focus" : ""}" id="resume-${item.id}">
-                <button class="resume-question" aria-expanded="${revealed}" aria-controls="answer-${item.id}" onclick="toggleResumeAnswer('${item.id}')"><span class="resume-q-mark">Q</span><span><small>${sourceName(item.source)} · <em class="prep-level ${level}">${labels[level]}</em></small>${escape(item.question)}</span><i>${revealed ? "收起" : "看答案"}</i></button>
-                <div class="resume-answer" id="answer-${item.id}">${item.outline ? `<div class="resume-answer-outline"><b>回答顺序</b>${escape(item.outline)}</div>` : ""}<p>${escape(item.answer)}</p><div class="resume-followup"><b>继续追问</b>${escape(item.followup)}</div>${item.evidence ? `<div class="resume-evidence"><b>准备证据</b>${escape(item.evidence)}</div>` : ""}<div class="resume-mastery"><span>掌握程度</span>${["hard", "fuzzy", "known"].map(value => `<button aria-pressed="${level === value}" class="${value}${level === value ? " selected" : ""}" onclick="rateResumeQuestion('${item.id}','${value}')">${labels[value]}</button>`).join("")}</div></div>
-                <details class="resume-draft"><summary>我的回答与复盘${state.drafts[item.id] ? " · 已记录" : ""}</summary><label for="draft-${item.id}">先写自己的思路，再对照参考回答补充遗漏。</label><textarea id="draft-${item.id}" maxlength="6000" rows="4" placeholder="问题现象 → 定位证据 → 修改理由 → 验证结果；补上自己的实际职责与薄弱点。" oninput="saveResumeDraft('${item.id}',this.value)">${escape(state.drafts[item.id] || "")}</textarea><small id="draft-status-${item.id}">${state.drafts[item.id] ? "已保存到本机" : "输入后自动保存到本机"}；登录后随学习数据同步。</small></details>
-            </article>`;
-        }).join("");
-    }
-
-    function renderQuestions() {
-        const questions = filteredQuestions();
-        return `<div class="resume-section-heading"><h2>追问练习</h2><button class="career-primary" onclick="randomResumeQuestion()" ${questions.length ? "" : "disabled"}>随机抽题 ↗</button></div>
-            <section class="prep-question-filters">${renderSourceFilters()}<div class="prep-question-toolbar"><label class="career-search"><span aria-hidden="true">⌕</span><input type="search" aria-label="搜索简历问题" value="${escape(state.search)}" placeholder="搜索问题、技术词…" oninput="filterResumeQuestions(this.value)"></label><select aria-label="按掌握程度筛选" onchange="setResumePrepMastery(this.value)">${[["all", "全部掌握程度"], ["new", "未练习"], ["weak", "薄弱题（不会 / 模糊）"], ["known", "已掌握"]].map(([id, label]) => `<option value="${id}" ${state.level === id ? "selected" : ""}>${label}</option>`).join("")}</select><button class="career-text" onclick="resetResumeFilters()">清空筛选</button></div></section>
-            <div class="prep-results-count" id="resume-result-count" role="status">${questions.length} 道问题</div><section class="resume-question-list" id="resume-question-results">${questionCardsHTML(questions)}</section>`;
-    }
-
-    function renderChecklist() {
-        const groups = {};
-        data().checklist.forEach(item => { (groups[item.group] ||= []).push(item); });
-        const progress = getProgress();
-        return `<section class="resume-check-head"><h2>冲刺清单</h2><strong>${progress.checked}/${progress.checklistTotal}</strong></section>
-            <div class="resume-check-progress"><span style="width:${Math.round(progress.checked / progress.checklistTotal * 100)}%"></span></div>
-            <section class="resume-check-groups">${Object.entries(groups).map(([group, items]) => `
-                <article><h3>${escape(group)}<span>${items.filter(item => state.checklist[item.id]).length}/${items.length}</span></h3>
-                    ${items.map(item => `<button aria-pressed="${!!state.checklist[item.id]}" class="resume-check-item${state.checklist[item.id] ? " checked" : ""}" onclick="toggleResumeChecklist('${item.id}')"><i>${state.checklist[item.id] ? "✓" : ""}</i><span>${escape(item.text)}</span></button>`).join("")}
-                </article>`).join("")}</section>`;
-    }
-
-    function renderSources() {
-        return `<section class="resume-library-head"><h2>原始资料库</h2><p>实现细节、职责和测试结果，请结合最新简历、对应代码与运行记录核对。</p></section>
-            <section class="resume-library-grid">${data().sources.map(source => `
-                <a class="resume-library-card" href="${source.file}" target="_blank" rel="noopener">
-                    <div><span>${source.icon}</span><i>${source.fileType}</i></div>
-                    <h3>${escape(source.name)}</h3>
-                    <p>${escape(source.summary)}</p>
-                    <ul>${source.highlights.map(item => `<li>${escape(item)}</li>`).join("")}</ul>
-                    <b>${source.fileType === "PDF" ? "打开简历" : "下载手册"} →</b>
-                </a>`).join("")}</section>
-            <p class="resume-privacy-note">这些资料位于公开的 GitHub Pages 站点。简历包含个人信息，请只在你接受公开访问的前提下分享网站地址。</p>`;
-    }
-
-    window.renderResumePrep = function () {
-        ResumeWorkbench.enterView(state.tab);
-        const views = {
-            overview: renderOverview,
-            pitches: renderPitches,
-            stories: renderStories,
-            questions: renderQuestions,
-            checklist: renderChecklist,
-            sources: renderSources
-        };
-        return `<div class="resume-prep">${renderTabs()}<div class="resume-view">${(views[state.tab] || renderOverview)()}</div></div>`;
-    };
-
-    window.renderResumePrepTOC = function () {
-        return TABS.map(tab => `<li><button class="toc-item resume-toc${state.tab === tab.id ? " active" : ""}" onclick="setResumePrepTab('${tab.id}')"><span class="cat-dot" style="background:#4A6CF7"></span><span class="q-text">${tab.icon} ${tab.label}</span></button></li>`).join("");
-    };
-
-    window.setResumePrepTab = function (tab) {
-        state.tab = TABS.some(item => item.id === tab) ? tab : "overview";
-        state.mockId = null;
-        if (state.tab === "stories" && state.source === "resume") state.source = "all";
-        renderAll();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    window.setResumePrepSource = function (source) {
-        ResumeWorkbench.enterView(null);
-        state.source = source;
-        state.mockId = null;
-        renderAll();
-    };
-
-    window.openResumeSource = function (source) {
-        state.source = source;
-        state.tab = source === "resume" ? "pitches" : "stories";
-        renderAll();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    window.toggleResumeAnswer = function (id) {
-        if (state.revealed.has(id)) state.revealed.delete(id);
-        else state.revealed.add(id);
-        const card = document.getElementById(`resume-${id}`);
-        if (card) {
-            card.classList.toggle("revealed", state.revealed.has(id));
-            const indicator = card.querySelector(".resume-question i");
-            if (indicator) indicator.textContent = state.revealed.has(id) ? "收起" : "看答案";
-            card.querySelector(".resume-question")?.setAttribute("aria-expanded", String(state.revealed.has(id)));
-        }
-    };
-
-    window.rateResumeQuestion = function (id, level) {
-        state.mastery[id] = level;
-        saveProgress();
-        updateQuestionResults();
-        const nextFocus = document.querySelector(`#resume-${id} .resume-mastery .${level}`)
-            || document.querySelector("#resume-question-results .resume-question")
-            || document.getElementById("resume-result-count");
-        if (nextFocus) {
-            if (nextFocus.id === "resume-result-count") nextFocus.setAttribute("tabindex", "-1");
-            nextFocus.focus({ preventScroll: true });
-        }
-        if (typeof toast === "function") toast(level === "known" ? "已标记为掌握" : level === "fuzzy" ? "已加入模糊题" : "已加入重点复习");
-    };
-
-    window.toggleResumeChecklist = function (id) {
-        state.checklist[id] = !state.checklist[id];
-        saveProgress();
-        renderAll();
-    };
-
-    window.randomResumeQuestion = function () {
-        const pool = filteredQuestions();
-        if (!pool.length) return;
-        const weaker = pool.filter(item => state.mastery[item.id] !== "known");
-        const preferred = weaker.length ? weaker : pool;
-        const alternatives = preferred.filter(item => item.id !== state.mockId);
-        const candidates = alternatives.length ? alternatives : preferred;
-        const picked = candidates[Math.floor(Math.random() * candidates.length)];
-        state.mockId = picked.id;
-        state.revealed.delete(picked.id);
-        renderAll();
-        requestAnimationFrame(() => document.getElementById(`resume-${picked.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
-    };
-
-    window.practiceResumeQuestion = function (id) {
-        const question = data().questions.find(item => item.id === id);
-        if (!question) return;
-        state.tab = "questions";
-        state.source = question.source;
-        state.search = "";
-        state.level = "all";
-        state.mockId = id;
-        state.revealed.delete(id);
-        renderAll();
-        requestAnimationFrame(() => {
-            const card = document.getElementById(`resume-${id}`);
-            card?.querySelector(".resume-question")?.focus({ preventScroll: true });
-            card?.scrollIntoView({ behavior: "smooth", block: "center" });
-        });
-    };
-
-    window.saveResumeDraft = function (id, value) {
-        if (!data().questions.some(item => item.id === id) || typeof value !== "string") return;
-        if (value) state.drafts[id] = value.slice(0, 6000);
-        else delete state.drafts[id];
-        saveProgress();
-        const status = document.getElementById(`draft-status-${id}`);
-        if (status) status.textContent = `${value ? "已保存到本机" : "已清空记录"}；登录后随学习数据同步。`;
-        const summary = document.querySelector(`#resume-${id} .resume-draft summary`);
-        if (summary) summary.textContent = `我的回答与复盘${value ? " · 已记录" : ""}`;
-    };
-
-    function updateQuestionResults() {
-        const questions = filteredQuestions();
-        const list = document.getElementById("resume-question-results");
-        if (list) list.innerHTML = questionCardsHTML(questions);
-        const count = document.getElementById("resume-result-count");
-        if (count) count.textContent = `${questions.length} 道问题`;
-        const random = document.querySelector(".resume-section-heading .career-primary");
-        if (random) random.disabled = !questions.length;
-    }
-    window.filterResumeQuestions = function (value) { state.search = String(value || ""); state.mockId = null; updateQuestionResults(); };
-    window.setResumePrepMastery = function (value) { state.level = ["all", "new", "weak", "known"].includes(value) ? value : "all"; state.mockId = null; renderAll(); };
-    window.resetResumeFilters = function () { state.source = "all"; state.search = ""; state.level = "all"; state.mockId = null; renderAll(); };
-    window.startResumePractice = function () { state.tab = "questions"; state.source = "all"; state.search = ""; state.level = "all"; window.randomResumeQuestion(); };
-    window.reviewResumeWeak = function () { state.tab = "questions"; state.source = "all"; state.search = ""; state.level = "weak"; state.mockId = null; renderAll(); window.scrollTo({ top: 0, behavior: "smooth" }); };
-    window.practiceResumeSource = function (source) { state.source = source; state.level = "all"; state.search = ""; window.setResumePrepTab("questions"); };
-    window.rememberResumeStory = function (id, open) { if (open) state.openStory = id; else if (state.openStory === id) state.openStory = null; };
-
-    window.copyResumePitch = async function (id) {
-        const pitch = data().pitches.find(item => item.id === id);
-        if (!pitch) return;
-        try {
-            await navigator.clipboard.writeText(pitch.content);
-            if (typeof toast === "function") toast("话术已复制");
-        } catch (error) {
-            if (typeof toast === "function") toast("复制失败，请手动选择文本");
-        }
-    };
-
-    window.getResumePrepSnapshot = function () {
-        return { mastery: state.mastery, checklist: state.checklist, drafts: state.drafts, workbench: ResumeWorkbench.getSnapshot() };
-    };
-
-    window.applyResumePrepSnapshot = function (snapshot) {
-        if (!snapshot || typeof snapshot !== "object") return;
-        ResumeWorkbench.applySnapshot(snapshot.workbench);
-        state.mastery = snapshot.mastery && typeof snapshot.mastery === "object" ? snapshot.mastery : {};
-        state.checklist = snapshot.checklist && typeof snapshot.checklist === "object" ? snapshot.checklist : {};
-        // Older backups do not contain personal answers; preserve local drafts in that case.
-        if (snapshot.drafts && typeof snapshot.drafts === "object" && !Array.isArray(snapshot.drafts)) state.drafts = cleanDrafts(snapshot.drafts);
-        localStorage.setItem(MASTERY_KEY, JSON.stringify(state.mastery));
-        localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state.checklist));
-        localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
-    };
+ const KEYS=['resume-prep-mastery','resume-prep-checklist','resume-prep-drafts'],PAGE_SIZE=20;
+ const TABS=[['questions','面试问答'],['pitches','介绍稿'],['stories','简历脉络'],['sources','资料']];
+ const SOURCES=[['all','全部'],['resume','整体介绍'],['zhishu','知枢'],['beiruan','北软'],['yonyou','用友'],['skills','技术基础']];
+ const data=()=>window.RESUME_PREP_DATA;
+ const esc=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+ const sourceName=id=>SOURCES.find(([k])=>k===id)?.[1]||'全部';
+ const obj=v=>v&&typeof v==='object'&&!Array.isArray(v);
+ function load(k){try{const v=JSON.parse(localStorage.getItem(k)||'{}');return obj(v)?v:{};}catch(_){return {};}}
+ const cleanDrafts=v=>Object.fromEntries(data().questions.filter(q=>typeof v[q.id]==='string'&&v[q.id]).map(q=>[q.id,v[q.id].slice(0,6000)]));
+ const state={tab:'questions',source:'all',search:'',level:'all',topic:'all',priority:'all',page:1,visible:true,toggled:new Set(),mockId:null,mastery:load(KEYS[0]),checklist:load(KEYS[1]),drafts:cleanDrafts(load(KEYS[2]))};
+ function persist(){try{[state.mastery,state.checklist,state.drafts].forEach((v,i)=>localStorage.setItem(KEYS[i],JSON.stringify(v)));}catch(_){if(typeof toast==='function')toast('未保存到本机，请检查存储空间');return;}if(typeof scheduleCloudSync==='function')scheduleCloudSync();}
+ const revealed=id=>state.visible?!state.toggled.has(id):state.toggled.has(id);
+ const topics=()=>[...new Set(data().questions.filter(q=>state.source==='all'||q.source===state.source).map(q=>q.topic).filter(Boolean))];
+ function filtered(){const term=state.search.trim().toLowerCase();return data().questions.filter(q=>{
+  const level=state.mastery[q.id]||'new';
+  return (state.source==='all'||q.source===state.source)&&(state.topic==='all'||q.topic===state.topic)&&(state.priority==='all'||(q.priority||'must')===state.priority)&&(state.level==='all'||(state.level==='weak'?['hard','fuzzy'].includes(level):level===state.level))&&(!term||`${q.question} ${q.answer} ${q.followup} ${q.followupAnswer||''} ${q.topic||''} ${sourceName(q.source)}`.toLowerCase().includes(term));
+ });}
+ function pageData(){const qs=filtered(),pages=Math.max(1,Math.ceil(qs.length/PAGE_SIZE));state.page=Math.max(1,Math.min(state.page,pages));return {qs,pages,items:qs.slice((state.page-1)*PAGE_SIZE,state.page*PAGE_SIZE)};}
+ function tabs(){return `<nav class="resume-reading-tabs" aria-label="简历准备模块导航">${TABS.map(([id,label])=>`<button class="${state.tab===id?'active':''}" aria-current="${state.tab===id?'page':'false'}" data-resume-tab="${id}" onclick="setResumePrepTab('${id}')">${label}</button>`).join('')}</nav>`;}
+ function sources(allowed=SOURCES.map(([id])=>id)){return `<div class="resume-reading-sources" aria-label="按经历筛选">${SOURCES.filter(([id])=>allowed.includes(id)).map(([id,label])=>`<button aria-pressed="${state.source===id}" class="${state.source===id?'active':''}" data-resume-source="${id}" onclick="setResumePrepSource('${id}')">${label}${state.tab==='questions'?` <small>${id==='all'?data().questions.length:data().questions.filter(q=>q.source===id).length}</small>`:''}</button>`).join('')}</div>`;}
+ function cards(qs){if(!qs.length)return `<div class="career-empty"><h3>没有匹配的问题</h3><p>${state.level==='weak'?'标记为待复习的问题会出现在这里。':'换个关键词，或清空筛选。'}</p><button class="career-secondary" onclick="resetResumeFilters()">清空筛选</button></div>`;
+  return qs.map(q=>{const open=revealed(q.id),marked=['hard','fuzzy'].includes(state.mastery[q.id]),priority=q.priority||'must';return `<article class="resume-qa-card${open?' revealed':''}${state.mockId===q.id?' mock-focus':''}" id="resume-${q.id}" data-priority="${priority}">
+   <button class="resume-question" aria-expanded="${open}" aria-controls="answer-${q.id}" onclick="toggleResumeAnswer('${q.id}')"><span class="resume-q-mark">Q</span><span><small>${sourceName(q.source)} · ${esc(q.topic||'经历深挖')} <em>${priority==='must'?'必会':'深入'}</em></small>${esc(q.question)}</span><i>${open?'收起':'看答案'}</i></button>
+   <div class="resume-answer" id="answer-${q.id}"><p class="resume-direct-answer">${esc(q.answer)}</p><div class="resume-followup"><strong>继续追问</strong><p class="resume-followup-question">${esc(q.followup)}</p>${q.followupAnswer?`<p>${esc(q.followupAnswer)}</p>`:''}</div></div>
+   <footer class="resume-reading-card-footer"><button aria-pressed="${marked}" class="${marked?'active':''}" onclick="toggleResumeReview('${q.id}')">${marked?'★ 已标记':'☆ 待复习'}</button></footer></article>`;}).join('');
+ }
+ function pagination(pos){const {qs,pages}=pageData();return `<div class="resume-reading-pagination" id="resume-pagination-${pos}"><span role="status">${qs.length?`${(state.page-1)*PAGE_SIZE+1}–${Math.min(state.page*PAGE_SIZE,qs.length)}`:'0'} / ${qs.length} 道</span><div><button aria-label="上一页" ${state.page===1?'disabled':''} onclick="setResumeReadingPage(${state.page-1})">←</button><span>${state.page} / ${pages}</span><button aria-label="下一页" ${state.page===pages?'disabled':''} onclick="setResumeReadingPage(${state.page+1})">→</button></div></div>`;}
+ function questions(){const page=pageData();return `${sources()}<div class="resume-reading-filters"><label class="career-search"><input type="search" aria-label="搜索简历问题" value="${esc(state.search)}" placeholder="搜索问题、技术词或答案" oninput="filterResumeQuestions(this.value)"></label><select id="resumeTopicFilter" aria-label="按主题筛选" onchange="setResumeTopic(this.value)"><option value="all">全部主题</option>${topics().map(t=>`<option value="${esc(t)}" ${state.topic===t?'selected':''}>${esc(t)}</option>`).join('')}</select><select id="resumePriorityFilter" aria-label="按深度筛选" onchange="setResumePriority(this.value)">${[['all','全部问题'],['must','必会'],['deep','深入追问']].map(([id,label])=>`<option value="${id}" ${state.priority===id?'selected':''}>${label}</option>`).join('')}</select></div>
+  <div class="resume-reading-tools"><div><button id="resumeRevealAll" onclick="toggleResumeAllAnswers()">${state.visible?'遮住答案':'展开答案'}</button><button id="resumeWeakFilter" aria-pressed="${state.level==='weak'}" onclick="toggleResumeWeak()">${state.level==='weak'?'查看全部':'只看待复习'}</button><button onclick="resetResumeFilters()">清空筛选</button></div><button id="resumeRandom" onclick="randomResumeQuestion()" ${page.qs.length?'':'disabled'}>抽一道 →</button></div>${pagination('top')}<section class="resume-question-list" id="resume-question-results">${cards(page.items)}</section>${pagination('bottom')}`;}
+ function pitches(){return `${sources(['all','resume','zhishu','beiruan','yonyou'])}<section class="resume-reading-pitches">${data().pitches.filter(p=>state.source==='all'||p.source===state.source).map(p=>`<article><header><div><small>${sourceName(p.source)} · ${esc(p.duration)}</small><h2>${esc(p.title)}</h2></div><button class="career-text" onclick="copyResumePitch('${p.id}')">复制</button></header><p>${esc(p.content)}</p></article>`).join('')}</section>`;}
+ function stories(){return `${sources(['all','zhishu','beiruan','yonyou'])}<section class="resume-reading-claims">${window.RESUME_CLAIMS.items.filter(c=>state.source==='all'||c.source===state.source).map(c=>`<article><header><small>${sourceName(c.source)}</small><h2>${esc(c.title)}</h2></header><blockquote>${esc(c.quote)}</blockquote><div>${c.questionIds.map(id=>{const q=data().questions.find(q=>q.id===id);return q?`<button onclick="practiceResumeQuestion('${id}')">${esc(q.question)} <span>→</span></button>`:'';}).join('')}</div><button class="career-text" onclick="practiceResumeSource('${c.source}')">查看${sourceName(c.source)}全部问答 →</button></article>`).join('')}</section>`;}
+ function files(){const refs=[...new Map((data().references||[]).filter(r=>/^https:\/\//.test(r.url)).map(r=>[r.url,r])).values()];return `<section class="resume-reading-files">${data().sources.filter(s=>s.file).map(s=>`<a href="${esc(s.file)}" target="_blank" rel="noopener"><div><strong>${esc(s.name)}</strong><small>${s.id==='resume'?`当前简历 · ${window.RESUME_CLAIMS.date}`:'补充手册'}</small></div><span>${s.id==='resume'?'查看 PDF':'下载 DOCX'} ↗</span></a>`).join('')}</section>${refs.length?`<details class="resume-reading-references"><summary>技术参考 · 官方文档</summary>${refs.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.label)} ↗</a>`).join('')}</details>`:''}`;}
+ window.renderResumePrep=()=>`<div class="resume-prep resume-reading">${tabs()}<div class="resume-view">${({questions,pitches,stories,sources:files}[state.tab]||questions)()}</div></div>`;
+ window.renderResumePrepTOC=()=>TABS.map(([id,label])=>`<li><button class="toc-item" onclick="setResumePrepTab('${id}')">${label}</button></li>`).join('');
+ window.setResumePrepTab=tab=>{state.tab=TABS.some(([id])=>id===tab)?tab:'questions';state.mockId=null;if((state.tab==='stories'&&['resume','skills'].includes(state.source))||(state.tab==='pitches'&&state.source==='skills'))state.source='all';renderAll();document.querySelector('[data-resume-tab="'+state.tab+'"]')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'smooth'});};
+ window.setResumePrepSource=source=>{state.source=SOURCES.some(([id])=>id===source)?source:'all';state.mockId=null;state.page=1;if(!topics().includes(state.topic))state.topic='all';renderAll();document.querySelector('[data-resume-source="'+state.source+'"]')?.focus({preventScroll:true});};
+ window.openResumeSource=source=>{state.source=source;state.topic='all';state.priority='all';state.search='';state.level='all';state.page=1;window.setResumePrepTab('questions');};
+ function updateResults(){const {items,qs}=pageData(),list=document.getElementById('resume-question-results');if(list)list.innerHTML=cards(items);for(const pos of ['top','bottom']){const el=document.getElementById(`resume-pagination-${pos}`);if(el)el.outerHTML=pagination(pos);}const random=document.getElementById('resumeRandom');if(random)random.disabled=!qs.length;}
+ window.filterResumeQuestions=v=>{state.search=String(v||'');state.page=1;state.mockId=null;updateResults();};
+ window.setResumeTopic=v=>{state.topic=topics().includes(v)?v:'all';state.page=1;state.mockId=null;updateResults();};
+ window.setResumePriority=v=>{state.priority=['must','deep'].includes(v)?v:'all';state.page=1;state.mockId=null;updateResults();};
+ window.setResumePrepMastery=v=>{state.level=['all','new','weak','known'].includes(v)?v:'all';state.page=1;state.mockId=null;renderAll();};
+ window.resetResumeFilters=()=>{state.source='all';state.search='';state.level='all';state.topic='all';state.priority='all';state.page=1;state.mockId=null;renderAll();};
+ window.setResumeReadingPage=p=>{state.page=Number.isFinite(p)?Math.trunc(p):1;state.mockId=null;renderAll();document.querySelector('.resume-question')?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'smooth'});};
+ window.toggleResumeAllAnswers=()=>{state.visible=!state.visible;state.toggled.clear();updateResults();const button=document.getElementById('resumeRevealAll');if(button)button.textContent=state.visible?'遮住答案':'展开答案';};
+ window.toggleResumeAnswer=id=>{if(!data().questions.some(q=>q.id===id))return;if(state.toggled.has(id))state.toggled.delete(id);else state.toggled.add(id);const card=document.getElementById(`resume-${id}`);if(card){const open=revealed(id);card.classList.toggle('revealed',open);card.querySelector('.resume-question')?.setAttribute('aria-expanded',String(open));const indicator=card.querySelector('.resume-question i');if(indicator)indicator.textContent=open?'收起':'看答案';}};
+ function focusQuestion(id){requestAnimationFrame(()=>{const card=document.getElementById(`resume-${id}`);card?.querySelector('.resume-question')?.focus({preventScroll:true});card?.scrollIntoView({behavior:'smooth',block:'start'});});}
+ window.practiceResumeQuestion=id=>{const q=data().questions.find(q=>q.id===id);if(!q)return;state.tab='questions';state.source=q.source;state.search='';state.level='all';state.topic='all';state.priority='all';state.mockId=id;if(state.visible)state.toggled.delete(id);else state.toggled.add(id);state.page=Math.floor(filtered().findIndex(q=>q.id===id)/PAGE_SIZE)+1;renderAll();focusQuestion(id);};
+ window.randomResumeQuestion=()=>{const pool=filtered();if(!pool.length)return;const weak=pool.filter(q=>state.mastery[q.id]!=='known'),preferred=weak.length?weak:pool,others=preferred.filter(q=>q.id!==state.mockId),choices=others.length?others:preferred,q=choices[Math.floor(Math.random()*choices.length)];state.tab='questions';state.mockId=q.id;if(state.visible)state.toggled.add(q.id);else state.toggled.delete(q.id);state.page=Math.floor(pool.findIndex(v=>v.id===q.id)/PAGE_SIZE)+1;renderAll();focusQuestion(q.id);};
+ window.startResumePractice=()=>{state.tab='questions';state.source='all';state.search='';state.level='all';state.topic='all';state.priority='all';window.randomResumeQuestion();};
+ window.reviewResumeWeak=()=>{state.tab='questions';state.source='all';state.search='';state.topic='all';state.priority='all';state.level='weak';state.page=1;state.mockId=null;renderAll();};
+ window.toggleResumeWeak=()=>{state.level=state.level==='weak'?'all':'weak';state.page=1;state.mockId=null;renderAll();document.getElementById('resumeWeakFilter')?.focus({preventScroll:true});};
+ window.practiceResumeSource=window.openResumeSource;
+ window.rateResumeQuestion=(id,level)=>{if(!data().questions.some(q=>q.id===id)||!['known','fuzzy','hard'].includes(level))return;state.mastery[id]=level;persist();updateResults();};
+ window.toggleResumeReview=id=>{if(!data().questions.some(q=>q.id===id))return;if(['hard','fuzzy'].includes(state.mastery[id]))delete state.mastery[id];else state.mastery[id]='hard';persist();updateResults();const target=document.querySelector(`#resume-${id} .resume-reading-card-footer button`)||document.getElementById('resumeWeakFilter');target?.focus({preventScroll:true});};
+ // Preserve saved personal answers through complete backups without restoring retired editors.
+ window.saveResumeDraft=(id,v)=>{if(!data().questions.some(q=>q.id===id)||typeof v!=='string')return;if(v)state.drafts[id]=v.slice(0,6000);else delete state.drafts[id];persist();};
+ window.copyResumePitch=async id=>{const p=data().pitches.find(p=>p.id===id);if(!p)return;try{await navigator.clipboard.writeText(p.content);if(typeof toast==='function')toast('介绍稿已复制');}catch(_){if(typeof toast==='function')toast('复制失败，请选择文字复制');}};
+ window.getResumePrepSnapshot=()=>({mastery:state.mastery,checklist:state.checklist,drafts:state.drafts,workbench:ResumeWorkbench.getSnapshot()});
+ window.applyResumePrepSnapshot=s=>{if(!obj(s))return;state.mastery=obj(s.mastery)?s.mastery:{};state.checklist=obj(s.checklist)?s.checklist:{};if(obj(s.drafts))state.drafts=cleanDrafts(s.drafts);ResumeWorkbench.applySnapshot(s.workbench);[state.mastery,state.checklist,state.drafts].forEach((v,i)=>localStorage.setItem(KEYS[i],JSON.stringify(v)));};
 })();

@@ -13,7 +13,7 @@ function setup(module) {
         showRecruitment: true, URL, FormData, console
     });
     context.window = context;
-    for (const file of module === 'resume' ? ['resume-data.js', 'resume-claims.js', 'resume-workbench.js', 'resume-module.js'] : ['recruitment-module.js']) {
+    for (const file of module === 'resume' ? ['resume-data.js', 'resume-question-expansion.js', 'resume-claims.js', 'resume-workbench.js', 'resume-module.js'] : ['recruitment-module.js']) {
         vm.runInContext(fs.readFileSync(path.join(__dirname, '..', file), 'utf8'), context);
     }
     return context;
@@ -44,7 +44,7 @@ test('weak review excludes known and unreviewed questions; reset restores the fu
     assert.ok(app.renderResumePrep().includes(`id="resume-${unreviewed.id}"`));
 });
 
-test('recommended question opens the exact card and clears stale filters and its answer', () => {
+test('linked question opens its answer and clears stale filters', () => {
     const app = setup('resume');
     const id = 'q-zhishu-3';
     app.toggleResumeAnswer(id);
@@ -52,7 +52,7 @@ test('recommended question opens the exact card and clears stale filters and its
     app.setResumePrepMastery('known');
     app.practiceResumeQuestion(id);
     const html = app.renderResumePrep();
-    assert.match(html, new RegExp(`class="resume-qa-card mock-focus" id="resume-${id}"`));
+    assert.match(html, new RegExp(`class="resume-qa-card revealed mock-focus" id="resume-${id}"`));
     assert.doesNotMatch(html, /no-match-987654/);
     assert.match(html, /option value="all" selected/);
 });
@@ -70,7 +70,7 @@ test('random practice avoids immediate repetition when another eligible question
     assert.equal(selected(), first, 'priority still goes to the only weak question');
 });
 
-test('personal answers save, round-trip, escape HTML, and survive legacy snapshots', () => {
+test('legacy personal answers round-trip without restoring retired input panels', () => {
     const app = setup('resume');
     const id = 'q-zhishu-3';
     const answer = '</textarea><script>alert(1)</script>\n我的复盘';
@@ -86,7 +86,8 @@ test('personal answers save, round-trip, escape HTML, and survive legacy snapsho
     assert.equal(app.getResumePrepSnapshot().drafts[id], undefined);
     app.applyResumePrepSnapshot(snapshot);
     app.setResumePrepTab('questions');
-    assert.match(app.renderResumePrep(), /&lt;\/textarea&gt;&lt;script&gt;/);
+    assert.equal(app.getResumePrepSnapshot().drafts[id], answer);
+    assert.doesNotMatch(app.renderResumePrep(), /textarea|我的回答与复盘/);
     assert.doesNotMatch(app.renderResumePrep(), /<script>alert/);
     app.saveResumeDraft(id, '');
     assert.equal(app.getResumePrepSnapshot().drafts[id], undefined);

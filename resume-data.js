@@ -1,395 +1,1242 @@
 window.RESUME_PREP_DATA = {
-    sources: [
+    "sources": [
         {
-            id: "resume",
-            icon: "📄",
-            name: "个人简历",
-            shortName: "简历总览",
-            role: "Java 后端开发 · 27 届本科生 · AI 应用后端方向",
-            summary: "按 2026-09-16 新版简历准备两段实习和知枢项目，逐条核实职责、技术取舍与验证证据。",
-            highlights: ["用友：系统集成与同步", "北软：业务联动与流程", "知枢：AI Agent 编排"],
-            file: "./assets/resume/sun-te-resume.pdf?v=3",
-            fileType: "PDF"
+            "id": "resume",
+            "icon": "📄",
+            "name": "个人简历",
+            "shortName": "简历总览",
+            "role": "Java 后端开发 · 27 届本科生 · AI 应用后端方向",
+            "summary": "按 2026-09-16 新版简历学习两段实习和知枢项目，直接阅读参考回答与下一层追问。",
+            "highlights": [
+                "用友：系统集成与同步",
+                "北软：业务联动与流程",
+                "知枢：AI Agent 编排"
+            ],
+            "file": "./assets/resume/sun-te-resume.pdf?v=3",
+            "fileType": "PDF"
         },
         {
-            id: "zhishu",
-            icon: "🧠",
-            name: "知枢项目",
-            shortName: "知枢",
-            role: "AI 研发协作与 Coding Agent 编排平台",
-            summary: "重点准备控制面与执行面、Task/Attempt、人工审批、可靠事件、SSE、Artifact 和 Worktree。",
-            highlights: ["Control / Execution Plane", "Persistent Outbox", "Tool 审批与执行隔离"],
-            file: "./assets/resume/zhishu-interview-guide.docx",
-            fileType: "DOCX · 补充资料"
+            "id": "zhishu",
+            "icon": "🧠",
+            "name": "知枢项目",
+            "shortName": "知枢",
+            "role": "AI 研发协作与 Coding Agent 编排平台",
+            "summary": "重点准备控制面与执行面、Task/Attempt、人工审批、可靠事件、SSE、Artifact 和 Worktree。",
+            "highlights": [
+                "Control / Execution Plane",
+                "Persistent Outbox",
+                "Tool 审批与执行隔离"
+            ],
+            "file": "./assets/resume/zhishu-interview-guide.docx",
+            "fileType": "DOCX · 补充资料"
         },
         {
-            id: "yonyou",
-            icon: "🏢",
-            name: "用友实习",
-            shortName: "用友",
-            role: "企业应用后端与 NCC / YonBIP 系统集成",
-            summary: "准备入职 / 离职 OpenAPI、组织与邮箱批量同步、异常考勤提醒及薪资 OA 联调，讲清单条异常隔离和两端核验。",
-            highlights: ["OpenAPI 与 AggVO", "组织 / 邮箱层级同步", "钉钉提醒与 OA 联调"],
-            file: "./assets/resume/yonyou-interview-guide.docx",
-            fileType: "DOCX · 补充资料"
+            "id": "yonyou",
+            "icon": "🏢",
+            "name": "用友实习",
+            "shortName": "用友",
+            "role": "企业应用后端与 NCC / YonBIP 系统集成",
+            "summary": "准备入职 / 离职 OpenAPI、组织与邮箱批量同步、异常考勤提醒及薪资 OA 联调，讲清单条异常隔离和两端核验。",
+            "highlights": [
+                "OpenAPI 与 AggVO",
+                "组织 / 邮箱层级同步",
+                "钉钉提醒与 OA 联调"
+            ],
+            "file": "./assets/resume/yonyou-interview-guide.docx",
+            "fileType": "DOCX · 补充资料"
         },
         {
-            id: "beiruan",
-            icon: "🔄",
-            name: "北软实习",
-            shortName: "北软",
-            role: "业务自动化、销售数据联动与 Flowable 流程开发",
-            summary: "准备生产报工到计件工资、关联报工 ID 幂等、销售订单 / 开票 / 回款联动，以及并行撤回和多人协办。",
-            highlights: ["报工 → 计件工资", "销售数量校验与联动", "Flowable 撤回与协办"],
-            file: "./assets/resume/beiruan-interview-guide.docx",
-            fileType: "DOCX · 补充资料"
+            "id": "beiruan",
+            "icon": "🔄",
+            "name": "北软实习",
+            "shortName": "北软",
+            "role": "业务自动化、销售数据联动与 Flowable 流程开发",
+            "summary": "准备生产报工到计件工资、关联报工 ID 幂等、销售订单 / 开票 / 回款联动，以及并行撤回和多人协办。",
+            "highlights": [
+                "报工 → 计件工资",
+                "销售数量校验与联动",
+                "Flowable 撤回与协办"
+            ],
+            "file": "./assets/resume/beiruan-interview-guide.docx",
+            "fileType": "DOCX · 补充资料"
         }
     ],
-
-    pitches: [
+    "pitches": [
         {
-            id: "self-60",
-            source: "resume",
-            duration: "60 秒",
-            title: "技术面自我介绍",
-            content: "面试官您好，我叫孙特，是合肥大学软件工程专业 27 届本科生，方向是 Java 后端和 AI 应用开发。我有两段后端实习：在用友参与 EHR 客开，开发入职和离职 OpenAPI、组织与邮箱同步、异常考勤钉钉提醒；在北软围绕生产报工实现审批后生成计件工资，以关联报工 ID 避免重复生成，参与销售订单、开票和回款联动，也处理过 Flowable 并行撤回后 Execution 残留与多人协办问题。项目方面，我基于开源 CloudCLI 开发知枢 Coding Agent 编排平台，新增 Spring Boot 控制面，重点处理任务状态、工具审批、可靠事件和交付验收。我希望继续深入 Java 后端，把业务建模和工程可靠性用于实际场景。"
+            "id": "self-60",
+            "source": "resume",
+            "duration": "60 秒",
+            "title": "技术面自我介绍",
+            "content": "面试官您好，我叫孙特，是合肥大学软件工程专业 27 届本科生，方向是 Java 后端和 AI 应用开发。我有两段后端实习：在用友参与 EHR 客开，开发入职和离职 OpenAPI、组织与邮箱同步、异常考勤钉钉提醒；在北软围绕生产报工实现审批后生成计件工资，以关联报工 ID 避免重复生成，参与销售订单、开票和回款联动，也处理过 Flowable 并行撤回后 Execution 残留与多人协办问题。项目方面，我基于开源 CloudCLI 开发知枢 Coding Agent 编排平台，新增 Spring Boot 控制面，重点处理任务状态、工具审批、可靠事件和交付验收。我希望继续深入 Java 后端，把业务建模和工程可靠性用于实际场景。"
         },
         {
-            id: "self-30",
-            source: "resume",
-            duration: "30 秒",
-            title: "HR 快速介绍",
-            content: "我叫孙特，是合肥大学软件工程专业 27 届学生，方向是 Java 后端和 AI 应用开发。我在用友做过 OpenAPI 与企业系统同步，在北软做过报工到计件工资、销售数据联动和 Flowable 流程排障；同时开发了知枢 AI Agent 编排项目，重点负责任务状态、工具审批和可靠事件，希望继续深入后端业务与工程可靠性。"
+            "id": "self-30",
+            "source": "resume",
+            "duration": "30 秒",
+            "title": "HR 快速介绍",
+            "content": "我叫孙特，是合肥大学软件工程专业 27 届学生，方向是 Java 后端和 AI 应用开发。我在用友做过 OpenAPI 与企业系统同步，在北软做过报工到计件工资、销售数据联动和 Flowable 流程排障；同时开发了知枢 AI Agent 编排项目，重点负责任务状态、工具审批和可靠事件，希望继续深入后端业务与工程可靠性。"
         },
         {
-            id: "zhishu-15",
-            source: "zhishu",
-            duration: "15 秒",
-            title: "知枢一句话版本",
-            content: "知枢是一个 Coding Agent 编排平台。我基于 CloudCLI 保留 Node 执行层，新增 Spring Boot 控制面，重点解决正式研发任务的状态机、工具审批、跨进程幂等、可靠事件和结果验收。"
+            "id": "zhishu-15",
+            "source": "zhishu",
+            "duration": "15 秒",
+            "title": "知枢一句话版本",
+            "content": "知枢是一个 Coding Agent 编排平台。我基于 CloudCLI 保留 Node 执行层，新增 Spring Boot 控制面，重点解决正式研发任务的状态机、工具审批、跨进程幂等、可靠事件和结果验收。"
         },
         {
-            id: "zhishu-60",
-            source: "zhishu",
-            duration: "1 分钟",
-            title: "知枢技术面版本",
-            content: "知枢解决的是 Agent 执行研发任务时的状态、审批、可靠事件和结果验收问题。我用 Spring Boot 管理 Task、Attempt、审批、事件与交付物，用 Node 承接 Agent，通过版本化 Runtime Protocol 和 Provider 抽象连接执行器。重试创建独立 Attempt，并冻结执行器、模型、能力和权限快照；启动、取消、审批命令通过幂等键与语义哈希校验，事件通过 Persistent Outbox 重试并由数据库唯一约束去重。前端用 SSE 和 Last-Event-ID 恢复事件，执行结果归档为 Diff、测试与错误报告，再由人工验收。按当前简历口径，通过 400+ 项自动化测试，在固定隔离仓库完成两轮端到端验收，8 个 Agent 任务全部通过。"
+            "id": "zhishu-60",
+            "source": "zhishu",
+            "duration": "1 分钟",
+            "title": "知枢技术面版本",
+            "content": "知枢解决的是 Agent 执行研发任务时的状态、审批、可靠事件和结果验收问题。我用 Spring Boot 管理 Task、Attempt、审批、事件与交付物，用 Node 承接 Agent，通过版本化 Runtime Protocol 和 Provider 抽象连接执行器。重试创建独立 Attempt，并冻结执行器、模型、能力和权限快照；启动、取消、审批命令通过幂等键与语义哈希校验，事件通过 Persistent Outbox 重试并由数据库唯一约束去重。前端用 SSE 和 Last-Event-ID 恢复事件，执行结果归档为 Diff、测试与错误报告，再由人工验收。按当前简历口径，通过 400+ 项自动化测试，在固定隔离仓库完成两轮端到端验收，8 个 Agent 任务全部通过。"
         },
         {
-            id: "yonyou-30",
-            source: "yonyou",
-            duration: "30 秒",
-            title: "用友快速版本",
-            content: "我在用友做 Java 后端客户化开发，主要基于 NCC / YonBIP 做企业系统集成。工作中写过业务事件监听插件、JAX-RS / OpenAPI 接口和三方系统调用，接触了 EHR 与 OA、钉钉、263 邮箱的集成。代表工作包括组织部门同步、离职与入职 OpenAPI、异常考勤钉钉提醒，涉及 JSON 到聚合 VO 的映射、HTTP 鉴权调用、Oracle SQL 核验和异常处理。"
+            "id": "yonyou-30",
+            "source": "yonyou",
+            "duration": "30 秒",
+            "title": "用友快速版本",
+            "content": "我在用友做 Java 后端客户化开发，主要基于 NCC / YonBIP 做企业系统集成。工作中写过业务事件监听插件、JAX-RS / OpenAPI 接口和三方系统调用，接触了 EHR 与 OA、钉钉、263 邮箱的集成。代表工作包括组织部门同步、离职与入职 OpenAPI、异常考勤钉钉提醒，涉及 JSON 到聚合 VO 的映射、HTTP 鉴权调用、Oracle SQL 核验和异常处理。"
         },
         {
-            id: "yonyou-60",
-            source: "yonyou",
-            duration: "1 分钟",
-            title: "用友技术面版本",
-            content: "在用友，我参与巨一 EHR 客开，基于 NCC / YonBIP 对接 OA、钉钉和 263 邮箱。业务单据方面，我开发离职办理和入职登记 OpenAPI，完成唯一性校验、参照解析、多页签 JSON 到 AggVO 和子表 VO 的映射，再调用平台保存能力。同步方面，我开发 OA 组织部门和 263 邮箱部门后台任务，按组织层级匹配数据，记录并隔离单条失败。消息方面，我开发异常考勤钉钉提醒，完成缺勤查询、userid / unionid 转换和批量待办创建，也参与薪资申请及附件推送 OA 的联调。排查时会把请求响应与 Oracle 数据核验结合起来。"
+            "id": "yonyou-60",
+            "source": "yonyou",
+            "duration": "1 分钟",
+            "title": "用友技术面版本",
+            "content": "在用友，我参与巨一 EHR 客开，基于 NCC / YonBIP 对接 OA、钉钉和 263 邮箱。业务单据方面，我开发离职办理和入职登记 OpenAPI，完成唯一性校验、参照解析、多页签 JSON 到 AggVO 和子表 VO 的映射，再调用平台保存能力。同步方面，我开发 OA 组织部门和 263 邮箱部门后台任务，按组织层级匹配数据，记录并隔离单条失败。消息方面，我开发异常考勤钉钉提醒，完成缺勤查询、userid / unionid 转换和批量待办创建，也参与薪资申请及附件推送 OA 的联调。排查时会把请求响应与 Oracle 数据核验结合起来。"
         },
         {
-            id: "beiruan-60",
-            source: "beiruan",
-            duration: "1 分钟",
-            title: "北软技术面版本",
-            content: "在北软，我主要参与业务自动化和 Flowable 流程开发。业务上，围绕生产报工完成关联数据带出、主子表映射和数量校验，审批完成后自动生成计件工资明细，以关联报工 ID 作为幂等键避免重复生成；也参与销售订单、开票、回款开发，处理合同与产品明细带出、历史累计数量校验和上下游数据联动。流程上，我排查过并行撤回后 inactive Execution 残留，补齐清理和状态校验，解决重新提交后父流程无法结束的问题；还将单人协办扩展为多人顺序协办，并修复退回后的历史负责人及自动审批变量残留。面试时我会选一条业务链路或排障案例，结合实际代码和验证记录展开。"
+            "id": "beiruan-60",
+            "source": "beiruan",
+            "duration": "1 分钟",
+            "title": "北软技术面版本",
+            "content": "在北软，我主要参与业务自动化和 Flowable 流程开发。业务上，围绕生产报工完成关联数据带出、主子表映射和数量校验，审批完成后自动生成计件工资明细，以关联报工 ID 作为幂等键避免重复生成；也参与销售订单、开票、回款开发，处理合同与产品明细带出、历史累计数量校验和上下游数据联动。流程上，我排查过并行撤回后 inactive Execution 残留，补齐清理和状态校验，解决重新提交后父流程无法结束的问题；还将单人协办扩展为多人顺序协办，并修复退回后的历史负责人及自动审批变量残留。这段经历让我把业务数据的一致性问题与流程运行时状态联系起来。"
         }
     ],
-
-    stories: [
+    "stories": [
         {
-            id: "story-zhishu-outbox",
-            source: "zhishu",
-            title: "跨进程事件可靠性",
-            tags: ["Persistent Outbox", "幂等", "SSE"],
-            situation: "Node 执行 Agent，Spring 管任务状态；网络抖动或 Spring 重启可能导致事件丢失、重复或乱序。",
-            task: "保证终态、审批和产物最终可达，同时让重复投递不会破坏状态。",
-            action: "Node 先写 SQLite Outbox，同一 Run 使用 sequence 保序，失败时指数退避；Spring 通过 PostgreSQL 双唯一约束和事务幂等消费；SSE 只发送已提交事件并支持断线补历史。",
-            result: "固定真实 Demo 两轮中，事件序号严格递增，8/8 个任务形成终态和 Summary，网络重试不会产生重复投影。",
-            boundary: "准确表述为 At-Least-Once + 幂等消费，不要说实现了 Exactly-Once。"
+            "id": "story-zhishu-outbox",
+            "source": "zhishu",
+            "title": "跨进程事件可靠性",
+            "tags": [
+                "Persistent Outbox",
+                "幂等",
+                "SSE"
+            ],
+            "situation": "Node 执行 Agent，Spring 管任务状态；网络抖动或 Spring 重启可能导致事件丢失、重复或乱序。",
+            "task": "保证终态、审批和产物最终可达，同时让重复投递不会破坏状态。",
+            "action": "Node 先写 SQLite Outbox，同一 Run 使用 sequence 保序，失败时指数退避；Spring 通过 PostgreSQL 双唯一约束和事务幂等消费；SSE 只发送已提交事件并支持断线补历史。",
+            "result": "固定真实 Demo 两轮中，事件序号严格递增，8/8 个任务形成终态和 Summary，网络重试不会产生重复投影。",
+            "boundary": "准确表述为 At-Least-Once + 幂等消费，不要说实现了 Exactly-Once。"
         },
         {
-            id: "story-zhishu-approval",
-            source: "zhishu",
-            title: "真实工具审批闭环",
-            tags: ["Permission Hook", "竞态", "安全"],
-            situation: "Agent 可以调用 Edit / Write / Bash，仅在界面显示警告无法真正阻止工具执行。",
-            task: "在工具执行前实现跨 Node、Spring 和浏览器的可持久化审批。",
-            action: "Permission Hook 创建 pending Promise，Node 发出 APPROVAL_REQUIRED，Spring 持久化 Approval 并投影 WAITING_APPROVAL，用户决策再回调 Runtime，同时处理 Cancel / Decision 竞态和迟到批准。",
-            result: "真实 Demo 中写文件和测试命令会先暂停，批准后恢复；取消后的迟到批准不会复活操作。",
-            boundary: "强调真实阻断发生在 Tool 执行前，不只是前端弹窗。"
+            "id": "story-zhishu-approval",
+            "source": "zhishu",
+            "title": "真实工具审批闭环",
+            "tags": [
+                "Permission Hook",
+                "竞态",
+                "安全"
+            ],
+            "situation": "Agent 可以调用 Edit / Write / Bash，仅在界面显示警告无法真正阻止工具执行。",
+            "task": "在工具执行前实现跨 Node、Spring 和浏览器的可持久化审批。",
+            "action": "Permission Hook 创建 pending Promise，Node 发出 APPROVAL_REQUIRED，Spring 持久化 Approval 并投影 WAITING_APPROVAL，用户决策再回调 Runtime，同时处理 Cancel / Decision 竞态和迟到批准。",
+            "result": "真实 Demo 中写文件和测试命令会先暂停，批准后恢复；取消后的迟到批准不会复活操作。",
+            "boundary": "强调真实阻断发生在 Tool 执行前，不只是前端弹窗。"
         },
         {
-            id: "story-yonyou-parent",
-            source: "yonyou",
-            title: "组织同步父部门匹配异常",
-            tags: ["SQL 排查", "业务唯一键", "系统集成"],
-            situation: "部门同步联调时，部分非顶级部门返回“上级部门不存在或存在多个”。",
-            task: "判断问题来自 OA 接口还是本地父部门解析，并保证新增、修改都能正确同步层级。",
-            action: "从事件对象和查询条件入手，用日志与 SQL 核对父部门匹配结果，发现查询必须结合组织范围；同时补充修改场景的父部门字段。",
-            result: "顶级和子部门的新增、修改、停用场景均能正确同步，父子层级链路完成联调。",
-            boundary: "不要把团队完整系统说成自己独立负责，重点讲你参与的查询、字段和联调链路。"
+            "id": "story-yonyou-parent",
+            "source": "yonyou",
+            "title": "组织同步父部门匹配异常",
+            "tags": [
+                "SQL 排查",
+                "业务唯一键",
+                "系统集成"
+            ],
+            "situation": "部门同步联调时，部分非顶级部门返回“上级部门不存在或存在多个”。",
+            "task": "判断问题来自 OA 接口还是本地父部门解析，并保证新增、修改都能正确同步层级。",
+            "action": "从事件对象和查询条件入手，用日志与 SQL 核对父部门匹配结果，发现查询必须结合组织范围；同时补充修改场景的父部门字段。",
+            "result": "顶级和子部门的新增、修改、停用场景均能正确同步，父子层级链路完成联调。",
+            "boundary": "不要把团队完整系统说成自己独立负责，重点讲你参与的查询、字段和联调链路。"
         },
         {
-            id: "story-yonyou-openapi",
-            source: "yonyou",
-            title: "多页签 JSON 到 NCC 聚合 VO",
-            tags: ["JAX-RS", "AggVO", "平台保存"],
-            situation: "外部 EHR 通过 OpenAPI 提交入职或离职业务数据，参数包含主表和多个子页签。",
-            task: "完成校验、参照解析、对象映射并通过 NCC 标准业务能力保存单据。",
-            action: "先做必填、唯一性和参照合法性校验，再把主表字段映射为主 VO、子页签数组映射为子表 VO，组装 AggVO 后调用平台保存服务，统一处理响应与日志。",
-            result: "接口可以稳定接收外部多页签数据并落入正确业务对象，便于后续联调和 SQL 核验。",
-            boundary: "不能说成收到 JSON 后直接 insert；平台保存还承担业务校验、默认值和事件链路。"
+            "id": "story-yonyou-openapi",
+            "source": "yonyou",
+            "title": "多页签 JSON 到 NCC 聚合 VO",
+            "tags": [
+                "JAX-RS",
+                "AggVO",
+                "平台保存"
+            ],
+            "situation": "外部 EHR 通过 OpenAPI 提交入职或离职业务数据，参数包含主表和多个子页签。",
+            "task": "完成校验、参照解析、对象映射并通过 NCC 标准业务能力保存单据。",
+            "action": "先做必填、唯一性和参照合法性校验，再把主表字段映射为主 VO、子页签数组映射为子表 VO，组装 AggVO 后调用平台保存服务，统一处理响应与日志。",
+            "result": "接口可以稳定接收外部多页签数据并落入正确业务对象，便于后续联调和 SQL 核验。",
+            "boundary": "不能说成收到 JSON 后直接 insert；平台保存还承担业务校验、默认值和事件链路。"
         },
         {
-            id: "story-beiruan-execution",
-            source: "beiruan",
-            title: "撤回后 Execution 残留",
-            tags: ["Flowable", "并行流程", "运行时状态"],
-            situation: "并行审批撤回后重新提交，当前任务能够继续，但最终主流程无法结束，业务状态长期停留在审批中。",
-            task: "确认是前端显示、业务表还是 Flowable 运行时问题，并恢复流程一致性。",
-            action: "构造最小复现，对比正常与异常流程的任务和 execution tree，发现旧分支 execution 未完全清理；将修改限制在撤回 / 回退清理链路，并回归普通并行和撤回重提场景。",
-            result: "重新提交后主流程能够正常汇聚和结束，业务状态同步，运行时不再保留异常分支。",
-            boundary: "不要只修改业务表状态掩盖现象，Task 完成也不等于所有 Execution 已结束。"
+            "id": "story-beiruan-execution",
+            "source": "beiruan",
+            "title": "撤回后 Execution 残留",
+            "tags": [
+                "Flowable",
+                "并行流程",
+                "运行时状态"
+            ],
+            "situation": "并行审批撤回后重新提交，当前任务能够继续，但最终主流程无法结束，业务状态长期停留在审批中。",
+            "task": "确认是前端显示、业务表还是 Flowable 运行时问题，并恢复流程一致性。",
+            "action": "构造最小复现，对比正常与异常流程的任务和 execution tree，发现旧分支 execution 未完全清理；将修改限制在撤回 / 回退清理链路，并回归普通并行和撤回重提场景。",
+            "result": "重新提交后主流程能够正常汇聚和结束，业务状态同步，运行时不再保留异常分支。",
+            "boundary": "不要只修改业务表状态掩盖现象，Task 完成也不等于所有 Execution 已结束。"
         },
         {
-            id: "story-beiruan-dept",
-            source: "beiruan",
-            title: "补充案例 · 多部门用户创建部门取值错误",
-            tags: ["补充资料", "字段解析", "最小修改", "回归验证"],
-            situation: "多部门用户在表单中选择项目部，通知标题却显示账号查询出的另一个部门。",
-            task: "修正通知与系统字段取值，同时避免影响公共用户部门查询。",
-            action: "沿表单值、通知上下文和账号兜底链路对比，定位到解析优先级错误；在字段解析层让表单实际部门优先，账号部门仅作为兜底。",
-            result: "PC / 移动端相关系统字段和通知场景完成 17 项相关回归验证。",
-            boundary: "此案例来自旧补充资料，未列入新版简历。17 项是相关字段与通知回归，须有原记录支持，不要说成全平台端到端测试。"
+            "id": "story-beiruan-dept",
+            "source": "beiruan",
+            "title": "补充案例 · 多部门用户创建部门取值错误",
+            "tags": [
+                "补充资料",
+                "字段解析",
+                "最小修改",
+                "回归验证"
+            ],
+            "situation": "多部门用户在表单中选择项目部，通知标题却显示账号查询出的另一个部门。",
+            "task": "修正通知与系统字段取值，同时避免影响公共用户部门查询。",
+            "action": "沿表单值、通知上下文和账号兜底链路对比，定位到解析优先级错误；在字段解析层让表单实际部门优先，账号部门仅作为兜底。",
+            "result": "PC / 移动端相关系统字段和通知场景完成 17 项相关回归验证。",
+            "boundary": "此案例来自旧补充资料，未列入新版简历。17 项是相关字段与通知回归，须有原记录支持，不要说成全平台端到端测试。"
         }
     ],
-
-    questions: [
-        { id: "q-general-1", source: "resume", question: "请用 1 分钟介绍一下你自己。", answer: "按“身份与方向 → 两段实习 → 一个核心项目 → 求职动机”组织。用友突出 OpenAPI、组织同步与三方集成；北软先讲生产报工到计件工资、销售数据联动，再选一个 Flowable 排障点；知枢突出任务状态、工具审批和可靠事件。只概括自己实际做过的部分，留下一个有证据的例子供追问。", followup: "追问准备：为什么选择 Java 后端？三段经历哪一段最能代表你？" },
-        { id: "q-general-2", source: "resume", question: "为什么想继续做 Java 后端？", answer: "两段实习让我发现自己更喜欢复杂业务状态、流程可靠性和跨系统集成，而不是只做页面配置。Java 和 Spring 生态适合承载这类长期演进的企业后端，我也希望把数据库、并发、可靠消息等能力继续补深，并和 AI Agent 场景结合。", followup: "避免只回答“Java 岗位多”或“学校教过 Java”。" },
-        { id: "q-general-3", source: "resume", question: "用友和北软两段实习最大的区别是什么？", answer: "用友更偏企业平台客户化与跨系统集成：在 NCC / YonBIP 里开发 OpenAPI、VO 映射、组织同步和第三方调用，结合 Oracle 核验两端结果。北软同时涉及业务自动化和流程运行时：从报工生成计件工资、销售历史数量校验到 Flowable 撤回与协办。共同点是把业务标识、状态和数据映射讲清，并通过实际记录验证结果；跨系统调用和平台内业务联动的失败边界需要分别说明。", followup: "各选一条数据链路：用友如何确认同步成功，北软如何验证没有重复生成或累计超量？" },
-        { id: "q-general-4", source: "resume", question: "你的项目和实习中，哪件事最有技术含量？", answer: "根据岗位和自己掌握的证据选择：AI 应用后端可讲知枢的 Outbox 与工具审批；Java 业务后端可讲报工生成工资的幂等边界、销售累计校验，或 Flowable Execution 残留排障；企业集成可讲多页签 JSON 到 AggVO。先说触发条件和约束，再讲本人修改、方案依据和验证结果。若业务幂等的并发实现尚未核实，就不要把它包装成已验证的并发保证。", followup: "不要同时摊开三件事，选一件讲深。" },
-
-        { id: "q-zhishu-1", source: "zhishu", question: "知枢是从零开发的吗？你与 CloudCLI 的边界是什么？", answer: "不是从零实现 Claude Code。我保留了 CloudCLI 的 React、Node.js 和 Provider 执行底座，核心新增是 Spring Boot Control Plane，以及围绕 Task / Attempt、审批、取消重试、可靠事件、Artifact 验收和 Worktree 隔离的一整套治理链路。", followup: "准备说清保留了什么、新增了什么、为什么这样拆。" },
-        { id: "q-zhishu-2", source: "zhishu", question: "为什么要分 Control Plane 和 Execution Plane？", answer: "控制面负责稳定业务事实和治理：任务、执行尝试、审批、状态机、事件与产物；执行面负责 Provider、工具和工作区操作。两者变化频率、运行环境和故障模式不同，通过版本化 Runtime Protocol 解耦后，可以替换执行器而不破坏业务状态模型。", followup: "追问：为什么 Java 与 Node 不共享数据库？" },
-        { id: "q-zhishu-3", source: "zhishu", question: "Task 和 Attempt 为什么不能合并？", answer: "Task 表示稳定业务目标，Attempt 表示某一次具体执行。重试不应该覆盖上一次执行历史，因此 Retry 创建新的 Attempt，并冻结执行器、模型、能力和权限快照。这样同一 Task 可以保留多轮执行证据，也便于审计和比较。", followup: "类比：订单与支付尝试、作业与执行批次。" },
-        { id: "q-zhishu-4", source: "zhishu", question: "你实现了 Exactly-Once 吗？", answer: "没有，准确语义是 At-Least-Once + 幂等消费。Node 的 Outbox 可能重试投递，Spring 通过 eventId 与 runId + sequence 等唯一约束去重，并在事务里完成事件保存和状态投影，最终让重复投递表现为一次业务效果。", followup: "面试中主动纠正术语，比夸大更可信。" },
-        { id: "q-zhishu-5", source: "zhishu", question: "Approval 如何真正阻止 Tool 执行？", answer: "阻断点在 Node 的 Permission Hook。Hook 创建 pending Promise，事件传到 Spring 持久化审批并通过 SSE 展示；用户批准或拒绝后，决策回调 Runtime 才 resolve。取消、迟到批准和重复决策都有明确竞态保护。", followup: "重点说明不是前端弹窗，而是工具执行前真正暂停。" },
-        { id: "q-zhishu-6", source: "zhishu", question: "为什么使用 SSE，而不是全部使用 WebSocket？", answer: "这里主要是服务端向浏览器持续推送任务事件，SSE 的单向语义、HTTP 兼容和自动重连更贴合；配合事件 ID 和 Last-Event-ID 可以断线续传。审批决策等客户端写操作仍通过普通 HTTP，职责更清楚。", followup: "如果被问双向高频交互，再说明 WebSocket 的适用场景。" },
-        { id: "q-zhishu-7", source: "zhishu", question: "多 Agent 为什么使用 Git Worktree？", answer: "多个 Agent 共用主工作区会覆盖彼此修改，也可能污染用户未提交内容。每个 Worker 绑定独立 Worktree 和 Lease，候选修改先形成 commit 并经过固定 build / test，再由 Integration Worktree 顺序应用，最终只允许满足所有权与祖先关系校验的 fast-forward。", followup: "追问：两个 Agent 修改同一文件时如何处理冲突？" },
-        { id: "q-zhishu-8", source: "zhishu", question: "如果知枢要上线生产，你会优先补什么？", answer: "优先补 OS 级沙箱与资源、网络、目录限制，其次是审批超时与 Outbox 死信处置、Secret 管理和细粒度审计，再做真实负载下的 Worker Registry、调度与限流。只有吞吐证明需要时才引入 MQ。", followup: "不要把当前 Demo 能力说成生产级沙箱。" },
-
-        { id: "q-yonyou-1", source: "yonyou", question: "为什么用友实习使用 JAX-RS / NCC，而不是 Spring Boot？", answer: "用友实习项目基于 NCC / YonBIP 企业平台，接口资源主要使用平台扩展机制和 JAX-RS。后端能力仍包含服务分层、HTTP / JSON、SQL、业务对象、异常处理和跨系统联调。北软实习和知枢项目则使用 Spring Boot，需要分别说明三段经历的技术栈。", followup: "可以补充 JAX-RS 与 Spring MVC 的区别，以及平台扩展的约束。" },
-        { id: "q-yonyou-2", source: "yonyou", question: "为什么外部 JSON 不能直接写数据库？", answer: "NCC 单据通常包含业务校验、默认值、参照对象、主子表关系和平台事件。直接 insert 会绕过平台业务层，可能造成数据不完整或后续流程异常。正确做法是校验并映射成主 VO、子表 VO 和 AggVO，再调用标准单据保存能力。", followup: "追问准备：唯一性校验和业务参照怎么处理？" },
-        { id: "q-yonyou-3", source: "yonyou", question: "上级部门为什么可能查出多个？", answer: "企业系统里同名或同编码部门可能存在于不同组织，仅按名称或编码查询不足以形成业务唯一键。排查时要结合组织范围、有效状态和层级上下文，用 SQL 验证实际匹配结果。修改事件还要同步新的父节点，避免外部层级失真。", followup: "用 STAR 结构讲完整排查过程。" },
-        { id: "q-yonyou-4", source: "yonyou", question: "接口联调一般怎么排查？", answer: "先确认 URL、HTTP 方法与鉴权，再核对请求 JSON 和字段映射；通过请求响应日志判断第三方返回，同时用 SQL 核验源数据、参照主键和单据状态。把问题定位到源数据、转换逻辑、网络调用或对方系统中的具体一层。", followup: "日志注意业务主键、异常栈和敏感信息脱敏。" },
-        { id: "q-yonyou-5", source: "yonyou", question: "批量提醒为什么不能只用一个大 try-catch？", answer: "一个大 try-catch 可能让单条失败直接中断整个批次。按人员或业务项建立单条异常边界，可以继续处理后续数据，并记录精确业务主键和失败原因；是否重试仍取决于接口幂等性与错误类型。", followup: "追问：为什么第三方接口不能无限重试？" },
-        { id: "q-yonyou-6", source: "yonyou", question: "怎么保证跨系统数据一致性？", answer: "先明确业务唯一键和字段语义；创建类调用要有幂等查询或约束；失败必须留下可定位日志，并按业务要求设计重试或补偿。不能仅凭 HTTP 成功判断业务成功，还要解析响应并用 SQL 或对端结果核验。", followup: "不要泛泛回答“加事务”，本地事务无法覆盖外部系统。" },
-
-        { id: "q-beiruan-1", source: "beiruan", question: "Task 和 Execution 有什么区别？", answer: "Task 是等待某个用户处理的业务操作点；Execution 是 Flowable 内部描述流程执行路径或 token 的运行时对象。并行流程里，一个流程实例可能同时存在多个 Execution。Task 完成并不代表所有执行路径都已结束。", followup: "这题要自然连接到 execution 残留案例。" },
-        { id: "q-beiruan-2", source: "beiruan", question: "为什么 Execution 残留会让流程无法结束？", answer: "并行流程的汇聚和结束依赖运行时 token 状态。撤回后旧分支 Execution 没有清理，新一轮又产生执行路径，引擎可能认为仍有分支未到达 join 或 end，因此当前 Task 虽已完成，父流程仍不满足结束条件。", followup: "准备说明如何对比正常与异常 execution tree。" },
-        { id: "q-beiruan-3", source: "beiruan", question: "模型生成问题和运行时问题怎样区分？", answer: "空条件和多级并行可能在低代码配置转 BPMN 时就出现缺边、条件或网关关系错误；Execution 残留则发生在流程运行之后。先用最小复现检查生成模型是否与设计器一致，再决定查模型转换还是 Runtime 状态。", followup: "不要把所有 Flowable Bug 混成一个故事。" },
-        { id: "q-beiruan-4", source: "beiruan", question: "历史流程变量为什么会导致错误自动审批？", answer: "流程变量的生命周期可能跨越多个任务。流程退回或重复进入同一节点时，如果影响自动审批判断的历史变量没有重新初始化，新一轮就可能沿用旧状态，从而错误跳过人工处理。修复要隔离历史状态与当前轮次。", followup: "追问：为什么不每次新建完整流程实例？" },
-        { id: "q-beiruan-5", source: "beiruan", question: "补充资料：多部门用户的创建部门为什么显示错误？", answer: "表单中保存的实际创建部门是正确的，但通知和系统字段解析优先取了账号默认部门。最小修复是在解析层调整优先级：表单实际部门优先，账号部门只作兜底，而不是修改影响范围更大的公共部门查询 SQL。", followup: "突出“定位层次”和“最小修改”原则。" },
-        { id: "q-beiruan-6", source: "beiruan", question: "补充资料：旧手册中的 17 项回归验证了什么？", answer: "它是与 PC / 移动端系统字段、消息通知和流程中心字段相关的回归项，验证字段配置、取值优先级及关联场景没有被修改破坏。不能表述成全平台 17 个端到端测试。", followup: "如果面试官问清单，按真实保存的测试记录回答。" },
-        { id: "q-beiruan-7", source: "beiruan", question: "如何控制公共工作流模块的修改风险？", answer: "先用最小流程复现并判断问题属于配置、模型还是运行时；修改只落在必要链路；增加定向测试并回归关联流程；提交前检查精确 diff、依赖和构建产物，测试环境验证后再推进。", followup: "准备一个“为什么没有大规模重构”的回答。" },
-
+    "questions": [
         {
-            id: "q-general-5", source: "resume", question: "选一个真正处理过的问题，讲清从现象到验证的全过程。",
-            outline: "触发条件 → 正常与异常对照 → 根因证据 → 最小修复 → 回归与边界",
-            answer: "可以选北软撤回后流程不结束，或用友接口联调失败。先交代发生在哪个环境、什么操作顺序、影响什么业务，再用同一业务主键串联请求、日志和数据库状态。列出最初怀疑的原因、如何逐一排除，以及哪条证据定位到了具体代码。最后解释为什么改这一层、为什么不选另一方案，用修复前失败与修复后通过的相同用例形成闭环。测试环境复现应如实说明，不能包装成生产事故处置。",
-            followup: "如果暂时无法复现，你先补什么信息？修复无效或影响其他流程时怎么办？",
-            evidence: "准备一组脱敏的请求与日志、关键 SQL / 状态对照、修改位置和回归记录；说清自己负责与同事协作的部分。"
+            "id": "q-general-1",
+            "source": "resume",
+            "question": "请用 1 分钟介绍一下你自己。",
+            "answer": "面试官您好，我叫孙特，是合肥大学软件工程专业 27 届本科生，方向是 Java 后端和 AI 应用开发。在用友，我做过入职离职 OpenAPI、组织与邮箱同步和钉钉考勤提醒；在北软，我参与报工到计件工资、销售数据联动，以及 Flowable 并行撤回和多人协办。项目上，我基于 CloudCLI 开发知枢，用 Spring Boot 管理任务状态、工具审批与可靠事件，用 Node 承接 Agent 执行。这些经历让我更关注复杂业务状态和工程可靠性。",
+            "followup": "如果只能选一条主线，你的三段经历如何串起来？",
+            "topic": "经历与职责",
+            "priority": "must",
+            "followupAnswer": "主线是让有状态的业务可靠执行。用友处理跨系统数据映射和失败隔离，北软处理业务数量与流程运行时，知枢处理跨进程执行和人工审批。场景不同，但都要明确业务标识、合法状态变化，以及失败之后如何查清结果。"
         },
         {
-            id: "q-zhishu-9", source: "zhishu", question: "为什么命令同时需要幂等键和语义哈希？",
-            outline: "重复请求 → 业务意图 → 冲突处理 → 并发与落库",
-            answer: "幂等键识别同一次逻辑命令，语义哈希核对这次命令的业务内容。相同键且语义相同可以返回已有结果；相同键但任务、审批决定等语义不同，应拒绝冲突，避免把新意图误当成重试。需要说明哈希输入如何规范化、幂等键的作用域，以及并发请求由哪里原子地占用记录。简历说明采用了两者，具体字段和响应行为要对照当前实现回答。",
-            followup: "JSON 字段顺序不同算冲突吗？启动已成功但响应丢失，客户端应该换一个键吗？",
-            evidence: "同键同内容、同键不同内容、并发重复请求三组测试；核对数据库约束与命令处理事务。"
+            "id": "q-general-2",
+            "source": "resume",
+            "question": "为什么想继续做 Java 后端？",
+            "answer": "我想继续做 Java 后端，是因为两段实习中最吸引我的工作都涉及业务状态和系统协作：用友的单据映射与外部接口、北软的报工工资联动与流程排障，都需要把规则落实到可验证的后端逻辑。知枢则让我把这些能力用到 Agent 任务、审批和事件上。Java 生态提供了成熟的事务、数据访问和服务组织方式，我希望继续深化数据库、并发和可靠性，而不局限于完成一个接口。",
+            "followup": "既然知枢需要 Node，为什么不只做 Node 后端？",
+            "topic": "岗位与成长",
+            "priority": "must",
+            "followupAnswer": "语言应服务于边界。Node 便于承接现有 Agent SDK 和执行生态，Java 适合我已有的企业后端经验与控制面建模。分工不代表某种语言只能做某一层；真正需要解释的是复用收益、团队能力和跨进程通信成本。"
         },
         {
-            id: "q-zhishu-10", source: "zhishu", question: "为什么 Attempt 要冻结模型、能力和权限快照？",
-            outline: "配置可变 → 执行可追溯 → 重试新建 → 权限边界",
-            answer: "全局配置会变化，但一次执行应能追溯当时选用了哪个执行器、模型、工具能力和权限。把这些配置固定在 Attempt 上，可以解释历史结果，避免重试覆盖旧证据。新一次重试创建新 Attempt；新快照取自哪里、哪些权限允许调整，需要按真实实现说明。配置快照只能提高可追溯性，不能保证非确定性的模型生成完全相同。",
-            followup: "运行中修改默认模型会影响已启动的 Attempt 吗？撤销权限与冻结快照冲突时怎么办？",
-            evidence: "准备 Task / Attempt 数据关系图，以及一次修改配置后重试的历史记录。"
+            "id": "q-general-3",
+            "source": "resume",
+            "question": "用友和北软两段实习最大的区别是什么？",
+            "answer": "用友更偏企业平台客户化与跨系统集成。我在 NCC / YonBIP 的扩展机制下做 OpenAPI、VO 映射和组织同步，重点是字段语义、平台保存能力及两端结果核验。北软既有业务自动化，也有流程运行时：报工审批后生成计件工资，销售场景做历史数量校验，再处理 Flowable 撤回与协办。两者共同要求把业务标识和状态讲清；区别在于前者还要面对第三方协议和远端失败，后者更直接涉及平台内部的数据与流程联动。",
+            "followup": "两段实习中，“调用成功”和“业务成功”的区别是什么？",
+            "topic": "经历与职责",
+            "priority": "must",
+            "followupAnswer": "HTTP 成功不等于目标单据已经正确生成，任务完成也不等于父流程已经结束。业务成功要对应预期结果，例如目标部门存在且层级正确，或工资明细与报工对应、父流程进入终态；接口返回只是判断的一部分。"
         },
         {
-            id: "q-zhishu-11", source: "zhishu", question: "取消任务与批准工具同时到达，怎么避免已取消的任务继续执行？",
-            outline: "合法状态迁移 → 原子校验 → 执行端确认 → 迟到与重复事件",
-            answer: "先列出允许审批的状态和取消后的终态规则，再说明服务端如何在并发条件下完成检查与状态更新，而不是先查询再无条件写入。执行端也需要校验决定是否仍对应有效的待审批操作，拒绝重复或迟到决定。还要区分尚未执行的工具与已经开始的外部副作用：取消不能自动撤销已发生的写入。具体使用版本号、条件更新还是锁，以代码为准。",
-            followup: "批准已到执行端、取消尚在路上时，系统能承诺什么？如何展示取消中的状态？",
-            evidence: "准备取消先到、批准先到、重复批准与迟到批准的时序图和测试记录。"
+            "id": "q-general-4",
+            "source": "resume",
+            "question": "你的项目和实习中，哪件事最有技术含量？",
+            "answer": "我会选北软并行撤回后的 Execution 残留问题。现象是重新提交后当前审批还能继续，但父流程无法结束，说明只看页面或 Task 状态不够。我定位到并行汇聚处存在 inactive Execution 残留，补齐清理与状态校验后，重新提交的父流程能够结束。难点在于区分业务任务、执行路径和父流程生命周期，修复既要处理异常残留，也不能误伤仍然有效的分支。",
+            "followup": "这个问题为什么不能直接把业务单据改为审批完成？",
+            "topic": "经历与职责",
+            "priority": "must",
+            "followupAnswer": "业务表和引擎运行时会因此产生分歧：页面显示完成，但引擎仍可能保留执行路径，后续监听器、查询和流程操作会继续异常。正确修复对象是导致不结束的运行时状态，业务终态应随真实流程完成而更新。"
         },
         {
-            id: "q-zhishu-12", source: "zhishu", question: "有了 SSE 的 Last-Event-ID，就一定不会丢消息吗？",
-            outline: "游标 → 持久化事件 → 补历史与实时衔接 → 过期处理",
-            answer: "Last-Event-ID 是客户端恢复位置的线索，服务端仍要保存可重放事件，并正确处理权限、排序和重复。要说清从历史查询切换到实时订阅时如何避免空隙，以及收到重复事件时如何按事件标识去重。若游标过期或历史已清理，需要明确的全量状态恢复策略。简历已有重放能力，不能仅凭自动重连就宣称任何故障下都不丢消息。",
-            followup: "多标签页重连、任务已结束、游标不存在时分别怎么处理？",
-            evidence: "准备断开连接期间继续产生事件、重连补齐时间线的记录，并核对游标边界。"
+            "id": "q-zhishu-1",
+            "source": "zhishu",
+            "question": "知枢是从零开发的吗？你与 CloudCLI 的边界是什么？",
+            "answer": "知枢不是从零实现模型或 Claude Code。我基于 CloudCLI，复用其前端、Node 执行底座及已有 Provider 能力，主要新增 Spring Boot 控制面，把任务、单次执行、审批、可靠事件和交付验收组织成业务链路。区别在于一次 Agent 会话之外，还能保留独立的执行历史、处理取消重试，并把代码变更与测试结果交给人验收。开源底座解决调用与执行的基础，我负责的是这些业务管理和可靠性能力。",
+            "followup": "既然已有 CloudCLI，新增 Java 控制面的价值在哪里？",
+            "topic": "架构与边界",
+            "priority": "must",
+            "followupAnswer": "价值在于明确持久化的业务事实与执行边界。执行器可以变化或重启，但任务目标、审批决定、历史尝试和交付记录需要稳定保存。代价是多一个服务及通信失败场景，因此必须配套协议、幂等和事件恢复，不能只拆出进程就认为架构更好。"
         },
         {
-            id: "q-zhishu-13", source: "zhishu", question: "400+ 项自动化测试和 8 个 Agent 任务，分别证明了什么？",
-            outline: "统计口径 → 测试分层 → 验收条件 → 样本局限",
-            answer: "当前简历写的是通过 400+ 项自动化测试，并在固定隔离仓库完成两轮端到端验收，8 个 Agent 任务全部通过。自动化测试需要拆清 Java、Node.js、PostgreSQL 相关集成与其他测试各覆盖什么；真实 Agent 验收还要说明任务输入、实际工具调用、审批、终态与交付物如何检查。8 个任务通过是固定样本下的结果，不能等同于线上成功率、吞吐或安全证明。旧手册里的细分数字不能直接充当最新运行记录。",
-            followup: "测试对应哪个提交和运行命令？重复运行是否重复计数？没有覆盖哪些失败场景？",
-            evidence: "保留对应提交、日期、命令、测试报告及两轮 8 个任务清单；没有报告支持时不补写更精确的数量。"
+            "id": "q-zhishu-2",
+            "source": "zhishu",
+            "question": "为什么要分 Control Plane 和 Execution Plane？",
+            "answer": "控制面管理任务、Attempt、审批、事件和交付物，执行面负责接入 Provider、调用工具并操作工作目录。知枢由 Spring Boot 和 Node 分别承担这两层，通过版本化 Runtime Protocol 通信。分层让执行器的 SDK、进程和工具变化不必直接侵入业务状态模型，也使执行异常与任务记录分开。它同时引入远程调用的不确定性，所以协议必须表达命令身份、执行关联和结果，不能把网络调用当成本地函数。",
+            "followup": "两层直接共用数据库，会不会更简单？",
+            "topic": "架构与边界",
+            "priority": "must",
+            "followupAnswer": "共享表能减少一部分接口，但会让执行器依赖业务表结构、事务规则和权限，任何一侧变更都可能影响另一侧。通过协议交互能收紧边界；数据库仍可用于持久化各自职责内的数据，不能用任意跨层写表替代明确的命令和事件。"
         },
         {
-            id: "q-zhishu-14", source: "zhishu", question: "Agent 说完成了，你怎样判定研发任务真的完成？",
-            outline: "执行终态 → 交付物归档 → 候选验证 → 人工验收",
-            answer: "模型摘要只是执行产物之一，不能代替结果验证。简历中的做法是归档文件变更、Git Diff、测试与错误报告，再结合候选提交的构建测试和人工验收。需要区分执行结束、验证通过与业务接受三个含义，并说明失败报告和旧 Attempt 证据如何保留。Provider 接入也要按实际工具、审批、取消等能力说明支持范围，不能因为有统一接口就宣称各执行器能力完全一致。",
-            followup: "测试通过但改错需求怎么办？Worktree 能隔离进程、网络和密钥吗？",
-            evidence: "准备一次任务从输入到 Diff、测试报告和人工验收的完整记录；Worktree 只说明代码工作区隔离。"
+            "id": "q-zhishu-3",
+            "source": "zhishu",
+            "question": "Task 和 Attempt 为什么不能合并？",
+            "answer": "Task 表示稳定的业务目标，Attempt 表示为完成这个目标进行的一次执行。知枢重试时新建 Attempt，保留前次的状态、上下文和交付记录，并冻结本次执行器、模型、能力与权限快照。如果只保留一个可覆盖的任务记录，失败后的重试会抹掉当时输入和结果，迟到事件也难以区分属于哪一轮。双层模型让任务可以持续存在，同时每次执行都有独立身份和生命周期。",
+            "followup": "同一个 Task 的旧 Attempt 迟到上报成功，会发生什么？",
+            "topic": "任务与状态",
+            "priority": "must",
+            "followupAnswer": "事件首先归属它自己的 Attempt，不能仅凭 Task ID 覆盖当前执行状态。通用处理原则是校验事件所属轮次与合法迁移，保存旧轮次历史，但只有满足当前任务规则的 Attempt 才能影响任务汇总结果。"
         },
         {
-            id: "q-yonyou-7", source: "yonyou", question: "OpenAPI 先查询再保存，能避免并发创建重复单据吗？",
-            outline: "业务唯一键 → 并发窗口 → 平台保存能力 → 重复结果",
-            answer: "先查再写只能挡住部分重复请求，两个请求可能同时查到不存在。应先解释离职或入职单据的业务唯一键、组织范围与平台校验，再核对标准保存能力是否提供数据库约束或并发控制。不能越过 NCC 业务层直接改表；如果自己只做了前置校验，应明确这层并不能独自保证并发唯一性，并说明需要补充验证的位置。",
-            followup: "第三方超时后重发，怎样判断上一次其实已经保存成功？",
-            evidence: "准备重复请求与并发保存的核验思路、脱敏业务键，以及平台返回的冲突结果。"
+            "id": "q-zhishu-4",
+            "source": "zhishu",
+            "question": "你实现了 Exactly-Once 吗？",
+            "answer": "我没有实现端到端 Exactly-Once。知枢用 Persistent Outbox 保存关键事件并在失败时重投，消费端用数据库唯一约束识别重复，因此采用的是至少一次投递加幂等消费。重试解决可能丢失的发送，去重避免同一事件重复产生业务效果；二者缺一不可。这个保证仍有范围：数据库里的重复消费可以控制，但外部工具已经写出的文件或发出的请求，不会因为事件去重就自动具备一次性副作用。",
+            "followup": "如果消费者处理成功后，确认响应在网络中丢了呢？",
+            "topic": "可靠事件",
+            "priority": "must",
+            "followupAnswer": "发送端无法区分“没有处理”与“处理后响应丢失”，应重投相同事件身份。消费者通过已有记录识别重复并返回确认，而不是再应用一遍状态变化。幂等判断与被保护的本地副作用需要具有一致的提交边界。"
         },
         {
-            id: "q-yonyou-8", source: "yonyou", question: "异常考勤提醒为什么要转换 userid / unionid，转换失败怎么处理？",
-            outline: "人员标识 → 对接接口要求 → 转换核验 → 单条异常隔离",
-            answer: "内部人员主键与钉钉接口要求的身份标识不一定相同，不能直接混用。需要按对接应用和接口文档确认 userid / unionid 的含义、作用域与转换方式，并核验人员映射。转换失败应记录可定位原因，在该人员的处理边界内结束或进入待处理记录，避免错误发送或中断整个批次。鉴权、限流、映射缺失与暂时性网络失败需要分别判断是否可重试。",
-            followup: "创建待办成功但响应超时，会不会重复提醒？没有幂等接口时怎么核验？",
-            evidence: "准备一条脱敏人员从缺勤查询、身份转换到待办结果的完整链路；日志不要输出 token。"
+            "id": "q-zhishu-5",
+            "source": "zhishu",
+            "question": "Approval 如何真正阻止 Tool 执行？",
+            "answer": "知枢的审批阻断点在执行端的 Permission Hook，发生在敏感工具真正运行之前。Hook 暂停该次工具调用，审批请求进入控制面持久化并推送给用户；用户作出决定后，执行端收到对应结果，才允许继续或拒绝。审批记录不是单纯的前端弹窗，它要关联具体任务、Attempt 和待执行操作。取消、迟到决定与重复决策也必须参与状态判断，否则已经无效的批准可能错误恢复工具。",
+            "followup": "浏览器关闭后，没有人点审批，工具会不会继续运行？",
+            "topic": "工具审批",
+            "priority": "must",
+            "followupAnswer": "未取得有效批准时，不应该仅因页面断开就执行。持久化审批记录能让用户重连后继续查看，但超时、取消和执行端重启仍需要明确处理策略。安全的默认结果是保持阻断或终止等待，而不是把通信异常解释为同意。"
         },
         {
-            id: "q-yonyou-9", source: "yonyou", question: "薪资发放申请提交 OA 联调时，HTTP 200 是否代表业务成功？",
-            outline: "传输结果 → 业务响应 → 字段映射 → 两端状态核验",
-            answer: "HTTP 成功只能说明请求在协议层得到相应结果，还需要解析约定的业务码、消息和目标单据标识。排查时用同一业务单据关联请求、字段映射、响应和源端 SQL 核验，再确认 OA 是否实际生成或接收成功。简历中这项职责是参与接口联调，应重点讲自己定位和修正的部分，不扩大成独立设计整套薪资审批系统。",
-            followup: "源端已提交而 OA 失败时如何定位与补偿？哪些状态需要双方确认？",
-            evidence: "准备脱敏的接口字段对照、一次失败响应及修正后的核验记录，不包含真实薪资数据。"
+            "id": "q-zhishu-6",
+            "source": "zhishu",
+            "question": "为什么使用 SSE，而不是全部使用 WebSocket？",
+            "answer": "知枢的浏览器主要接收执行进度、审批和结果事件，是服务端到客户端的单向数据流，所以使用 SSE。它基于 HTTP，EventSource 能接收命名事件、自动重连，并通过事件 ID 为恢复位置提供依据；审批和取消等写操作仍通过普通 HTTP 接口提交。WebSocket 更适合持续双向消息，但需要自己定义更多连接与恢复语义。选择 SSE 是匹配交互方向，并不意味着它天然保证事件不丢。",
+            "followup": "一次执行结束后，SSE 连接还需要一直保留吗？",
+            "topic": "SSE 与实时通信",
+            "priority": "must",
+            "followupAnswer": "如果这个连接只订阅当前任务，收到可信终态并补齐所需事件后可以主动关闭，避免无意义重连；如果订阅整个工作台，则可以继续服务其他任务。终态是否完整应以持久化状态为准，不能只看最后一条文本输出。"
         },
         {
-            id: "q-beiruan-8", source: "beiruan", question: "多人顺序协办与回退，如何避免跳人或历史负责人错误？",
-            outline: "参与人顺序 → 当前轮次 → 回退目标 → 历史与运行时分离",
-            answer: "先画清正常顺序协办时每一步由谁处理、何时产生下一任务，再对照回退后负责人、当前序号和历史变量的变化。需要区分历史记录与本轮运行时状态，不能把上轮完成标记直接用于新一轮判断。具体任务创建方式、变量作用域与回退 API 应按参与修改的代码说明，不把业务协办直接等同于某一种 BPMN 多实例配置。",
-            followup: "同一人再次进入节点、处理中回退、重复点击提交分别如何验证？",
-            evidence: "准备一个三人顺序协办的正常与回退流程，以及任务负责人、变量在每一步的对照。"
+            "id": "q-zhishu-7",
+            "source": "zhishu",
+            "question": "多 Agent 为什么使用 Git Worktree？",
+            "answer": "知枢用 Git Worktree 给并行 Agent 创建独立工作目录，使各自的文件修改和暂存区分开，再通过提交、构建和测试校验候选结果并集成。相比所有 Agent 直接修改同一目录，它能减少覆盖和未提交改动混杂，同时复用仓库对象。它解决的是代码工作区隔离，不会自动解决业务冲突，也不是进程、网络或密钥沙箱。两个候选都能单独通过测试，集成后仍可能产生冲突或行为变化。",
+            "followup": "两个 Agent 同时改了同一个文件，Worktree 能自动解决吗？",
+            "topic": "工作区与验收",
+            "priority": "must",
+            "followupAnswer": "不能。独立目录只让各自修改不互相覆盖，集成时仍可能发生文本冲突，甚至没有文本冲突的语义冲突。需要基于目标版本合并候选改动，审查冲突并重新构建测试；不能把“没有冲突标记”当成集成正确。"
         },
         {
-            id: "q-beiruan-9", source: "beiruan", question: "补充资料：四类消息通知的字段排序、去重和权限过滤怎样排查？",
-            outline: "通知类型 → 字段配置 → 流程上下文取值 → 权限与展示",
-            answer: "分别确定待办、催办、抄送、流程完成四类通知需要的字段，跟踪配置排序、字段标识去重、关联表单展示值与流程上下文的取值链路。排查时区分字段根本没取到、取错来源、被重复覆盖和权限过滤结果，不仅看最终文本。权限判断应在服务端生效，不能只靠前端隐藏；去重时也不能把同名但来源不同的业务字段随意合并。实际执行顺序以代码为准。",
-            followup: "同名字段、关联记录被删除、接收人无权限时应该显示什么？",
-            evidence: "按四类通知准备字段配置、接收人权限和最终消息的对照；补无权限与空值场景。"
+            "id": "q-zhishu-8",
+            "source": "zhishu",
+            "question": "如果知枢要上线生产，你会优先补什么？",
+            "answer": "如果推进生产化，我会先收紧执行权限与资源边界，包括目录访问、进程资源、网络出口和密钥暴露，再完善审批超时、执行端故障恢复以及事件积压处置。知枢已有任务、审批、幂等与事件记录，但这些不能代替操作系统隔离和真实负载验证。调度、限流和消息中间件应根据并发量、积压和延迟数据决定；在缺少负载证据时，先把故障可见性与恢复流程做清楚比增加组件更有价值。",
+            "followup": "为什么不先把所有事件改成 Kafka 或 RabbitMQ？",
+            "topic": "架构与边界",
+            "priority": "deep",
+            "followupAnswer": "消息中间件可以提供更成熟的缓冲和分发能力，但无法替业务层决定幂等键、合法状态或审批权限，还会增加部署和运维成本。只有吞吐、消费者解耦或积压管理成为实际瓶颈时，引入它才有明确收益。"
         },
         {
-            id: "q-beiruan-10", source: "beiruan", question: "流程卡住时，如何用日志和数据库状态定位到模型或运行时？",
-            outline: "最小操作序列 → BPMN 检查 → Execution / Task / 变量对照 → 定向回归",
-            answer: "先固定流程定义版本和操作序列，区分首次提交、撤回重提或多级并行汇聚。核对生成的 BPMN 条件与连线，再用流程实例标识关联日志、当前任务、执行树和变量，找出正常实例与异常实例的分叉点。确认是模型生成缺边还是撤回后的运行时状态残留，再选择对应层修复。数据库用于核验，不能把直接删除引擎运行表当作常规修复方案。",
-            followup: "当前没有待办但流程未结束，还要检查什么？一次正常流程通过能否证明修复有效？",
-            evidence: "准备空条件、多级并行、撤回重提的最小复现，附修复前后执行树及关联回归结果。"
+            "id": "q-yonyou-1",
+            "source": "yonyou",
+            "question": "为什么用友实习使用 JAX-RS / NCC，而不是 Spring Boot？",
+            "answer": "用友实习的项目基于 NCC / YonBIP，客户化接口需要遵循平台扩展机制，所以使用 JAX-RS 和平台业务对象，而不是另建一套 Spring Boot 服务。JAX-RS 提供 Java REST 接口的规范，负责资源路径、HTTP 方法与请求响应映射；NCC 则还包含单据、参照和保存服务等业务能力。我在这段实习处理的是这些平台约束下的接口与集成，Spring Boot 经验主要来自北软和知枢。",
+            "followup": "JAX-RS 和 Spring MVC 是完全相同的东西吗？",
+            "topic": "接口与平台",
+            "priority": "must",
+            "followupAnswer": "它们都能构建 HTTP 接口，但体系不同。JAX-RS 是规范，有不同实现；Spring MVC 是 Spring 的 Web 框架，使用自己的控制器与映射机制。接口设计、校验、异常返回等思想相通，注解和运行环境不能直接混用。"
         },
         {
-            id: "q-beiruan-11", source: "beiruan", question: "生产报工如何从关联数据带出，一路生成计件工资明细？",
-            outline: "数据来源 → 主子表映射 → 数量校验 → 审批触发 → 结果核验",
-            answer: "新版简历确认了关联数据自动带出、主子表映射、数量校验，以及审批完成后生成计件工资明细。回答时先画出数据从哪里来、哪些字段属于报工主表和明细，再说明审批完成后在哪个实际入口触发工资生成。需要对照代码解释报工与工资明细的对应粒度、字段来源和生成结果；不能凭业务名称补出单价算法、表结构或监听器实现。最后用一条脱敏记录串起报工内容、审批状态和生成明细。",
-            followup: "一张报工有多条明细时如何对应？关联数据修改后，报工和工资使用哪个时点的数据？",
-            evidence: "准备字段映射表、实际触发代码，以及同一报工 ID 的审批前后与工资明细核验记录。"
+            "id": "q-yonyou-2",
+            "source": "yonyou",
+            "question": "为什么外部 JSON 不能直接写数据库？",
+            "answer": "外部 JSON 是传输结构，不等于 NCC 内部的完整业务单据。入职、离职接口需要做必填与唯一性校验，把外部编码解析成业务参照，再将主表和多个页签映射为主 VO、子表 VO，组成 AggVO 后调用平台保存能力。直接写表可能绕过业务校验、默认值和平台事件，导致数据库有记录但业务功能无法正确使用。平台保存的意义是遵守单据生命周期，而不仅是执行几条 insert。",
+            "followup": "一个子页签的参照不存在，能否先保存其他部分？",
+            "topic": "接口与平台",
+            "priority": "must",
+            "followupAnswer": "这取决于单据的完整性要求，不能把必需子表失败当作普通缺省值。通常应先完成整体校验，再进入保存；如果业务允许部分接收，也必须明确哪些部分成功及如何补齐，避免接口返回成功却生成不可用单据。"
         },
         {
-            id: "q-beiruan-12", source: "beiruan", question: "为什么用关联报工 ID 作为工资生成的幂等键？",
-            outline: "重复来源 → 业务标识 → 生成粒度 → 重复处理 → 保证边界",
-            answer: "关联报工 ID 用来识别同一笔报工对应的生成动作，使重复触发时能够判断已有工资明细，避免再次生成。要说明重复可能来自哪些真实入口，以及一张报工对应多条工资明细时如何判断整批已处理。简历只确认使用了这个幂等键，未说明具体约束、锁或事务实现；应对照代码回答判重位置、查询范围和重复请求的返回行为。若实际只有先查询再生成，需要明确它本身无法排除两个请求同时通过查询的窗口。",
-            followup: "报工退回修改后再次审批，仍然属于同一次生成吗？按报工 ID 判重会不会挡住合法修正？",
-            evidence: "准备重复触发前后的明细条数与内容、业务键查询代码，以及撤回再审批的实际规则；并发行为须单独核实。"
+            "id": "q-yonyou-3",
+            "source": "yonyou",
+            "question": "上级部门为什么可能查出多个？",
+            "answer": "部门名称或编码未必在整个企业范围内唯一，不同组织可能出现相同值。父部门查询如果缺少组织范围、有效状态或层级条件，就会查到多个候选，无法生成明确的上级关系。旧联调案例中，问题涉及父部门匹配范围以及修改时的父节点字段。解决思路是依据业务标识补齐匹配条件，让同步关系可以确定；随意取第一条虽然能绕过报错，却会把部门同步到错误层级。",
+            "followup": "为什么不能直接加 DISTINCT 消除多条结果？",
+            "topic": "组织与消息同步",
+            "priority": "must",
+            "followupAnswer": "DISTINCT 只能删除查询结果中完全相同的行，不能判断两个不同部门哪个才是正确父节点。若它掩盖的是关联条件错误，结果仍然不可靠。应先确定业务唯一范围，再修正匹配关系，而不是通过压缩结果数量碰运气。"
         },
         {
-            id: "q-beiruan-13", source: "beiruan", question: "工资明细生成到一半失败，或审批完成动作同时触发两次，会怎样？",
-            outline: "失败位置 → 已保存范围 → 重试判定 → 并发窗口 → 恢复验证",
-            answer: "先分开顺序重复、生成中途失败和并发重复三类情况，再按实际代码说明哪些写入已完成、失败后判重能看到什么。如果一部分明细已保存，简单判断存在记录可能让重试跳过未完成部分；如果两个调用同时判定不存在，也可能各自生成。需要核实保存边界、批次完成判定和异常恢复方式。事务、数据库约束或条件更新可以作为待评估方案，但没有代码和测试支持时，不能说这些已经实现或保证任何故障下都不重复。",
-            followup: "审批状态已完成但工资生成失败，业务人员如何发现和处理？补跑如何确认既不漏生成也不重复？",
-            evidence: "准备实际异常处理代码；列出中途失败、保存成功但响应失败、同时触发两次的验证方案与已取得的结果。"
+            "id": "q-yonyou-4",
+            "source": "yonyou",
+            "question": "接口联调一般怎么排查？",
+            "answer": "接口联调要逐层缩小范围：先看地址、方法、鉴权和超时，再看报文结构、字段格式与参照映射，最后核对业务码和目标系统实际结果。用友实习中我把请求响应与 Oracle 数据核验结合起来，用业务单据或人员标识串联两端。这样可以区分源数据错误、转换错误、网络失败和对端业务拒绝。HTTP 200 但业务码失败，与请求根本没有发出去，是不同层次的问题。",
+            "followup": "对方说没收到请求，但本地日志显示调用过，怎么办？",
+            "topic": "联调与异常处理",
+            "priority": "must",
+            "followupAnswer": "本地开始调用不代表对端已接收。应核对调用时间、目标地址、关联标识、实际响应与超时阶段，再与对端入口日志对应；若经过网关，还要检查网关记录。不要在结果未知时直接反复创建业务单据，以免重发造成重复。"
         },
         {
-            id: "q-beiruan-14", source: "beiruan", question: "报工数量校验具体校验什么，前端校验够不够？",
-            outline: "数量字段 → 业务上限与单位 → 校验时点 → 明细范围 → 边界用例",
-            answer: "先明确自己校验的实际字段、单位、允许范围和上限来源，再说明是逐条明细校验、主子表汇总校验还是其他规则。简历只写了数量校验，不能自动推断涉及工单上限、合格数、损耗或负数冲销。前端校验有助于及时提示，但请求可以绕过页面，仍需核实服务端实际检查位置与错误返回。编辑、关联记录变化和小数精度的规则应按业务约定及现有代码回答。",
-            followup: "空值、零、负数、恰好等于上限和超过上限时分别怎样处理？多行关联同一来源会不会绕过总量校验？",
-            evidence: "准备真实数量字段和单位说明、服务端校验位置，以及边界输入与返回结果；未覆盖的规则列入待补。"
+            "id": "q-yonyou-5",
+            "source": "yonyou",
+            "question": "批量提醒为什么不能只用一个大 try-catch？",
+            "answer": "一个包住整个循环的大 try-catch 会让某条人员或部门数据失败后直接退出循环，后续有效记录也无法处理。用友的批量提醒和同步在单条业务项边界记录并隔离异常，使其他记录能继续。隔离不等于忽略错误：失败仍需要关联业务标识和原因，批次结果也要反映部分失败。鉴权失效、服务不可用等全局故障则不适合对每条数据无限重复同样的调用。",
+            "followup": "既然按条捕获异常，为什么不 catch 所有错误然后继续？",
+            "topic": "联调与异常处理",
+            "priority": "must",
+            "followupAnswer": "继续执行的前提是错误只影响当前项。缺失某个人员映射可以隔离，但整体配置错误、连接持续失败或数据源不可用可能影响整个批次。应区分单条业务失败和系统级故障，必要时停止或延后批次，并保留可恢复的进度信息。"
         },
         {
-            id: "q-beiruan-15", source: "beiruan", question: "销售订单、开票、回款关联的合同和产品明细如何保持对应？",
-            outline: "场景职责 → 关联标识 → 字段带出 → 主子表对应 → 两端核验",
-            answer: "先分别说明自己在三类业务场景中做了哪些接口或字段处理，再沿实际关联关系解释合同与产品明细从哪里带出、靠什么标识对应。要区分用于关联的标识与用于展示的名称，说明哪些字段保存为当前单据数据、哪些是查询展示。修改关联合同、增删产品行后如何处理旧关联，需要用代码和业务规则说明，不能直接假设三类单据是一对一关系或所有字段自动实时同步。",
-            followup: "产品同名但合同不同怎么办？改选合同后旧明细是否保留，校验依据是什么？",
-            evidence: "准备一份脱敏合同与产品明细、三类场景的字段来源对照，以及改关联前后的核验结果。"
+            "id": "q-yonyou-6",
+            "source": "yonyou",
+            "question": "怎么保证跨系统数据一致性？",
+            "answer": "跨系统一致性不能靠一个本地事务覆盖。源端保存和远端 HTTP 调用可能出现一边成功、一边失败，因此要先明确业务唯一标识和字段语义，再判断远端结果，最后提供失败核对与恢复路径。我在用友的实际工作包括异常记录、接口响应分析和 Oracle 数据核验。通用的可靠设计还会使用幂等请求、持久化待发送记录或对账补偿，但这些方案不能自动视为该实习全部实现。",
+            "followup": "远端实际成功了，本地却因超时报错，是否应该回滚本地记录？",
+            "topic": "联调与异常处理",
+            "priority": "must",
+            "followupAnswer": "回滚本地并不能撤销远端已经完成的动作，反而可能丢掉关联线索。应把结果视为待确认，利用原业务键查询或对账；确认不存在后再重试。如果远端支持撤销，则按明确的补偿操作执行，补偿本身同样需要记录和重试边界。"
         },
         {
-            id: "q-beiruan-16", source: "beiruan", question: "历史累计数量怎么计算，修改当前单据时怎样避免重复累计？",
-            outline: "累计维度 → 纳入状态 → 当前记录处理 → 比较规则 → 边界验证",
-            answer: "先说明历史累计按哪个合同或产品明细范围查询，哪些单据状态计入，当前提交值与历史值按什么业务规则比较。编辑时旧值是否已经在历史集合中很关键：若已经计入，又直接叠加修改后的值，就可能重复累计。应对照真实查询说明排除当前单据还是按差量计算，以及新增、修改、作废的口径。不能把某个示例公式当成三类场景统一规则，也不能忽略单位和精度。",
-            followup: "有两条相同产品行、修改关联来源、作废历史单据时，累计查询范围分别怎样变化？",
-            evidence: "准备实际累计查询或服务代码、纳入状态说明，以及新增、修改和超量的脱敏输入输出对照。"
+            "id": "q-beiruan-1",
+            "source": "beiruan",
+            "question": "Task 和 Execution 有什么区别？",
+            "answer": "Task 是用户待处理的任务对象，包含处理人、任务状态等信息；Execution 表示流程内部的一条执行路径及其作用域状态。一个并行流程可以有多个 Execution，而某些 Execution 当前并不对应用户待办，例如等待汇聚或承载子作用域的执行节点。因此完成一个 Task 不代表所有执行路径都结束。北软的撤回问题正是当前任务还能继续，但残留 Execution 影响了父流程的完成条件。",
+            "followup": "没有任何待办任务，流程是不是就一定结束了？",
+            "topic": "Flowable 流程",
+            "priority": "must",
+            "followupAnswer": "不一定。流程可能停在等待事件、定时器、服务任务重试或并行汇聚，也可能存在异常残留的执行路径。判断结束要看流程实例与 Execution 的真实状态，而不是只统计用户 Task 数量；没有待办只是排查线索之一。"
         },
         {
-            id: "q-beiruan-17", source: "beiruan", question: "开票与回款联动时，数量、金额和状态分别按什么口径更新？",
-            outline: "联动字段 → 业务含义 → 触发时点 → 异常路径 → 上下游对照",
-            answer: "先列出简历中实际开发的开票与回款联动字段，再分别解释数量、金额或状态的业务含义。历史累计数量不能直接等同于累计开票金额或回款金额，更不能假设开票与回款始终一一对应。需要根据业务约定说明创建、修改或状态变化中哪个动作触发联动，目标记录如何找到，失败后怎样发现和核验。税额、部分回款、红冲等规则只有实际参与并有资料支持时才展开。",
-            followup: "源单据更新成功而下游未更新时如何定位？退回、作废是否需要反向调整，项目实际支持哪些场景？",
-            evidence: "准备一条开票或回款从操作到上下游字段变化的记录、实际触发代码与失败处理；明确未做过的业务规则。"
+            "id": "q-beiruan-2",
+            "source": "beiruan",
+            "question": "为什么 Execution 残留会让流程无法结束？",
+            "answer": "并行流程要根据各条执行路径的状态推进汇聚与结束。撤回如果只移动当前任务，却留下旧分支或作用域的 Execution，重提后就可能同时存在新旧运行时状态。北软遇到的是并行汇聚处 inactive Execution 残留，导致父流程不能结束；修复补齐了清理与状态校验。inactive 并不天然表示垃圾，正常汇聚等待也可能出现非活跃执行，关键在于它是否仍属于当前合法执行结构。",
+            "followup": "为什么不能把所有 inactive Execution 都删除？",
+            "topic": "Flowable 流程",
+            "priority": "must",
+            "followupAnswer": "它们可能代表正常等待或作用域关系，盲删会破坏并行汇聚和父子执行树。清理必须依据撤回操作产生的无效路径及当前模型判断，通过引擎认可的运行时操作处理，不能仅凭一个状态字段直接删除引擎表。"
         },
         {
-            id: "q-beiruan-18", source: "beiruan", question: "两张销售单据同时提交，都通过历史累计校验，就一定不会超量吗？",
-            outline: "共同读取 → 校验窗口 → 写入时点 → 实际保护 → 并发验证",
-            answer: "不一定。两个请求可能读取同一份历史累计值，各自校验通过，合并结果却超过业务上限。需要先核实项目是否允许这种并发操作、服务端校验与保存之间的实际边界，以及平台是否已有约束或并发控制。锁、版本校验、条件更新或串行处理是可以讨论的方案，各自有粒度和冲突处理成本；没有核验前只能作为改进思路。顺序输入的数量校验测试通过，不能直接证明并发下不会超量。",
-            followup: "如果需要保护，应该按整张合同还是产品明细确定范围？冲突后怎样提示或重试才不会沿用旧累计值？",
-            evidence: "准备现有查询与保存调用链，确认是否存在实际保护；用两个请求共享同一业务明细设计并发验证，并如实标注未验证项。"
+            "id": "q-beiruan-3",
+            "source": "beiruan",
+            "question": "模型生成问题和运行时问题怎样区分？",
+            "answer": "模型问题是在流程定义中就存在错误，例如分支连线、条件或网关关系不符合预期；运行时问题则是正确模型在执行、撤回或重入后形成了错误状态。区别可以从同一模型的首次执行与撤回重提对照入手：首次就走错分支，更应检查生成的 BPMN；首次正常而特定操作后卡住，则重点看 Task、Execution 和变量变化。二者可能叠加，所以不能只看到“流程卡住”就直接归因于引擎。",
+            "followup": "设计器上看起来正确，为什么还要检查生成的 BPMN？",
+            "topic": "Flowable 流程",
+            "priority": "must",
+            "followupAnswer": "设计器保存的是配置，真正执行的是转换后的流程定义。转换过程可能漏连线、生成错误条件或网关关系，界面并不能证明执行模型正确。把最小配置与实际部署的 BPMN 对照，才能判断问题发生在配置、转换还是运行阶段。"
         },
         {
-            id: "q-yonyou-10", source: "yonyou", question: "OA 与 263 邮箱部门批量同步，怎样处理组织层级和父节点失败？",
-            outline: "源端层级 → 匹配范围 → 处理顺序 → 父子依赖 → 结果核验",
-            answer: "先分别说明两个同步任务使用的组织范围、部门标识和父子关系，再对照实际任务代码讲处理顺序。目标端需要父部门时，必须考虑父节点尚未建立、匹配不唯一或同步失败的情况；但不能未经核实就说项目实现了拓扑排序、自动补建或延迟队列。单条失败隔离意味着后续处理可以继续，不代表依赖该父节点的子部门一定能够成功。需要说明项目实际是记录失败、跳过依赖项还是采用其他处理方式。",
-            followup: "同名部门在不同组织下如何区分？修改上级部门或停用部门后，两个目标系统各自如何核验？",
-            evidence: "准备父子部门的脱敏数据、真实匹配查询和任务顺序，以及父节点失败与后续记录处理结果。"
+            "id": "q-beiruan-4",
+            "source": "beiruan",
+            "question": "历史流程变量为什么会导致错误自动审批？",
+            "answer": "autoAgree、autoRefuse 这类变量会影响自动审批分支，如果生命周期长于一次节点处理，退回重入时就可能读到上一轮的决定。北软修复了这类历史变量残留及历史负责人异常。根本问题是把历史执行事实误当成本轮有效状态：历史可以保留用于追溯，但当前审批判断必须基于当前轮次。修复要明确变量的作用域、初始化和失效时点，而不是见到异常就清空所有流程变量。",
+            "followup": "每次回退都重新创建流程实例，不就没有历史污染了吗？",
+            "topic": "协办与审批",
+            "priority": "must",
+            "followupAnswer": "重新建实例会改变流程身份和历史关联，可能影响审批记录、业务单据关系及后续追踪，而且并不符合所有回退语义。若业务仍是同一流程的继续执行，就应修正当前轮次状态与历史的边界，而不是用重建来绕过状态管理。"
         },
         {
-            id: "q-yonyou-11", source: "yonyou", question: "组织同步隔离单条失败之后，怎样知道哪些成功、哪些需要补跑？",
-            outline: "单条边界 → 成功判定 → 失败记录 → 重试条件 → 两端核对",
-            answer: "按单条记录说明如何判断接口业务成功、记录失败原因并继续后续处理，不能只以整批任务没有抛异常作为成功。补跑前需要区分参数或映射错误、暂时性调用失败和对端已成功但响应丢失，后者再次创建可能导致重复。简历确认了单条失败记录与隔离，自动重试、失败表或专门补偿任务是否存在需要核实。若实际通过日志定位再人工处理，就按实际职责说明。",
-            followup: "一百条中三条失败，如何快速定位？补跑遇到已存在的部门，更新还是跳过的依据是什么？",
-            evidence: "准备一批含成功与失败记录的日志、对端业务响应和 Oracle 核验结果，再说明一个真实补跑或待处理流程。"
+            "id": "q-beiruan-5",
+            "source": "beiruan",
+            "question": "补充资料：多部门用户的创建部门为什么显示错误？",
+            "answer": "旧补充案例中的问题是：表单保存了用户实际选择的创建部门，但通知和系统字段解析优先读取账号默认部门，导致展示错误。错误发生在值的选择顺序，而非表单保存失败。修复是在字段解析层优先采用业务表单的实际部门，缺失时才使用账号信息兜底，避免修改影响更广的公共部门查询。这个案例说明同一用户可以有多个部门语境，业务发生时的部门与账号默认部门不能混为一谈。",
+            "followup": "如果表单部门字段为空，是否可以直接显示账号部门？",
+            "topic": "业务联动",
+            "priority": "deep",
+            "followupAnswer": "只有业务定义允许这种兜底时才可以，同时应区分“没有填写”和“已保存部门后来失效”。若字段用于审计，静默替换可能掩盖历史事实；若只是展示辅助信息，也应保持明确的取值优先级，而不是任意挑一个部门。"
+        },
+        {
+            "id": "q-beiruan-6",
+            "source": "beiruan",
+            "question": "补充资料：旧手册中的 17 项回归验证了什么？",
+            "answer": "旧手册中的 17 项回归针对 PC / 移动端系统字段、消息通知和流程中心相关场景，验证的是字段配置、实际取值优先级及关联展示没有被修复破坏。这个数字不是全平台 17 个端到端测试，也不代表覆盖了全部流程分支。它作为补充案例的价值在于说明一次共享解析逻辑修改需要检查哪些使用方；新版简历没有把这项旧统计列为新的项目结果。",
+            "followup": "测试数量多是不是就说明修改风险低？",
+            "topic": "业务联动",
+            "priority": "deep",
+            "followupAnswer": "数量只能反映用例条目，不能反映是否命中风险。十几个重复的正常输入可能不如一个多部门、空值或权限差异用例有效。回归应围绕变更影响范围和容易发生错误的边界设计，再用实际结果判断剩余风险。"
+        },
+        {
+            "id": "q-beiruan-7",
+            "source": "beiruan",
+            "question": "如何控制公共工作流模块的修改风险？",
+            "answer": "公共工作流模块影响许多流程，修改风险取决于变更落点和覆盖范围。可靠做法是先用最小流程固定故障，区分模型、运行时或业务解析层，再只修改造成问题的必要链路。北软的相关工作涉及撤回清理、状态校验和历史变量处理，这些都需要同时关注异常路径与原先正常路径。修复一个撤回案例后，普通并行仍能结束、有效分支没有被误清理，才说明改动没有只顾局部现象。",
+            "followup": "什么时候应重构，什么时候应做最小修复？",
+            "topic": "Flowable 流程",
+            "priority": "must",
+            "followupAnswer": "根因局限且影响面明确时，最小修复更容易验证与回退；若相同错误来自重复逻辑或设计边界长期混乱，重构才可能降低后续风险。重构应有独立范围和等价行为验证，不能顺手把与当前故障无关的公共逻辑全部重写。"
+        },
+        {
+            "id": "q-general-5",
+            "source": "resume",
+            "question": "选一个真正处理过的问题，讲清从现象到验证的全过程。",
+            "outline": "触发条件 → 正常与异常对照 → 根因证据 → 最小修复 → 回归与边界",
+            "answer": "以北软的并行撤回问题为例：触发顺序是进入并行审批、撤回、重新提交，结果是父流程不能正常结束。当前任务仍可流转，因此问题不能仅凭待办是否存在判断。我定位到撤回后的并行汇聚留有 inactive Execution，修复集中在 Execution 清理和状态校验，解决了重提后的结束问题。这类排障的关键是把操作序列与引擎状态对应起来，用正常和异常执行路径解释根因，而不是根据最终界面猜测。",
+            "followup": "如果同样的问题暂时复现不出来，你怎么继续定位？",
+            "evidence": "准备一组脱敏的请求与日志、关键 SQL / 状态对照、修改位置和回归记录；说清自己负责与同事协作的部分。",
+            "topic": "经历与职责",
+            "priority": "must",
+            "followupAnswer": "先固定流程定义版本、实例标识和用户操作顺序，检查是否存在并行分支、重复点击或历史变量差异。再用同一实例关联日志、任务与 Execution，缩小异常发生阶段。不能复现时保留证据和假设，不用直接改运行表的方式试错。"
+        },
+        {
+            "id": "q-zhishu-9",
+            "source": "zhishu",
+            "question": "为什么命令同时需要幂等键和语义哈希？",
+            "outline": "重复请求 → 业务意图 → 冲突处理 → 并发与落库",
+            "answer": "幂等键回答“这是不是同一次逻辑命令”，语义哈希回答“这次命令的内容是否一致”。知枢为启动、取消和审批命令同时使用两者：同键同语义属于重试，同键却改变业务含义应识别为冲突。哈希需要针对规范化后的业务字段计算，不能把无关的时间戳或 JSON 字段顺序当成业务变化。幂等记录还要绑定正确的命令范围，否则不同任务的请求可能错误碰撞。",
+            "followup": "用户上一次点了批准，重试时改成拒绝，还能用同一个键吗？",
+            "evidence": "同键同内容、同键不同内容、并发重复请求三组测试；核对数据库约束与命令处理事务。",
+            "topic": "可靠事件",
+            "priority": "must",
+            "followupAnswer": "不能把它当成相同请求。决定从批准变成拒绝是业务语义变化，同键应产生冲突，而不是覆盖先前结果。新的决定是否允许，则由审批状态机判断；已经完成的审批不会因为换了请求键就重新开放。"
+        },
+        {
+            "id": "q-zhishu-10",
+            "source": "zhishu",
+            "question": "为什么 Attempt 要冻结模型、能力和权限快照？",
+            "outline": "配置可变 → 执行可追溯 → 重试新建 → 权限边界",
+            "answer": "知枢在 Attempt 上冻结执行器、模型、能力和权限快照，是为了记录一次执行究竟在什么条件下发生。系统默认配置会变化，如果历史执行只引用当前配置，就无法解释当时为什么选了某个工具或权限。重试新建 Attempt，因此可以使用新的配置，同时保留旧证据。快照带来的是可追溯性，不是模型输出的确定性；相同模型和输入再次运行，也不代表一定产生相同代码。",
+            "followup": "如果执行中管理员撤销了权限，冻结快照是否意味着仍可继续？",
+            "evidence": "准备 Task / Attempt 数据关系图，以及一次修改配置后重试的历史记录。",
+            "topic": "任务与状态",
+            "priority": "must",
+            "followupAnswer": "历史快照用于解释当时配置，不能天然凌驾于实时安全策略。通用设计是保留快照不变，在敏感操作前再校验当前授权或撤销状态；若不再允许就停止该操作，同时记录原因，避免篡改历史来掩盖权限变化。"
+        },
+        {
+            "id": "q-zhishu-11",
+            "source": "zhishu",
+            "question": "取消任务与批准工具同时到达，怎么避免已取消的任务继续执行？",
+            "outline": "合法状态迁移 → 原子校验 → 执行端确认 → 迟到与重复事件",
+            "answer": "取消和批准是竞争同一业务状态的两个命令。知枢处理了取消、迟到审批和重复决定，核心约束是：只有仍有效的待审批操作才允许恢复执行，已经取消的执行不能被迟到批准复活。服务端检查与状态变更不能是无保护的先查后写，执行端接收决定时也要核对对应等待项。一种实现是带前置状态的条件更新，但具体锁或版本机制不应从“处理了并发状态”这句话直接推断。",
+            "followup": "如果工具已经开始写文件，随后取消成功，文件会自动回滚吗？",
+            "evidence": "准备取消先到、批准先到、重复批准与迟到批准的时序图和测试记录。",
+            "topic": "工具审批",
+            "priority": "deep",
+            "followupAnswer": "不会。停止后续调度与撤销已发生的副作用是两件事，进程取消也不能保证已提交的外部写入消失。系统应如实记录已执行操作和残留变更，再通过候选工作区审查、恢复或补偿处理，不能宣称取消等于从未执行。"
+        },
+        {
+            "id": "q-zhishu-12",
+            "source": "zhishu",
+            "question": "有了 SSE 的 Last-Event-ID，就一定不会丢消息吗？",
+            "outline": "游标 → 持久化事件 → 补历史与实时衔接 → 过期处理",
+            "answer": "Last-Event-ID 只是客户端上次接收位置的标识，服务端必须有可查询的历史事件，才能据此重放。知枢通过 SSE 推送执行过程，并支持基于该游标恢复。完整恢复还涉及事件排序、访问权限、重复去重，以及历史补发和实时订阅之间的交接；只依赖浏览器自动重连，断开期间的事件仍可能丢在界面上。游标超出保留范围时也不能假装补齐，应转为获取完整任务状态并说明历史范围。",
+            "followup": "客户端收到同一个事件两次，是服务端出错了吗？",
+            "evidence": "准备断开连接期间继续产生事件、重连补齐时间线的记录，并核对游标边界。",
+            "topic": "SSE 与实时通信",
+            "priority": "must",
+            "followupAnswer": "不一定。断线位置可能不确定，补历史与实时投递也可能重叠，所以重复是需要兼容的恢复情况。客户端应按稳定事件标识去重，并避免重复追加文本或执行提示动作；同一标识却携带不同内容才是应追查的冲突。"
+        },
+        {
+            "id": "q-zhishu-13",
+            "source": "zhishu",
+            "question": "400+ 项自动化测试和 8 个 Agent 任务，分别证明了什么？",
+            "outline": "统计口径 → 测试分层 → 验收条件 → 样本局限",
+            "answer": "知枢通过了 400+ 项自动化测试，并在固定隔离仓库完成两轮端到端验收，覆盖的 8 个 Agent 任务全部通过。自动化测试用于检验代码规则和已设计的失败分支，真实 Agent 验收则覆盖实际工具调用、审批、执行终态及交付物的连通性。两者互补，但这组结果只证明对应版本和样本下的行为，不能换算成线上成功率、并发吞吐或全面安全性，也不能把同一批测试反复运行算成更多独立场景。",
+            "followup": "已有很多单元测试，为什么还需要真实 Agent 验收？",
+            "evidence": "保留对应提交、日期、命令、测试报告及两轮 8 个任务清单；没有报告支持时不补写更精确的数量。",
+            "topic": "工作区与验收",
+            "priority": "must",
+            "followupAnswer": "单元测试能稳定模拟输入，却可能漏掉 SDK 差异、实际工具输出、进程生命周期和多服务配置问题。真实验收能暴露这些接口之间的缝隙，但成本高且有非确定性，因此适合验证关键闭环，不能取代大量可重复的规则测试。"
+        },
+        {
+            "id": "q-zhishu-14",
+            "source": "zhishu",
+            "question": "Agent 说完成了，你怎样判定研发任务真的完成？",
+            "outline": "执行终态 → 交付物归档 → 候选验证 → 人工验收",
+            "answer": "知枢把执行摘要、文件变更、Git Diff、测试和错误报告归档，再结合候选代码验证与人工验收判断结果。执行器正常退出，只说明这次执行结束；测试通过说明已覆盖的规则满足；是否完成用户需求，还需要审查实际改动和验收条件。这三个结论不能合并成一个成功标记。失败 Attempt 的日志和交付记录也有价值，因为它们能解释后续重试为什么修改方案，以及错误发生在哪一步。",
+            "followup": "Agent 为了让测试通过而删除了测试，系统怎么识别这种情况？",
+            "evidence": "准备一次任务从输入到 Diff、测试报告和人工验收的完整记录；Worktree 只说明代码工作区隔离。",
+            "topic": "工作区与验收",
+            "priority": "must",
+            "followupAnswer": "不能只读取测试退出码，还要审查 Diff 中测试、构建配置和验证脚本是否被削弱。通用做法是用受保护的验收命令或外部测试复核，并要求人工确认需求。Agent 自己生成的成功摘要与测试报告都属于待核验产物。"
+        },
+        {
+            "id": "q-yonyou-7",
+            "source": "yonyou",
+            "question": "OpenAPI 先查询再保存，能避免并发创建重复单据吗？",
+            "outline": "业务唯一键 → 并发窗口 → 平台保存能力 → 重复结果",
+            "answer": "先查询再保存只能识别查询时已经存在的单据。两个请求可能同时查到不存在，然后各自保存，所以前置查询本身不构成并发唯一保证。入职、离职 OpenAPI 做了唯一性校验，并通过 NCC 单据能力保存；最终并发行为仍取决于平台保存层的业务校验或约束。通用方案可以由唯一业务键约束、原子占用或平台提供的并发机制承担，但不能绕过平台直接改表来补一套规则。",
+            "followup": "第三方超时重发时，应该重新生成一个业务唯一键吗？",
+            "evidence": "准备重复请求与并发保存的核验思路、脱敏业务键，以及平台返回的冲突结果。",
+            "topic": "接口与平台",
+            "priority": "deep",
+            "followupAnswer": "如果仍是同一次业务提交，换键会让服务端把重试当成新业务，增加重复单据风险。应继续使用稳定业务身份，并核对已有结果；真正的新申请或修正则需要符合业务生命周期，不能仅通过改键规避重复判断。"
+        },
+        {
+            "id": "q-yonyou-8",
+            "source": "yonyou",
+            "question": "异常考勤提醒为什么要转换 userid / unionid，转换失败怎么处理？",
+            "outline": "人员标识 → 对接接口要求 → 转换核验 → 单条异常隔离",
+            "answer": "内部人员主键、钉钉 userid 和 unionid 属于不同身份体系，不能当作同一个字符串直接混用。异常考勤提醒先查询缺勤记录，再把对应人员转换成目标接口要求的身份，最后批量创建待办。转换失败应隔离该人员并记录映射原因，否则可能发错人或导致整个批次中断。身份标识的有效范围与具体接口有关，不能只看字段名称相似就认为跨应用、跨组织都可复用。",
+            "followup": "人员能在通讯录查到，但创建待办仍提示无效用户，可能是什么原因？",
+            "evidence": "准备一条脱敏人员从缺勤查询、身份转换到待办结果的完整链路；日志不要输出 token。",
+            "topic": "组织与消息同步",
+            "priority": "must",
+            "followupAnswer": "可能是应用可见范围、组织上下文、标识类型或人员状态不符合待办接口要求，也可能映射缓存过期。应对照当前接口要求核对标识和授权范围；“通讯录里存在”只证明某个查询能看到此人，不证明该应用能向他创建待办。"
+        },
+        {
+            "id": "q-yonyou-9",
+            "source": "yonyou",
+            "question": "薪资发放申请提交 OA 联调时，HTTP 200 是否代表业务成功？",
+            "outline": "传输结果 → 业务响应 → 字段映射 → 两端状态核验",
+            "answer": "HTTP 200 表示 HTTP 层拿到了正常响应，不代表薪资申请或附件已被 OA 接受。业务结果还要看约定的业务码、消息及目标单据标识，并核对目标端是否真的产生预期数据。我在这项工作中参与的是薪资申请及附件推送的接口联调，需要区分字段映射、附件传输和 OA 业务处理各阶段。一个阶段成功不能替代整条链路成功，也不能把参与联调扩大成独立设计整套薪资审批系统。",
+            "followup": "申请提交成功但附件失败，整次调用应该算成功还是失败？",
+            "evidence": "准备脱敏的接口字段对照、一次失败响应及修正后的核验记录，不包含真实薪资数据。",
+            "topic": "联调与异常处理",
+            "priority": "must",
+            "followupAnswer": "取决于附件是否为业务必需，但必须暴露部分完成状态。如果附件必需，申请不能视为可交付完成；若允许后补，应保留目标申请标识并只补传缺失附件，避免为了附件重建整张申请。恢复动作需要双方约定清楚。"
+        },
+        {
+            "id": "q-beiruan-8",
+            "source": "beiruan",
+            "question": "多人顺序协办与回退，如何避免跳人或历史负责人错误？",
+            "outline": "参与人顺序 → 当前轮次 → 回退目标 → 历史与运行时分离",
+            "answer": "北软把单人协办扩展为多人顺序协办，并兼容原参数。顺序协办的关键是当前处理位置与下一参与人的关系，回退则会改变当前有效任务，不能继续沿用上一轮的负责人或完成标记。历史负责人用于记录过去，当前负责人决定现在由谁处理，两者要分开。多人列表也不意味着一定使用 BPMN 多实例：业务协办可以有自己的任务组织方式，不能仅从界面上的“多人”推断引擎实现。",
+            "followup": "三个人按 A、B、C 顺序协办，B 处理中回退，应该怎样理解后续顺序？",
+            "evidence": "准备一个三人顺序协办的正常与回退流程，以及任务负责人、变量在每一步的对照。",
+            "topic": "协办与审批",
+            "priority": "must",
+            "followupAnswer": "先由回退规则确定目标节点与新一轮起点，再重新确定有效负责人和待处理序列。历史上 A 已处理不意味着新一轮自动跳过 A，也不意味着必须全部重来。关键是明确业务语义，并让任务和变量变化一致地表达这一规则。"
+        },
+        {
+            "id": "q-beiruan-9",
+            "source": "beiruan",
+            "question": "补充资料：四类消息通知的字段排序、去重和权限过滤怎样排查？",
+            "outline": "通知类型 → 字段配置 → 流程上下文取值 → 权限与展示",
+            "answer": "四类通知可能共用字段解析能力，但触发上下文不同。排查字段排序、去重和权限时，应区分配置顺序、字段身份、真实取值与最终可见范围：字段缺失可能是没有配置、关联取值失败，也可能是权限过滤；同名字段也可能来自不同表单，不能简单按显示名称去重。旧案例强调从配置到消息的完整取值链路，公共逻辑的修改要兼顾待办、催办、抄送和流程完成通知。",
+            "followup": "前端隐藏了无权限字段，通知服务还能直接发送原始值吗？",
+            "evidence": "按四类通知准备字段配置、接收人权限和最终消息的对照；补无权限与空值场景。",
+            "topic": "业务联动",
+            "priority": "deep",
+            "followupAnswer": "不能。接收人可能通过消息、接口或其他客户端看到内容，权限必须在服务端生成输出时生效。展示隐藏只能改善界面，不能替代数据访问控制；关联记录被删除或无权限时，也应使用明确的缺省结果，避免泄露真实字段值。"
+        },
+        {
+            "id": "q-beiruan-10",
+            "source": "beiruan",
+            "question": "流程卡住时，如何用日志和数据库状态定位到模型或运行时？",
+            "outline": "最小操作序列 → BPMN 检查 → Execution / Task / 变量对照 → 定向回归",
+            "answer": "流程卡住首先要明确卡在什么操作之后，并固定部署版本与流程实例。模型层看条件、连线和网关是否符合业务配置；运行时看当前任务、Execution 父子结构、活动节点和变量是否对应正确路径。撤回重提案例中，待办还能推进但父流程未结束，提示需要继续看并行汇聚和残留执行。数据库状态用于解释引擎行为，不能仅把业务表改成完成，也不能把直接删运行表作为常规修复手段。",
+            "followup": "修复后正常提交一次通过，足够证明撤回问题解决了吗？",
+            "evidence": "准备空条件、多级并行、撤回重提的最小复现，附修复前后执行树及关联回归结果。",
+            "topic": "Flowable 流程",
+            "priority": "must",
+            "followupAnswer": "不够。必须重复原先失败的操作顺序，并检查最终状态与残留对象；还应覆盖相邻路径，例如不撤回的正常并行、不同分支撤回和再次提交。正常路径通过只能证明基本流程仍可运行，不能替代故障路径的回归。"
+        },
+        {
+            "id": "q-beiruan-11",
+            "source": "beiruan",
+            "question": "生产报工如何从关联数据带出，一路生成计件工资明细？",
+            "outline": "数据来源 → 主子表映射 → 数量校验 → 审批触发 → 结果核验",
+            "answer": "我围绕生产报工做了关联数据自动带出、主子表映射与数量校验，审批完成后自动生成计件工资明细，并用关联报工 ID 避免重复生成。链路的核心是把同一业务身份贯穿报工、审批和工资结果：关联带出负责提供来源数据，映射负责组织主表与明细，校验约束可接受的业务量，审批完成则是生成动作的业务时点。工资单价算法和具体表结构不是这条经历已经明确的内容，不能凭“计件”二字补写。",
+            "followup": "为什么不在报工刚保存时就生成工资明细？",
+            "evidence": "准备字段映射表、实际触发代码，以及同一报工 ID 的审批前后与工资明细核验记录。",
+            "topic": "业务联动",
+            "priority": "must",
+            "followupAnswer": "保存可能只表示草稿或待审批数据，之后仍可能被退回、修改。把生成时点放在审批完成后，表达的是通过审批的数据才进入后续工资处理。即便如此，重复审批回调和后续修正仍需要独立规则，不能只靠触发时点解决所有重复问题。"
+        },
+        {
+            "id": "q-beiruan-12",
+            "source": "beiruan",
+            "question": "为什么用关联报工 ID 作为工资生成的幂等键？",
+            "outline": "重复来源 → 业务标识 → 生成粒度 → 重复处理 → 保证边界",
+            "answer": "关联报工 ID 是同一笔报工在工资生成链路中的稳定身份，重复触发时可以据此识别已有生成结果，而不是把每次调用都当作新业务。一张报工可能对应多条工资明细，因此“这笔报工已经完整生成”与“存在一条关联记录”并非天然相同。我的已知实现使用这个幂等键避免重复生成；它不能单独证明并发下唯一，也不能直接推导出数据库唯一索引、锁或批次事务。",
+            "followup": "报工修改后再次审批，使用相同 ID 会不会挡住合法修正？",
+            "evidence": "准备重复触发前后的明细条数与内容、业务键查询代码，以及撤回再审批的实际规则；并发行为须单独核实。",
+            "topic": "业务联动",
+            "priority": "must",
+            "followupAnswer": "可能，所以幂等与业务修正必须分开定义。重复回调应复用原结果，合法修正则可能需要更新、撤销重算或新版本。具体选择取决于工资结果是否已结算及业务规则，不能简单换一个随机键生成第二份结果，也不能一律跳过。"
+        },
+        {
+            "id": "q-beiruan-13",
+            "source": "beiruan",
+            "question": "工资明细生成到一半失败，或审批完成动作同时触发两次，会怎样？",
+            "outline": "失败位置 → 已保存范围 → 重试判定 → 并发窗口 → 恢复验证",
+            "answer": "部分失败和并发重复是两个不同风险。生成到一半失败时，如果只检查“存在明细”，重试可能误认为整批完成；同时触发两次时，两个调用又可能都在写入前查到不存在。通用方案是在清晰的业务范围内保护判重、生成及完成标记，必要时采用事务与唯一约束，或显式记录可恢复的批次状态。这是机制分析，不等于北软已经采用某种锁或表结构；报工 ID 只能提供判重身份，不能替代完整的提交语义。",
+            "followup": "生成成功后响应丢失，重试应该返回错误还是已有结果？",
+            "evidence": "准备实际异常处理代码；列出中途失败、保存成功但响应失败、同时触发两次的验证方案与已取得的结果。",
+            "topic": "业务联动",
+            "priority": "deep",
+            "followupAnswer": "同一逻辑生成已经完整成功时，幂等接口通常返回已有结果或明确的已处理状态，而不是再次生成。若只完成了一部分，则应进入明确的恢复流程。关键是能够区分未开始、处理中、完整成功与失败，而不是把所有“查到数据”都归为成功。"
+        },
+        {
+            "id": "q-beiruan-14",
+            "source": "beiruan",
+            "question": "报工数量校验具体校验什么，前端校验够不够？",
+            "outline": "数量字段 → 业务上限与单位 → 校验时点 → 明细范围 → 边界用例",
+            "answer": "数量校验首先要有明确的字段、单位、业务范围和允许上限，再判断当前输入是否符合规则。报工主子表映射后，逐行合法不代表合计一定合法，多行指向同一来源时尤其需要关注总量。前端校验便于及时提示，但不能防止直接调用接口或提交过期数据，业务规则应由服务端最终执行。我做过报工数量校验；是否涉及损耗、合格数或负数冲销，需要以真实业务定义为准，不能自行扩展职责。",
+            "followup": "整数和小数数量能直接用 double 比较上限吗？",
+            "evidence": "准备真实数量字段和单位说明、服务端校验位置，以及边界输入与返回结果；未覆盖的规则列入待补。",
+            "topic": "数据校验",
+            "priority": "must",
+            "followupAnswer": "精确业务小数通常应采用十进制定点语义，并统一单位与舍入规则，避免二进制浮点误差使边界判断不稳定。整数计件则可使用合适的整数类型并校验范围。类型选择由业务精度决定，不能为了比较方便先把所有数量转成浮点数。"
+        },
+        {
+            "id": "q-beiruan-15",
+            "source": "beiruan",
+            "question": "销售订单、开票、回款关联的合同和产品明细如何保持对应？",
+            "outline": "场景职责 → 关联标识 → 字段带出 → 主子表对应 → 两端核验",
+            "answer": "我参与销售订单、开票、回款三类场景，做了关联合同与产品明细带出、历史累计数量校验以及上下游数据联动。这类映射的重点是保留稳定关联，名称用于展示，业务标识用于定位具体合同或产品行。同一产品出现在不同合同里，不代表可以混在一起累计。修改关联合同时，还要让后续明细与新的来源一致；否则页面看似换了合同，保存的明细可能仍引用旧数据。",
+            "followup": "产品名称一样，为什么不能直接按名称关联和累计？",
+            "evidence": "准备一份脱敏合同与产品明细、三类场景的字段来源对照，以及改关联前后的核验结果。",
+            "topic": "业务联动",
+            "priority": "must",
+            "followupAnswer": "名称可能重复、修改或缺少规格信息，无法唯一代表一条合同产品明细。按名称关联可能跨合同混算，名称变更后还会断开历史关系。应以业务定义的稳定标识和范围建立关联，名称只作为可读展示。"
+        },
+        {
+            "id": "q-beiruan-16",
+            "source": "beiruan",
+            "question": "历史累计数量怎么计算，修改当前单据时怎样避免重复累计？",
+            "outline": "累计维度 → 纳入状态 → 当前记录处理 → 比较规则 → 边界验证",
+            "answer": "历史累计必须先确定同一业务明细的范围及纳入的单据状态。编辑当前单据时，如果旧值已经包含在历史总量中，再直接加修改后的值，就会把当前单据算两遍。一种常见做法是排除当前单据，再加本次有效值；另一种是从原合计减旧值、加新值，两者都要求身份与状态口径准确。北软做过历史累计数量校验，但具体使用哪种查询或差量机制不能只从需求推断。",
+            "followup": "一条历史单据作废以后，是否马上从累计值中扣掉？",
+            "evidence": "准备实际累计查询或服务代码、纳入状态说明，以及新增、修改和超量的脱敏输入输出对照。",
+            "topic": "数据校验",
+            "priority": "must",
+            "followupAnswer": "取决于累计表达的是有效业务占用、已发生数量还是结算事实。若是有效占用，作废通常应释放；若已进入后续不可逆结算，可能需要反向业务单而非直接抹去历史。必须让查询状态和业务定义一致，不能见到“作废”就统一减数。"
+        },
+        {
+            "id": "q-beiruan-17",
+            "source": "beiruan",
+            "question": "开票与回款联动时，数量、金额和状态分别按什么口径更新？",
+            "outline": "联动字段 → 业务含义 → 触发时点 → 异常路径 → 上下游对照",
+            "answer": "数量、金额和业务状态属于不同维度。历史数量校验不能直接代替累计开票金额或回款金额判断，开票与回款也不一定一一对应。我参与的工作是合同产品带出和开票、回款数据联动；联动的基本要求是找到正确上下游记录，在约定的业务时点更新对应字段，并能核对变化前后结果。税额、红冲和部分回款属于更细的财务规则，只有实际实现过才应作为个人工作陈述。",
+            "followup": "源单据已经保存，下游更新失败，能否让前端再点一次保存来补？",
+            "evidence": "准备一条开票或回款从操作到上下游字段变化的记录、实际触发代码与失败处理；明确未做过的业务规则。",
+            "topic": "业务联动",
+            "priority": "must",
+            "followupAnswer": "直接重保存可能重复触发其他业务动作，不是可靠的通用恢复方式。更合理的是识别失败的联动步骤，以原业务标识核对下游状态，再执行受控重试或补偿。是否需要用户再次操作，应由明确的失败状态和恢复入口决定。"
+        },
+        {
+            "id": "q-beiruan-18",
+            "source": "beiruan",
+            "question": "两张销售单据同时提交，都通过历史累计校验，就一定不会超量吗？",
+            "outline": "共同读取 → 校验窗口 → 写入时点 → 实际保护 → 并发验证",
+            "answer": "不能保证。假设上限是 100，当前累计为 80，两个请求各新增 15，它们都可能读取 80 并单独通过校验，合起来却到 110。这说明校验正确与并发执行正确是两层问题。通用保护可以围绕同一业务明细采用锁、带版本或条件的更新、串行化处理等，并在冲突后重新读取累计值。北软已有历史数量校验，但不能据此声称已经实现其中某种并发机制。",
+            "followup": "把整个合同都锁住，与只保护产品明细，区别在哪里？",
+            "evidence": "准备现有查询与保存调用链，确认是否存在实际保护；用两个请求共享同一业务明细设计并发验证，并如实标注未验证项。",
+            "topic": "数据校验",
+            "priority": "deep",
+            "followupAnswer": "整合同保护简单但会让互不相关的产品操作相互等待；明细粒度通常并发更好，却需要处理跨多行规则和一致的加锁顺序。正确粒度由业务不变量决定：限制若在合同总量层面，仅保护单条产品可能仍挡不住整体超量。"
+        },
+        {
+            "id": "q-yonyou-10",
+            "source": "yonyou",
+            "question": "OA 与 263 邮箱部门批量同步，怎样处理组织层级和父节点失败？",
+            "outline": "源端层级 → 匹配范围 → 处理顺序 → 父子依赖 → 结果核验",
+            "answer": "我开发了 OA 组织部门和 263 邮箱部门两类后台同步任务，按组织层级匹配并批量同步。层级关系意味着子部门同步可能依赖父部门在目标端已经存在；名称相同的部门还需要结合组织范围区分。单条失败隔离能让后续处理继续，但不能让缺少父节点的子部门凭空成功。通用做法是明确处理顺序，并将依赖缺失与普通接口失败区分；拓扑排序、自动补建或队列重试不是仅凭这一需求就能认定已经实现的机制。",
+            "followup": "为什么父节点失败后，不能随便把子部门挂到根节点？",
+            "evidence": "准备父子部门的脱敏数据、真实匹配查询和任务顺序，以及父节点失败与后续记录处理结果。",
+            "topic": "组织与消息同步",
+            "priority": "must",
+            "followupAnswer": "这会把技术失败变成错误的业务层级，后续权限、组织统计和人员归属可能受影响。没有明确的业务降级规则时，应保留失败关联并等待父节点恢复，再重试子节点，不能用看似成功的错误数据替代失败记录。"
+        },
+        {
+            "id": "q-yonyou-11",
+            "source": "yonyou",
+            "question": "组织同步隔离单条失败之后，怎样知道哪些成功、哪些需要补跑？",
+            "outline": "单条边界 → 成功判定 → 失败记录 → 重试条件 → 两端核对",
+            "answer": "组织同步的成功判断应落到每条部门记录：请求是否完成、业务响应是否成功、目标端标识和层级是否正确。单条失败记录与异常隔离让有效记录继续处理，也保留了补跑线索。补跑时还要区分参数错误、临时网络失败和远端已成功但响应丢失，否则重复执行创建接口可能产生重复数据。整批任务没有抛异常只能说明循环结束，不能证明每条业务都同步成功。",
+            "followup": "一批一百条中只有三条失败，下一次应重跑全部还是只跑三条？",
+            "evidence": "准备一批含成功与失败记录的日志、对端业务响应和 Oracle 核验结果，再说明一个真实补跑或待处理流程。",
+            "topic": "联调与异常处理",
+            "priority": "must",
+            "followupAnswer": "如果能准确定位失败项和依赖关系，只补跑必要记录通常成本更低；但重跑前要确认远端是否已经成功。全量重跑也可以作为对账手段，前提是更新和判重规则明确，不能把所有记录再次当作新增请求发送。"
+        },
+        {
+            "id": "q-general-6",
+            "source": "resume",
+            "topic": "岗位与成长",
+            "priority": "must",
+            "question": "你说做 AI 应用开发，和训练大模型有什么区别？",
+            "answer": "我的方向是把已有模型和 Agent 能力接入具体业务，重点是工具调用、任务管理、审批、可靠事件和结果验证。知枢使用 Provider 对接执行器，并不训练基础模型，也不把模型能力归为自己的研发成果。模型训练关注数据、优化算法和参数更新，AI 应用工程则要把非确定性的模型输出放进可控制、可追溯的流程中。二者都重要，但能力边界与交付目标不同。",
+            "followup": "不训练模型，AI 应用后端还有技术难点吗？",
+            "followupAnswer": "有。模型可能生成错误计划，工具可能产生真实副作用，调用还可能超时、重复或中断。应用需要解决权限、状态、幂等、故障恢复和验收，不能把模型返回文本当成业务已经正确完成；这些都是后端工程问题。"
+        },
+        {
+            "id": "q-general-7",
+            "source": "resume",
+            "topic": "经历与职责",
+            "priority": "must",
+            "question": "哪些工作是你直接开发，哪些属于团队协作？",
+            "answer": "在用友，我直接做过入职离职 OpenAPI、组织与邮箱同步任务以及异常考勤提醒，薪资申请和附件推送 OA 则是参与联调。在北软，报工关联、数量校验和工资生成、Flowable 撤回及协办是我的具体工作，销售订单、开票和回款描述为参与开发。知枢是在开源底座上增加控制面和任务治理链路。我会按自己修改的模块和解决的问题划分职责，不把团队整套系统说成个人独立完成。",
+            "followup": "参与联调也能体现技术价值吗？",
+            "followupAnswer": "可以，价值在于能否定位真实原因并推动接口闭环，例如分清传输失败与业务失败、修正字段映射、核对附件和单据结果。技术价值不只来自从零设计，但必须说明自己的判断和改动，不能只把参加过会议算成开发成果。"
+        },
+        {
+            "id": "q-general-8",
+            "source": "resume",
+            "topic": "经历与职责",
+            "priority": "must",
+            "question": "你做的业务开发带来了什么结果，能量化吗？",
+            "answer": "能直接说明的结果包括：报工审批后可自动生成计件工资明细，用关联报工 ID 避免重复生成；销售场景完成关联数据与数量校验；并行撤回重提后父流程能正常结束。这些是可观察的行为变化。知枢还有 400+ 自动化测试和固定仓库两轮 8 个 Agent 任务通过的验收记录。没有采集过节省工时、线上故障率或吞吐数据时，我不会为了量化而编造百分比。",
+            "followup": "没有性能指标，怎样说明工作不是简单增删改查？",
+            "followupAnswer": "可以从业务约束和失败路径说明复杂度：同一报工如何避免重复生成，编辑时如何避免累计两次，撤回后为何任务完成但父流程不结束。这些问题涉及状态与一致性。是否有价值看解决了什么实际问题，不靠堆术语或虚构数字证明。"
+        },
+        {
+            "id": "q-general-9",
+            "source": "resume",
+            "topic": "岗位与成长",
+            "priority": "must",
+            "question": "简历列了 Redis、Docker 和多种数据库，你的熟悉程度怎么区分？",
+            "answer": "我会区分实际业务使用与基础知识掌握。Oracle 的实践来自用友数据核验，MySQL 与北软业务开发相关，PostgreSQL 用于知枢；Docker 属于工程部署工具。北软技术栈出现 Redis，不代表我就做过分布式锁、缓存治理或高并发架构。技术是否写在栈里与个人是否负责过某种方案是两件事，面试时应以真实使用场景、操作和故障理解说明深度。",
+            "followup": "面试官追问到你没实际用过的 Redis 分布式锁，该怎么回答？",
+            "followupAnswer": "可以明确自己没有在该项目实现过，再讲机制理解：锁要有唯一持有者、释放校验和有效期，过期后旧持有者仍执行是额外风险。知识讨论与项目经历分开表达，既能展示理解，也不会把通用方案包装成亲手做过。"
+        },
+        {
+            "id": "q-general-10",
+            "source": "resume",
+            "topic": "岗位与成长",
+            "priority": "must",
+            "question": "当前项目最大的不足是什么？",
+            "answer": "知枢已经形成任务、执行、审批、事件和交付物的链路，但固定隔离仓库的验收不能证明生产环境的安全、负载和长期恢复能力。工作区隔离也不等于操作系统沙箱。当前更需要深入的是执行权限边界、进程故障恢复和真实负载下的容量验证。承认这些缺口不否定已有实现，而是区分可演示的功能闭环与需要持续运维的生产系统。",
+            "followup": "如果只能再投入一周，你会优先做什么？",
+            "followupAnswer": "我会先选择最影响安全和恢复的一个具体风险，例如执行进程异常退出后如何识别并收敛状态，定义可重复的故障实验和验收条件。完成一条可验证的恢复链路，比同时铺开调度、监控和中间件却都没有闭环更有效。"
+        },
+        {
+            "id": "q-general-11",
+            "source": "resume",
+            "topic": "经历与职责",
+            "priority": "deep",
+            "question": "面对“报工审批后自动算工资”这样的需求，如何把它拆成可实现的后端任务？",
+            "answer": "先明确输入和业务不变量：哪些报工状态可生成、主子表对应关系、数量单位，以及一笔报工允许产生什么结果。再定义触发、判重、保存和失败处理，把重复回调、修改后重审及生成中断分开。最后用业务例子确定验收：正常生成、重复不多生成、非法数量被拒绝、失败能被识别。技术方案应服务于这些规则；规则未定时先写一组接口，往往只会把歧义藏到代码里。",
+            "followup": "业务人员回答“重复时随便处理一下就行”，你会继续追问什么？",
+            "followupAnswer": "需要区分重复请求与合法修正：同一份审批结果再次通知应复用原结果，报工改数量后重审却可能要求重算。还要问工资是否已结算，以及失败后由谁处理。这些决定能否覆盖、撤销或创建新版本，不能由程序员随意选。"
+        },
+        {
+            "id": "q-general-12",
+            "source": "resume",
+            "topic": "岗位与成长",
+            "priority": "must",
+            "question": "作为应届生，你能给后端团队带来什么？",
+            "answer": "我有两段企业后端实习，接触过受平台约束的接口开发、跨系统联调、业务数量校验和工作流排障，也通过知枢实践了任务状态、工具审批与可靠事件。我能从明确的模块和问题入手，把需求、代码与验证结果对应起来。我的定位不是已经具备完整生产架构经验，而是能承担具体开发和排障任务，并愿意把数据库、并发及工程可靠性的基础继续补深。",
+            "followup": "入职后接手陌生业务，第一步会做什么？",
+            "followupAnswer": "先跑通一条典型业务链路，确认关键实体、状态变化和主要接口，再结合一个小需求或问题理解代码与测试。遇到不清楚的规则及时与业务和负责人对齐，避免一开始就大范围改公共模块，或只看技术栈却不知道数据代表什么。"
+        },
+        {
+            "id": "q-general-13",
+            "source": "resume",
+            "topic": "岗位与成长",
+            "priority": "must",
+            "question": "面试结束时，你有什么想问我们的？",
+            "answer": "我想了解这个岗位入职后主要负责哪类业务链路，应届生通常从什么范围的任务开始，以及团队如何进行代码评审和上线前验证。如果岗位涉及 AI 应用，我还想了解模型调用之外，任务执行、权限审批和结果验收分别由哪些模块负责。这些问题能帮助我判断自己的后端与 Agent 工程经验如何接入团队，也能看清后续需要补足的能力。",
+            "followup": "为什么不直接问技术栈或项目规模？",
+            "followupAnswer": "技术栈和规模可以问，但仅知道用了什么数据库、每天多少请求，还无法判断日常工作。职责、评审和验收方式更能体现岗位期待；再结合具体业务追问容量和架构，信息会比单独收集技术名词更有用。"
+        },
+        {
+            "id": "q-zhishu-15",
+            "source": "zhishu",
+            "topic": "架构与边界",
+            "priority": "deep",
+            "question": "Runtime Protocol 升级时，怎样兼容仍在运行的旧执行端？",
+            "answer": "知枢采用版本化 Runtime Protocol；版本的意义是让双方明确理解同一条命令的结构和语义。通用的兼容演进优先增加可选字段，保留旧字段含义，并定义缺省行为；删除字段、改变状态语义或审批规则则需要显式版本切换。新控制面不应假设所有执行端同时升级，可以先判断对方支持的版本与能力，再决定允许启动、降级或拒绝。版本号本身不会自动带来兼容，契约测试才会检验边界。",
+            "followup": "旧执行端忽略未知字段，不就能兼容所有升级了吗？",
+            "followupAnswer": "只对真正可选的信息成立。如果新增字段代表权限约束，旧端忽略它反而可能越权；如果状态含义改变，即使 JSON 能解析也会执行错误。兼容既包含语法，也包含行为语义，安全相关的不支持应明确拒绝。"
+        },
+        {
+            "id": "q-zhishu-16",
+            "source": "zhishu",
+            "topic": "架构与边界",
+            "priority": "must",
+            "question": "统一 Provider 接口后，Claude、Codex、OpenCode 的能力就完全一样了吗？",
+            "answer": "不一样。Provider 抽象统一的是业务侧调用方式，底层执行器在工具拦截、取消、会话恢复和输出格式上仍可能不同。知枢接入多个 Provider，但不能据此宣称每种能力都等价。合理的适配层要暴露能力差异，把底层结果转换成稳定的业务事件；对于任务要求但执行器不支持的能力，应在启动前拒绝或让用户显式选择可接受方式，而不是悄悄跳过审批等约束。",
+            "followup": "某个 Provider 没有真正的工具审批钩子，用弹窗代替可以吗？",
+            "followupAnswer": "仅展示弹窗不能阻止已经开始的工具调用，因此不等价。必须有执行前可阻断的入口，或限制任务只能使用不需要该能力的操作。能力不足应诚实报告，不能让统一接口掩盖底层安全语义的差异。"
+        },
+        {
+            "id": "q-zhishu-17",
+            "source": "zhishu",
+            "topic": "可靠事件",
+            "priority": "deep",
+            "question": "启动接口返回成功，是否表示 Agent 已经开始执行？",
+            "answer": "不一定，接口成功可能只表示命令已接收或记录。跨进程启动还可能经历执行端校验、进程创建和任务实际运行，必须区分这些阶段，否则页面会把仍在排队或已经启动失败的任务显示为运行中。通用协议可用命令标识跟踪接收结果，再用执行事件确认运行事实。知枢具备任务与执行实例分层，具体接口返回的语义应保持明确，不能用一个 HTTP 状态代替完整生命周期。",
+            "followup": "请求超时后重新发送启动命令，会启动两个进程吗？",
+            "followupAnswer": "如果没有幂等保护就可能发生。重试应沿用同一逻辑命令身份，执行端识别已经接收或执行的命令，返回已有状态。控制面也应能查询执行事实；单纯因为响应没到就创建新的 Attempt，会把通信重试错误升级成业务重试。"
+        },
+        {
+            "id": "q-zhishu-18",
+            "source": "zhishu",
+            "topic": "任务与状态",
+            "priority": "deep",
+            "question": "Node 执行端突然退出，控制面怎样判断任务失败还是暂时失联？",
+            "answer": "网络失联不等于进程已经停止，进程退出也不等于所有外部副作用都未发生。通用设计会结合进程退出信息、心跳或租约，以及持久化事件判断执行状态，并设置一个待确认或失联处理阶段，避免立刻新建重复执行。恢复后再核对原 Attempt 的终态和交付物。知枢已有独立 Attempt 和事件记录，但心跳、租约或自动接管策略属于需要具体实现支持的恢复机制，不能凭分层架构自动成立。",
+            "followup": "如果旧执行端恢复，而新重试已经运行，怎么防止两边都提交结果？",
+            "followupAnswer": "首先用不同 Attempt 身份隔离事件与产物，再由任务规则决定哪一轮具有当前提交资格。若允许执行器接管，还需要版本或代次一类的有效性校验，拒绝过期执行端写入当前结果；仅靠“最后一个响应覆盖”会引入竞态。"
+        },
+        {
+            "id": "q-zhishu-19",
+            "source": "zhishu",
+            "topic": "任务与状态",
+            "priority": "must",
+            "question": "命令重试和任务重试为什么不能混在一起？",
+            "answer": "命令重试是为了确认同一次启动、取消或审批是否被处理，应该保持相同业务意图与幂等身份；任务重试则是在一次执行失败后，再进行一次新的执行。知枢把后者建模为新的 Attempt，保留前次历史。若每次网络超时都创建新 Attempt，就可能在原任务仍执行时重复运行；反过来，合法的新执行若继续复用旧命令身份，又可能被当成重复而直接返回旧结果。",
+            "followup": "什么时候应该复用原命令，什么时候应该创建新 Attempt？",
+            "followupAnswer": "执行结果未知、只是传输或确认失败时，先围绕原命令查询或重发。已确认原 Attempt 结束且用户确实要求再次执行，才进入新的业务重试。关键是先分清不确定的通信结果和已经确定的执行失败。"
+        },
+        {
+            "id": "q-zhishu-20",
+            "source": "zhishu",
+            "topic": "任务与状态",
+            "priority": "deep",
+            "question": "显式状态机如何在多个请求同时更新时保持有效？",
+            "answer": "状态机必须在写入时约束迁移，而不只是先读取状态再走 if 分支。例如只有待审批状态才允许接受决定，更新条件中可以同时带上预期状态或版本，只有匹配成功的请求才能推进。其他请求应读取新结果并按重复或冲突处理。这是通用的原子迁移思路；知枢确实使用显式状态机，但具体使用条件更新、锁还是其他机制应以实现为准，状态枚举本身不能解决并发。",
+            "followup": "为什么放进数据库事务里还可能发生错误迁移？",
+            "followupAnswer": "事务保证一组操作的提交边界，不代表所有“先查后改”都会自动串行。两个事务仍可能基于各自读到的状态作出决定。要让前置条件参与受保护的更新，或者采用合适的锁与隔离策略，并正确处理冲突结果。"
+        },
+        {
+            "id": "q-zhishu-21",
+            "source": "zhishu",
+            "topic": "可靠事件",
+            "priority": "deep",
+            "question": "Outbox 为什么要持久化，直接发送事件失败后再重试不行吗？",
+            "answer": "只把待重试事件放在内存里，进程退出后就会丢掉发送意图。Persistent Outbox 的作用是先保留可恢复的事件记录，再由发送流程投递和重试。对于同一数据库内的业务变更，通用 Outbox 方案会把业务数据和待发记录放在同一事务中，避免业务成功却没有事件。跨进程或外部工具副作用不能被这个本地事务自动包住，仍要明确先后顺序和失败恢复，不能把“有 Outbox”等同于所有环节原子提交。",
+            "followup": "如果事件已经发送成功，但还没标记完成进程就崩了呢？",
+            "followupAnswer": "恢复后这条事件可能再次发送，所以消费端必须接受重复并去重。先标完成再发送会造成相反风险：标记后崩溃导致事件永远未投递。通常选择允许重复投递，再用稳定事件身份和幂等消费控制业务效果。"
+        },
+        {
+            "id": "q-zhishu-22",
+            "source": "zhishu",
+            "topic": "可靠事件",
+            "priority": "deep",
+            "question": "事件有唯一 ID 就够了吗，为什么还关心顺序？",
+            "answer": "唯一 ID 解决“同一事件是否重复”，顺序解决“不同事件应如何解释”。例如运行结束先于运行开始到达，两条事件都唯一，但直接按到达顺序覆盖状态会把终态倒退。通用做法是在一次执行范围内使用序号或明确的迁移规则，识别重复、迟到和缺口，终态遵守合法状态约束。不同任务通常不需要全局总顺序，强行给所有事件排队会增加不必要的耦合。",
+            "followup": "收到序号 12，却还没收到 11，应当直接丢弃 12 吗？",
+            "followupAnswer": "不能一概而论。若投影严格依赖连续顺序，可以暂存并请求补齐；若事件可独立处理，也应记录缺口并按状态规则应用。关键是不要用“最大已见序号”直接跳过永远未处理的 11，也不要无期限等待而没有告警或恢复策略。"
+        },
+        {
+            "id": "q-zhishu-23",
+            "source": "zhishu",
+            "topic": "可靠事件",
+            "priority": "deep",
+            "question": "Outbox 中有一条事件一直失败，应该永远重试吗？",
+            "answer": "不应该把所有失败都无限重试。网络抖动或临时服务不可用可以退避重试，而权限错误、协议不兼容或无法解析的报文，重复发送往往不会自行恢复。通用设计应记录尝试次数和原因，限制退避上限，并为不可恢复项提供隔离、告警或人工修复入口。如果要求同一执行严格有序，还要明确失败事件是否阻塞后续事件。知枢已有失败重试，死信与人工处置属于生产化需要进一步明确的能力。",
+            "followup": "为什么重试间隔常常需要随机抖动？",
+            "followupAnswer": "多个执行端同时失败后，如果都按固定间隔重试，会一起再次冲击刚恢复的服务。随机抖动把请求分散，减少同步重试形成的尖峰。它改善负载形态，但不会修复错误参数，也不能替代重试次数和总体等待时间的限制。"
+        },
+        {
+            "id": "q-zhishu-24",
+            "source": "zhishu",
+            "topic": "工具审批",
+            "priority": "deep",
+            "question": "审批记录已经持久化，执行端重启后就能自动继续原来的工具调用吗？",
+            "answer": "不能仅凭数据库记录恢复内存里的等待对象。审批记录保存的是业务事实，Permission Hook 中的等待 Promise、工具调用栈和进程状态在重启后可能已经不存在。通用恢复需要执行器具备可定位的操作身份与恢复能力，并重新校验该审批是否仍有效；如果底层不能恢复，就应结束这次 Attempt 或通过显式新执行继续。不能把历史批准随意应用到新创建的工具调用上。",
+            "followup": "用户在执行端失联时点了批准，页面应该显示什么？",
+            "followupAnswer": "可以区分“决定已记录”和“执行端已接受并恢复”。前者不代表工具已经运行，失联时仍要展示待确认或恢复状态。等执行端恢复后再核对操作有效性；如果原调用已终止，应保留决定历史并解释未执行原因。"
+        },
+        {
+            "id": "q-zhishu-25",
+            "source": "zhishu",
+            "topic": "工具审批",
+            "priority": "deep",
+            "question": "审批同意的是一个工具名字，还是某一次具体操作？",
+            "answer": "审批应绑定具体操作的身份与关键语义。只批准“Bash”或“Write”这个工具名称，无法说明允许执行哪条命令、写哪个路径、使用什么参数。通用设计会关联任务、Attempt、调用标识以及影响权限的参数，审批后若操作内容改变，就不能复用原批准。知枢通过 Permission Hook 拦截敏感工具，参数绑定的核心意义是避免用户同意了较小操作，执行时却变成另一个更大范围的副作用。",
+            "followup": "审批弹窗显示的内容与实际执行参数不一致，会造成什么问题？",
+            "followupAnswer": "用户判断建立在错误信息上，批准就失去有效的授权含义。执行端应以受校验的操作内容为准，显示摘要也要准确反映关键路径与动作。内容发生变化时应重新审批或拒绝，不能只保持相同调用 ID 就继续执行。"
+        },
+        {
+            "id": "q-zhishu-26",
+            "source": "zhishu",
+            "topic": "架构与边界",
+            "priority": "deep",
+            "question": "仓库 README 要求 Agent 把密钥上传到某个地址，平台应如何处理？",
+            "answer": "仓库内容是任务输入，不等于用户授权。Agent 可能把恶意文字理解为行动指令，但执行平台仍应独立限制文件、网络和工具权限，并对敏感操作应用审批。普通项目说明不能扩大任务权限，也不能覆盖用户对数据和目录的限制。对于密钥，最可靠的边界是尽量不让执行环境接触不必要的凭据，而不是只在提示词中要求“不要泄露”。这属于 Agent 应用的安全设计原则，Worktree 无法单独提供这些保护。",
+            "followup": "所有 Bash 都弹审批，是否就足以防止数据外泄？",
+            "followupAnswer": "不够。用户可能无法准确理解复杂命令，命令还可能间接执行仓库脚本。审批应结合最小权限、受限网络和凭据隔离，必要时分析真实执行内容。人工批准是控制措施之一，不能把它当成任何命令都安全的证明。"
+        },
+        {
+            "id": "q-zhishu-27",
+            "source": "zhishu",
+            "topic": "SSE 与实时通信",
+            "priority": "deep",
+            "question": "SSE 先查历史、再订阅实时事件，中间会不会漏掉一条？",
+            "answer": "可能。历史查询结束后、实时订阅建立前产生的事件，既不在刚查出的历史里，也没进入订阅。通用恢复方案需要设计无缝交接，例如先建立订阅并缓冲，再取得一个历史高水位，补发到该位置后合并缓冲，并按事件标识去重；也可以使用统一持久化日志持续拉取。核心是允许可控重叠、避免不可见空隙。Last-Event-ID 提供游标，不能自动替服务端解决这段交接竞态。",
+            "followup": "先订阅再补历史会收到重复消息，是否比漏消息更糟？",
+            "followupAnswer": "重复可以用稳定事件身份识别，漏掉且没有记录的事件则难以恢复。所以恢复协议常接受交界处重叠，再去重和排序。缓冲也要有容量边界；若补历史太慢超过容量，应重新建立恢复过程，而不是静默丢弃关键事件。"
+        },
+        {
+            "id": "q-zhishu-28",
+            "source": "zhishu",
+            "topic": "SSE 与实时通信",
+            "priority": "deep",
+            "question": "有一个浏览器接收 SSE 很慢，会拖住 Agent 执行吗？",
+            "answer": "不应该让展示端速度决定业务执行是否推进。通用设计将事件持久化与向浏览器投递分开，对每个订阅者设置有界队列；慢客户端超过边界时可以断开，让它之后从游标恢复，而不是无限占用内存。Node 写入流返回 false 表示达到背压条件，应等待 drain 等恢复信号，不能持续写入。SSE 解决传输形式，慢订阅者的缓冲与丢弃策略仍由应用设计，关键事件不能只存在于易丢的内存队列。",
+            "followup": "能否直接丢掉慢客户端队列里的所有旧事件？",
+            "followupAnswer": "进度展示可以按业务规则合并，但审批、终态和交付索引等关键事件不能悄悄丢掉。如果需要截断队列，应明确断开并从持久化历史恢复，或重新加载权威状态。否则页面可能持续连接，却永远错过重要结果。"
+        },
+        {
+            "id": "q-zhishu-29",
+            "source": "zhishu",
+            "topic": "SSE 与实时通信",
+            "priority": "deep",
+            "question": "模型每生成一个 token 都存库并广播，会有什么问题？",
+            "answer": "极细的事件粒度会放大写入次数、网络开销和页面更新压力，还会让业务事件被大量文本片段淹没。通用做法是区分高频展示数据与必须可靠保存的状态事件：文本可以按时间或大小合并，审批、状态迁移和交付记录则保留稳定身份与顺序。是否持久化每个片段取决于回溯精度需求，不能为了减少写入就丢掉唯一的完整输出来源。优化应先测量事件速率、积压和渲染延迟。",
+            "followup": "合并文本片段以后，断线重放的 ID 应该怎么理解？",
+            "followupAnswer": "ID 应对应服务端真正保留的事件边界，而不是随意复用某个原始 token 编号。客户端据此恢复时，需要能够明确哪些合并块已收到。若展示流与持久化流粒度不同，还要有清晰映射或完整快照恢复，避免游标含义变化。"
+        },
+        {
+            "id": "q-zhishu-30",
+            "source": "zhishu",
+            "topic": "工作区与验收",
+            "priority": "must",
+            "question": "给 Agent 新建 Worktree 时，应该从哪个版本开始？",
+            "answer": "起点决定任务看到的代码事实。通用做法是明确任务基线提交，将它记录在执行上下文中，再从该版本创建候选工作区；不能把当前分支名当成永远不变的内容。用户主工作区的未提交修改也不会自动成为新 Worktree 的基线，是否包含必须有明确规则。知枢使用独立工作目录做候选验证，因此起点、候选提交和集成目标的关系，直接影响结果是否可复现与审查。",
+            "followup": "为什么不直接让 Agent 在用户当前目录里工作，省去集成步骤？",
+            "followupAnswer": "这样会把 Agent 改动、用户未提交内容和其他任务混在一起，很难判断来源，也容易覆盖。独立候选工作区增加了集成成本，但换来清晰的基线和变更范围；对于需要审查与并行执行的任务，这个边界有实际价值。"
+        },
+        {
+            "id": "q-zhishu-31",
+            "source": "zhishu",
+            "topic": "工作区与验收",
+            "priority": "deep",
+            "question": "Agent 崩溃后留下了脏 Worktree，怎么恢复和清理？",
+            "answer": "脏目录可能包含尚未提交但有价值的结果，不能看到任务失败就强制删除。通用恢复先确定工作区归属与对应 Attempt，确认没有有效进程继续写入，再检查变更、日志和候选提交。可保留有用 Diff 或生成受控快照，之后再决定重试或清理。Git 的正常 worktree remove 会保护含修改或未跟踪文件的目录；绕过保护必须建立在明确处置决定之上，不能把清理动作当成故障修复本身。",
+            "followup": "目录已经被手动删除，但 git worktree list 还显示它，是什么情况？",
+            "followupAnswer": "Git 仍保存该工作区的管理记录，物理目录消失并不等于元数据同步清理。prune 用于清理失效记录，repair 用于修复移动等导致的关联问题。它们处理管理状态，不能恢复被删掉的未提交代码，清理前应先确认真实路径与归属。"
+        },
+        {
+            "id": "q-zhishu-32",
+            "source": "zhishu",
+            "topic": "架构与边界",
+            "priority": "deep",
+            "question": "每个 Agent 都有独立 Worktree，为什么还需要管理密钥和环境变量？",
+            "answer": "Worktree 分离文件工作目录与暂存区，但多个任务仍可能在同一用户权限下运行，继承相同环境变量，访问其他目录或共享服务。它不自动限制读取凭据、网络发送或启动进程。通用执行环境应只注入任务必需的凭据，控制可访问路径和网络范围，并让日志与交付物避免保存秘密。代码隔离减少并行覆盖，权限隔离控制可造成的影响，两者解决不同问题。",
+            "followup": "把 .env 加进 .gitignore，就能防止 Agent 泄露密钥吗？",
+            "followupAnswer": "不能。.gitignore 主要影响未跟踪文件的加入行为，不阻止进程读取，也不能阻止工具把内容写进日志或发到网络。真正的防线是减少可见凭据、限制访问和输出，并对必要秘密设置明确的生命周期与撤销能力。"
+        },
+        {
+            "id": "q-zhishu-33",
+            "source": "zhishu",
+            "topic": "工作区与验收",
+            "priority": "deep",
+            "question": "候选代码测试通过后，目标分支又有新提交，还能直接集成吗？",
+            "answer": "候选通过验证的是某个明确代码版本，目标分支前进后，组合结果已经变化。通用流程需要核对基线与当前目标的关系，必要时重新合并或应用候选，再对最终候选版本执行验证。即使 Git 没有文本冲突，两边也可能在接口或业务假设上冲突。知枢以提交、构建测试和结果集成为主线，关键是保证被验证的代码与真正进入目标的代码对应，而不是拿旧版本测试通过替新组合背书。",
+            "followup": "只使用 fast-forward 集成就完全不需要重新测试了吗？",
+            "followupAnswer": "不能单凭合并方式判断。fast-forward 说明提交祖先关系满足直接移动引用的条件，不证明测试环境、依赖或验收目标没变化。若候选正是已验证的提交，证据更容易对应；若候选内容已调整，仍应重新验证实际交付版本。"
+        },
+        {
+            "id": "q-zhishu-34",
+            "source": "zhishu",
+            "topic": "工作区与验收",
+            "priority": "deep",
+            "question": "模型输出不确定，怎样写稳定且有价值的自动化测试？",
+            "answer": "把可确定的业务规则与真实模型行为分开。状态迁移、幂等冲突、审批有效性和事件投影可以使用固定输入与可控执行器测试；真实 Agent 验收则关注必要行为和交付条件，不要求每次逐字输出相同文本。例如验证是否暂停等待审批、是否产生候选变更、固定验收是否通过，比断言摘要某句话更稳。替身提高可重复性，但不能证明真实 SDK 的工具与取消行为完全一致。",
+            "followup": "如果真实 Agent 验收偶尔失败，是否可以自动重跑到通过？",
+            "followupAnswer": "不能把重跑后的通过覆盖首次失败。应记录每次输入、版本、失败阶段和成本，区分环境抖动、模型选择与系统缺陷。可以允许有规则的重试，但总体结论要保留尝试次数和失败样本，否则会高估真实可靠性。"
+        },
+        {
+            "id": "q-zhishu-35",
+            "source": "zhishu",
+            "topic": "工作区与验收",
+            "priority": "deep",
+            "question": "为什么 mock 测试全过，真实数据库或 Provider 联调仍会失败？",
+            "answer": "mock 只返回测试预设的行为，可能没有真实事务、唯一约束、连接中断或 SDK 生命周期。比如 Spring 默认代理模式下，同类内部调用不会新触发被调用方法上的事务拦截，仅断言方法返回值很难发现回滚边界错误。Provider 替身也可能总按顺序回调，而真实环境会迟到或重复。应让单元测试负责规则，集成与契约测试验证关键边界，少量真实端到端测试确认组合后的完整链路。",
+            "followup": "数据库集成测试最值得验证什么，而不是重复测试 CRUD？",
+            "followupAnswer": "优先验证数据库实际承担的约束和原子性，例如并发重复插入只产生一份有效结果、消费失败能否回滚投影，以及状态条件更新的冲突行为。这些机制在内存集合或简单 mock 中往往不存在，正是集成测试的价值。"
+        },
+        {
+            "id": "q-zhishu-36",
+            "source": "zhishu",
+            "topic": "架构与边界",
+            "priority": "deep",
+            "question": "如果用户说“任务很慢”，你先优化数据库还是模型调用？",
+            "answer": "先分段测量，不能凭技术偏好选瓶颈。一次 Agent 任务可能耗时在排队、模型响应、等待审批、工具运行、构建测试或事件展示；数据库慢只是其中一种情况。通用观测会用 Task 与 Attempt 关联时间点，区分业务等待和系统处理，再看资源利用率、队列积压与错误。知枢没有给出线上 QPS 或延迟成果，优化讨论应基于可测量的阶段耗时，而不是宣称某个组件替换就一定提速。",
+            "followup": "平均耗时下降了，为什么用户还可能觉得更慢？",
+            "followupAnswer": "平均值会掩盖长尾和不同任务类型，还可能因为简单任务增多而下降。应关注高分位延迟、排队时间、首次可见进度和任务成功率，并把等待人工审批等阶段单独看。用户体验与整段后台平均时间不是同一个指标。"
+        },
+        {
+            "id": "q-zhishu-37",
+            "source": "zhishu",
+            "topic": "任务与状态",
+            "priority": "deep",
+            "question": "取消任务时，只让等待 Promise 返回失败就够了吗？",
+            "answer": "不够。Promise 是代码里的结果通道，已经启动的子进程、网络请求或工具可能仍在运行。通用取消流程要停止后续调度，向可取消的执行单元发送终止信号，并等待或核对真正退出，同时处理迟到事件与交付物。不同 Provider 的取消能力可能不同，因此取消应有明确语义与范围：请求取消、执行已停止、外部副作用已处理是不同结论，不能在界面点下按钮时全部视为完成。",
+            "followup": "强制结束进程能保证任务没有副作用吗？",
+            "followupAnswer": "不能。终止前写入的文件、提交到远端的请求或已启动的其他进程可能仍存在。强制结束可以限制继续执行，但恢复要检查已发生的变更和外部结果。必要时保留异常终止状态与人工处置入口，不能伪造正常成功或完全回滚。"
+        },
+        {
+            "id": "q-zhishu-38",
+            "source": "zhishu",
+            "topic": "可靠事件",
+            "priority": "deep",
+            "question": "为了可追溯，把所有提示词、工具输出和事件永久保存是否合适？",
+            "answer": "可追溯需要保留解释执行所需的证据，但无限保存会增加存储成本和敏感信息暴露。通用设计应区分状态事件、交付索引、大体积日志及可能含凭据的原始输出，设置权限、脱敏和保留期限。历史清理还会影响 SSE 重放：游标对应的数据已删除时，应明确告知可恢复范围，并提供当前状态或摘要。知枢归档执行与验收材料，不代表所有内容都适合永久公开或无需权限地下载。",
+            "followup": "如果先删除事件再保留任务终态，还能说支持断线重放吗？",
+            "followupAnswer": "只能在实际保留的历史范围内支持。终态快照能恢复当前结果，但无法替代完整过程时间线。接口应区分补历史与重新加载快照，避免客户端把过期游标后的空结果误认为没有新事件或任务一直没变化。"
         }
     ],
-
-    checklist: [
-        { id: "check-self-30", group: "简历总览", text: "能在 30 秒内完成 HR 版自我介绍" },
-        { id: "check-self-60", group: "简历总览", text: "能在 60 秒内完成技术面自我介绍" },
-        { id: "check-compare", group: "简历总览", text: "能说清用友、北软、知枢三段经历的差异和联系" },
-        { id: "check-java", group: "简历总览", text: "能结合真实经历回答为什么选择 Java 后端" },
-        { id: "check-zs-pitch", group: "知枢项目", text: "熟练口述知枢 15 秒和 1 分钟版本" },
-        { id: "check-zs-arch", group: "知枢项目", text: "能画出 Control Plane / Execution Plane 主链路" },
-        { id: "check-zs-model", group: "知枢项目", text: "能解释 Task / Attempt、Outbox、审批和 Artifact" },
-        { id: "check-zs-metrics-current", group: "知枢项目", text: "能用对应提交与报告解释 400+ 项自动化测试、两轮 8 个 Agent 任务的口径" },
-        { id: "check-zs-idempotency", group: "知枢项目", text: "能解释幂等键与语义哈希，并画出取消 / 审批竞态" },
-        { id: "check-zs-evidence", group: "知枢项目", text: "准备一份任务输入、Diff、测试报告和人工验收的完整记录" },
-        { id: "check-zs-boundary", group: "知枢项目", text: "能诚实说明开源边界和生产化缺口" },
-        { id: "check-yy-pitch", group: "用友实习", text: "能在 1 分钟内介绍用友实习" },
-        { id: "check-yy-parent", group: "用友实习", text: "能用 STAR 深讲父部门匹配问题" },
-        { id: "check-yy-openapi", group: "用友实习", text: "能画出 JSON → VO → AggVO → 平台保存链路" },
-        { id: "check-yy-stack", group: "用友实习", text: "能解释 JAX-RS、NCC / YonBIP 与 Spring Boot 的边界" },
-        { id: "check-yy-reminder", group: "用友实习", text: "能讲清异常考勤查询、身份转换、待办创建和失败隔离链路" },
-        { id: "check-yy-sync-current", group: "用友实习", text: "能说明组织与邮箱层级同步的父子依赖、单条失败记录及实际补跑方式" },
-        { id: "check-br-pitch", group: "北软实习", text: "能在 1 分钟内介绍北软实习" },
-        { id: "check-br-report-current", group: "北软实习", text: "能用一条脱敏记录讲清报工字段映射、数量校验、审批与工资明细生成" },
-        { id: "check-br-idempotency-current", group: "北软实习", text: "核实关联报工 ID 判重的位置，区分重复触发、部分失败和并发场景" },
-        { id: "check-br-sales-current", group: "北软实习", text: "能解释销售明细关联、累计数量的状态口径，以及修改当前单据时的处理" },
-        { id: "check-br-runtime", group: "北软实习", text: "能解释 Task / Execution 和撤回残留案例" },
-        { id: "check-br-collab", group: "北软实习", text: "能解释多人顺序协办、回退和历史变量污染" },
-        { id: "check-br-regression", group: "北软实习", text: "补充资料：能用旧记录说明 17 项字段与通知回归的边界" },
-        { id: "check-br-boundary", group: "北软实习", text: "补充资料：核实旧手册中的 Redis、Docker 和未进入测试环境的功能边界" },
-        { id: "check-br-notifications", group: "北软实习", text: "补充资料：能用四类通知案例解释字段取值、排序去重与权限过滤" },
-        { id: "check-diagnosis", group: "面试冲刺", text: "准备一个从触发条件、根因证据到修复回归的完整排障案例" },
-        { id: "check-star", group: "面试冲刺", text: "准备至少 2 个能连续讲 3 分钟的 STAR 故事" },
-        { id: "check-mock", group: "面试冲刺", text: "完成一轮随机模拟问答并复习所有“不会/模糊”项" },
-        { id: "check-question", group: "面试冲刺", text: "准备 2 个向面试官提问的问题" }
+    "checklist": [
+        {
+            "id": "check-self-30",
+            "group": "简历总览",
+            "text": "能在 30 秒内完成 HR 版自我介绍"
+        },
+        {
+            "id": "check-self-60",
+            "group": "简历总览",
+            "text": "能在 60 秒内完成技术面自我介绍"
+        },
+        {
+            "id": "check-compare",
+            "group": "简历总览",
+            "text": "能说清用友、北软、知枢三段经历的差异和联系"
+        },
+        {
+            "id": "check-java",
+            "group": "简历总览",
+            "text": "能结合真实经历回答为什么选择 Java 后端"
+        },
+        {
+            "id": "check-zs-pitch",
+            "group": "知枢项目",
+            "text": "熟练口述知枢 15 秒和 1 分钟版本"
+        },
+        {
+            "id": "check-zs-arch",
+            "group": "知枢项目",
+            "text": "能画出 Control Plane / Execution Plane 主链路"
+        },
+        {
+            "id": "check-zs-model",
+            "group": "知枢项目",
+            "text": "能解释 Task / Attempt、Outbox、审批和 Artifact"
+        },
+        {
+            "id": "check-zs-metrics-current",
+            "group": "知枢项目",
+            "text": "能用对应提交与报告解释 400+ 项自动化测试、两轮 8 个 Agent 任务的口径"
+        },
+        {
+            "id": "check-zs-idempotency",
+            "group": "知枢项目",
+            "text": "能解释幂等键与语义哈希，并画出取消 / 审批竞态"
+        },
+        {
+            "id": "check-zs-evidence",
+            "group": "知枢项目",
+            "text": "准备一份任务输入、Diff、测试报告和人工验收的完整记录"
+        },
+        {
+            "id": "check-zs-boundary",
+            "group": "知枢项目",
+            "text": "能诚实说明开源边界和生产化缺口"
+        },
+        {
+            "id": "check-yy-pitch",
+            "group": "用友实习",
+            "text": "能在 1 分钟内介绍用友实习"
+        },
+        {
+            "id": "check-yy-parent",
+            "group": "用友实习",
+            "text": "能用 STAR 深讲父部门匹配问题"
+        },
+        {
+            "id": "check-yy-openapi",
+            "group": "用友实习",
+            "text": "能画出 JSON → VO → AggVO → 平台保存链路"
+        },
+        {
+            "id": "check-yy-stack",
+            "group": "用友实习",
+            "text": "能解释 JAX-RS、NCC / YonBIP 与 Spring Boot 的边界"
+        },
+        {
+            "id": "check-yy-reminder",
+            "group": "用友实习",
+            "text": "能讲清异常考勤查询、身份转换、待办创建和失败隔离链路"
+        },
+        {
+            "id": "check-yy-sync-current",
+            "group": "用友实习",
+            "text": "能说明组织与邮箱层级同步的父子依赖、单条失败记录及实际补跑方式"
+        },
+        {
+            "id": "check-br-pitch",
+            "group": "北软实习",
+            "text": "能在 1 分钟内介绍北软实习"
+        },
+        {
+            "id": "check-br-report-current",
+            "group": "北软实习",
+            "text": "能用一条脱敏记录讲清报工字段映射、数量校验、审批与工资明细生成"
+        },
+        {
+            "id": "check-br-idempotency-current",
+            "group": "北软实习",
+            "text": "核实关联报工 ID 判重的位置，区分重复触发、部分失败和并发场景"
+        },
+        {
+            "id": "check-br-sales-current",
+            "group": "北软实习",
+            "text": "能解释销售明细关联、累计数量的状态口径，以及修改当前单据时的处理"
+        },
+        {
+            "id": "check-br-runtime",
+            "group": "北软实习",
+            "text": "能解释 Task / Execution 和撤回残留案例"
+        },
+        {
+            "id": "check-br-collab",
+            "group": "北软实习",
+            "text": "能解释多人顺序协办、回退和历史变量污染"
+        },
+        {
+            "id": "check-br-regression",
+            "group": "北软实习",
+            "text": "补充资料：能用旧记录说明 17 项字段与通知回归的边界"
+        },
+        {
+            "id": "check-br-boundary",
+            "group": "北软实习",
+            "text": "补充资料：核实旧手册中的 Redis、Docker 和未进入测试环境的功能边界"
+        },
+        {
+            "id": "check-br-notifications",
+            "group": "北软实习",
+            "text": "补充资料：能用四类通知案例解释字段取值、排序去重与权限过滤"
+        },
+        {
+            "id": "check-diagnosis",
+            "group": "面试冲刺",
+            "text": "准备一个从触发条件、根因证据到修复回归的完整排障案例"
+        },
+        {
+            "id": "check-star",
+            "group": "面试冲刺",
+            "text": "准备至少 2 个能连续讲 3 分钟的 STAR 故事"
+        },
+        {
+            "id": "check-mock",
+            "group": "面试冲刺",
+            "text": "完成一轮随机模拟问答并复习所有“不会/模糊”项"
+        },
+        {
+            "id": "check-question",
+            "group": "面试冲刺",
+            "text": "准备 2 个向面试官提问的问题"
+        }
+    ],
+    "references": [
+        {
+            "label": "MDN：SSE 事件格式、自动重连与事件 ID",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events"
+        },
+        {
+            "label": "MDN：EventSource 接口与连接生命周期",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/API/EventSource"
+        },
+        {
+            "label": "Git：Worktree 共享边界、移除与修复",
+            "url": "https://git-scm.com/docs/git-worktree"
+        },
+        {
+            "label": "PostgreSQL：事务隔离与并发更新",
+            "url": "https://www.postgresql.org/docs/current/transaction-iso.html"
+        },
+        {
+            "label": "PostgreSQL：唯一约束与数据完整性",
+            "url": "https://www.postgresql.org/docs/current/ddl-constraints.html"
+        },
+        {
+            "label": "Spring：声明式事务与代理调用边界",
+            "url": "https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html"
+        },
+        {
+            "label": "Node.js：流写入、背压与 drain",
+            "url": "https://nodejs.org/api/stream.html"
+        },
+        {
+            "label": "Flowable：BPMN 网关、任务与执行语义",
+            "url": "https://www.flowable.com/open-source/docs/bpmn/ch07b-BPMN-Constructs"
+        }
     ]
 };

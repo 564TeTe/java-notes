@@ -15,7 +15,7 @@ function setup() {
     });
     context.window = context;
     const run = code => vm.runInContext(code, context);
-    for (const name of ['resume-data.js', 'resume-claims.js', 'resume-workbench.js', 'resume-module.js', 'recruitment-module.js', 'data/question-bank.js', 'data/question-curation.js', 'study-core.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
+    for (const name of ['resume-data.js', 'resume-question-expansion.js', 'resume-claims.js', 'resume-workbench.js', 'resume-module.js', 'recruitment-module.js', 'data/question-bank.js', 'data/question-curation.js', 'study-core.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
     for (const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) if (match[1].includes('const NOTES')) run(match[1]);
     for (const name of ['study-module.js','interview-module.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
@@ -25,7 +25,7 @@ function setup() {
 
 test('full backups preserve and restore resume workbench records including legacy absence and explicit clearing', () => {
     const {run}=setup();
-    run(`saveResumeClaim('br-report','responsibility','审批完成后生成工资明细'); verifyResumeClaim('br-report',true); saveResumeOralDraft('self-60','我自己的新版自我介绍'); const workbenchBackup=getStateSnapshot();`);
+    run(`ResumeWorkbench.applySnapshot({claims:{'br-report':{responsibility:'审批完成后生成工资明细',verified:true}},pitches:{'self-60':{draft:'我自己的新版自我介绍'}}}); const workbenchBackup=getStateSnapshot();`);
     assert.equal(run('workbenchBackup.resumePrep.workbench.claims["br-report"].verified'),true);
     run('applyStateSnapshot({resumePrep:{mastery:{},checklist:{}}})');
     assert.equal(run('getResumePrepSnapshot().workbench.pitches["self-60"].draft'),'我自己的新版自我介绍');
