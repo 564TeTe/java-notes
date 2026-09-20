@@ -1,6 +1,9 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { mergeEdition } = require('../scripts/import-optimized-question-bank.cjs');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const { mergeEdition, readBank } = require('../scripts/import-optimized-question-bank.cjs');
 const question = (id, sourceIds = []) => ({ id, question: '问题', answer: '答案', sourceIds });
 function fixture() {
     const previous = {
@@ -36,4 +39,26 @@ test('edition import refuses missing sources and inactive study-set members', ()
     const { previous, edition, archive } = fixture();
     assert.throws(() => mergeEdition(previous, { ...edition, sources: [] }, archive), /题目来源缺失/);
     assert.throws(() => mergeEdition(previous, { ...edition, studySets: [{ id: 'bad', questionIds: ['bank-retire'] }] }, archive), /非主背题/);
+});
+
+test('restoring archived questions records a repeatable release without mutating prior editions', () => {
+    const { previous, edition, archive } = fixture();
+    const first = mergeEdition(previous, edition, archive);
+    const restored = { ...edition, date: '2026-09-20', edition: 'recitation', questions: [...edition.questions, ...archive.questions] };
+    const merged = mergeEdition(first, restored, { date: restored.date, questions: [] });
+    assert.deepEqual(merged.archivedQuestions, []);
+    assert.deepEqual(merged.curationReleases, [{ id: '2026-09-20:recitation', questionIds: ['bank-retire'] }]);
+    assert.deepEqual(mergeEdition(merged, restored, { date: restored.date, questions: [] }), merged);
+    assert.deepEqual(first.curationReleases, []);
+});
+
+test('bank data accepts leading comments without executing JavaScript', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bank-import-'));
+    const file = path.join(dir, 'question-bank.js');
+    try {
+        fs.writeFileSync(file, '\uFEFF// title\n// uses window.QUESTION_BANK_DATA\nwindow.QUESTION_BANK_DATA = {"questions":[]};\n');
+        assert.deepEqual(readBank(file), { questions: [] });
+        fs.writeFileSync(file, 'throw new Error("execute");\nwindow.QUESTION_BANK_DATA = {"questions":[]};');
+        assert.throws(() => readBank(file), SyntaxError);
+    } finally { fs.unlinkSync(file); fs.rmdirSync(dir); }
 });

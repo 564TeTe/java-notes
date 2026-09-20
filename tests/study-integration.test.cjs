@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 const root = path.join(__dirname, '..');
-function setup() {
+function setup({ archivedEdition = false } = {}) {
     const store = new Map();
     const element = { value: '', textContent: '', innerHTML: '', style: {}, dataset: {}, classList: { add(){}, remove(){}, toggle(){} },
         querySelectorAll: () => [], querySelector: () => element, setAttribute(){}, removeAttribute(){}, addEventListener(){}, focus(){}, appendChild(){} };
@@ -16,6 +16,7 @@ function setup() {
     context.window = context;
     const run = code => vm.runInContext(code, context);
     for (const name of ['resume-data.js', 'resume-question-expansion.js', 'resume-claims.js', 'resume-workbench.js', 'resume-module.js', 'recruitment-module.js', 'data/question-bank.js', 'data/question-curation.js', 'study-core.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
+    if (archivedEdition) run('QUESTION_BANK_CURATION.reasons=Object.fromEntries(QUESTION_BANK_DATA.questions.filter(q=>q.restoredToMainBank).map(q=>[q.id,"测试归档"])); QUESTION_BANK_CURATION.releases=[];');
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
     for (const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) if (match[1].includes('const NOTES')) run(match[1]);
     for (const name of ['study-module.js','interview-module.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
@@ -23,20 +24,20 @@ function setup() {
     return { run, store };
 }
 
-test('optimized edition loads 418 active questions and 244 recoverable originals in study order', () => {
+test('recitation edition loads all 662 questions in the supplied order without automatic trash', () => {
     const { run } = setup();
     run('loadState();');
-    assert.equal(run('getStudyPool("bank").length'), 418);
-    assert.equal(run('getDeletedNotes().length'), 244);
-    assert.equal(run('getStudyPool("bank")[0].id'), 'bank-Q09-029');
-    assert.ok(run('QUESTION_BANK_DATA.archivedQuestions.every(q => getDeletedNotes().some(n => n.id === q.id && n.answer === q.answer))'));
+    assert.equal(run('getStudyPool("bank").length'), 662);
+    assert.equal(run('getDeletedNotes().length'), 0);
+    assert.equal(run('getStudyPool("bank")[0].id'), 'bank-Q01-001');
+    assert.equal(run('getStudyPool("bank").filter(q=>q.restoredToMainBank).length'), 244);
     assert.ok(run('QUESTION_BANK_DATA.studySets.every(s => s.questionIds.every(id => getStudyPool("bank").some(q => q.id === id)))'));
     assert.equal(run('getStudyPool("bank").filter(q => q.isNew).length'), 71);
 });
 
 test('edition upgrade preserves manual deletions, restored originals, personal copies and mastery', () => {
     const { run, store } = setup();
-    store.set('deleted-ids', JSON.stringify(['bank-Q01-001']));
+    store.set('deleted-ids', run('JSON.stringify([...QUESTION_BANK_CURATION.releases[0].questionIds,"bank-Q01-001"])'));
     store.set('restored-curated-ids', JSON.stringify(['bank-LX001']));
     store.set('purged-ids', JSON.stringify(['bank-Q04-027']));
     run('userNotes=[{id:"user-edition",sourceId:"bank-LX001",question:"我的解法",answer:"我修改的笔记",category:"算法"}]; mastery["bank-LX001"]={level:"known"}; markedIds.add("bank-Q01-001"); saveUserNotes(); saveMastery(); saveMarked(); loadState(); loadUserNotes();');
@@ -46,8 +47,34 @@ test('edition upgrade preserves manual deletions, restored originals, personal c
     assert.equal(run('getPersonalNotes()[0].answer'), '我修改的笔记');
     assert.equal(run('mastery["bank-LX001"].level'), 'known');
     assert.ok(run('markedIds.has("bank-Q01-001")'));
-    run('restoreNote(QUESTION_BANK_DATA.archivedQuestions.find(q => !["bank-LX001","bank-Q04-027"].includes(q.id)).id); const editionSnapshot=getStateSnapshot(); applyStateSnapshot(editionSnapshot); loadState();');
-    assert.ok(run('getStudyPool("bank").some(q => q.id === QUESTION_BANK_DATA.archivedQuestions.find(q => !["bank-LX001","bank-Q04-027"].includes(q.id)).id)'));
+    assert.equal(run('getStudyPool("bank").length'), 660);
+    assert.equal(run('getDeletedNotes().length'), 1);
+    run('deleteNote("bank-LX001"); loadState(); const editionSnapshot=getStateSnapshot(); applyStateSnapshot(editionSnapshot); loadState();');
+    assert.ok(run('getDeletedNotes().some(q => q.id === "bank-LX001")'));
+    assert.equal(run('getStateSnapshot().appliedCurationReleases.length'), 1);
+});
+
+test('an old cloud backup releases automatic trash even after a fresh device has initialized', () => {
+    const { run, store } = setup();
+    run('loadState();');
+    assert.equal(store.get(run('LOCAL_UPDATED_KEY')), undefined);
+    run('applyStateSnapshot({userNotes:[],deletedIds:[...QUESTION_BANK_CURATION.releases[0].questionIds,"bank-Q01-001"],purgedIds:["bank-Q04-027"]});');
+    assert.equal(run('getStudyPool("bank").length'), 660);
+    assert.equal(run('getDeletedNotes().length'), 1);
+    run('deleteNote("bank-LX001"); const newerBackup=JSON.parse(JSON.stringify(getStateSnapshot())); applyStateSnapshot(newerBackup); loadState();');
+    assert.ok(run('deletedIds.has("bank-LX001")'));
+    assert.ok(run('purgedIds.has("bank-Q04-027")'));
+    assert.throws(() => run('applyStateSnapshot({userNotes:[],appliedCurationReleases:"bad"})'), /整理更新记录/);
+    assert.ok(run('deletedIds.has("bank-LX001")'));
+});
+
+test('a v45 device round trip cannot revive a question manually deleted after migration', () => {
+    const { run } = setup();
+    run('loadState(); deleteNote("bank-LX001"); const throughV45=JSON.parse(JSON.stringify(getStateSnapshot())); delete throughV45.appliedCurationReleases; applyStateSnapshot(throughV45); loadState();');
+    assert.ok(run('deletedIds.has("bank-LX001")'));
+    assert.ok(run('!getStudyPool("bank").some(q=>q.id==="bank-LX001")'));
+    assert.equal(run('appliedCurationReleases.size'), 1);
+    assert.ok(run('QUESTION_BANK_CURATION.releases[0].questionIds.every(id => id === "bank-LX001" || restoredCuratedIds.has(id))'));
 });
 
 test('official references do not become company interviews', () => {
@@ -248,7 +275,7 @@ test('interview extraction can return a moved question to the notebook without l
 });
 
 test('Java backend curation moves only the selected built-in questions into recoverable trash', () => {
-    const { run, store } = setup();
+    const { run, store } = setup({ archivedEdition: true });
     run('userNotes=[{id:"user-safe-curation",sourceId:"bank-LX001",question:"我的理解",answer:"保留",category:"算法"}]; mastery["bank-LX001"]={level:"known"}; saveUserNotes(); saveMastery(); loadState(); loadUserNotes();');
     assert.equal(run('getStudyPool("bank").length'), 418);
     assert.equal(run('getDeletedNotes().length'), 244);
@@ -262,7 +289,7 @@ test('Java backend curation moves only the selected built-in questions into reco
 });
 
 test('restoring a curated question survives reload and snapshot import; deleting it again stays deleted', () => {
-    const { run } = setup();
+    const { run } = setup({ archivedEdition: true });
     run('loadState(); restoreNote("bank-LX001"); loadState();');
     assert.ok(run('getStudyPool("bank").some(n=>n.id==="bank-LX001")'));
     run('const curatedSnapshot=JSON.parse(JSON.stringify(getStateSnapshot())); applyStateSnapshot(curatedSnapshot);');
@@ -273,7 +300,7 @@ test('restoring a curated question survives reload and snapshot import; deleting
 });
 
 test('legacy cloud snapshots receive curated trash without erasing unrelated deleted records', () => {
-    const { run } = setup();
+    const { run } = setup({ archivedEdition: true });
     run('applyStateSnapshot({userNotes:[],deletedIds:[BANK[0].id]});');
     assert.equal(run('getDeletedNotes().length'), 245);
     run('restoreNote("bank-LX001"); applyStateSnapshot({userNotes:[],deletedIds:[BANK[0].id]});');
@@ -282,14 +309,14 @@ test('legacy cloud snapshots receive curated trash without erasing unrelated del
 });
 
 test('curation keeps a new device eligible to load newer cloud data during startup', () => {
-    const { run, store } = setup();
+    const { run, store } = setup({ archivedEdition: true });
     run('loadSyncSession=applySidebarState=bindEvents=initMobile=updateSyncUI=registerPWA=function(){};window.matchMedia=()=>({matches:false}); init();');
     assert.equal(run('getDeletedNotes().length'), 244);
     assert.equal(store.get(run('LOCAL_UPDATED_KEY')), undefined);
 });
 
 test('permanently deleted curated questions are not reintroduced after reload', () => {
-    const { run } = setup();
+    const { run } = setup({ archivedEdition: true });
     run('loadState(); permDelete("bank-LX001"); loadState();');
     assert.ok(run('!getStudyPool("bank").some(n=>n.id==="bank-LX001")'));
     assert.ok(run('!getDeletedNotes().some(n=>n.id==="bank-LX001")'));
@@ -308,7 +335,7 @@ test('a saved copy does not resurrect its permanently deleted custom source in t
     assert.equal(run('getStudyPool("bank").length'), 662);
     assert.equal(run('getPersonalNotes().length'), 1);
     run('applyStateSnapshot(getStateSnapshot()); quizSource="bank";');
-    assert.equal(run('getQuizPool().length'), 418);
+    assert.equal(run('getQuizPool().length'), 662);
 });
 
 test('company questions aggregate all sources, include custom questions, and respect shared trash', () => {
@@ -334,7 +361,7 @@ test('company supplement preserves 25-company membership and keeps six standalon
     assert.equal(run('getCompanyQuestions("小鹅通").length'), 10);
     assert.equal(run('getCompanyQuestions("货拉拉").length'), 36);
     assert.equal(run('getCompanyQuestions("京东").length'), 48);
-    assert.ok(run('BANK.find(n=>n.number==="JX020").answer.includes("static int longestConsecutive")'));
+    assert.ok(run('BANK.find(n=>n.number==="JX020").answerFormat === "numbered-paragraphs"'));
     assert.ok(run('BANK.every(n=>n.answer.trim() && (n.answer.match(/```/g)||[]).length%2===0)'));
     assert.ok(run('BANK.every(n=>n.sourceIds.filter(id=>id.startsWith("N")).every(id=>QUESTION_BANK_DATA.sources.some(s=>s.id===id&&s.questionIds.includes(n.id))))'));
     assert.ok(run('QUESTION_BANK_DATA.sources.every(s=>new Set(s.questionIds).size===s.questionIds.length)'));
@@ -352,6 +379,6 @@ test('recent interviews link existing topics and 40 new questions to the correct
     assert.equal(run('QUESTION_BANK_DATA.sources.find(s => s.id === "NI021").company'), '阿里');
     assert.equal(run('QUESTION_BANK_DATA.sources.find(s => s.id === "NI025").company'), '阿里');
     run('applyStudyCuration()');
-    assert.equal(run('getStudyPool("bank").length'), 418);
+    assert.equal(run('getStudyPool("bank").length'), 662);
     assert.ok(run('BANK.filter(q => /^RM[0-9]{3}$/.test(q.number)).every(q => getStudyPool("bank").some(n => n.id === q.id) || getDeletedNotes().some(n => n.id === q.id))'));
 });

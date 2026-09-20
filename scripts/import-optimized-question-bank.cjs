@@ -4,6 +4,7 @@ const path = require('node:path');
 
 function readBank(file) {
     return JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, '')
+        .replace(/^(?:\s*\/\/[^\r\n]*(?:\r?\n|$))*/, '')
         .replace(/^\s*window\.QUESTION_BANK_DATA\s*=\s*/, '').replace(/;\s*$/, ''));
 }
 function mergeEdition(previous, edition, archive) {
@@ -32,6 +33,14 @@ function mergeEdition(previous, edition, archive) {
         if (!source.questionIds.includes(q.id)) source.questionIds.push(q.id);
     }
     const activeIds = new Set(questions.map(q => q.id));
+    const returnedIds = (previous.archivedQuestions || []).filter(q => activeIds.has(q.id)).map(q => q.id);
+    const releases = (previous.curationReleases || []).map(release => ({ ...release, questionIds: [...release.questionIds] }));
+    if (returnedIds.length) {
+        const id = `${edition.date}:${edition.edition}`;
+        const prior = releases.find(release => release.id === id);
+        if (prior) prior.questionIds = [...new Set([...prior.questionIds, ...returnedIds])];
+        else releases.push({ id, questionIds: returnedIds });
+    }
     for (const set of edition.studySets || []) {
         if (!set.questionIds.every(id => activeIds.has(id))) throw new Error('学习分组引用了非主背题：' + set.id);
     }
@@ -40,15 +49,23 @@ function mergeEdition(previous, edition, archive) {
         sources: [...sources.values()],
         supplements: [...new Map([...(previous.supplements || []), ...(edition.supplements || [])].map(s => [s.id, s])).values()],
         archivedQuestions,
+        curationReleases: releases,
         archiveDate: archive.date,
         archiveDescription: '移出主背的原题保留在回收站，可恢复；个人笔记和复习记录按原题号继续关联。'
     };
 }
 if (require.main === module) {
     const [editionFile, archiveFile] = process.argv.slice(2);
-    if (!editionFile || !archiveFile) throw new Error('用法：node scripts/import-optimized-question-bank.cjs <question-bank.js> <archive-original-questions.json>');
+    if (!editionFile) throw new Error('用法：node scripts/import-optimized-question-bank.cjs <question-bank.js> [archive-original-questions.json]');
     const target = path.join(__dirname, '..', 'data', 'question-bank.js');
-    const merged = mergeEdition(readBank(target), readBank(editionFile), JSON.parse(fs.readFileSync(archiveFile, 'utf8').replace(/^\uFEFF/, '')));
+    const previous = readBank(target), edition = readBank(editionFile);
+    const activeIds = new Set(edition.questions.map(q => q.id));
+    const archive = archiveFile ? JSON.parse(fs.readFileSync(archiveFile, 'utf8').replace(/^\uFEFF/, '')) : {
+        date: edition.date,
+        questions: [...previous.questions, ...(previous.archivedQuestions || [])].filter(q => !activeIds.has(q.id))
+            .map(q => ({ ...q, archiveReason: q.archiveReason || '本轮题库更新移出主背，可按需恢复。' }))
+    };
+    const merged = mergeEdition(previous, edition, archive);
     fs.writeFileSync(target, 'window.QUESTION_BANK_DATA = ' + JSON.stringify(merged, null, 2) + ';\n');
     console.log(JSON.stringify({active: merged.questions.length, archived: merged.archivedQuestions.length, sources: merged.sources.length}));
 }

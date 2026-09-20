@@ -6,7 +6,7 @@
     <meta name="description" content="可离线使用、支持多端同步的 Java 后端面试复习工具">
     <meta name="theme-color" content="#f3f5f2">
     <script src="./workspace-theme.js?v=4"></script>
-    <meta name="app-version" content="45">
+    <meta name="app-version" content="46">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Java 面试复习工作台 · 题库与笔记</title>
@@ -21,8 +21,8 @@
     <script src="./resume-workbench.js?v=2"></script>
     <script src="./resume-module.js?v=7"></script>
     <script src="./recruitment-module.js?v=13"></script>
-    <script src="./data/question-bank.js?v=6"></script>
-    <script src="./data/question-curation.js?v=2"></script>
+    <script src="./data/question-bank.js?v=7"></script>
+    <script src="./data/question-curation.js?v=3"></script>
     <script src="./study-core.js?v=3"></script>
     <style>
 /* ============================================
@@ -991,7 +991,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
         </div>
 
         <div class="backup-section">
-            <div class="app-version-row"><span id="appVersion">当前版本 45</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
+            <div class="app-version-row"><span id="appVersion">当前版本 46</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
             <h4>本地备份</h4>
             <p>导出文件可用于迁移设备，即使未配置云同步也能使用。</p>
             <div class="btn-row backup-actions">
@@ -1101,6 +1101,8 @@ let markedIds = new Set();         // 已标记的笔记 ID
 let deletedIds = new Set();        // 已删除的笔记 ID
 let purgedIds = new Set();         // 已永久删除的内置笔记 ID
 let restoredCuratedIds = new Set(); // 用户主动恢复的本轮整理题目
+let appliedCurationReleases = new Set(); // 已应用的默认归档撤销，避免覆盖后续手动删除
+const CURATION_RELEASE_PREFIX = 'curation-release:'; // v45 会透传 restoredCuratedIds 中的兼容标记
 let mastery = {};                  // 题目掌握程度：hard / fuzzy / known
 
 // ===================== localStorage 持久化 =====================
@@ -1121,6 +1123,10 @@ function loadState() {
         const restored = JSON.parse(localStorage.getItem('restored-curated-ids') || '[]');
         restoredCuratedIds = new Set(Array.isArray(restored) ? restored.filter(id => typeof id === 'string') : []);
     } catch (_) { restoredCuratedIds = new Set(); }
+    try {
+        const releases = JSON.parse(localStorage.getItem('applied-curation-releases') || '[]');
+        appliedCurationReleases = new Set(Array.isArray(releases) ? releases.filter(id => typeof id === 'string') : []);
+    } catch (_) { appliedCurationReleases = new Set(); }
     applyStudyCuration();
 }
 function saveMarked() { localStorage.setItem("marked-ids", JSON.stringify([...markedIds])); scheduleCloudSync(); }
@@ -1950,6 +1956,7 @@ function getStateSnapshot() {
         markedIds: [...markedIds],
         deletedIds: [...deletedIds],
         restoredCuratedIds: [...restoredCuratedIds],
+        appliedCurationReleases: [...appliedCurationReleases],
         sunkIds: [...sunkIds],
         purgedIds: [...purgedIds],
         mastery,
@@ -1967,6 +1974,7 @@ function applyStateSnapshot(data) {
     const validatedInterviews = StudyCore.restoreInterviews(data.interviews, getInterviewSnapshot());
     const validatedCustomBankQuestions = StudyCore.restoreBankQuestions(data.customBankQuestions, getCustomBankQuestions());
     if (data.restoredCuratedIds !== undefined && (!Array.isArray(data.restoredCuratedIds) || data.restoredCuratedIds.some(id => typeof id !== 'string'))) throw new Error('题库恢复记录格式无效');
+    if (data.appliedCurationReleases !== undefined && (!Array.isArray(data.appliedCurationReleases) || data.appliedCurationReleases.some(id => typeof id !== 'string'))) throw new Error('题库整理更新记录格式无效');
     syncApplyingRemote = true;
     userNotes = Array.isArray(data.userNotes) ? data.userNotes : [];
     markedIds = new Set(Array.isArray(data.markedIds) ? data.markedIds : []);
@@ -1974,6 +1982,9 @@ function applyStateSnapshot(data) {
     sunkIds = new Set(Array.isArray(data.sunkIds) ? data.sunkIds : []);
     purgedIds = new Set(Array.isArray(data.purgedIds) ? data.purgedIds : []);
     if (data.restoredCuratedIds !== undefined) restoredCuratedIds = new Set(data.restoredCuratedIds);
+    else restoredCuratedIds = new Set([...restoredCuratedIds].filter(id => !id.startsWith(CURATION_RELEASE_PREFIX)));
+    // A pre-migration backup may still contain automatically archived IDs.
+    appliedCurationReleases = new Set(data.appliedCurationReleases || []);
     mastery = data.mastery && typeof data.mastery === "object" ? data.mastery : {};
     applyResumePrepSnapshot(data.resumePrep);
     applyRecruitmentSnapshot(data.recruitment);
@@ -2384,9 +2395,9 @@ function init() {
 </script>
 <script src="./data/command-guide.js?v=1"></script>
 <script src="./command-guide.js?v=2"></script>
-<script src="./study-module.js?v=11"></script>
+<script src="./study-module.js?v=12"></script>
 <script src="./interview-module.js?v=6"></script>
-<script src="./app-updates.js?v=45"></script>
+<script src="./app-updates.js?v=46"></script>
 <script src="./workspace-controls.js?v=1"></script>
 <script src="./workspace-shell.js?v=5"></script>
 <script>initStudyWorkspace(); init(); initWorkspaceShell();</script>

@@ -1,6 +1,19 @@
 /* Study workspace. Loaded after the legacy app declarations and before init(). */
 const BANK = [...window.QUESTION_BANK_DATA.questions, ...(window.QUESTION_BANK_DATA.archivedQuestions || [])];
 function applyStudyCuration() {
+    for (const release of window.QUESTION_BANK_CURATION?.releases || []) {
+        // v45 discards new snapshot fields but preserves this older set. Keep a
+        // marker and restored IDs so old devices neither repeat nor undo release.
+        const marker = CURATION_RELEASE_PREFIX + release.id;
+        if (!appliedCurationReleases.has(release.id) && !restoredCuratedIds.has(marker)) {
+            for (const id of release.questionIds) {
+                deletedIds.delete(id);
+                restoredCuratedIds.add(id);
+            }
+        }
+        appliedCurationReleases.add(release.id);
+        restoredCuratedIds.add(marker);
+    }
     const reasons = window.QUESTION_BANK_CURATION?.reasons || {};
     for (const note of BANK) {
         if (Object.hasOwn(reasons, note.id) && !restoredCuratedIds.has(note.id) && !purgedIds.has(note.id)) deletedIds.add(note.id);
@@ -9,6 +22,7 @@ function applyStudyCuration() {
     // must still load before this same reversible selection is applied to it.
     localStorage.setItem('deleted-ids', JSON.stringify([...deletedIds]));
     localStorage.setItem('restored-curated-ids', JSON.stringify([...restoredCuratedIds]));
+    localStorage.setItem('applied-curation-releases', JSON.stringify([...appliedCurationReleases]));
 }
 let customBankQuestions = [];
 try { customBankQuestions = StudyCore.restoreBankQuestions(JSON.parse(localStorage.getItem('custom-bank-questions') || '[]')); } catch (_) {}
