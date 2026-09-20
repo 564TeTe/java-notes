@@ -102,6 +102,15 @@ body { background: #f5f6f2; }
 .study-card-footer button { font-size: 11px; background: none; border: 0; padding: 5px 0; color: #678369; }
 .study-answer { font-size: 14px; line-height: 1.95; color: #435047; padding: 16px 0 20px; overflow-wrap: anywhere; white-space: normal; }
 .study-answer p + p { margin-top: 12px; }
+.study-answer :is(ul,ol) { margin: 12px 0; padding-left: 1.6em; }
+.study-answer li + li { margin-top: 5px; }
+.study-table-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; margin: 12px 0; border: 1px solid var(--border); border-radius: 6px; }
+.study-table-scroll:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.study-table-scroll table { width: 100%; min-width: 440px; border-collapse: collapse; font-size: inherit; line-height: 1.75; }
+.study-table-scroll :is(th,td) { text-align: left; vertical-align: top; padding: 9px 12px; min-width: 100px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+.study-table-scroll th { background: var(--bg); color: var(--text); font-weight: 600; }
+.study-table-scroll :is(th,td):last-child { border-right: 0; }
+.study-table-scroll tr:last-child td { border-bottom: 0; }
 .study-answer code { font-family: Consolas, monospace; font-size: .92em; background: #f0f3ee; border-radius: 3px; padding: 1px 4px; overflow-wrap: anywhere; }
 .study-answer pre { max-width: 100%; overflow-x: auto; margin: 14px 0; padding: 14px; background: #f0f3ee; border-radius: 6px; line-height: 1.7; }
 .study-answer pre code { white-space: pre; overflow-wrap: normal; padding: 0; }

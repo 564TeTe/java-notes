@@ -1,5 +1,5 @@
 /* Study workspace. Loaded after the legacy app declarations and before init(). */
-const BANK = window.QUESTION_BANK_DATA.questions;
+const BANK = [...window.QUESTION_BANK_DATA.questions, ...(window.QUESTION_BANK_DATA.archivedQuestions || [])];
 function applyStudyCuration() {
     const reasons = window.QUESTION_BANK_CURATION?.reasons || {};
     for (const note of BANK) {
@@ -50,7 +50,7 @@ const studyEsc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '
 const studyLevelNames = { new: '未复习', hard: '不会', fuzzy: '模糊', known: '已掌握' };
 
 function getPersonalNotes(includeDeleted = false) {
-    // Imported 420 questions are the canonical home for built-in questions.
+    // Imported questions are the canonical home for built-in questions.
     // The personal area contains only user-authored notes and saved copies.
     const merged = [...userNotes];
     return includeDeleted ? merged : StudyCore.pool('personal', BANK, merged.filter(n => !n.bankOnly), deletedIds, purgedIds);
@@ -160,15 +160,66 @@ function studyFilters() {
         <button class="study-text" data-study="clear">重置筛选</button>
     </div>`;
 }
+function studyInline(text) {
+    // Process tokens before escaping so code stays literal and links cannot add HTML.
+    const pattern = /`([^`\n]+)`|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|\*\*([^*]+)\*\*/g;
+    let html = '', start = 0;
+    for (const match of text.matchAll(pattern)) {
+        html += studyEsc(text.slice(start, match.index));
+        if (match[1] !== undefined) html += `<code>${studyEsc(match[1])}</code>`;
+        else if (match[2] !== undefined) html += `<a href="${studyEsc(match[3])}" target="_blank" rel="noopener noreferrer">${studyEsc(match[2])} ↗</a>`;
+        else html += `<strong>${studyInline(match[4])}</strong>`;
+        start = match.index + match[0].length;
+    }
+    return html + studyEsc(text.slice(start));
+}
+function studyTableCells(line) {
+    const cells = []; let value = '', inCode = false;
+    for (const char of line.trim().replace(/^\||\|$/g, '')) {
+        if (char === '`') inCode = !inCode;
+        if (char === '|' && value.endsWith('\\')) value = value.slice(0, -1) + '|';
+        else if (char === '|' && !inCode) { cells.push(value.trim()); value = ''; }
+        else value += char;
+    }
+    cells.push(value.trim());
+    return cells;
+}
 function studyMarkdown(text) {
-    // Escape raw HTML first. Only a small, safe Markdown subset is supported.
-    const blocks = String(text || '').split(/```[^\n]*\n([\s\S]*?)```/g);
-    return blocks.map((block, i) => {
-        if (i % 2) return `<pre><code>${studyEsc(block)}</code></pre>`;
-        let safe = studyEsc(block);
-        safe = safe.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1 ↗</a>');
-        safe = safe.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/`([^`\n]+)`/g, '<code>$1</code>');
-        return safe.split(/\n\s*\n/).filter(Boolean).map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+    const blocks = String(text || '').replace(/\r\n/g, '\n').split(/```[^\n]*\n([\s\S]*?)```/g);
+    return blocks.map((block, index) => {
+        if (index % 2) return `<pre><code>${studyEsc(block)}</code></pre>`;
+        const lines = block.split('\n'), output = [];
+        const listItem = line => line.match(/^\s*(-|\*|\d+[.)])\s+(.+)$/);
+        const tableStart = i => /^\s*\|/.test(lines[i] || '') && /^\s*\|/.test(lines[i + 1] || '') &&
+            studyTableCells(lines[i + 1]).every(cell => /^:?-{3,}:?$/.test(cell)) &&
+            studyTableCells(lines[i]).length === studyTableCells(lines[i + 1]).length;
+        for (let i = 0; i < lines.length;) {
+            if (!lines[i].trim()) { i++; continue; }
+            if (tableStart(i)) {
+                const headers = studyTableCells(lines[i]), rows = [];
+                for (i += 2; i < lines.length && /^\s*\|/.test(lines[i]); i++) {
+                    const cells = studyTableCells(lines[i]);
+                    rows.push(`<tr>${headers.map((_, j) => `<td>${studyInline(cells[j] || '')}</td>`).join('')}</tr>`);
+                }
+                output.push(`<div class="study-table-scroll" tabindex="0" role="region" aria-label="答案对比表，可横向滚动"><table><thead><tr>${headers.map(cell => `<th scope="col">${studyInline(cell)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`);
+                continue;
+            }
+            const item = listItem(lines[i]);
+            if (item) {
+                const ordered = /^\d/.test(item[1]), tag = ordered ? 'ol' : 'ul', items = [];
+                const start = ordered && parseInt(item[1], 10) !== 1 ? ` start="${parseInt(item[1], 10)}"` : '';
+                while (i < lines.length) {
+                    const next = listItem(lines[i]);
+                    if (!next || /^\d/.test(next[1]) !== ordered) break;
+                    items.push(`<li>${studyInline(next[2])}</li>`); i++;
+                }
+                output.push(`<${tag}${start}>${items.join('')}</${tag}>`); continue;
+            }
+            const paragraph = [studyInline(lines[i++])];
+            while (i < lines.length && lines[i].trim() && !tableStart(i) && !listItem(lines[i])) paragraph.push(studyInline(lines[i++]));
+            output.push(`<p>${paragraph.join('<br>')}</p>`);
+        }
+        return output.join('');
     }).join('');
 }
 function studyRatings(note, index) {

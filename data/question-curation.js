@@ -1,7 +1,8 @@
-/* A reversible first pass for Java backend preparation. Original questions stay intact. */
+/* Archived originals stay recoverable; explicit restores and permanent deletions win. */
 window.QUESTION_BANK_CURATION = {
-    date: '2026-09-10',
+    date: '2026-09-20',
     reasons: {
+        ...Object.fromEntries((window.QUESTION_BANK_DATA.archivedQuestions || []).map(q => [q.id, q.archiveReason || '已移出主背题库，可按需恢复。'])),
         'bank-Q03-034': '虚拟线程 pinning 的版本差异属于专项追问；先掌握虚拟线程的用途和限制。',
         'bank-Q04-027': '偏 JIT 编译器实现细节；先复习 JVM 内存、GC、类加载和故障排查。',
         'bank-JX015': '偏 JVM 对象访问实现方案；当前阶段不优先展开句柄与直接指针的取舍。',

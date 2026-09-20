@@ -21,11 +21,14 @@ function interviewRecordsHTML() {
     return `<section class="interview-record-intro"><div><h2>把一次面试，变成下一次的底气。</h2><p>记下实际被问的问题、当时的回答与需要补上的知识。</p></div><button class="study-primary" data-interview="new">＋ 记录面试</button></section>
     ${records.length ? records.map(r => `<article class="interview-record"><div class="study-card-meta"><span>${studyEsc(r.date || '日期未填')}</span><span>${studyEsc(r.round || '轮次未填')}</span><span class="study-status">${studyEsc(r.result || '待反馈')}</span></div><h3>${studyEsc(r.company)} <small>${studyEsc(r.role || 'Java 后端')}</small></h3><dl><dt>实际问题</dt><dd>${studyEsc(r.questions || '还没有记录问题')}</dd><dt>我的回答与复盘</dt><dd>${studyEsc(r.reflection || '面试后补充：哪里卡住了，如何答得更好？')}</dd>${r.nextStep ? `<dt>下一步行动</dt><dd>${studyEsc(r.nextStep)}</dd>` : ''}</dl><footer><span>${(r.questions || '').split('\n').filter(q => q.trim()).length} 条问题</span><div><button data-interview="extract" data-id="${studyEsc(r.id)}">问题存入笔记</button><button data-interview="edit" data-id="${studyEsc(r.id)}">编辑复盘</button><button data-interview="delete" data-id="${studyEsc(r.id)}">删除</button></div></footer></article>`).join('') : `<div class="study-empty"><span>✎</span><h3>你的第一份面试复盘，从这里开始</h3><p>按公司和轮次记录真实面试，把不会的问题加入自己的笔记。</p><button class="study-secondary" data-interview="new">记录一次面试</button></div>`}`;
 }
+function getInterviewSources() {
+    return window.QUESTION_BANK_DATA.sources.filter(source => source.type !== 'reference');
+}
 function getInterviewCompanies() {
-    return [...new Set([...window.QUESTION_BANK_DATA.sources.map(s => s.company), ...customBankQuestions.map(n => n.company).filter(Boolean), ...interviewRecords.map(r => r.company)])];
+    return [...new Set([...getInterviewSources().map(s => s.company), ...customBankQuestions.map(n => n.company).filter(Boolean), ...interviewRecords.map(r => r.company)])];
 }
 function getCompanyQuestions(company = interviewCompany) {
-    const sources = window.QUESTION_BANK_DATA.sources.filter(s => company === 'all' || s.company === company);
+    const sources = getInterviewSources().filter(s => company === 'all' || s.company === company);
     const ids = new Set(sources.flatMap(s => s.questionIds));
     return getStudyPool('bank').filter(n => ids.has(n.id) || (n.company && (company === 'all' || n.company === company)));
 }
@@ -40,12 +43,12 @@ function openInterviewQuestionEditor(company, id) {
     document.querySelector('#addModal .modal-sub').textContent = '按公司记录实际问题和答案，保存后也会收录到题库。';
 }
 function renderInterviewQuestion(n) {
-    const sources = window.QUESTION_BANK_DATA.sources.filter(s => (interviewCompany === 'all' || s.company === interviewCompany) && s.questionIds.includes(n.id));
+    const sources = getInterviewSources().filter(s => (interviewCompany === 'all' || s.company === interviewCompany) && s.questionIds.includes(n.id));
     const open = !collapsedNotes.has(n.id);
     return `<article class="study-card interview-question-card" id="note-${studyEsc(n.id)}"><div class="study-card-meta"><span class="study-number">${studyEsc(n.number || '自建面经')}</span><span>${studyEsc(n.category)}</span><span>${studyEsc(n.company || [...new Set(sources.map(s=>s.company))].join(' / '))}</span><span class="study-status">${studyLevelNames[mastery[n.id]?.level || 'new']}</span></div><button class="study-question" data-study="expand" data-id="${studyEsc(n.id)}" aria-expanded="${open}" aria-controls="answer-${studyEsc(n.id)}"><span>${studyEsc(n.question)}</span><span class="study-chevron">${open ? '−' : '+'}</span></button><div class="study-answer answer${open ? '' : ' collapsed'}" id="answer-${studyEsc(n.id)}">${studyMarkdown(n.answer)}${studyRatings(n)}</div><footer class="study-card-footer"><span>${n.company ? '自己记录的面经' : '面经考点改写 / 延展'}</span><div><button data-study="copy" data-id="${studyEsc(n.id)}">记入笔记</button>${n.id.startsWith('custom-bank-') ? `<button data-interview="edit-question" data-id="${studyEsc(n.id)}" data-company="${studyEsc(n.company || '')}">编辑</button>` : ''}<button data-action="delete" data-id="${studyEsc(n.id)}">删除</button></div></footer>${sources.length ? `<details class="interview-citations"><summary>题目来源 · ${sources.length} 条面经</summary>${sources.map(s=>`<p><a href="${studyEsc(s.url)}" target="_blank" rel="noopener noreferrer">${studyEsc(s.title)} ↗</a><small>${studyEsc(s.description)}</small></p>`).join('')}</details>` : ''}</article>`;
 }
 function renderCompanyReferences() {
-    const sources = window.QUESTION_BANK_DATA.sources.filter(s => interviewCompany === 'all' || s.company === interviewCompany);
+    const sources = getInterviewSources().filter(s => interviewCompany === 'all' || s.company === interviewCompany);
     if (!sources.length) return '';
     return `<details class="interview-citations company-references"><summary>面经来源 · ${sources.length}</summary>${sources.map(s => `<p><a href="${studyEsc(s.url)}" target="_blank" rel="noopener noreferrer">${studyEsc(s.title)} ↗</a><small>${studyEsc(s.description)}</small></p>`).join('')}</details>`;
 }
