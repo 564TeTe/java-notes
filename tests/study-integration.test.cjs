@@ -24,7 +24,7 @@ function setup({ archivedEdition = false } = {}) {
     return { run, store };
 }
 
-test('recitation edition loads all 662 questions in the supplied order without automatic trash', () => {
+test('natural Q&A edition loads all 662 questions in the supplied order without automatic trash', () => {
     const { run } = setup();
     run('loadState();');
     assert.equal(run('getStudyPool("bank").length'), 662);
@@ -361,7 +361,7 @@ test('company supplement preserves 25-company membership and keeps six standalon
     assert.equal(run('getCompanyQuestions("小鹅通").length'), 10);
     assert.equal(run('getCompanyQuestions("货拉拉").length'), 36);
     assert.equal(run('getCompanyQuestions("京东").length'), 48);
-    assert.ok(run('BANK.find(n=>n.number==="JX020").answerFormat === "numbered-paragraphs"'));
+    assert.ok(run('BANK.find(n=>n.number==="JX020").answerFormat === "natural-markdown"'));
     assert.ok(run('BANK.every(n=>n.answer.trim() && (n.answer.match(/```/g)||[]).length%2===0)'));
     assert.ok(run('BANK.every(n=>n.sourceIds.filter(id=>id.startsWith("N")).every(id=>QUESTION_BANK_DATA.sources.some(s=>s.id===id&&s.questionIds.includes(n.id))))'));
     assert.ok(run('QUESTION_BANK_DATA.sources.every(s=>new Set(s.questionIds).size===s.questionIds.length)'));
