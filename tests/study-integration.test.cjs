@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 const root = path.join(__dirname, '..');
-function setup({ archivedEdition = false } = {}) {
+function setup({ archivedEdition = false, priorityCuration = false } = {}) {
     const store = new Map();
     const element = { value: '', textContent: '', innerHTML: '', style: {}, dataset: {}, classList: { add(){}, remove(){}, toggle(){} },
         querySelectorAll: () => [], querySelector: () => element, setAttribute(){}, removeAttribute(){}, addEventListener(){}, focus(){}, appendChild(){} };
@@ -16,6 +16,9 @@ function setup({ archivedEdition = false } = {}) {
     context.window = context;
     const run = code => vm.runInContext(code, context);
     for (const name of ['resume-data.js', 'resume-question-expansion.js', 'resume-claims.js', 'resume-workbench.js', 'resume-module.js', 'recruitment-module.js', 'data/question-bank.js', 'data/question-curation.js', 'study-core.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
+    // Existing edition/sync tests use their original curation fixture. Priority
+    // archive tests below exercise the current production configuration.
+    if (!priorityCuration) run('QUESTION_BANK_CURATION.archives=[]; QUESTION_BANK_CURATION.reasons=Object.fromEntries((QUESTION_BANK_DATA.archivedQuestions||[]).map(q=>[q.id,q.archiveReason]));');
     if (archivedEdition) run('QUESTION_BANK_CURATION.reasons=Object.fromEntries(QUESTION_BANK_DATA.questions.filter(q=>q.restoredToMainBank).map(q=>[q.id,"测试归档"])); QUESTION_BANK_CURATION.releases=[];');
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
     for (const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) if (match[1].includes('const NOTES')) run(match[1]);
@@ -23,6 +26,32 @@ function setup({ archivedEdition = false } = {}) {
     run('renderAll = function() {}; buildCategoryBtns = function() {}; toast = function() {};');
     return { run, store };
 }
+
+test('priority curation moves all 257 P1/P2 questions into recoverable trash', () => {
+    const {run,store}=setup({priorityCuration:true});
+    run('loadState();');
+    assert.equal(run('getStudyPool("bank").length'),405);
+    assert.equal(run('getDeletedNotes().length'),257);
+    assert.ok(run('getStudyPool("bank").every(q=>q.priority==="P0")'));
+    assert.ok(run('getDeletedNotes().every(q=>["P1","P2"].includes(q.priority))'));
+    assert.equal(store.get(run('LOCAL_UPDATED_KEY')),undefined);
+});
+
+test('priority archive supersedes old bulk restores while preserving later restores and personal data', () => {
+    const {run}=setup({priorityCuration:true});
+    run('const target=BANK.find(q=>q.priority==="P1" && q.restoredToMainBank); const oldRelease=QUESTION_BANK_CURATION.releases[0]; applyStateSnapshot({userNotes:[{id:"user-priority",sourceId:target.id,question:"笔记",answer:"我的回答",category:target.category}],restoredCuratedIds:[...oldRelease.questionIds,CURATION_RELEASE_PREFIX+oldRelease.id],appliedCurationReleases:[oldRelease.id],mastery:{[target.id]:{level:"known"}},markedIds:[target.id]});');
+    assert.ok(run('deletedIds.has(target.id)'));
+    assert.equal(run('getPersonalNotes()[0].answer'),'我的回答');
+    assert.equal(run('mastery[target.id].level'),'known');
+    assert.ok(run('markedIds.has(target.id)'));
+    run('restoreNote(target.id); loadState(); applyStateSnapshot(getStateSnapshot());');
+    assert.ok(run('getStudyPool("bank").some(q=>q.id===target.id)'));
+    assert.equal(run('getDeletedNotes().length'),256);
+    run('const olderDevice=getStateSnapshot(); delete olderDevice.appliedCurationReleases; applyStateSnapshot(olderDevice);');
+    assert.ok(run('!deletedIds.has(target.id)'));
+    run('deleteNote(target.id); loadState(); permDelete(target.id); loadState();');
+    assert.ok(run('!getDeletedNotes().some(q=>q.id===target.id) && !getStudyPool("bank").some(q=>q.id===target.id)'));
+});
 
 test('natural Q&A edition loads all 662 questions in the supplied order without automatic trash', () => {
     const { run } = setup();

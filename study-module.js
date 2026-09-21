@@ -14,6 +14,19 @@ function applyStudyCuration() {
         appliedCurationReleases.add(release.id);
         restoredCuratedIds.add(marker);
     }
+    // A new archive request supersedes earlier bulk restores only once. Later
+    // manual restores remain effective across reloads and snapshot round trips.
+    for (const archive of window.QUESTION_BANK_CURATION?.archives || []) {
+        const marker = CURATION_RELEASE_PREFIX + archive.id;
+        if (!appliedCurationReleases.has(archive.id) && !restoredCuratedIds.has(marker)) {
+            for (const id of archive.questionIds) {
+                restoredCuratedIds.delete(id);
+                if (!purgedIds.has(id)) deletedIds.add(id);
+            }
+        }
+        appliedCurationReleases.add(archive.id);
+        restoredCuratedIds.add(marker);
+    }
     const reasons = window.QUESTION_BANK_CURATION?.reasons || {};
     for (const note of BANK) {
         if (Object.hasOwn(reasons, note.id) && !restoredCuratedIds.has(note.id) && !purgedIds.has(note.id)) deletedIds.add(note.id);
