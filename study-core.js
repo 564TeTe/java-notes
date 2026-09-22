@@ -4,6 +4,16 @@
     if (typeof module === 'object' && module.exports) module.exports = core;
     else root.StudyCore = core;
 })(typeof window === 'undefined' ? globalThis : window, function() {
+    function normalizeContent(question, answer) {
+        question = String(question || '').trim();
+        answer = String(answer || '').trim();
+        if (!answer) throw new Error('请填写内容');
+        if (!question) {
+            const firstLine = Array.from(answer.split(/\r?\n/, 1)[0]);
+            question = firstLine.slice(0, 40).join('') + (firstLine.length > 40 ? '…' : '');
+        }
+        return { question, answer };
+    }
     function pool(source, bank, personal, deleted = [], purged = []) {
         if (source === 'bank') return [...bank];
         const excluded = new Set([...deleted, ...purged]);
@@ -66,5 +76,5 @@
             ids.add(q.id); return { ...q, keywords: Array.isArray(q.keywords) ? q.keywords.filter(k => typeof k === 'string') : [] };
         });
     }
-    return { pool, filter, sample, copyNote, restoreInterviews, pagination, restoreBankQuestions };
+    return { normalizeContent, pool, filter, sample, copyNote, restoreInterviews, pagination, restoreBankQuestions };
 });

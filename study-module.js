@@ -45,8 +45,7 @@ function applyCustomBankQuestionsSnapshot(value) {
     localStorage.setItem('custom-bank-questions', JSON.stringify(customBankQuestions));
 }
 function saveCustomBankQuestion(values, id) {
-    const question = String(values.question || '').trim(), answer = String(values.answer || '').trim();
-    if (!question || !answer) throw new Error('请填写题目和答案');
+    const { question, answer } = StudyCore.normalizeContent(values.question, values.answer);
     const note = { id: id || 'custom-bank-' + crypto.randomUUID(), question, answer, category: values.category || 'Java 基础', priority: values.priority || 'P1', company: values.company || '', kind: '自己添加', keywords: [], updatedAt: new Date().toISOString() };
     const updated = customBankQuestions.filter(n => n.id !== note.id);
     applyCustomBankQuestionsSnapshot([note, ...updated]);
@@ -395,7 +394,7 @@ openAddModal = function(id, source) {
     const modal = document.getElementById('addModal');
     modal.querySelector('h3').textContent = studyEditorSource === 'bank' ? note ? '编辑题目' : '添加题目到题库' : note ? '编辑我的笔记' : '写一条笔记';
     modal.querySelector('.modal').setAttribute('aria-label', studyEditorSource === 'bank' ? '题库编辑器' : '我的笔记编辑器');
-    modal.querySelector('.modal-sub').textContent = studyEditorSource === 'bank' ? '保存后可在题库中查找、抽查，也可记入个人笔记。' : '记录自己的理解与答案；删除后移到题库，内容仍保留。';
+    modal.querySelector('.modal-sub').textContent = '可以只写一段内容；题目留空时，会用内容开头作为标题。';
     document.getElementById('bankPriorityField').hidden = studyEditorSource !== 'bank';
     document.getElementById('bankPriority').value = note?.priority || 'P1';
     document.getElementById('bankCompany').value = note?.company || '';
@@ -409,9 +408,10 @@ openAddModal = function(id, source) {
 const legacyCloseAddModal = closeAddModal;
 closeAddModal = function() { legacyCloseAddModal(); studyEditingId = null; studyModalFocus?.focus(); };
 addNote = function() {
-    const question = document.getElementById('newQuestion').value.trim();
-    const answer = document.getElementById('newAnswer').value.trim();
-    if (!question || !answer) { toast('请填写题目和自己的答案'); return; }
+    let content;
+    try { content = StudyCore.normalizeContent(document.getElementById('newQuestion').value, document.getElementById('newAnswer').value); }
+    catch (error) { toast(error.message); document.getElementById('newAnswer').focus(); return; }
+    const { question, answer } = content;
     const category = document.getElementById('newCategory').value || autoDetectCategory(question, answer) || 'Java基础';
     if (studyEditorSource === 'bank') {
         if (studyEditorReturnInterview && !document.getElementById('bankCompany').value.trim()) { toast('请填写公司名称'); document.getElementById('bankCompany').focus(); return; }
@@ -419,7 +419,7 @@ addNote = function() {
         const returnToInterview = studyEditorReturnInterview;
         closeAddModal();
         if (returnToInterview) { resetStudyModes(); showInterviewExp=true; interviewCompany=note.company; interviewTab='sources'; interviewKeyword=''; studyPage=1; } else openStudy('bank');
-        collapsedNotes.delete(note.id); renderAll(); toast('题目已保存'); return;
+        collapsedNotes.delete(note.id); renderAll(); toast('内容已保存'); return;
     }
     const existing = studyEditingId && getPersonalNotes(true).find(n => n.id === studyEditingId);
     const note = { ...(existing || {}), id: existing?.id || 'user-' + crypto.randomUUID(), question, answer, category, keywords: existing?.keywords || [], updatedAt: new Date().toISOString() };

@@ -11,7 +11,7 @@ function setup({ archivedEdition = false, priorityCuration = false } = {}) {
     const context = vm.createContext({ console, URL, FormData, crypto: require('node:crypto').webcrypto,
         localStorage: { getItem: k => store.get(k), setItem: (k,v) => store.set(k,v), removeItem: k => store.delete(k) },
         document: { getElementById: () => element, querySelector: () => element, querySelectorAll: () => [], addEventListener(){}, createElement: () => element },
-        setTimeout(){}, clearTimeout(){}, confirm: () => true, requestAnimationFrame(){},
+        setTimeout(){}, clearTimeout(){}, confirm: () => true, requestAnimationFrame(){}, scrollTo(){},
     });
     context.window = context;
     const run = code => vm.runInContext(code, context);
@@ -218,6 +218,34 @@ test('custom questions stay in bank, can be edited and copied, and survive snaps
     assert.throws(() => run('applyStateSnapshot({userNotes:[],customBankQuestions:[{id:"bad"}]})'), /格式/);
     assert.equal(run('userNotes.length'), 1);
 });
+test('content-only bank entries can be edited, copied, searched and restored from backups', () => {
+    const { run, store } = setup();
+    run('const added=saveCustomBankQuestion({question:"",answer:"Redis 学习记录\\n完整正文",category:"Redis"});');
+    assert.equal(run('added.question'), 'Redis 学习记录');
+    run('saveCustomBankQuestion({question:"",answer:"更新记录\\n完整正文",category:"Redis"},added.id); copyStudyNote(added.id);');
+    assert.equal(run('userNotes[0].answer'), '更新记录\n完整正文');
+    run('const snapshot=getStateSnapshot(); applyCustomBankQuestionsSnapshot([]); applyStateSnapshot(snapshot); loadUserNotes();');
+    assert.equal(run('getCustomBankQuestions()[0].question'), '更新记录');
+    assert.equal(JSON.parse(store.get('custom-bank-questions'))[0].answer, '更新记录\n完整正文');
+    assert.equal(run('StudyCore.filter(getStudyPool("bank"),{keyword:"完整正文"}).length'), 1);
+    assert.throws(() => run('saveCustomBankQuestion({question:"",answer:"  "})'), /请填写内容/);
+    assert.equal(run('getCustomBankQuestions().length'), 1);
+});
+
+for (const source of ['bank', 'personal']) test(`the ${source} editor saves content without a question and rejects blank content`, () => {
+    const { run } = setup();
+    run(`const fields=new Map(); const originalGet=document.getElementById; document.getElementById=id=>{
+        if(!fields.has(id)) fields.set(id,{...originalGet(id),value:''}); return fields.get(id);
+    }; studyEditorSource=${JSON.stringify(source)};
+    document.getElementById('newAnswer').value='只有一段话，没有题目'; addNote();`);
+    const records = source === 'bank' ? 'getCustomBankQuestions()' : 'userNotes';
+    assert.equal(run(`${records}.length`), 1);
+    assert.equal(run(`${records}[0].question`), '只有一段话，没有题目');
+    assert.equal(run(`${records}[0].answer`), '只有一段话，没有题目');
+    run(`studyEditorSource=${JSON.stringify(source)}; document.getElementById('newAnswer').value='  '; addNote();`);
+    assert.equal(run(`${records}.length`), 1);
+});
+
 test('authored notes automatically join the bank while saved copies do not duplicate originals', () => {
     const { run } = setup();
     run('userNotes=[{id:"user-authored",question:"自己的问题",answer:"A",category:"Java 基础"}];');
