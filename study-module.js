@@ -46,7 +46,7 @@ function applyCustomBankQuestionsSnapshot(value) {
 }
 function saveCustomBankQuestion(values, id) {
     const { question, answer } = StudyCore.normalizeContent(values.question, values.answer);
-    const note = { id: id || 'custom-bank-' + crypto.randomUUID(), question, answer, category: values.category || 'Java 基础', priority: values.priority || 'P1', company: values.company || '', kind: '自己添加', keywords: [], updatedAt: new Date().toISOString() };
+    const note = { id: id || 'custom-bank-' + crypto.randomUUID(), question, answer, titleMode: question ? 'manual' : 'none', category: values.category || 'Java 基础', priority: values.priority || 'P1', company: values.company || '', kind: '自己添加', keywords: [], updatedAt: new Date().toISOString() };
     const updated = customBankQuestions.filter(n => n.id !== note.id);
     applyCustomBankQuestionsSnapshot([note, ...updated]);
     scheduleCloudSync(); return note;
@@ -265,16 +265,17 @@ function studyCard(n) {
     const isBank = studySource === 'bank' && !showTrash;
     const copied = getPersonalNotes().some(u => u.sourceId === n.id || u.id === n.id);
     const level = mastery[n.id]?.level || 'new';
-    const expanded = !collapsedNotes.has(n.id);
+    const title = StudyCore.questionTitle(n);
+    const expanded = !title || !collapsedNotes.has(n.id);
     return `<article class="study-card note${markedIds.has(n.id) ? ' marked' : ''}" id="note-${studyEsc(n.id)}">
-        <h3 class="study-card-heading"><button class="study-question" data-study="expand" data-id="${studyEsc(n.id)}" aria-expanded="${expanded}" aria-controls="answer-${studyEsc(n.id)}"><span class="study-question-title">${studyEsc(n.question)}</span><span class="study-status ${level}">${studyLevelNames[level]}</span><span class="study-chevron">${studyCardIcon('chevron')}</span></button></h3>
+        ${title ? `<h3 class="study-card-heading"><button class="study-question" data-study="expand" data-id="${studyEsc(n.id)}" aria-expanded="${expanded}" aria-controls="answer-${studyEsc(n.id)}"><span class="study-question-title">${studyEsc(title)}</span><span class="study-status ${level}">${studyLevelNames[level]}</span><span class="study-chevron">${studyCardIcon('chevron')}</span></button></h3>` : ''}
         <div class="study-card-footer"><div class="study-card-meta"><span class="study-number">${studyEsc(n.number || n.sourceNumber || (n.id.startsWith('custom-bank-') ? '自建题目' : '个人笔记'))}</span><span>${studyEsc(n.category)}</span>${n.priority ? `<span class="study-priority" title="${studyEsc({ P0: 'P0 · 先掌握', P1: 'P1 · 第二轮', P2: 'P2 · 按岗位补充' }[n.priority] || n.priority)}">${studyEsc(n.priority)}</span>` : ''}</div><div class="study-card-actions">
             ${showTrash ? `<button data-action="restore" data-id="${studyEsc(n.id)}">恢复</button><button data-action="perm-delete" data-id="${studyEsc(n.id)}">永久删除</button>` : `
-            <button data-study="mark" data-id="${studyEsc(n.id)}" aria-pressed="${markedIds.has(n.id)}" aria-label="${markedIds.has(n.id) ? '取消重点' : '标记重点'}：${studyEsc(n.question)}">${studyCardIcon('mark')}${markedIds.has(n.id) ? '已标重点' : '重点'}</button>
+            <button data-study="mark" data-id="${studyEsc(n.id)}" aria-pressed="${markedIds.has(n.id)}" aria-label="${markedIds.has(n.id) ? '取消重点' : '标记重点'}：${studyEsc(title || '笔记')}">${studyCardIcon('mark')}${markedIds.has(n.id) ? '已标重点' : '重点'}</button>
             ${isBank ? `<button data-study="copy" data-id="${studyEsc(n.id)}" data-copied="${copied}" title="${copied ? '已存入笔记' : '记入笔记'}">${studyCardIcon('note')}${copied ? '已存笔记' : '记入笔记'}</button>` : `<button data-study="edit" data-id="${studyEsc(n.id)}">${studyCardIcon('note')}编辑笔记</button>`}
-            <details class="study-card-more"><summary aria-label="更多操作：${studyEsc(n.question)}">${studyCardIcon('more')}<span>更多</span></summary><div class="study-card-menu">
+            <details class="study-card-more"><summary aria-label="更多操作：${studyEsc(title || '笔记')}">${studyCardIcon('more')}<span>更多</span></summary><div class="study-card-menu">
             ${isBank && n.id.startsWith('custom-bank-') ? `<button data-study="edit-bank" data-id="${studyEsc(n.id)}">编辑题目</button>` : isBank && userNotes.some(u => u.id === n.id) ? `<button data-study="edit" data-id="${studyEsc(n.id)}">编辑笔记</button>` : ''}
-            <button data-action="delete" data-id="${studyEsc(n.id)}"${isBank ? '' : ` title="从我的笔记移到题库" aria-label="删除笔记并移到题库：${studyEsc(n.question)}"`}>${isBank ? '删除题目' : '删除笔记'}</button></div></details>`}
+            <button data-action="delete" data-id="${studyEsc(n.id)}"${isBank ? '' : ` title="从我的笔记移到题库" aria-label="删除笔记并移到题库：${studyEsc(title || '笔记')}"`}>${isBank ? '删除题目' : '删除笔记'}</button></div></details>`}
         </div></div>
         <div class="study-answer answer${expanded ? '' : ' collapsed'}" id="answer-${studyEsc(n.id)}"><div class="study-card-source">来源：${showTrash ? (n.id.startsWith('bank-') ? '内置题库' : n.id.startsWith('custom-bank-') ? (n.company ? '公司面经 · ' + studyEsc(n.company) : '自建题库') : '我的笔记') : isBank ? studyEsc(n.kind || '我的笔记 · 自动收录') : n.sourceId ? '来自题库' : n.id.startsWith('user-') ? '我的记录' : '原有笔记'}</div>${showTrash && window.QUESTION_BANK_CURATION?.reasons[n.id] ? `<p class="study-linked">Java 后端复习整理：${studyEsc(window.QUESTION_BANK_CURATION.reasons[n.id])}</p>` : ''}${studyMarkdown(n.answer)}${studyRatings(n)}</div>
     </article>`;
@@ -302,6 +303,8 @@ function goStudyPage(value) {
     renderAll(); document.querySelector('.study-list-heading')?.scrollIntoView({ block: 'start' });
 }
 function studyAnswerToggle(questions) {
+    questions = questions.filter(n => StudyCore.questionTitle(n));
+    if (!questions.length) return '';
     const expanded = questions.length > 0 && questions.every(n => !collapsedNotes.has(n.id));
     return `<div class="study-list-tools"><button data-study="${expanded ? 'collapse' : 'expand-all'}" aria-pressed="${expanded}">${expanded ? '收起答案' : '展开答案'}</button></div>`;
 }
@@ -333,7 +336,7 @@ function renderStudyQuiz() {
     ${quizLinkedIds ? `<div class="study-linked">面经关联：${studyEsc(quizLinkedTitle)}<button data-study="quiz-unlink">取消关联 ×</button></div>` : ''}
     <div class="study-list-heading"><p>当前可抽 ${pool.length} 道${pool.length < quizCount && pool.length ? ' · 数量不足时抽取全部，不重复' : ''}</p>${quizStarted ? `<span>${quizSource === 'bank' ? '全题库' : '我的笔记'} · 本组 ${quizNotes.length} 道 · 已自评 ${assessed} 道</span>` : ''}</div>
     ${!pool.length && !quizNotes.length ? `<div class="study-empty"><h3>当前范围没有可抽查的内容</h3><p>${quizLevel === 'weak' ? '标记为“不会”或“模糊”的题会出现在这里。' : '切换分类，或先添加笔记。'}</p><button class="study-secondary" data-study="quiz-reset">恢复全部范围</button><button class="study-secondary" data-study="source" data-source="personal">去我的笔记</button></div>` : ''}
-    ${quizNotes.map((n, i) => `<article class="study-quiz-card"><div class="study-card-meta"><span class="study-number">${String(i + 1).padStart(2, '0')}</span><span>${studyEsc(n.category)}</span><span>${studyEsc(n.number || '我的笔记')}</span></div><h3>${studyEsc(n.question)}</h3><button class="study-secondary" data-study="reveal" data-index="${i}" aria-expanded="${quizRevealed.has(i)}">${quizRevealed.has(i) ? '收起答案' : '查看答案'}</button>${quizRevealed.has(i) ? `<div class="study-answer">${studyMarkdown(n.answer)}</div>${studyRatings(n, i)}` : ''}</article>`).join('')}`;
+    ${quizNotes.map((n, i) => { const title = StudyCore.questionTitle(n), revealed = !title || quizRevealed.has(i); return `<article class="study-quiz-card"><div class="study-card-meta"><span class="study-number">${String(i + 1).padStart(2, '0')}</span><span>${studyEsc(n.category)}</span><span>${studyEsc(n.number || '我的笔记')}</span></div>${title ? `<h3>${studyEsc(title)}</h3><button class="study-secondary" data-study="reveal" data-index="${i}" aria-expanded="${revealed}">${revealed ? '收起答案' : '查看答案'}</button>` : ''}${revealed ? `<div class="study-answer">${studyMarkdown(n.answer)}</div>${studyRatings(n, i)}` : ''}</article>`; }).join('')}`;
 }
 let studyQuizSession = Date.now();
 const legacyRenderNotes = renderNotes;
@@ -359,7 +362,7 @@ renderTOC = function(filtered) {
     if (!showResumePrep && !showRecruitment) {
         const pages = StudyCore.pagination(filtered.length, studyPageSize, studyPage).pages;
         studyPage = Math.min(studyPage, pages);
-        legacyRenderTOC(filtered.slice((studyPage - 1) * studyPageSize, studyPage * studyPageSize));
+        legacyRenderTOC(filtered.slice((studyPage - 1) * studyPageSize, studyPage * studyPageSize).map(n => ({...n, question: StudyCore.questionTitle(n) || n.category + ' · 笔记'})));
     } else legacyRenderTOC(filtered);
 };
 const legacyStudyBadges = updateBadges;
@@ -394,7 +397,7 @@ openAddModal = function(id, source) {
     const modal = document.getElementById('addModal');
     modal.querySelector('h3').textContent = studyEditorSource === 'bank' ? note ? '编辑题目' : '添加题目到题库' : note ? '编辑我的笔记' : '写一条笔记';
     modal.querySelector('.modal').setAttribute('aria-label', studyEditorSource === 'bank' ? '题库编辑器' : '我的笔记编辑器');
-    modal.querySelector('.modal-sub').textContent = '可以只写一段内容；题目留空时，会用内容开头作为标题。';
+    modal.querySelector('.modal-sub').textContent = '可以只写一段内容；题目留空时，直接显示正文。';
     document.getElementById('bankPriorityField').hidden = studyEditorSource !== 'bank';
     document.getElementById('bankPriority').value = note?.priority || 'P1';
     document.getElementById('bankCompany').value = note?.company || '';
@@ -402,7 +405,7 @@ openAddModal = function(id, source) {
     modal.querySelector('.btn-primary').textContent = note ? '保存修改' : studyEditorSource === 'bank' ? '保存到题库' : '保存到我的笔记';
     document.getElementById('newCategory').innerHTML = studyOptions([['', '自动识别分类'], ...[...new Set([...getStudyPool('bank'), ...getPersonalNotes()].map(n => n.category))].map(c => [c, c])], note?.category || '');
     document.getElementById('newCategory').removeAttribute('data-auto');
-    if (note) { document.getElementById('newQuestion').value = note.question; document.getElementById('newAnswer').value = note.answer; }
+    if (note) { document.getElementById('newQuestion').value = StudyCore.questionTitle(note); document.getElementById('newAnswer').value = note.answer; }
     document.getElementById('newQuestion').focus();
 };
 const legacyCloseAddModal = closeAddModal;
@@ -422,7 +425,7 @@ addNote = function() {
         collapsedNotes.delete(note.id); renderAll(); toast('内容已保存'); return;
     }
     const existing = studyEditingId && getPersonalNotes(true).find(n => n.id === studyEditingId);
-    const note = { ...(existing || {}), id: existing?.id || 'user-' + crypto.randomUUID(), question, answer, category, keywords: existing?.keywords || [], updatedAt: new Date().toISOString() };
+    const note = { ...(existing || {}), id: existing?.id || 'user-' + crypto.randomUUID(), question, answer, titleMode: question ? 'manual' : 'none', category, keywords: existing?.keywords || [], updatedAt: new Date().toISOString() };
     const index = userNotes.findIndex(n => n.id === note.id);
     if (index >= 0) userNotes[index] = note; else userNotes.unshift(note);
     saveUserNotes(); closeAddModal(); openStudy(note.bankOnly ? 'bank' : 'personal');

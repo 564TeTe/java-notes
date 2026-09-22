@@ -221,11 +221,11 @@ test('custom questions stay in bank, can be edited and copied, and survive snaps
 test('content-only bank entries can be edited, copied, searched and restored from backups', () => {
     const { run, store } = setup();
     run('const added=saveCustomBankQuestion({question:"",answer:"Redis 学习记录\\n完整正文",category:"Redis"});');
-    assert.equal(run('added.question'), 'Redis 学习记录');
+    assert.equal(run('added.question'), '');
     run('saveCustomBankQuestion({question:"",answer:"更新记录\\n完整正文",category:"Redis"},added.id); copyStudyNote(added.id);');
     assert.equal(run('userNotes[0].answer'), '更新记录\n完整正文');
     run('const snapshot=getStateSnapshot(); applyCustomBankQuestionsSnapshot([]); applyStateSnapshot(snapshot); loadUserNotes();');
-    assert.equal(run('getCustomBankQuestions()[0].question'), '更新记录');
+    assert.equal(run('getCustomBankQuestions()[0].question'), '');
     assert.equal(JSON.parse(store.get('custom-bank-questions'))[0].answer, '更新记录\n完整正文');
     assert.equal(run('StudyCore.filter(getStudyPool("bank"),{keyword:"完整正文"}).length'), 1);
     assert.throws(() => run('saveCustomBankQuestion({question:"",answer:"  "})'), /请填写内容/);
@@ -240,10 +240,36 @@ for (const source of ['bank', 'personal']) test(`the ${source} editor saves cont
     document.getElementById('newAnswer').value='只有一段话，没有题目'; addNote();`);
     const records = source === 'bank' ? 'getCustomBankQuestions()' : 'userNotes';
     assert.equal(run(`${records}.length`), 1);
-    assert.equal(run(`${records}[0].question`), '只有一段话，没有题目');
+    assert.equal(run(`${records}[0].question`), '');
     assert.equal(run(`${records}[0].answer`), '只有一段话，没有题目');
     run(`studyEditorSource=${JSON.stringify(source)}; document.getElementById('newAnswer').value='  '; addNote();`);
     assert.equal(run(`${records}.length`), 1);
+});
+
+test('untitled content is visible without duplicate headings across bank, interviews and quizzes', () => {
+    const {run}=setup();
+    run('const note=saveCustomBankQuestion({question:"",answer:"唯一正文",category:"Redis"}); collapsedNotes.add(note.id);');
+    for (const renderer of ['studyCard(note)','renderInterviewQuestion(note)']) {
+        const html=run(renderer);
+        assert.doesNotMatch(html, /class="study-question"|class="study-card-heading"|answer collapsed/);
+        assert.equal(html.split('唯一正文').length-1,1);
+    }
+    run('quizNotes=[note]; quizStarted=true;');
+    const quiz=run('renderStudyQuiz()');
+    assert.ok(quiz.includes('<p>唯一正文</p>'));
+    assert.doesNotMatch(quiz, /<h3><\/h3>|data-study="reveal"/);
+    assert.equal(run('studyAnswerToggle([note])'), '');
+});
+
+test('legacy previews hide reversibly and explicit matching titles survive copying and backup', () => {
+    const {run}=setup();
+    run('const legacy={id:"custom-bank-legacy",question:"旧内容",answer:"旧内容\\n正文",category:"Redis"};');
+    assert.doesNotMatch(run('studyCard(legacy)'), /study-card-heading/);
+    assert.equal(run('legacy.question'),'旧内容');
+    run('const explicit=saveCustomBankQuestion({question:"同名标题",answer:"同名标题\\n正文"}); copyStudyNote(explicit.id); applyStateSnapshot(getStateSnapshot());');
+    assert.equal(run('StudyCore.questionTitle(getCustomBankQuestions()[0])'),'同名标题');
+    assert.equal(run('StudyCore.questionTitle(userNotes[0])'),'同名标题');
+    assert.match(run('studyCard(userNotes[0])'), /study-card-heading/);
 });
 
 test('authored notes automatically join the bank while saved copies do not duplicate originals', () => {

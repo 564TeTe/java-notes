@@ -8,11 +8,18 @@
         question = String(question || '').trim();
         answer = String(answer || '').trim();
         if (!answer) throw new Error('请填写内容');
-        if (!question) {
-            const firstLine = Array.from(answer.split(/\r?\n/, 1)[0]);
-            question = firstLine.slice(0, 40).join('') + (firstLine.length > 40 ? '…' : '');
-        }
         return { question, answer };
+    }
+    function questionTitle(note) {
+        const question = String(note.question || '').trim();
+        // v49 saved generated previews without a marker. Hide exact matches only
+        // for authored records, leaving the original data available in backups.
+        if (question && !note.titleMode && /^(custom-bank-|user-)/.test(note.id || '')) {
+            const firstLine = Array.from(String(note.answer || '').trim().split(/\r?\n/, 1)[0]);
+            const preview = firstLine.slice(0, 40).join('') + (firstLine.length > 40 ? '…' : '');
+            if (question === preview) return '';
+        }
+        return question;
     }
     function pool(source, bank, personal, deleted = [], purged = []) {
         if (source === 'bank') return [...bank];
@@ -42,7 +49,7 @@
     function copyNote(source, notes, makeId) {
         const existing = notes.find(n => n.sourceId === source.id);
         if (existing) return { note: existing, created: false };
-        return { created: true, note: { id: makeId(), question: source.question, answer: source.answer,
+        return { created: true, note: { id: makeId(), question: questionTitle(source), answer: source.answer, titleMode: questionTitle(source) ? 'manual' : 'none',
             category: source.category, sourceId: source.id, sourceNumber: source.number || '',
             keywords: [], updatedAt: new Date().toISOString() } };
     }
@@ -76,5 +83,5 @@
             ids.add(q.id); return { ...q, keywords: Array.isArray(q.keywords) ? q.keywords.filter(k => typeof k === 'string') : [] };
         });
     }
-    return { normalizeContent, pool, filter, sample, copyNote, restoreInterviews, pagination, restoreBankQuestions };
+    return { normalizeContent, questionTitle, pool, filter, sample, copyNote, restoreInterviews, pagination, restoreBankQuestions };
 });

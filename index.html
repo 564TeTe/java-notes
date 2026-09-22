@@ -6,7 +6,7 @@
     <meta name="description" content="可离线使用、支持多端同步的 Java 后端面试复习工具">
     <meta name="theme-color" content="#f3f5f2">
     <script src="./workspace-theme.js?v=4"></script>
-    <meta name="app-version" content="49">
+    <meta name="app-version" content="50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Java 面试复习工作台 · 题库与笔记</title>
@@ -23,7 +23,7 @@
     <script src="./recruitment-module.js?v=13"></script>
     <script src="./data/question-bank.js?v=8"></script>
     <script src="./data/question-curation.js?v=4"></script>
-    <script src="./study-core.js?v=4"></script>
+    <script src="./study-core.js?v=5"></script>
     <style>
 /* ============================================
    Java Notes — 桌面 + 移动端样式
@@ -937,9 +937,9 @@ pre code { background: transparent; color: inherit; padding: 0; }
 <div class="modal-overlay" id="addModal">
     <div class="modal">
         <h3>➕ 添加新笔记</h3>
-        <p class="modal-sub">可以只写一段内容；题目留空时，会用内容开头作为标题。</p>
+        <p class="modal-sub">可以只写一段内容；题目留空时，直接显示正文。</p>
         <label for="newQuestion">题目 <span style="font-weight:400;color:var(--text-muted);">（选填）</span></label>
-        <textarea id="newQuestion" placeholder="可留空，自动使用内容开头作为标题"></textarea>
+        <textarea id="newQuestion" placeholder="可留空，不显示题目"></textarea>
         <label for="newAnswer">内容 / 答案 <span style="font-weight:400;color:var(--text-muted);">（必填）</span></label>
         <textarea class="answer-ta" id="newAnswer" placeholder="写一段笔记、知识点，或粘贴答案..."></textarea>
         <label for="newCategory">分类 <span class="auto-badge" id="autoBadge" style="display:none">🤖 已自动识别</span></label>
@@ -991,7 +991,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
         </div>
 
         <div class="backup-section">
-            <div class="app-version-row"><span id="appVersion">当前版本 49</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
+            <div class="app-version-row"><span id="appVersion">当前版本 50</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
             <h4>本地备份</h4>
             <p>导出文件可用于迁移设备，即使未配置云同步也能使用。</p>
             <div class="btn-row backup-actions">
@@ -1365,7 +1365,7 @@ function addNote() {
     }
 
     const id = "user-" + Date.now();
-    const note = { id, question: q, answer: a, category: cat, keywords: [], updatedAt: new Date().toISOString() };
+    const note = { id, question: q, answer: a, titleMode: q ? 'manual' : 'none', category: cat, keywords: [], updatedAt: new Date().toISOString() };
     userNotes.unshift(note);
     saveUserNotes();
     closeAddModal();
@@ -2394,9 +2394,9 @@ function init() {
 </script>
 <script src="./data/command-guide.js?v=1"></script>
 <script src="./command-guide.js?v=2"></script>
-<script src="./study-module.js?v=14"></script>
-<script src="./interview-module.js?v=6"></script>
-<script src="./app-updates.js?v=49"></script>
+<script src="./study-module.js?v=15"></script>
+<script src="./interview-module.js?v=7"></script>
+<script src="./app-updates.js?v=50"></script>
 <script src="./workspace-controls.js?v=1"></script>
 <script src="./workspace-shell.js?v=5"></script>
 <script>initStudyWorkspace(); init(); initWorkspaceShell();</script>

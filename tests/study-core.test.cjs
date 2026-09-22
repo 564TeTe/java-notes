@@ -4,14 +4,25 @@ const core = require('../study-core.js');
 const bank = [{ id: 'bank-Q01-001', category: 'Java', priority: 'P0' }, { id: 'bank-Q01-002', category: 'SQL', priority: 'P1' }];
 const notes = [{ id: 'old' }, { id: 'user-1' }, { id: 'deleted' }];
 
-test('content-only entries use the first line as a title and retain the complete content', () => {
+test('content-only entries retain a blank title and the complete content', () => {
     const answer = 'Redis 学习记录\n第二段内容';
-    assert.deepEqual(core.normalizeContent('  ', ' \n' + answer + '  '), { question: 'Redis 学习记录', answer });
+    assert.deepEqual(core.normalizeContent('  ', ' \n' + answer + '  '), { question: '', answer });
     assert.deepEqual(core.normalizeContent(' 自己的题目 ', answer), { question: '自己的题目', answer });
     const long = '😀'.repeat(45);
-    assert.deepEqual(core.normalizeContent('', long), { question: '😀'.repeat(40) + '…', answer: long });
+    assert.deepEqual(core.normalizeContent('', long), { question: '', answer: long });
     assert.throws(() => core.normalizeContent('', ' \n '), /请填写内容/);
     assert.throws(() => core.normalizeContent('只有题目', ''), /请填写内容/);
+});
+
+test('display titles recognize legacy automatic previews without changing stored data', () => {
+    const note = {id:'custom-bank-old',question:'Redis 学习记录',answer:'Redis 学习记录\n正文'};
+    assert.equal(core.questionTitle(note), '');
+    assert.equal(note.question, 'Redis 学习记录');
+    assert.equal(core.questionTitle({...note,titleMode:'manual'}), note.question);
+    assert.equal(core.questionTitle({...note,id:'bank-built-in'}), note.question);
+    assert.equal(core.questionTitle({...note,question:'自己填写的题目'}), '自己填写的题目');
+    assert.equal(core.questionTitle({...note,id:'user-old',question:'😀'.repeat(40)+'…',answer:'😀'.repeat(45)}), '');
+    assert.equal(core.questionTitle({...note,question:''}), '');
 });
 
 test('question bank and personal notes are isolated and deleted notes are excluded', () => {
