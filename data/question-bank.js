@@ -1,5 +1,5 @@
 window.QUESTION_BANK_DATA = {
-  "date": "2026-09-20",
+  "date": "2026-09-23",
   "questions": [
     {
       "id": "bank-Q01-001",
@@ -26578,6 +26578,286 @@ window.QUESTION_BANK_DATA = {
       "practiceCode": "```java\n    static Node reverseKGroup(Node head, int k) {\n        if (k <= 0) throw new IllegalArgumentException(\"k must be positive\");\n        Node dummy = new Node(0); dummy.next = head;\n        Node before = dummy;\n        while (true) {\n            Node end = before;\n            for (int i = 0; i < k && end != null; i++) end = end.next;\n            if (end == null) return dummy.next;\n            Node after = end.next;\n            Node oldHead = before.next, current = oldHead, previous = after;\n            while (current != after) {\n                Node next = current.next;\n                current.next = previous;\n                previous = current;\n                current = next;\n            }\n            before.next = end;\n            before = oldHead;\n        }\n    }\n```",
       "answerFormat": "natural-markdown",
       "studyOrder": 662
+    },
+    {
+      "id": "bank-SUP10-001",
+      "number": "SUP10-001",
+      "question": "MyBatis 动态 SQL 有哪些常用标签？",
+      "category": "Spring / Spring Boot",
+      "priority": "P0",
+      "kind": "用户补充 · 面试速记",
+      "answer": "常用的有：\n\n- `if`：条件判断。\n- `where`：自动添加 `WHERE`，并处理开头多余的 `AND/OR`。\n- `set`：用于动态更新字段，并处理多余逗号。\n- `foreach`：循环集合，常用于 `IN` 查询和批量操作。\n- `choose / when / otherwise`：类似 Java 的 `switch`。\n- `trim`：自定义前缀、后缀。\n- `bind`：创建一个变量，方便后续 SQL 使用。\n\n面试记住最常用的几个就行：**if、where、set、foreach、choose。**",
+      "sourceIds": [],
+      "keywords": [
+        "SUP10-001",
+        "Spring / Spring Boot",
+        "补充10题",
+        "2026-09-23"
+      ],
+      "studyType": "concept",
+      "provenance": {
+        "type": "用户提供",
+        "date": "2026-09-23"
+      },
+      "isNew": true,
+      "references": [],
+      "isInterviewFocus": false,
+      "isStarter": false,
+      "studyOrder": 663,
+      "restoredToMainBank": false,
+      "answerFormat": "natural-markdown"
+    },
+    {
+      "id": "bank-SUP10-002",
+      "number": "SUP10-002",
+      "question": "resultType 和 resultMap 有什么区别？",
+      "category": "Spring / Spring Boot",
+      "priority": "P0",
+      "kind": "用户补充 · 面试速记",
+      "answer": "`resultType` 适合**简单映射**，数据库字段名和 Java 属性名基本一致时，可以直接指定返回类型。\n\n`resultMap` 适合**复杂映射**，可以自己指定数据库列和 Java 属性之间的对应关系，还能处理一对一、一对多等关联关系。\n\n简单记：**简单查询用 resultType，复杂映射用 resultMap。**",
+      "sourceIds": [],
+      "keywords": [
+        "SUP10-002",
+        "Spring / Spring Boot",
+        "补充10题",
+        "2026-09-23"
+      ],
+      "studyType": "concept",
+      "provenance": {
+        "type": "用户提供",
+        "date": "2026-09-23"
+      },
+      "isNew": true,
+      "references": [],
+      "isInterviewFocus": false,
+      "isStarter": false,
+      "studyOrder": 664,
+      "restoredToMainBank": false,
+      "answerFormat": "natural-markdown"
+    },
+    {
+      "id": "bank-SUP10-003",
+      "number": "SUP10-003",
+      "question": "什么是 MyBatis 的延迟加载？",
+      "category": "Spring / Spring Boot",
+      "priority": "P0",
+      "kind": "用户补充 · 面试速记",
+      "answer": "延迟加载就是：**查询主对象时先不查关联对象，真正使用关联对象时才执行 SQL。**\n\n比如查询一个用户时，先只查用户；等调用 `user.getOrders()` 时，再去数据库查询订单。\n\n好处是**减少暂时用不到的数据查询**。\n\n一般用在 `association`、`collection` 这类关联映射中。",
+      "sourceIds": [],
+      "keywords": [
+        "SUP10-003",
+        "Spring / Spring Boot",
+        "补充10题",
+        "2026-09-23"
+      ],
+      "studyType": "concept",
+      "provenance": {
+        "type": "用户提供",
+        "date": "2026-09-23"
+      },
+      "isNew": true,
+      "references": [],
+      "isInterviewFocus": false,
+      "isStarter": false,
+      "studyOrder": 665,
+      "restoredToMainBank": false,
+      "answerFormat": "natural-markdown"
+    },
+    {
+      "id": "bank-SUP10-004",
+      "number": "SUP10-004",
+      "question": "数组和 ArrayList 有什么区别？",
+      "category": "Java 集合",
+      "priority": "P0",
+      "kind": "用户补充 · 面试速记",
+      "answer": "**数组：**\n\n- 长度创建后固定。\n- 可以存基本类型，也可以存对象。\n- API 比较简单。\n\n**ArrayList：**\n\n- 底层也是数组。\n- 长度可以自动扩容。\n- 泛型中存的是对象类型，基本类型需要使用包装类。\n- 提供了丰富的增删改查方法。\n\n实际开发普通列表场景通常用 `ArrayList`；数据长度固定、追求简单直接时可以使用数组。",
+      "sourceIds": [],
+      "keywords": [
+        "SUP10-004",
+        "Java 集合",
+        "补充10题",
+        "2026-09-23"
+      ],
+      "studyType": "concept",
+      "provenance": {
+        "type": "用户提供",
+        "date": "2026-09-23"
+      },
+      "isNew": true,
+      "references": [],
+      "isInterviewFocus": false,
+      "isStarter": false,
+      "studyOrder": 666,
+      "restoredToMainBank": false,
+      "answerFormat": "natural-markdown"
+    },
+    {
+      "id": "bank-SUP10-005",
+      "number": "SUP10-005",
+      "question": "Map 有哪些常见遍历方式？",
+      "category": "Java 集合",
+      "priority": "P0",
+      "kind": "用户补充 · 面试速记",
+      "answer": "最常见的有：\n\n- `keySet()`：先遍历 key，再通过 `get(key)` 获取 value。\n- `entrySet()`：直接同时拿到 key 和 value，比较常用。\n- `values()`：只遍历 value。\n- `forEach()`：JDK 8 常用写法。\n- `Iterator`：使用迭代器遍历。\n\n比如：\n\n```java\nfor (Map.Entry<String, Integer> entry : map.entrySet()) {\n    System.out.println(entry.getKey());\n    System.out.println(entry.getValue());\n}\n```\n\n面试最常答：**如果 key 和 value 都需要，通常直接遍历 entrySet。**",
+      "sourceIds": [],
+      "keywords": [
+        "SUP10-005",
+        "Java 集合",
+        "补充10题",
+        "2026-09-23"
+      ],
+      "studyType": "concept",
+      "provenance": {
+        "type": "用户提供",
+        "date": "2026-09-23"
+      },
+      "isNew": true,
+      "references": [],
+      "isInterviewFocus": false,
+      "isStarter": false,
+      "studyOrder": 667,
+      "restoredToMainBank": false,
+      "answerFormat": "natural-markdown"
+    },
+    {
+      "id": "bank-SUP10-006",
+      "number": "SUP10-006",
+      "question": "哪些常用集合是线程安全的？哪些不是？",
+      "category": "Java 集合",
+      "priority": "P0",
+      "kind": "用户补充 · 面试速记",
+      "answer": "**常见线程安全集合：**\n\n- `ConcurrentHashMap`\n- `CopyOnWriteArrayList`\n- `BlockingQueue`\n- `ConcurrentLinkedQueue`\n- 老的 `Vector`\n- 老的 `Hashtable`\n\n**常见线程不安全集合：**\n\n- `ArrayList`\n- `LinkedList`\n- `HashMap`\n- `HashSet`\n- `TreeMap`\n\n面试回答时重点记：**ArrayList、HashMap 不安全；ConcurrentHashMap、CopyOnWriteArrayList 是常见并发容器。**",
+      "sourceIds": [],
+      "keywords": [
+        "SUP10-006",
+        "Java 集合",
+        "补充10题",
+        "2026-09-23"
+      ],
+      "studyType": "concept",
+      "provenance": {
+        "type": "用户提供",
+        "date": "2026-09-23"
+      },
+      "isNew": true,
+      "references": [],
+      "isInterviewFocus": false,
+      "isStarter": false,
+      "studyOrder": 668,
+      "restoredToMainBank": false,
+      "answerFormat": "natural-markdown"
+    },
+    {
+      "id": "bank-SUP10-007",
+      "number": "SUP10-007",
+      "question": "HashSet、LinkedHashSet、TreeSet 有什么区别？",
+      "category": "Java 集合",
+      "priority": "P0",
+      "kind": "用户补充 · 面试速记",
+      "answer": "**HashSet：**\n\n- 主要用于去重。\n- 不保证遍历顺序。\n- 底层基于 `HashMap`。\n\n**LinkedHashSet：**\n\n- 在去重基础上，还能**保持插入顺序**。\n\n**TreeSet：**\n\n- 元素会按照自然顺序或 `Comparator` **排序**。\n- 底层基于有序树结构。\n\n简单记：\n\n- **HashSet：只去重。**\n- **LinkedHashSet：去重 + 保持插入顺序。**\n- **TreeSet：去重 + 排序。**",
+      "sourceIds": [],
+      "keywords": [
+        "SUP10-007",
+        "Java 集合",
+        "补充10题",
+        "2026-09-23"
+      ],
+      "studyType": "concept",
+      "provenance": {
+        "type": "用户提供",
+        "date": "2026-09-23"
+      },
+      "isNew": true,
+      "references": [],
+      "isInterviewFocus": false,
+      "isStarter": false,
+      "studyOrder": 669,
+      "restoredToMainBank": false,
+      "answerFormat": "natural-markdown"
+    },
+    {
+      "id": "bank-SUP10-008",
+      "number": "SUP10-008",
+      "question": "AOP 中切面、连接点、切入点、通知分别是什么？",
+      "category": "Spring / Spring Boot",
+      "priority": "P0",
+      "kind": "用户补充 · 面试速记",
+      "answer": "**切面 Aspect**\n\n把日志、事务、权限等公共逻辑封装起来的模块。\n\n**连接点 JoinPoint**\n\n可以被增强的位置。在 Spring AOP 中通常就是**方法执行**。\n\n**切入点 Pointcut**\n\n决定**哪些方法需要被增强**。比如匹配某个包下所有 Service 方法。\n\n**通知 Advice**\n\n真正要执行的增强逻辑。\n\n常见通知：\n\n- 前置通知\n- 后置通知\n- 返回通知\n- 异常通知\n- 环绕通知\n\n一句话记：**切入点决定“拦谁”，通知决定“拦住以后干什么”，两者组成切面。**",
+      "sourceIds": [],
+      "keywords": [
+        "SUP10-008",
+        "Spring / Spring Boot",
+        "补充10题",
+        "2026-09-23"
+      ],
+      "studyType": "concept",
+      "provenance": {
+        "type": "用户提供",
+        "date": "2026-09-23"
+      },
+      "isNew": true,
+      "references": [],
+      "isInterviewFocus": false,
+      "isStarter": false,
+      "studyOrder": 670,
+      "restoredToMainBank": false,
+      "answerFormat": "natural-markdown"
+    },
+    {
+      "id": "bank-SUP10-009",
+      "number": "SUP10-009",
+      "question": "公平锁和非公平锁有什么区别？",
+      "category": "多线程 / 并发",
+      "priority": "P0",
+      "kind": "用户补充 · 面试速记",
+      "answer": "**公平锁**\n\n按照线程申请锁的大致先后顺序获取锁，先等的人通常先拿。\n\n**非公平锁**\n\n新来的线程可以直接尝试抢锁，不一定严格按照等待顺序。\n\n区别：\n\n- 公平锁更强调公平性。\n- 非公平锁减少一些线程切换，通常吞吐量更高。\n- `ReentrantLock` 默认是**非公平锁**，也可以创建公平锁。\n\n例如：\n\n```java\nnew ReentrantLock(true);\n```\n\n`true` 表示公平模式。\n\n面试一句话：**公平锁排队拿锁，非公平锁允许插队抢锁，非公平锁通常性能更好。**",
+      "sourceIds": [],
+      "keywords": [
+        "SUP10-009",
+        "多线程 / 并发",
+        "补充10题",
+        "2026-09-23"
+      ],
+      "studyType": "concept",
+      "provenance": {
+        "type": "用户提供",
+        "date": "2026-09-23"
+      },
+      "isNew": true,
+      "references": [],
+      "isInterviewFocus": false,
+      "isStarter": false,
+      "studyOrder": 671,
+      "restoredToMainBank": false,
+      "answerFormat": "natural-markdown"
+    },
+    {
+      "id": "bank-SUP10-010",
+      "number": "SUP10-010",
+      "question": "Java 有哪些类加载器？",
+      "category": "JVM",
+      "priority": "P0",
+      "kind": "用户补充 · 面试速记",
+      "answer": "按 **JDK 8 常见面试口径**，主要有：\n\n**Bootstrap ClassLoader**\n\n启动类加载器，负责加载 Java 核心类库。\n\n**Extension ClassLoader**\n\n扩展类加载器，负责加载扩展类库。\n\n**Application ClassLoader**\n\n应用类加载器，主要加载项目 ClassPath 下的类。\n\n此外还可以：\n\n**自定义 ClassLoader**\n\n继承 `ClassLoader`，实现类隔离、插件化、热部署等场景。\n\n简单记：**启动类加载器 → 扩展类加载器 → 应用类加载器 → 自定义类加载器。**",
+      "sourceIds": [],
+      "keywords": [
+        "SUP10-010",
+        "JVM",
+        "补充10题",
+        "2026-09-23"
+      ],
+      "studyType": "concept",
+      "provenance": {
+        "type": "用户提供",
+        "date": "2026-09-23"
+      },
+      "isNew": true,
+      "references": [],
+      "isInterviewFocus": false,
+      "isStarter": false,
+      "studyOrder": 672,
+      "restoredToMainBank": false,
+      "answerFormat": "natural-markdown"
     }
   ],
   "sources": [
@@ -30095,6 +30375,23 @@ window.QUESTION_BANK_DATA = {
         "REV20-IOC"
       ],
       "description": "本轮新增/拆分的常见基础问法，不代表新搜集的公司面经。"
+    },
+    {
+      "id": "user-ten-2026-09-23",
+      "title": "用户补充10题 · 面试速记",
+      "date": "2026-09-23",
+      "questionIds": [
+        "bank-SUP10-001",
+        "bank-SUP10-002",
+        "bank-SUP10-003",
+        "bank-SUP10-004",
+        "bank-SUP10-005",
+        "bank-SUP10-006",
+        "bank-SUP10-007",
+        "bank-SUP10-008",
+        "bank-SUP10-009",
+        "bank-SUP10-010"
+      ]
     }
   ],
   "edition": "自然问答版",
@@ -30103,17 +30400,17 @@ window.QUESTION_BANK_DATA = {
     "originalQuestions": 591,
     "retainedOriginalQuestions": 591,
     "restoredOriginalQuestions": 244,
-    "addedQuestions": 71,
+    "addedQuestions": 81,
     "archivedOriginalQuestions": 0,
-    "totalQuestions": 662,
+    "totalQuestions": 672,
     "interviewFocusQuestions": 9,
     "starterQuestions": 129,
     "byCategory": {
       "Java 基础": 61,
-      "Java 集合": 32,
-      "多线程 / 并发": 58,
-      "JVM": 40,
-      "Spring / Spring Boot": 63,
+      "Java 集合": 36,
+      "多线程 / 并发": 59,
+      "JVM": 41,
+      "Spring / Spring Boot": 67,
       "MySQL": 63,
       "Redis": 44,
       "消息队列 MQ": 32,

@@ -30,7 +30,8 @@ function setup({ archivedEdition = false, priorityCuration = false } = {}) {
 test('priority curation moves all 257 P1/P2 questions into recoverable trash', () => {
     const {run,store}=setup({priorityCuration:true});
     run('loadState();');
-    assert.equal(run('getStudyPool("bank").length'),405);
+    assert.equal(run('getStudyPool("bank").length'),415);
+    assert.equal(run('StudyCore.filter(getStudyPool("bank"), {keyword:"补充10题"}).length'),10);
     assert.equal(run('getDeletedNotes().length'),257);
     assert.ok(run('getStudyPool("bank").every(q=>q.priority==="P0")'));
     assert.ok(run('getDeletedNotes().every(q=>["P1","P2"].includes(q.priority))'));
@@ -53,15 +54,15 @@ test('priority archive supersedes old bulk restores while preserving later resto
     assert.ok(run('!getDeletedNotes().some(q=>q.id===target.id) && !getStudyPool("bank").some(q=>q.id===target.id)'));
 });
 
-test('natural Q&A edition loads all 662 questions in the supplied order without automatic trash', () => {
+test('natural Q&A edition loads all 672 questions in the supplied order without automatic trash', () => {
     const { run } = setup();
     run('loadState();');
-    assert.equal(run('getStudyPool("bank").length'), 662);
+    assert.equal(run('getStudyPool("bank").length'), 672);
     assert.equal(run('getDeletedNotes().length'), 0);
     assert.equal(run('getStudyPool("bank")[0].id'), 'bank-Q01-001');
     assert.equal(run('getStudyPool("bank").filter(q=>q.restoredToMainBank).length'), 244);
     assert.ok(run('QUESTION_BANK_DATA.studySets.every(s => s.questionIds.every(id => getStudyPool("bank").some(q => q.id === id)))'));
-    assert.equal(run('getStudyPool("bank").filter(q => q.isNew).length'), 71);
+    assert.equal(run('getStudyPool("bank").filter(q => q.isNew).length'), 81);
 });
 
 test('edition upgrade preserves manual deletions, restored originals, personal copies and mastery', () => {
@@ -76,7 +77,7 @@ test('edition upgrade preserves manual deletions, restored originals, personal c
     assert.equal(run('getPersonalNotes()[0].answer'), '我修改的笔记');
     assert.equal(run('mastery["bank-LX001"].level'), 'known');
     assert.ok(run('markedIds.has("bank-Q01-001")'));
-    assert.equal(run('getStudyPool("bank").length'), 660);
+    assert.equal(run('getStudyPool("bank").length'), 670);
     assert.equal(run('getDeletedNotes().length'), 1);
     run('deleteNote("bank-LX001"); loadState(); const editionSnapshot=getStateSnapshot(); applyStateSnapshot(editionSnapshot); loadState();');
     assert.ok(run('getDeletedNotes().some(q => q.id === "bank-LX001")'));
@@ -88,7 +89,7 @@ test('an old cloud backup releases automatic trash even after a fresh device has
     run('loadState();');
     assert.equal(store.get(run('LOCAL_UPDATED_KEY')), undefined);
     run('applyStateSnapshot({userNotes:[],deletedIds:[...QUESTION_BANK_CURATION.releases[0].questionIds,"bank-Q01-001"],purgedIds:["bank-Q04-027"]});');
-    assert.equal(run('getStudyPool("bank").length'), 660);
+    assert.equal(run('getStudyPool("bank").length'), 670);
     assert.equal(run('getDeletedNotes().length'), 1);
     run('deleteNote("bank-LX001"); const newerBackup=JSON.parse(JSON.stringify(getStateSnapshot())); applyStateSnapshot(newerBackup); loadState();');
     assert.ok(run('deletedIds.has("bank-LX001")'));
@@ -146,10 +147,10 @@ test('full backups preserve and restore resume workbench records including legac
     assert.equal(run('getResumePrepSnapshot().workbench.claims["br-report"].verified'),true);
     assert.equal(run('syncApplyingRemote'),false);
 });
-test('imported data has 662 unique active and archived questions, 13 categories, complete source references', () => {
+test('imported data has 672 unique active and archived questions, 13 categories, complete source references', () => {
     const { run } = setup();
-    assert.equal(run('BANK.length'), 662);
-    assert.equal(run('new Set(BANK.map(n=>n.id)).size'), 662);
+    assert.equal(run('BANK.length'), 672);
+    assert.equal(run('new Set(BANK.map(n=>n.id)).size'), 672);
     assert.equal(run('new Set(BANK.map(n=>n.category)).size'), 13);
     assert.ok(run('QUESTION_BANK_DATA.sources.every(s=>s.questionIds.every(id=>BANK.some(n=>n.id===id)))'));
     assert.equal(run('QUESTION_BANK_DATA.sources.find(s=>s.id==="X02").company'), '拼多多');
@@ -187,13 +188,13 @@ test('static and personal quiz pools remain separate despite saved bank copies',
     run('copyStudyNote(BANK[0].id); quizSource="personal";');
     assert.ok(run('getQuizPool().every(n=>!n.id.startsWith("bank-"))'));
     run('quizSource="bank";');
-    assert.equal(run('getQuizPool().length'), 662);
+    assert.equal(run('getQuizPool().length'), 672);
 });
 test('built-in legacy notes are no longer mixed into the personal notebook', () => {
     const { run } = setup();
     run('userNotes = [{id:"user-only",question:"我的记录",answer:"A",category:"自定义"}]');
     assert.equal(run('getPersonalNotes().map(n=>n.id).join()'), 'user-only');
-    assert.equal(run('getStudyPool("bank").length'), 663);
+    assert.equal(run('getStudyPool("bank").length'), 673);
 });
 test('an invalid imported interview cannot overwrite existing personal notes', () => {
     const { run } = setup();
@@ -204,7 +205,7 @@ test('an invalid imported interview cannot overwrite existing personal notes', (
 test('custom questions stay in bank, can be edited and copied, and survive snapshot round trips', () => {
     const { run } = setup();
     run('const added = saveCustomBankQuestion({question:"自定义题",answer:"答案",category:"Redis",priority:"P0"});');
-    assert.equal(run('getStudyPool("bank").length'), 663);
+    assert.equal(run('getStudyPool("bank").length'), 673);
     assert.equal(run('getPersonalNotes().length'), 0);
     run('quizSource="bank"; quizCategory="Redis";');
     assert.ok(run('getQuizPool().some(n=>n.id===added.id)'));
@@ -275,10 +276,10 @@ test('legacy previews hide reversibly and explicit matching titles survive copyi
 test('authored notes automatically join the bank while saved copies do not duplicate originals', () => {
     const { run } = setup();
     run('userNotes=[{id:"user-authored",question:"自己的问题",answer:"A",category:"Java 基础"}];');
-    assert.equal(run('getStudyPool("bank").length'), 663);
+    assert.equal(run('getStudyPool("bank").length'), 673);
     assert.equal(run('getStudyPool("bank").find(n=>n.id==="user-authored").answer'), 'A');
     run('userNotes[0].answer="edited";copyStudyNote(BANK[0].id);');
-    assert.equal(run('getStudyPool("bank").length'), 663);
+    assert.equal(run('getStudyPool("bank").length'), 673);
     assert.equal(run('getStudyPool("bank").find(n=>n.id==="user-authored").answer'), 'edited');
 });
 test('shared trash excludes deleted bank questions and authored notes from quiz and restores mastery', () => {
@@ -289,7 +290,7 @@ test('shared trash excludes deleted bank questions and authored notes from quiz 
     assert.equal(run('getPersonalNotes().length'), 0);
     run('restoreNote(BANK[0].id);restoreNote("user-authored");');
     assert.equal(run('mastery[BANK[0].id].level'), 'hard');
-    assert.equal(run('getStudyPool("bank").length'), 663);
+    assert.equal(run('getStudyPool("bank").length'), 673);
 });
 
 test('resume personal answers join full backups and retain local drafts when importing old backups', () => {
@@ -360,7 +361,7 @@ test('interview extraction can return a moved question to the notebook without l
 test('Java backend curation moves only the selected built-in questions into recoverable trash', () => {
     const { run, store } = setup({ archivedEdition: true });
     run('userNotes=[{id:"user-safe-curation",sourceId:"bank-LX001",question:"我的理解",answer:"保留",category:"算法"}]; mastery["bank-LX001"]={level:"known"}; saveUserNotes(); saveMastery(); loadState(); loadUserNotes();');
-    assert.equal(run('getStudyPool("bank").length'), 418);
+    assert.equal(run('getStudyPool("bank").length'), 428);
     assert.equal(run('getDeletedNotes().length'), 244);
     assert.ok(run('getDeletedNotes().some(n=>n.id==="bank-LX001")'));
     assert.equal(run('getPersonalNotes()[0].answer'), '保留');
@@ -415,10 +416,10 @@ test('permanent deletion and empty trash remove custom and built-in bank questio
 test('a saved copy does not resurrect its permanently deleted custom source in the bank', () => {
     const { run } = setup();
     run('const custom = saveCustomBankQuestion({question:"公司题",answer:"A",category:"Java 基础",company:"新公司"}); copyStudyNote(custom.id); deleteNote(custom.id); permDelete(custom.id);');
-    assert.equal(run('getStudyPool("bank").length'), 662);
+    assert.equal(run('getStudyPool("bank").length'), 672);
     assert.equal(run('getPersonalNotes().length'), 1);
     run('applyStateSnapshot(getStateSnapshot()); quizSource="bank";');
-    assert.equal(run('getQuizPool().length'), 662);
+    assert.equal(run('getQuizPool().length'), 672);
 });
 
 test('company questions aggregate all sources, include custom questions, and respect shared trash', () => {
@@ -462,6 +463,6 @@ test('recent interviews link existing topics and 40 new questions to the correct
     assert.equal(run('QUESTION_BANK_DATA.sources.find(s => s.id === "NI021").company'), '阿里');
     assert.equal(run('QUESTION_BANK_DATA.sources.find(s => s.id === "NI025").company'), '阿里');
     run('applyStudyCuration()');
-    assert.equal(run('getStudyPool("bank").length'), 662);
+    assert.equal(run('getStudyPool("bank").length'), 672);
     assert.ok(run('BANK.filter(q => /^RM[0-9]{3}$/.test(q.number)).every(q => getStudyPool("bank").some(n => n.id === q.id) || getDeletedNotes().some(n => n.id === q.id))'));
 });
