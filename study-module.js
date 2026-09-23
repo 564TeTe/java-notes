@@ -146,7 +146,7 @@ getFilteredNotes = function() {
     }, mastery).sort((a, b) => Number(sunkIds.has(a.id)) - Number(sunkIds.has(b.id)));
 };
 function resetStudyModes() {
-    showQuiz = showTrash = showMarkedOnly = showResources = showInterviewExp = showResumePrep = showRecruitment = false;
+    showGlossary = showQuiz = showTrash = showMarkedOnly = showResources = showInterviewExp = showResumePrep = showRecruitment = false;
     activeNoteId = null;
 }
 function clearStudyFilters() {
@@ -341,9 +341,17 @@ function renderStudyQuiz() {
 let studyQuizSession = Date.now();
 const legacyRenderNotes = renderNotes;
 renderNotes = function(filtered) {
-    const special = showResumePrep || showRecruitment || showResources;
+    const special = showGlossary || showResumePrep || showRecruitment || showResources;
     document.body.classList.toggle('study-mode', !special);
     document.body.classList.toggle('interview-mode', showInterviewExp);
+    if (showGlossary) {
+        document.body.classList.remove('resume-mode', 'recruitment-mode', 'interview-mode');
+        document.getElementById('mainTitle').textContent = '术语词典';
+        document.getElementById('mainSubtitle').textContent = '';
+        document.querySelector('.main-header .stats').style.display = 'none';
+        document.getElementById('notesContainer').innerHTML = renderGlossary();
+        return;
+    }
     if (special) { legacyRenderNotes(filtered); return; }
     document.body.classList.remove('resume-mode', 'recruitment-mode');
     const title = showInterviewExp ? '公司面经' : showMarkedOnly ? '重点复习' : showQuiz ? '随机抽查' : showTrash ? '回收站' : studySource === 'bank' ? 'Java 后端题库' : '我的笔记';
@@ -355,7 +363,7 @@ renderNotes = function(filtered) {
 };
 const legacyRenderTOC = renderTOC;
 renderTOC = function(filtered) {
-    if (showInterviewExp || showQuiz || showResources || showTrash) {
+    if (showGlossary || showInterviewExp || showQuiz || showResources || showTrash) {
         document.getElementById('tocList').innerHTML = '';
         document.getElementById('noResult').style.display = 'none'; return;
     }
@@ -370,7 +378,7 @@ refreshNoteDisplay = function() { renderAll(); };
 updateBadges = function() {
     legacyStudyBadges(); updateMobileNavActive();
     document.querySelectorAll('[data-study-nav]').forEach(btn => {
-        const active = !showQuiz && !showTrash && !showMarkedOnly && !showInterviewExp && !showResumePrep && !showRecruitment && !showResources && btn.dataset.studyNav === studySource;
+        const active = !showGlossary && !showQuiz && !showTrash && !showMarkedOnly && !showInterviewExp && !showResumePrep && !showRecruitment && !showResources && btn.dataset.studyNav === studySource;
         btn.classList.toggle('active', active); btn.setAttribute('aria-pressed', active);
     });
 };

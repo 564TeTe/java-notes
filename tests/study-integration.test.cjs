@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 const root = path.join(__dirname, '..');
-function setup({ archivedEdition = false, priorityCuration = false } = {}) {
+function setup({ archivedEdition = false, priorityCuration = false, glossary = false } = {}) {
     const store = new Map();
     const element = { value: '', textContent: '', innerHTML: '', style: {}, dataset: {}, classList: { add(){}, remove(){}, toggle(){} },
         querySelectorAll: () => [], querySelector: () => element, setAttribute(){}, removeAttribute(){}, addEventListener(){}, focus(){}, appendChild(){} };
@@ -23,9 +23,35 @@ function setup({ archivedEdition = false, priorityCuration = false } = {}) {
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
     for (const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) if (match[1].includes('const NOTES')) run(match[1]);
     for (const name of ['study-module.js','interview-module.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
+    if (glossary) for (const name of ['glossary-data.js','glossary-core.js','glossary.js','workspace-shell.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
     run('renderAll = function() {}; buildCategoryBtns = function() {}; toast = function() {};');
     return { run, store };
 }
+
+test('glossary round trips preserve bank filters, pagination and study records', () => {
+    const {run}=setup({glossary:true});
+    run('loadState(); activeCategory="Java 集合"; studyPage=2; studyPriority="P0"; studyLevel="weak"; window.scrollY=360; markedIds.add(BANK[0].id); mastery[BANK[0].id]={level:"hard"}; const before=getStateSnapshot(); navigateWorkspace("glossary"); glossaryState.search="AOP";');
+    assert.equal(run('currentWorkspacePage()'),'glossary');
+    assert.equal(run('glossaryState.returnScroll'),360);
+    run('navigateWorkspace("bank");');
+    assert.equal(run('currentWorkspacePage()'),'bank');
+    assert.equal(run('activeCategory'),'Java 集合');
+    assert.equal(run('studyPage'),2);
+    assert.equal(run('studyPriority'),'P0');
+    assert.equal(run('studyLevel'),'weak');
+    assert.equal(run('JSON.stringify({...getStateSnapshot(),updatedAt:null})'),run('JSON.stringify({...before,updatedAt:null})'));
+    run('navigateWorkspace("glossary"); navigateWorkspace("resources");');
+    assert.equal(run('showGlossary'),false);
+    assert.equal(run('currentWorkspacePage()'),'resources');
+});
+
+test('glossary back button preserves an ongoing quiz and its revealed answers', () => {
+    const {run}=setup({glossary:true});
+    run('startQuiz("bank"); drawStudyQuiz(); quizRevealed.add(0); const drawn=quizNotes.map(n=>n.id).join(); navigateWorkspace("glossary"); returnFromGlossary();');
+    assert.equal(run('currentWorkspacePage()'),'quiz');
+    assert.equal(run('quizNotes.map(n=>n.id).join()'),run('drawn'));
+    assert.ok(run('quizRevealed.has(0)'));
+});
 
 test('priority curation moves all 257 P1/P2 questions into recoverable trash', () => {
     const {run,store}=setup({priorityCuration:true});

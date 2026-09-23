@@ -1,0 +1,65 @@
+/* Inline definitions inherit the workspace palette without changing answer layout. */
+.study-answer .glossary-term {
+    color: inherit;
+    background: color-mix(in srgb, var(--primary) 7%, transparent);
+    border-bottom: 1px dotted color-mix(in srgb, var(--primary) 55%, transparent);
+    border-radius: 2px;
+    cursor: help;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+.study-answer .glossary-term:hover,
+.study-answer .glossary-term[aria-expanded="true"] {
+    background: color-mix(in srgb, var(--primary) 14%, transparent);
+    border-bottom-style: solid;
+}
+.study-answer .glossary-term:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+}
+.glossary-popover {
+    position: fixed;
+    z-index: 1100;
+    box-sizing: border-box;
+    width: 350px;
+    max-width: calc(100vw - 20px);
+    padding: 17px 18px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card-bg, #fff);
+    color: var(--text);
+    box-shadow: 0 8px 28px #0002;
+    overflow: auto;
+    overscroll-behavior: contain;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+}
+.glossary-popover[hidden] { display: none; }
+.glossary-popover h2 { margin: 0 34px 7px 0; padding: 0; color: var(--text); font-size: 15px; font-weight: 650; line-height: 1.6; }
+.glossary-popover p { margin: 0; color: var(--text); font-size: 14px; line-height: 1.85; }
+.glossary-popover .glossary-popover-close {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+.glossary-popover .glossary-popover-close:hover { color: var(--text); background: var(--primary-light); }
+.glossary-popover:focus-visible, .glossary-popover .glossary-popover-close:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+@media (max-width: 600px) {
+    .glossary-popover { padding: 16px; width: calc(100vw - 24px); }
+    .glossary-popover h2 { margin-right: 38px; }
+    .glossary-popover .glossary-popover-close { width: 40px; height: 40px; }
+}
