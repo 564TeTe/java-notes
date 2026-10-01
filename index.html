@@ -6,7 +6,7 @@
     <meta name="description" content="可离线使用、支持多端同步的 Java 后端面试复习工具">
     <meta name="theme-color" content="#f3f5f2">
     <script src="./workspace-theme.js?v=4"></script>
-    <meta name="app-version" content="52">
+    <meta name="app-version" content="53">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Java 面试复习工作台 · 题库与笔记</title>
@@ -23,7 +23,7 @@
     <script src="./recruitment-module.js?v=13"></script>
     <script src="./data/question-bank.js?v=9"></script>
     <script src="./data/question-curation.js?v=4"></script>
-    <script src="./study-core.js?v=5"></script>
+    <script src="./study-core.js?v=6"></script>
     <style>
 /* ============================================
    Java Notes — 桌面 + 移动端样式
@@ -794,9 +794,9 @@ pre code { background: transparent; color: inherit; padding: 0; }
 
 </style>
     <link rel="stylesheet" href="./career-workspace.css?v=3">
-    <link rel="stylesheet" href="./study-workspace.css?v=4">
+    <link rel="stylesheet" href="./study-workspace.css?v=5">
     <link rel="stylesheet" href="./workspace-shell.css?v=4">
-    <link rel="stylesheet" href="./workspace-controls.css?v=4">
+    <link rel="stylesheet" href="./workspace-controls.css?v=5">
     <link rel="stylesheet" href="./workspace-theme.css?v=6">
     <link rel="stylesheet" href="./command-guide.css?v=2">
     <link rel="stylesheet" href="./resume-workbench.css?v=2">
@@ -993,7 +993,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
         </div>
 
         <div class="backup-section">
-            <div class="app-version-row"><span id="appVersion">当前版本 52</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
+            <div class="app-version-row"><span id="appVersion">当前版本 53</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
             <h4>本地备份</h4>
             <p>导出文件可用于迁移设备，即使未配置云同步也能使用。</p>
             <div class="btn-row backup-actions">
@@ -1101,6 +1101,7 @@ let quizNotes = [];                // 当前抽到的题目
 let quizRevealed = new Set();      // 已显示答案的题目索引
 let sunkIds = new Set();           // 已置底的笔记 ID
 let markedIds = new Set();         // 已标记的笔记 ID
+let memorizedIds = new Set();      // 已移入已背区的题目 ID
 let deletedIds = new Set();        // 已删除的笔记 ID
 let purgedIds = new Set();         // 已永久删除的内置笔记 ID
 let restoredCuratedIds = new Set(); // 用户主动恢复的本轮整理题目
@@ -1123,6 +1124,9 @@ function loadState() {
         sidebarCollapsed = localStorage.getItem("sidebar-collapsed") === "1";
     } catch (e) { /* ignore corrupt data */ }
     try {
+        memorizedIds = new Set(StudyCore.restoreMemorizedIds(JSON.parse(localStorage.getItem('memorized-ids') || '[]')));
+    } catch (_) { /* preserve valid state if the saved records are corrupt */ }
+    try {
         const restored = JSON.parse(localStorage.getItem('restored-curated-ids') || '[]');
         restoredCuratedIds = new Set(Array.isArray(restored) ? restored.filter(id => typeof id === 'string') : []);
     } catch (_) { restoredCuratedIds = new Set(); }
@@ -1141,6 +1145,7 @@ function saveDeleted() {
 function saveSunk() { localStorage.setItem("sunk-ids", JSON.stringify([...sunkIds])); scheduleCloudSync(); }
 function savePurged() { localStorage.setItem("purged-ids", JSON.stringify([...purgedIds])); scheduleCloudSync(); }
 function saveMastery() { localStorage.setItem("mastery", JSON.stringify(mastery)); scheduleCloudSync(); }
+function saveMemorized() { localStorage.setItem('memorized-ids', JSON.stringify([...memorizedIds])); scheduleCloudSync(); }
 
 // ===================== Toast =====================
 let toastTimer;
@@ -1195,6 +1200,7 @@ function permDelete(id) {
     deletedIds.delete(id);
     markedIds.delete(id);
     sunkIds.delete(id);
+    memorizedIds.delete(id);
     delete mastery[id];
     const userIndex = userNotes.findIndex(n => n.id === id);
     if (userIndex >= 0) {
@@ -1209,6 +1215,7 @@ function permDelete(id) {
     saveMarked();
     saveSunk();
     saveMastery();
+    saveMemorized();
     toast("已永久删除");
     renderAll();
 }
@@ -1222,6 +1229,7 @@ function emptyTrash() {
         if (NOTES.some(n => n.id === id)) purgedIds.add(id);
         markedIds.delete(id);
         sunkIds.delete(id);
+        memorizedIds.delete(id);
         delete mastery[id];
     });
     deletedIds.clear();
@@ -1231,6 +1239,7 @@ function emptyTrash() {
     saveMarked();
     saveSunk();
     saveMastery();
+    saveMemorized();
     showTrash = false;
     toast("回收站已清空");
     renderAll();
@@ -1956,6 +1965,7 @@ function getStateSnapshot() {
         version: 4,
         userNotes,
         markedIds: [...markedIds],
+        memorizedIds: [...memorizedIds],
         deletedIds: [...deletedIds],
         restoredCuratedIds: [...restoredCuratedIds],
         appliedCurationReleases: [...appliedCurationReleases],
@@ -1975,11 +1985,13 @@ function applyStateSnapshot(data) {
     // Validate new fields before touching existing local state; missing fields in v3 keep local records.
     const validatedInterviews = StudyCore.restoreInterviews(data.interviews, getInterviewSnapshot());
     const validatedCustomBankQuestions = StudyCore.restoreBankQuestions(data.customBankQuestions, getCustomBankQuestions());
+    const validatedMemorizedIds = StudyCore.restoreMemorizedIds(data.memorizedIds, [...memorizedIds]);
     if (data.restoredCuratedIds !== undefined && (!Array.isArray(data.restoredCuratedIds) || data.restoredCuratedIds.some(id => typeof id !== 'string'))) throw new Error('题库恢复记录格式无效');
     if (data.appliedCurationReleases !== undefined && (!Array.isArray(data.appliedCurationReleases) || data.appliedCurationReleases.some(id => typeof id !== 'string'))) throw new Error('题库整理更新记录格式无效');
     syncApplyingRemote = true;
     userNotes = Array.isArray(data.userNotes) ? data.userNotes : [];
     markedIds = new Set(Array.isArray(data.markedIds) ? data.markedIds : []);
+    memorizedIds = new Set(validatedMemorizedIds);
     deletedIds = new Set(Array.isArray(data.deletedIds) ? data.deletedIds : []);
     sunkIds = new Set(Array.isArray(data.sunkIds) ? data.sunkIds : []);
     purgedIds = new Set(Array.isArray(data.purgedIds) ? data.purgedIds : []);
@@ -1995,6 +2007,7 @@ function applyStateSnapshot(data) {
     applyStudyCuration();
     localStorage.setItem("user-notes", JSON.stringify(userNotes));
     localStorage.setItem("marked-ids", JSON.stringify([...markedIds]));
+    localStorage.setItem('memorized-ids', JSON.stringify([...memorizedIds]));
     localStorage.setItem("deleted-ids", JSON.stringify([...deletedIds]));
     localStorage.setItem("sunk-ids", JSON.stringify([...sunkIds]));
     localStorage.setItem("purged-ids", JSON.stringify([...purgedIds]));
@@ -2381,7 +2394,7 @@ function init() {
     loadUserNotes();
     loadSyncSession();
     const manuallyDeleted = [...deletedIds].some(id => !Object.hasOwn(window.QUESTION_BANK_CURATION?.reasons || {}, id));
-    if (!localStorage.getItem(LOCAL_UPDATED_KEY) && (userNotes.length || markedIds.size || manuallyDeleted || sunkIds.size || purgedIds.size)) {
+    if (!localStorage.getItem(LOCAL_UPDATED_KEY) && (userNotes.length || markedIds.size || memorizedIds.size || manuallyDeleted || sunkIds.size || purgedIds.size)) {
         localStorage.setItem(LOCAL_UPDATED_KEY, new Date().toISOString());
     }
     if (window.matchMedia("(max-width: 768px)").matches) getActiveNotes().forEach(n => collapsedNotes.add(n.id));
@@ -2397,11 +2410,11 @@ function init() {
 </script>
 <script src="./data/command-guide.js?v=1"></script>
 <script src="./command-guide.js?v=2"></script>
-<script src="./study-module.js?v=16"></script>
+<script src="./study-module.js?v=17"></script>
 <script src="./interview-module.js?v=7"></script>
-<script src="./app-updates.js?v=52"></script>
+<script src="./app-updates.js?v=53"></script>
 <script src="./workspace-controls.js?v=1"></script>
-<script src="./workspace-shell.js?v=6"></script>
+<script src="./workspace-shell.js?v=7"></script>
 <script src="./glossary-data.js?v=1"></script>
 <script src="./glossary-core.js?v=1"></script>
 <script src="./glossary.js?v=1"></script>

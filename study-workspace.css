@@ -100,6 +100,9 @@ body { background: #f5f6f2; }
 .study-card-footer > span { font-size: 10px; color: #9a9f93; }
 .study-card-footer > div { display: flex; flex-wrap: wrap; gap: 14px; }
 .study-card-footer button { font-size: 11px; background: none; border: 0; padding: 5px 0; color: #678369; }
+html body .study-card-actions button[data-study="memorize"] { color: #2d754d; background: #edf6ed; }
+html body .study-card-actions button[data-study="restore-memorized"] { color: var(--primary); background: var(--primary-light); }
+html[data-theme="dark"] body .study-card-actions button[data-study="memorize"] { color: #a4d8b4; background: #24392c; }
 .study-answer { font-size: 14px; line-height: 1.95; color: #435047; padding: 16px 0 20px; overflow-wrap: anywhere; white-space: normal; }
 .study-answer p + p { margin-top: 12px; }
 .study-answer :is(ul,ol) { margin: 12px 0; padding-left: 1.6em; }

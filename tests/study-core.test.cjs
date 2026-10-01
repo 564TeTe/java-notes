@@ -73,3 +73,18 @@ test('custom bank questions validate before importing and preserve old backups',
     assert.throws(() => core.restoreBankQuestions([{...items[0],id:'bank-Q01-001'}]), /格式/);
     assert.throws(() => core.restoreBankQuestions([{...items[0],priority:'<img src=x onerror=alert(1)>'}]), /格式/);
 });
+
+test('memorized IDs preserve old backups, deduplicate records and allow explicit clearing', () => {
+    const current = ['bank-Q01-001'];
+    assert.deepEqual(core.restoreMemorizedIds(undefined, current), current);
+    assert.deepEqual(core.restoreMemorizedIds(['bank-Q01-001', 'custom-bank-a', 'bank-Q01-001']), ['bank-Q01-001', 'custom-bank-a']);
+    assert.deepEqual(core.restoreMemorizedIds([]), []);
+});
+
+test('malformed memorized IDs are rejected without modifying previous records', () => {
+    const current = ['bank-Q01-001'];
+    for (const value of [null, {}, 'bank-Q01-001', [3], ['bank-Q01-001', null]]) {
+        assert.throws(() => core.restoreMemorizedIds(value, current), /已背.*格式/);
+        assert.deepEqual(current, ['bank-Q01-001']);
+    }
+});

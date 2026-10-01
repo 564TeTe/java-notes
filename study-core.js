@@ -83,5 +83,10 @@
             ids.add(q.id); return { ...q, keywords: Array.isArray(q.keywords) ? q.keywords.filter(k => typeof k === 'string') : [] };
         });
     }
-    return { normalizeContent, questionTitle, pool, filter, sample, copyNote, restoreInterviews, pagination, restoreBankQuestions };
+    function restoreMemorizedIds(value, current = []) {
+        if (value === undefined) return current;
+        if (!Array.isArray(value) || value.some(id => typeof id !== 'string')) throw new Error('已背记录格式无效');
+        return [...new Set(value)];
+    }
+    return { normalizeContent, questionTitle, pool, filter, sample, copyNote, restoreInterviews, pagination, restoreBankQuestions, restoreMemorizedIds };
 });

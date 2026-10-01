@@ -2,6 +2,7 @@
 function workspaceIcon(name) {
     const paths = {
         bank:'<path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Z"/><path d="M12 6v14"/>',
+        memorized:'<path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8"/><path d="m9 12 4 4L21 5"/>',
         personal:'<path d="M13 4H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-8"/><path d="m16 3 5 5M10 14l-1 4 4-1 9-9a2 2 0 0 0-5-5Z"/>',
         interviews:'<path d="M20 15a3 3 0 0 1-3 3H9l-5 3v-6a3 3 0 0 1-2-3V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3Z"/><path d="M7 8h8M7 12h5"/>',
         quiz:'<path d="M3 6h3c5 0 7 12 12 12h3M3 18h3c2 0 3-2 5-5m2-2c2-3 3-5 5-5h3"/><path d="m18 3 3 3-3 3m0 6 3 3-3 3"/>',
@@ -39,7 +40,7 @@ function navigateWorkspace(page) {
         showGlossary = false;
     }
     window.GlossaryHighlighter?.close();
-    if (page === 'bank' || page === 'personal') { openStudy(page); return; }
+    if (page === 'bank' || page === 'personal' || page === 'memorized') { openStudy(page); return; }
     if (page === 'quiz') { startQuiz(studySource); return; }
     resetStudyModes(); clearStudyFilters();
     showInterviewExp = page === 'interviews'; showResumePrep = page === 'resume';
@@ -50,16 +51,16 @@ function navigateWorkspace(page) {
 function renderWorkspaceShell() {
     const page = currentWorkspacePage();
     document.body.dataset.workspace = page;
-    document.body.classList.toggle('context-directory', page === 'bank' || page === 'personal' || page === 'marked');
+    document.body.classList.toggle('context-directory', ['bank','personal','memorized','marked'].includes(page));
     document.querySelectorAll('[data-workspace-link]').forEach(button => {
         const key = button.dataset.workspaceLink;
-        const active = key === page || (key === 'more' && ['glossary','resume','recruitment','resources','trash','marked'].includes(page));
+        const active = key === page || (key === 'more' && ['memorized','glossary','resume','recruitment','resources','trash','marked'].includes(page));
         button.classList.toggle('active', active);
         button.setAttribute('aria-current', active ? 'page' : 'false');
     });
     document.getElementById('topbarTitle').textContent = document.getElementById('mainTitle').textContent || 'Java 面试工作台';
     const input = document.getElementById('searchInput');
-    input.placeholder = showTrash ? '搜索回收站内容' : studySource === 'bank' ? '搜索题目、答案或题号' : '搜索我的笔记';
+    input.placeholder = showTrash ? '搜索回收站内容' : studySource === 'memorized' ? '搜索已背题目、答案或题号' : studySource === 'bank' ? '搜索题目、答案或题号' : '搜索我的笔记';
     input.setAttribute('aria-label', input.placeholder);
     const categoryTitle = document.querySelector('.category-wrap .label');
     categoryTitle.textContent = '知识分类';
@@ -74,7 +75,7 @@ function renderWorkspaceShell() {
 function initWorkspaceShell() {
     const header = document.createElement('header');
     header.className = 'workspace-header';
-    header.innerHTML = `<a class="workspace-brand" href="#" data-workspace-link="bank"><span><img src="./icon.svg?v=2" alt=""></span><strong>面试工作台</strong></a><nav aria-label="功能导航">${[['bank','题库'],['personal','我的笔记'],['interviews','公司面经'],['quiz','随机抽查'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['glossary','术语词典']].map(([id,label])=>`<button data-workspace-link="${id}">${label}</button>`).join('')}</nav><div class="workspace-tools"><button data-workspace-link="trash">回收站 <small id="workspaceTrashCount" hidden></small></button><button data-workspace-link="sync">数据同步</button></div>`;
+    header.innerHTML = `<a class="workspace-brand" href="#" data-workspace-link="bank"><span><img src="./icon.svg?v=2" alt=""></span><strong>面试工作台</strong></a><nav aria-label="功能导航">${[['bank','题库'],['memorized','已背区'],['personal','我的笔记'],['interviews','公司面经'],['quiz','随机抽查'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['glossary','术语词典']].map(([id,label])=>`<button data-workspace-link="${id}">${label}</button>`).join('')}</nav><div class="workspace-tools"><button data-workspace-link="trash">回收站 <small id="workspaceTrashCount" hidden></small></button><button data-workspace-link="sync">数据同步</button></div>`;
     document.body.prepend(header);
     const sideTitle = document.createElement('div');
     sideTitle.className = 'workspace-directory-title'; sideTitle.innerHTML = `<h2>知识目录</h2><button class="workspace-marked-link" data-workspace-link="marked">${workspaceIcon('marked')}重点复习</button>`;
@@ -83,7 +84,7 @@ function initWorkspaceShell() {
     document.querySelector('.main-header').appendChild(search);
     const bottom = document.querySelector('.mobile-bottombar');
     bottom.innerHTML = [['bank','题库'],['personal','笔记'],['interviews','面经'],['quiz','抽查'],['more','更多']].map(([id,label])=>`<button class="nav-item" data-workspace-link="${id}"><span class="nav-icon" aria-hidden="true">${workspaceIcon(id)}</span>${label}${id==='more'?'<span id="mobileMoreBadge" class="nav-badge" hidden></span>':''}</button>`).join('');
-    document.querySelector('.more-grid').innerHTML = [['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['glossary','术语词典'],['trash','回收站'],['marked','重点复习'],['sync','数据与同步']].map(([id,label])=>`<button data-workspace-link="${id}">${workspaceIcon(id)}${label}${id==='marked'?'<span id="mobileMarkedBadge" hidden></span>':''}</button>`).join('');
+    document.querySelector('.more-grid').innerHTML = [['memorized','已背区'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['glossary','术语词典'],['trash','回收站'],['marked','重点复习'],['sync','数据与同步']].map(([id,label])=>`<button data-workspace-link="${id}">${workspaceIcon(id)}${label}${id==='marked'?'<span id="mobileMarkedBadge" hidden></span>':''}</button>`).join('');
     document.addEventListener('click', e => {
         const button = e.target.closest('[data-workspace-link]');
         if (!button) return;

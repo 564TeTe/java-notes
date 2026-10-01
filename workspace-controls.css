@@ -340,7 +340,7 @@ body .pagination-compact :is(.page-range,.page-current,.page-settings>summary) {
     body .study-card.note .study-card-meta { gap:5px; flex-wrap:wrap; font-size:11px; }
     body .study-card.note .study-number { font-size:11px; }
     body .study-card.note .study-card-actions { flex-wrap:nowrap; flex-shrink:0; gap:0; }
-    body .study-card.note .study-card-actions > :is(button[data-study="mark"],button[data-study="copy"],button[data-study="edit"]) { width:40px; min-height:40px; padding:8px; font-size:0; gap:0; }
+    body .study-card.note .study-card-actions > :is(button[data-study="mark"],button[data-study="copy"],button[data-study="edit"],button[data-study="memorize"],button[data-study="restore-memorized"]) { width:40px; min-height:40px; padding:8px; font-size:0; gap:0; }
     html body .study-card.note button[data-copied="true"] { color:var(--primary); background:var(--primary-light); }
     body .study-card.note .study-card-more summary { width:40px; min-height:40px; padding:8px; }.study-card.note .study-card-more summary>span { display:none; }
     body .study-card .study-answer { margin-top:8px; padding-top:10px; line-height:1.8; }
