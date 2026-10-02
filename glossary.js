@@ -13,10 +13,10 @@ function renderGlossaryResults() {
 function renderGlossary() {
     return `<section class="glossary-view" aria-label="术语词典"><div class="glossary-toolbar"><label class="glossary-search" for="glossarySearch"><span>搜索术语</span><input id="glossarySearch" type="search" placeholder="如事务、AOP、线程池" autocomplete="off" value="${glossaryEsc(glossaryState.search)}" aria-controls="glossaryResults"></label><label class="glossary-category" for="glossaryCategory"><span>分类</span><select id="glossaryCategory" aria-controls="glossaryResults"><option value="all"${glossaryState.category === 'all' ? ' selected' : ''}>全部分类</option>${glossaryIndex.categories.map(category => `<option value="${glossaryEsc(category.id)}"${category.id === glossaryState.category ? ' selected' : ''}>${glossaryEsc(category.name)}</option>`).join('')}</select></label><button type="button" class="study-text glossary-return" data-glossary-return>返回刚才的页面</button></div><div id="glossaryResults">${renderGlossaryResults()}</div></section>`;
 }
-function openGlossary() {
+function openGlossary(returnScroll = window.scrollY) {
     if (!showGlossary) {
         glossaryState.returnPage = currentWorkspacePage();
-        glossaryState.returnScroll = window.scrollY;
+        glossaryState.returnScroll = returnScroll;
     }
     showGlossary = true;
     window.GlossaryHighlighter?.close();

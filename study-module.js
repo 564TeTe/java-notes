@@ -164,7 +164,7 @@ getFilteredNotes = function() {
     }, mastery).sort((a, b) => Number(sunkIds.has(a.id)) - Number(sunkIds.has(b.id)));
 };
 function resetStudyModes() {
-    showGlossary = showQuiz = showTrash = showMarkedOnly = showResources = showInterviewExp = showResumePrep = showRecruitment = false;
+    showAnnotations = showGlossary = showQuiz = showTrash = showMarkedOnly = showResources = showInterviewExp = showResumePrep = showRecruitment = false;
     activeNoteId = null;
 }
 function clearStudyFilters() {
@@ -366,9 +366,17 @@ function renderStudyQuiz() {
 let studyQuizSession = Date.now();
 const legacyRenderNotes = renderNotes;
 renderNotes = function(filtered) {
-    const special = showGlossary || showResumePrep || showRecruitment || showResources;
+    const special = showAnnotations || showGlossary || showResumePrep || showRecruitment || showResources;
     document.body.classList.toggle('study-mode', !special);
     document.body.classList.toggle('interview-mode', showInterviewExp);
+    if (showAnnotations) {
+        document.body.classList.remove('resume-mode', 'recruitment-mode', 'interview-mode');
+        document.getElementById('mainTitle').textContent = '注解专区';
+        document.getElementById('mainSubtitle').textContent = '';
+        document.querySelector('.main-header .stats').style.display = 'none';
+        document.getElementById('notesContainer').innerHTML = renderAnnotations();
+        return;
+    }
     if (showGlossary) {
         document.body.classList.remove('resume-mode', 'recruitment-mode', 'interview-mode');
         document.getElementById('mainTitle').textContent = '术语词典';
@@ -388,7 +396,7 @@ renderNotes = function(filtered) {
 };
 const legacyRenderTOC = renderTOC;
 renderTOC = function(filtered) {
-    if (showGlossary || showInterviewExp || showQuiz || showResources || showTrash) {
+    if (showAnnotations || showGlossary || showInterviewExp || showQuiz || showResources || showTrash) {
         document.getElementById('tocList').innerHTML = '';
         document.getElementById('noResult').style.display = 'none'; return;
     }
@@ -403,7 +411,7 @@ refreshNoteDisplay = function() { renderAll(); };
 updateBadges = function() {
     legacyStudyBadges(); updateMobileNavActive();
     document.querySelectorAll('[data-study-nav]').forEach(btn => {
-        const active = !showGlossary && !showQuiz && !showTrash && !showMarkedOnly && !showInterviewExp && !showResumePrep && !showRecruitment && !showResources && btn.dataset.studyNav === studySource;
+        const active = !showAnnotations && !showGlossary && !showQuiz && !showTrash && !showMarkedOnly && !showInterviewExp && !showResumePrep && !showRecruitment && !showResources && btn.dataset.studyNav === studySource;
         btn.classList.toggle('active', active); btn.setAttribute('aria-pressed', active);
     });
 };

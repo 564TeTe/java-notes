@@ -4,14 +4,15 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 const root = path.join(__dirname, '..');
-function setup({ archivedEdition = false, priorityCuration = false, glossary = false } = {}) {
+function setup({ archivedEdition = false, priorityCuration = false, glossary = false, annotations = false } = {}) {
     const store = new Map();
+    const scrolls = [];
     const element = { value: '', textContent: '', innerHTML: '', style: {}, dataset: {}, classList: { add(){}, remove(){}, toggle(){} },
         querySelectorAll: () => [], querySelector: () => element, setAttribute(){}, removeAttribute(){}, addEventListener(){}, focus(){}, appendChild(){} };
     const context = vm.createContext({ console, URL, FormData, crypto: require('node:crypto').webcrypto,
         localStorage: { getItem: k => store.get(k), setItem: (k,v) => store.set(k,v), removeItem: k => store.delete(k) },
         document: { getElementById: () => element, querySelector: () => element, querySelectorAll: () => [], addEventListener(){}, createElement: () => element },
-        setTimeout(){}, clearTimeout(){}, confirm: () => true, requestAnimationFrame(){}, scrollTo(){},
+        setTimeout(){}, clearTimeout(){}, confirm: () => true, requestAnimationFrame(){}, scrollTo(value){scrolls.push(value.top);},
     });
     context.window = context;
     const run = code => vm.runInContext(code, context);
@@ -23,10 +24,64 @@ function setup({ archivedEdition = false, priorityCuration = false, glossary = f
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
     for (const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) if (match[1].includes('const NOTES')) run(match[1]);
     for (const name of ['study-module.js','interview-module.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
-    if (glossary) for (const name of ['glossary-data.js','glossary-core.js','glossary.js','workspace-shell.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
+    if (glossary || annotations) for (const name of ['glossary-data.js','glossary-core.js','glossary.js','workspace-shell.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
+    if (annotations) {
+        run('window.ANNOTATION_DATA = { categories: [], annotations: [], basics: [] };');
+        for (const name of ['annotation-core.js', 'annotation.js']) {
+            if (fs.existsSync(path.join(root, name))) run(fs.readFileSync(path.join(root, name), 'utf8'));
+        }
+    }
     run('renderAll = function() {}; buildCategoryBtns = function() {}; toast = function() {};');
-    return { run, store };
+    return { run, store, scrolls };
 }
+
+test('annotation round trips preserve bank filters, pagination, scroll and all learning records', () => {
+    const {run} = setup({annotations:true});
+    run('loadState(); activeCategory="Java 集合"; studyPage=2; studyPriority="P0"; studyLevel="weak"; window.scrollY=480; markedIds.add(BANK[0].id); mastery[BANK[0].id]={level:"hard"}; const before=getStateSnapshot(); navigateWorkspace("annotations");');
+    assert.equal(run('currentWorkspacePage()'), 'annotations');
+    assert.equal(run('annotationState.returnScroll'), 480);
+    run('annotationState.search="Transactional"; navigateWorkspace("bank");');
+    assert.equal(run('currentWorkspacePage()'), 'bank');
+    assert.equal(run('activeCategory'), 'Java 集合');
+    assert.equal(run('studyPage'), 2);
+    assert.equal(run('studyPriority'), 'P0');
+    assert.equal(run('studyLevel'), 'weak');
+    assert.equal(run('JSON.stringify({...getStateSnapshot(),updatedAt:null})'), run('JSON.stringify({...before,updatedAt:null})'));
+});
+
+test('annotations return to an ongoing quiz or glossary and exit cleanly to other sections', () => {
+    const {run} = setup({annotations:true});
+    run('startQuiz("bank"); drawStudyQuiz(); quizRevealed.add(0); const drawn=quizNotes.map(n=>n.id).join(); navigateWorkspace("annotations");');
+    assert.equal(run('currentWorkspacePage()'), 'annotations');
+    run('returnFromAnnotations();');
+    assert.equal(run('currentWorkspacePage()'), 'quiz');
+    assert.equal(run('quizNotes.map(n=>n.id).join()'), run('drawn'));
+    assert.ok(run('quizRevealed.has(0)'));
+    run('navigateWorkspace("glossary"); glossaryState.search="AOP"; glossaryState.category="spring"; navigateWorkspace("annotations"); navigateWorkspace("glossary");');
+    assert.equal(run('currentWorkspacePage()'), 'glossary');
+    assert.equal(run('glossaryState.search'), 'AOP');
+    assert.equal(run('glossaryState.category'), 'spring');
+    run('navigateWorkspace("annotations"); navigateWorkspace("resources");');
+    assert.equal(run('showAnnotations'), false);
+    assert.equal(run('showGlossary'), false);
+    assert.equal(run('currentWorkspacePage()'), 'resources');
+});
+
+test('switching between the two reference sections returns to the original bank without clearing filters', () => {
+    const {run, scrolls} = setup({annotations:true});
+    run('loadState(); activeCategory="Java 集合"; studyPage=2; studyPriority="P0"; window.scrollY=480; navigateWorkspace("annotations"); window.scrollY=180; navigateWorkspace("glossary"); navigateWorkspace("bank");');
+    assert.equal(run('currentWorkspacePage()'), 'bank');
+    assert.equal(run('showAnnotations || showGlossary'), false);
+    assert.equal(run('activeCategory'), 'Java 集合');
+    assert.equal(run('studyPage'), 2);
+    assert.equal(scrolls.at(-1), 480);
+    run('window.scrollY=480; navigateWorkspace("glossary"); window.scrollY=240; navigateWorkspace("annotations"); navigateWorkspace("bank");');
+    assert.equal(run('currentWorkspacePage()'), 'bank');
+    assert.equal(run('showAnnotations || showGlossary'), false);
+    assert.equal(run('activeCategory'), 'Java 集合');
+    assert.equal(run('studyPage'), 2);
+    assert.equal(scrolls.at(-1), 480);
+});
 
 test('glossary round trips preserve bank filters, pagination and study records', () => {
     const {run}=setup({glossary:true});
