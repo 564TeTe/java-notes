@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const scriptPath = path.join(__dirname, '..', 'mobile-orientation.js');
 const androidUA = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/130.0 Mobile Safari/537.36';
 const flush = () => new Promise(resolve => setImmediate(resolve));
+const namedError = name => Object.assign(new Error(name), { name });
 
 function eventTarget(values = {}) {
     const events = new Map();
@@ -19,10 +20,16 @@ function eventTarget(values = {}) {
 
 function setup(options = {}) {
     const calls = [], mediaQueries = [], effects = { fullscreen: 0, ui: 0 };
+    const fullscreenCalls = { requests: 0, exits: 0, unlocks: 0 };
     const mode = options.mode === undefined ? 'standalone' : options.mode;
     const media = eventTarget({ matches: mode === 'standalone' || mode === 'fullscreen' });
     const orientation = eventTarget({ type: options.type || 'portrait-primary',
-        lock(value) { calls.push(value); return options.lock ? options.lock(value) : Promise.resolve(); },
+        lock(value) {
+            calls.push(value);
+            if (options.requiresFullscreen && !document.fullscreenElement) return Promise.reject(namedError('SecurityError'));
+            return options.lock ? options.lock(value) : Promise.resolve();
+        },
+        unlock() { fullscreenCalls.unlocks++; },
     });
     if (options.api === 'missing-lock') delete orientation.lock;
     if (options.legacyMedia) {
@@ -30,9 +37,23 @@ function setup(options = {}) {
         media.addListener = handler => { if (!media.events.has('change')) media.events.set('change', []); media.events.get('change').push(handler); };
     }
     const document = eventTarget({ visibilityState: options.visibility || 'visible',
+        fullscreenElement: options.existingFullscreen ? { existing: true } : null,
         createElement() { effects.ui++; throw Error('No UI may be created'); },
-        documentElement: { requestFullscreen() { effects.fullscreen++; throw Error('No fullscreen requests'); } },
+        documentElement: { requestFullscreen() {
+            effects.fullscreen++; fullscreenCalls.requests++;
+            if (options.requestFullscreen) return options.requestFullscreen(document);
+            document.fullscreenElement = document.documentElement;
+            document.fire('fullscreenchange');
+            return Promise.resolve();
+        } },
+        exitFullscreen() {
+            fullscreenCalls.exits++;
+            if (options.exitFullscreen) return options.exitFullscreen(document);
+            document.fullscreenElement = null; document.fire('fullscreenchange');
+            return Promise.resolve();
+        },
     });
+    if (options.api === 'missing-fullscreen') delete document.documentElement.requestFullscreen;
     const navigator = { userAgent: options.ua === undefined ? androidUA : options.ua,
         platform: options.platform || 'Linux armv8l', maxTouchPoints: options.touchPoints || 0,
         standalone: !!options.navigatorStandalone,
@@ -48,7 +69,7 @@ function setup(options = {}) {
     context.window = context;
     if (fs.existsSync(scriptPath)) vm.runInNewContext(fs.readFileSync(scriptPath, 'utf8'), context);
     function start() { assert.equal(typeof context.MobileOrientation?.start, 'function', 'orientation module must expose start'); context.MobileOrientation.start(); }
-    return { start, context, media, document, orientation, calls, effects, mediaQueries };
+    return { start, context, media, document, orientation, calls, effects, mediaQueries, fullscreenCalls, api: context.MobileOrientation };
 }
 
 test('installed Android locks portrait-primary from either portrait or landscape regardless of viewport width', async () => {
@@ -168,4 +189,149 @@ test('start is idempotent and lifecycle signals cannot overlap a pending lock', 
     app.start(); assert.equal(app.calls.length, 1, 'repeated start stays idempotent after completion');
     app.context.fire('pageshow'); assert.equal(app.calls.length, 2);
     finish(); await flush();
+});
+
+test('automatic fullscreen restrictions are observable without entering fullscreen or claiming success', async () => {
+    const app = setup({ requiresFullscreen: true }); app.start(); await flush();
+    assert.equal(typeof app.api.getStatus, 'function');
+    const status = app.api.getStatus();
+    assert.equal(status.state, 'requires-fullscreen');
+    assert.equal(status.errorName, 'SecurityError');
+    assert.equal(status.mobile, true); assert.equal(status.installed, true); assert.equal(status.fullscreen, false);
+    assert.equal(app.fullscreenCalls.requests, 0);
+});
+
+test('explicit enable enters fullscreen synchronously before locking, including a normal mobile browser', async () => {
+    const app = setup({ mode: 'browser', requiresFullscreen: true }); app.start();
+    assert.equal(typeof app.api.enable, 'function');
+    const result = app.api.enable();
+    assert.equal(app.fullscreenCalls.requests, 1, 'fullscreen must start inside the click call stack');
+    assert.equal(app.api.getStatus().state, 'locking');
+    const status = await result;
+    assert.equal(status.state, 'locked'); assert.equal(status.fullscreen, true);
+    assert.equal(status.installed, false); assert.equal(status.errorName, null);
+    assert.deepEqual(app.calls, ['portrait-primary']);
+});
+
+test('enable does not wait for a pending automatic lock before consuming user activation', async () => {
+    let failAutomatic, lockNumber = 0;
+    const app = setup({ lock: () => ++lockNumber === 1 ? new Promise((_, reject) => { failAutomatic = reject; }) : Promise.resolve() });
+    app.start();
+    assert.equal(typeof app.api.enable, 'function');
+    const enabled = app.api.enable();
+    assert.equal(app.fullscreenCalls.requests, 1, 'the earlier lock must not delay requestFullscreen');
+    assert.equal(app.calls.length, 1, 'locks remain serialized');
+    failAutomatic(namedError('SecurityError'));
+    const status = await enabled;
+    assert.equal(status.state, 'locked'); assert.equal(app.calls.length, 2);
+});
+
+test('manual operations are deduplicated and existing fullscreen does not request fullscreen again', async () => {
+    let finish;
+    const app = setup({ mode: 'browser', existingFullscreen: true, lock: () => new Promise(resolve => { finish = resolve; }) });
+    app.start(); assert.equal(typeof app.api.enable, 'function');
+    const first = app.api.enable(), second = app.api.enable();
+    assert.equal(first, second);
+    await flush(); assert.equal(app.calls.length, 1); assert.equal(app.fullscreenCalls.requests, 0);
+    finish(); assert.equal((await first).state, 'locked');
+});
+
+test('lock failures roll back only fullscreen entered by that enable operation', async () => {
+    for (const existingFullscreen of [false, true]) {
+        const app = setup({ mode: 'browser', existingFullscreen, lock: () => Promise.reject(namedError('NotSupportedError')) });
+        app.start(); assert.equal(typeof app.api.enable, 'function');
+        const status = await app.api.enable();
+        assert.equal(status.state, 'unsupported'); assert.equal(status.errorName, 'NotSupportedError');
+        assert.equal(status.fullscreen, existingFullscreen);
+        assert.equal(app.fullscreenCalls.exits, existingFullscreen ? 0 : 1);
+    }
+});
+
+test('missing APIs, denied fullscreen requests and desktop actions report failure without false success', async () => {
+    for (const options of [
+        { api: 'missing-lock', expected: 'unsupported' },
+        { api: 'missing-fullscreen', expected: 'unsupported' },
+        { requestFullscreen: () => Promise.reject(namedError('NotAllowedError')), expected: 'failed' },
+        { requestFullscreen: () => { throw namedError('SecurityError'); }, expected: 'failed' },
+        { uaMobile: false, expected: 'idle' },
+    ]) {
+        const app = setup({ mode: 'browser', ...options }); app.start();
+        assert.equal(typeof app.api.enable, 'function');
+        const status = await app.api.enable();
+        assert.equal(status.state, options.expected); assert.equal(status.fullscreen, false);
+        assert.equal(app.calls.length, 0);
+    }
+});
+
+test('status subscriptions expose pending and resolved states without letting listeners alter or block state', async () => {
+    let finish;
+    const app = setup({ mode: 'browser', lock: () => new Promise(resolve => { finish = resolve; }) }); app.start();
+    assert.equal(typeof app.api.subscribe, 'function');
+    const states = [], stop = app.api.subscribe(status => states.push(status.state));
+    app.api.subscribe(() => { throw Error('Bad listener'); });
+    const enabled = app.api.enable(); await flush();
+    assert.equal(app.api.getStatus().state, 'locking'); assert.ok(!states.includes('locked'));
+    const snapshot = app.api.getStatus(); snapshot.state = 'locked';
+    assert.equal(app.api.getStatus().state, 'locking', 'status snapshots are detached');
+    finish(); await enabled;
+    assert.ok(states.includes('idle')); assert.ok(states.includes('locking')); assert.ok(states.includes('locked'));
+    stop(); const count = states.length;
+    app.document.fullscreenElement = null; app.document.fire('fullscreenchange');
+    assert.equal(app.api.getStatus().state, 'idle'); assert.equal(app.api.getStatus().fullscreen, false);
+    assert.equal(states.length, count, 'unsubscribed listeners receive no more changes');
+});
+
+test('fullscreen exit invalidates an in-flight lock so a late resolution cannot claim locked', async () => {
+    let finish;
+    const app = setup({ mode: 'browser', lock: () => new Promise(resolve => { finish = resolve; }) }); app.start();
+    assert.equal(typeof app.api.enable, 'function');
+    const enabled = app.api.enable(); await flush();
+    app.document.fullscreenElement = null; app.document.fire('fullscreenchange');
+    finish(); const status = await enabled;
+    assert.equal(status.state, 'idle'); assert.equal(status.fullscreen, false);
+});
+
+test('fullscreen exit also invalidates an automatic lock that started in fullscreen', async () => {
+    let finish;
+    const app = setup({ existingFullscreen: true, lock: () => new Promise(resolve => { finish = resolve; }) }); app.start();
+    assert.equal(app.api.getStatus().state, 'locking');
+    app.document.fullscreenElement = null; app.document.fire('fullscreenchange');
+    finish(); await flush();
+    assert.equal(app.api.getStatus().state, 'idle');
+    assert.equal(app.api.getStatus().fullscreen, false);
+});
+
+test('a non-Promise lock result is unsupported and cannot report locked', async () => {
+    const app = setup({ mode: 'browser', lock: () => undefined }); app.start();
+    const status = await app.api.enable();
+    assert.equal(status.state, 'unsupported'); assert.equal(status.fullscreen, false);
+    assert.equal(app.fullscreenCalls.exits, 1);
+});
+
+test('hidden pages cannot start manual fullscreen or orientation operations', async () => {
+    const app = setup({ mode: 'browser', visibility: 'hidden' }); app.start();
+    const status = await app.api.enable();
+    assert.equal(status.state, 'failed'); assert.equal(status.errorName, 'InvalidStateError');
+    assert.equal(app.fullscreenCalls.requests, 0); assert.equal(app.calls.length, 0);
+});
+
+test('a page hidden while entering fullscreen skips the later lock and rolls back fullscreen', async () => {
+    const app = setup({ mode: 'browser' }); app.start();
+    const enabled = app.api.enable();
+    app.document.visibilityState = 'hidden';
+    const status = await enabled;
+    assert.equal(status.state, 'failed'); assert.equal(status.errorName, 'InvalidStateError');
+    assert.equal(status.fullscreen, false); assert.equal(app.calls.length, 0);
+    assert.equal(app.fullscreenCalls.exits, 1);
+});
+
+test('explicit exit unlocks and exits manual fullscreen, while exit failures remain visible', async () => {
+    const app = setup({ mode: 'browser', requiresFullscreen: true }); app.start();
+    assert.equal(typeof app.api.exit, 'function');
+    await app.api.enable(); const status = await app.api.exit();
+    assert.equal(status.state, 'idle'); assert.equal(status.fullscreen, false);
+    assert.equal(app.fullscreenCalls.unlocks, 1); assert.equal(app.fullscreenCalls.exits, 1);
+    const denied = setup({ mode: 'browser', exitFullscreen: () => Promise.reject(namedError('NotAllowedError')) }); denied.start();
+    await denied.api.enable(); const failed = await denied.api.exit();
+    assert.equal(failed.state, 'failed'); assert.equal(failed.fullscreen, true); assert.equal(failed.errorName, 'NotAllowedError');
 });

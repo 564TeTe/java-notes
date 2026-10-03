@@ -144,6 +144,10 @@ body .fab { display:none !important; }
     .more-panel { padding-bottom:calc(24px + env(safe-area-inset-bottom)); }
     .more-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-top:10px; }
     .more-grid button { min-height:58px; background:#f4f7ee; color:#526e43; border:1px solid #e1e8d7; border-radius:8px; font-size:13px; }
+    .more-grid button[hidden], .mobile-orientation-status[hidden] { display:none; }
+    .more-grid button:disabled { opacity:.65; cursor:default; }
+    #mobileOrientationLabel { font-size:13px; line-height:1.4; }
+    .mobile-orientation-status { margin:14px 0 0; color:var(--shell-muted); font-size:12px; line-height:1.7; }
     #addModal .modal { width:calc(100vw - 24px); padding:20px; border-radius:12px; }
     #addModal :is(textarea,select,input) { font-size:16px; }
 }

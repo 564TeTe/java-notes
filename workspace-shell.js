@@ -14,7 +14,8 @@ function workspaceIcon(name) {
         resources:'<path d="m10 13 4-4m-5 7-2 2a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m2 1 2-2a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0" transform="translate(1 -1)"/>',
         trash:'<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/>',
         marked:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
-        close:'<path d="m6 6 12 12M6 18 18 6"/>'
+        close:'<path d="m6 6 12 12M6 18 18 6"/>',
+        portrait:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4M10 6h4"/>'
     };
     return `<svg class="workspace-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.bank}</svg>`;
 }
@@ -30,10 +31,43 @@ function currentWorkspacePage() {
     if (showMarkedOnly) return 'marked';
     return studySource;
 }
+function mobileOrientationMessage(status) {
+    const messages = {
+        idle: '点击“锁定竖屏”后进入全屏。',
+        locking: '正在开启竖屏模式…',
+        locked: '竖屏已锁定；退出全屏后锁定会结束。',
+        'requires-fullscreen': '需要进入全屏才能锁定竖屏。',
+        unsupported: '当前浏览器不支持竖屏锁定，可关闭手机自动旋转。',
+        failed: '未能锁定竖屏，可关闭手机自动旋转。'
+    };
+    return messages[status.state] || messages.idle;
+}
+function renderMobileOrientation(status) {
+    const button = document.getElementById('mobileOrientationBtn');
+    const label = document.getElementById('mobileOrientationLabel');
+    const hint = document.getElementById('mobileOrientationStatus');
+    if (!button || !label || !hint) return;
+    button.hidden = hint.hidden = !status.mobile;
+    button.disabled = status.state === 'locking' || status.state === 'unsupported';
+    label.textContent = status.state === 'locked' && status.fullscreen ? '退出全屏' : '锁定竖屏';
+    hint.textContent = mobileOrientationMessage(status);
+}
+function controlMobileOrientation() {
+    const controller = window.MobileOrientation;
+    if (!controller) return Promise.resolve();
+    const before = controller.getStatus();
+    const exiting = before.state === 'locked' && before.fullscreen;
+    // Start the fullscreen request inside the click handler, before any await.
+    return (exiting ? controller.exit() : controller.enable()).then(status => {
+        renderMobileOrientation(status);
+        toast(exiting && status.state === 'idle' ? '已退出全屏' : mobileOrientationMessage(status));
+    });
+}
 function navigateWorkspace(page) {
     closeMorePanel(); closeCategoryPanel();
     document.querySelector('.sidebar').classList.remove('drawer-open');
     document.getElementById('drawerOverlay').classList.remove('show');
+    if (page === 'portrait') { controlMobileOrientation(); return; }
     if (page === 'more') { openMorePanel(); return; }
     if (page === 'sync') { openSyncModal(); return; }
     if (page === 'annotations') { openAnnotations(); return; }
@@ -93,7 +127,8 @@ function initWorkspaceShell() {
     document.querySelector('.main-header').appendChild(search);
     const bottom = document.querySelector('.mobile-bottombar');
     bottom.innerHTML = [['bank','题库'],['personal','笔记'],['interviews','面经'],['quiz','抽查'],['more','更多']].map(([id,label])=>`<button class="nav-item" data-workspace-link="${id}"><span class="nav-icon" aria-hidden="true">${workspaceIcon(id)}</span>${label}${id==='more'?'<span id="mobileMoreBadge" class="nav-badge" hidden></span>':''}</button>`).join('');
-    document.querySelector('.more-grid').innerHTML = [['memorized','已背区'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['glossary','术语词典'],['annotations','注解专区'],['trash','回收站'],['marked','重点复习'],['sync','数据与同步']].map(([id,label])=>`<button data-workspace-link="${id}">${workspaceIcon(id)}${label}${id==='marked'?'<span id="mobileMarkedBadge" hidden></span>':''}</button>`).join('');
+    document.querySelector('.more-grid').innerHTML = [['memorized','已背区'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['glossary','术语词典'],['annotations','注解专区'],['trash','回收站'],['marked','重点复习'],['sync','数据与同步'],['portrait','锁定竖屏']].map(([id,label])=>`<button data-workspace-link="${id}"${id==='portrait'?' id="mobileOrientationBtn" aria-describedby="mobileOrientationStatus" hidden':''}>${workspaceIcon(id)}${id==='portrait'?`<span id="mobileOrientationLabel">${label}</span>`:label}${id==='marked'?'<span id="mobileMarkedBadge" hidden></span>':''}</button>`).join('');
+    window.MobileOrientation?.subscribe?.(renderMobileOrientation);
     document.addEventListener('click', e => {
         const button = e.target.closest('[data-workspace-link]');
         if (!button) return;
