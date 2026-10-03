@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v54";
+const CACHE_NAME = "java-notes-v55";
 const APP_SHELL = [
     "./annotation-data.js", "./annotation-core.js", "./annotation.js", "./annotation.css",
     "./glossary-data.js", "./glossary-core.js", "./glossary.js", "./glossary.css", "./glossary-highlighter.js", "./glossary-highlighter.css",
@@ -9,7 +9,7 @@ const APP_SHELL = [
     "./workspace-theme.js", "./workspace-theme.css",
     "./workspace-shell.js", "./workspace-shell.css",
     "./workspace-controls.js", "./workspace-controls.css",
-    "./app-updates.js", "./update.html",
+    "./app-updates.js", "./mobile-orientation.js", "./update.html",
     "./data/question-bank.js", "./study-core.js", "./study-module.js", "./interview-module.js", "./study-workspace.css",
     "./assets/interviews/lx-2026-09-08.html", "./assets/interviews/lx-2026-09-08.md",
     "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png",
