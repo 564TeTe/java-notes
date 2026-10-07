@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="可离线使用、支持多端同步的 Java 后端面试复习工具">
     <meta name="theme-color" content="#f3f5f2">
-    <script src="./workspace-theme.js?v=6"></script>
-    <meta name="app-version" content="58">
+    <script src="./workspace-theme.js?v=7"></script>
+    <meta name="app-version" content="59">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Java 面试复习工作台 · 题库与笔记</title>
@@ -797,12 +797,13 @@ pre code { background: transparent; color: inherit; padding: 0; }
     <link rel="stylesheet" href="./study-workspace.css?v=5">
     <link rel="stylesheet" href="./workspace-shell.css?v=5">
     <link rel="stylesheet" href="./workspace-controls.css?v=5">
-    <link rel="stylesheet" href="./workspace-theme.css?v=8">
+    <link rel="stylesheet" href="./workspace-theme.css?v=9">
     <link rel="stylesheet" href="./command-guide.css?v=2">
     <link rel="stylesheet" href="./resume-workbench.css?v=2">
     <link rel="stylesheet" href="./glossary.css?v=1">
     <link rel="stylesheet" href="./annotation.css?v=1">
     <link rel="stylesheet" href="./glossary-highlighter.css?v=1">
+    <link rel="stylesheet" href="./workspace-tatsumaki.css?v=1">
 </head>
 <body>
 
@@ -864,10 +865,34 @@ pre code { background: transparent; color: inherit; padding: 0; }
             <button class="toggle-all-btn" id="expandAllBtn" title="展开全部答案">📖 全部展开</button>
         </p>
     </div>
-    <aside class="tatsumaki-banner" aria-hidden="true">
-        <div class="tatsumaki-banner-copy"><span>TATSUMAKI</span><strong>战栗的龙卷</strong><small>ONE-PUNCH MAN</small></div>
-        <img class="tatsumaki-banner-art" src="./assets/themes/tatsumaki-action.png" alt="" width="921" height="1536" loading="lazy" decoding="async">
-    </aside>
+    <section class="tatsumaki-scene" id="tatsumakiScene" data-scene="action" aria-label="龙卷漫画主题">
+        <div class="tatsumaki-stage">
+            <div class="tatsumaki-heading">
+                <span class="tatsumaki-edition">ONE-PUNCH MAN <b>02</b></span>
+                <h2><span>战栗的</span><strong>龙卷</strong></h2>
+                <p>TERRIBLE<br>TORNADO.</p>
+                <span class="tatsumaki-class">S-CLASS HERO / PSYCHIC</span>
+            </div>
+            <figure class="tatsumaki-focus">
+                <img data-tatsumaki-main src="./assets/themes/tatsumaki-action.png" alt="" width="921" height="1536" loading="lazy" decoding="async">
+                <figcaption><span>SCENE /</span> <b data-tatsumaki-caption>念动力</b></figcaption>
+            </figure>
+            <figure class="tatsumaki-detail" aria-hidden="true"><img src="./assets/themes/tatsumaki-cover.jpg" alt="" width="1080" height="1535" loading="lazy" decoding="async"><span>戦慄</span></figure>
+            <figure class="tatsumaki-storm" aria-hidden="true"><img src="./assets/themes/tatsumaki-storm.jpg" alt="" width="1080" height="2400" loading="lazy" decoding="async"><span>！！</span></figure>
+        </div>
+        <div class="tatsumaki-contact-sheet">
+            <span class="tatsumaki-contact-label"><b>六幕</b><small>SELECT A SCENE</small></span>
+            <div class="tatsumaki-scenes" role="group" aria-label="选择龙卷画面">
+                <button type="button" data-tatsumaki-scene="action" aria-label="念动力画面" aria-pressed="true"><img src="./assets/themes/tatsumaki-action.png" alt="" width="921" height="1536" loading="lazy" decoding="async"><span>01</span></button>
+                <button type="button" data-tatsumaki-scene="cover" aria-label="冷冽画面" aria-pressed="false"><img src="./assets/themes/tatsumaki-cover.jpg" alt="" width="1080" height="1535" loading="lazy" decoding="async"><span>02</span></button>
+                <button type="button" data-tatsumaki-scene="seated" aria-label="浮空画面" aria-pressed="false"><img src="./assets/themes/tatsumaki-seated.jpg" alt="" width="1080" height="1914" loading="lazy" decoding="async"><span>03</span></button>
+                <button type="button" data-tatsumaki-scene="portrait" aria-label="静默画面" aria-pressed="false"><img src="./assets/themes/tatsumaki-portrait.jpg" alt="" width="1079" height="1337" loading="lazy" decoding="async"><span>04</span></button>
+                <button type="button" data-tatsumaki-scene="storm" aria-label="风起画面" aria-pressed="false"><img src="./assets/themes/tatsumaki-storm.jpg" alt="" width="1080" height="2400" loading="lazy" decoding="async"><span>05</span></button>
+                <button type="button" data-tatsumaki-scene="avatar" aria-label="凝视画面" aria-pressed="false"><img src="./assets/themes/tatsumaki-avatar.png" alt="" width="539" height="539" loading="lazy" decoding="async"><span>06</span></button>
+            </div>
+            <span class="tatsumaki-contact-note">点击切换画面<br>背景随之变化 ↗</span>
+        </div>
+    </section>
     <div id="notesContainer"></div>
 </main>
 
@@ -999,7 +1024,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
         </div>
 
         <div class="backup-section">
-            <div class="app-version-row"><span id="appVersion">当前版本 58</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
+            <div class="app-version-row"><span id="appVersion">当前版本 59</span><button id="checkAppUpdateBtn" type="button" class="btn-cancel">检查更新</button></div>
             <h4>本地备份</h4>
             <p>导出文件可用于迁移设备，即使未配置云同步也能使用。</p>
             <div class="btn-row backup-actions">
@@ -2420,10 +2445,11 @@ function init() {
 <script src="./command-guide.js?v=2"></script>
 <script src="./study-module.js?v=18"></script>
 <script src="./interview-module.js?v=7"></script>
-<script src="./app-updates.js?v=58"></script>
+<script src="./app-updates.js?v=59"></script>
 <script src="./mobile-orientation.js?v=2"></script>
 <script src="./workspace-controls.js?v=1"></script>
 <script src="./workspace-shell.js?v=10"></script>
+<script src="./workspace-tatsumaki.js?v=1"></script>
 <script src="./glossary-data.js?v=1"></script>
 <script src="./glossary-core.js?v=1"></script>
 <script src="./glossary.js?v=2"></script>

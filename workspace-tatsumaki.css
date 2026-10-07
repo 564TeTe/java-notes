@@ -1,0 +1,217 @@
+/* Black-ink stage, paper reading surfaces, and six original manga frames. */
+.tatsumaki-scene { display:none; }
+html[data-theme="tatsumaki"] { --tatsumaki-scene-image:url('./assets/themes/tatsumaki-action.png'); }
+html[data-theme="tatsumaki"] body {
+    --danger:#454545; --danger-light:#eeeeea; --mark-color:#444;
+    background:#141414; isolation:isolate;
+}
+html[data-theme="tatsumaki"] body::before {
+    content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+    background-image:linear-gradient(110deg,rgb(0 0 0 / 94%) 8%,rgb(0 0 0 / 66%) 50%,rgb(0 0 0 / 38%)),var(--tatsumaki-scene-image);
+    background-position:center, right 35%; background-size:cover,auto 135%; background-repeat:no-repeat;
+    filter:grayscale(1);
+}
+html[data-theme="tatsumaki"] body::after {
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:repeating-linear-gradient(130deg,transparent 0 72px,#ffffff0a 73px,transparent 74px 145px);
+}
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header {
+    background:#101010; border-bottom:2px solid #eee; box-shadow:0 5px 0 #0008; gap:18px;
+}
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-brand { color:#fff; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-brand>span {
+    background:#fff url('./assets/themes/tatsumaki-avatar.png') center / cover no-repeat;
+    border:1px solid #fff; border-radius:0; transform:rotate(-4deg);
+}
+html[data-theme="tatsumaki"] body .workspace-brand img { visibility:hidden; }
+html[data-theme="tatsumaki"] body .workspace-brand>span,
+html[data-theme="tatsumaki"] body .mobile-topbar .topbar-title::before { filter:grayscale(1); }
+html[data-theme="tatsumaki"] body .workspace-brand strong { letter-spacing:1px; }
+html[data-theme="tatsumaki"] body .workspace-header nav { min-width:0; overflow-x:auto; scrollbar-width:none; }
+html[data-theme="tatsumaki"] body .workspace-tools { flex-shrink:0; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header nav button { color:#bbb; padding-inline:10px; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header nav button.active { color:#111; background:#f8f8f4; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header nav button.active::after { height:4px; background:#111; left:10px; right:10px; bottom:7px; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header :is(.workspace-tools button,.workspace-tools small) { color:#e9e9e5; border-color:#777; border-radius:0; background:transparent; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header .workspace-tools button:hover { color:#111; background:#f5f5f0; border-color:#fff; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body.context-directory .sidebar { background:rgb(15 15 15 / 92%); border-right:1px solid #666; padding:23px 14px 18px; }
+html[data-theme="tatsumaki"] body .workspace-directory-title { padding:0 7px 17px; }
+html[data-theme="tatsumaki"] body .workspace-directory-title h2 { color:#f3f3ed; font:700 16px/1.5 SimSun,serif; letter-spacing:3px; }
+html[data-theme="tatsumaki"] body .workspace-directory-title h2::before { content:"CONTENTS / 01"; display:block; font:9px/2.2 Consolas,monospace; color:#aaa; letter-spacing:2px; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .sidebar :is(.cat-btn,.workspace-marked-link) { color:#c4c4bd; background:transparent; border-color:#666; border-radius:0; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .sidebar .cat-btn.active { background:#f7f7f1; color:#111; box-shadow:4px 4px 0 #62625c; transform:translateX(-2px); }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .sidebar :is(.cat-btn:not(.active),.workspace-marked-link):hover { color:#fff; background:#333; }
+html[data-theme="tatsumaki"] body.context-directory .sidebar::after {
+    content:""; display:block; flex-shrink:0; min-height:200px; margin-top:30px; border:3px solid #eee;
+    background:#fff url('./assets/themes/tatsumaki-portrait.jpg') center 24% / cover no-repeat;
+    box-shadow:5px 5px 0 #72726c; transform:rotate(-2deg);
+}
+html[data-theme="tatsumaki"] body :is(.workspace-header,.sidebar) :focus-visible { outline-color:#fff; outline-offset:3px; }
+
+/* The reading sheet floats above the illustrated stage. */
+html[data-theme="tatsumaki"] body .main,
+html[data-theme="tatsumaki"] body .main.shifted,
+html[data-theme="tatsumaki"] body.study-mode .main {
+    max-width:1240px; margin:26px auto 58px; padding:24px 26px 34px;
+    background-color:#efefea;
+    background-image:radial-gradient(#0000000b .7px,transparent .7px); background-size:5px 5px;
+    border:2px solid #111; box-shadow:8px 8px 0 #0009;
+}
+html[data-theme="tatsumaki"] body.context-directory .main { max-width:none; margin:26px 28px 58px 226px; }
+html[data-theme="tatsumaki"] body .main-header { margin-bottom:18px; }
+html[data-theme="tatsumaki"] body .main-header h1 { font:900 25px/1.4 "Noto Serif SC",SimSun,serif; letter-spacing:1px; }
+html[data-theme="tatsumaki"] body #searchInput { border:1px solid #333; border-radius:0; box-shadow:3px 3px 0 #bdbdb4; }
+html[data-theme="tatsumaki"] body :is(.study-card.note,.interview-question-card,.study-quiz-card,.resume-qa-card,.recruit-panel,.recruit-job-card,.guide-core-card,.guide-article,.glossary-entry,.annotation-card,.annotation-basics) {
+    border:1px solid #252525; border-radius:0; box-shadow:4px 4px 0 #31312e; margin-bottom:17px;
+}
+html[data-theme="tatsumaki"] body .study-card.note { border-left:4px solid #191919; }
+html[data-theme="tatsumaki"] body .study-card.note .study-number { font:11px/1.5 Consolas,monospace; letter-spacing:.4px; }
+html[data-theme="tatsumaki"] body :is(.study-secondary,.study-primary,.career-secondary,.career-primary,.theme-toggle,.choice-trigger,.choice-option) { border-radius:0; }
+html[data-theme="tatsumaki"] body :is(.study-primary,.career-primary) { box-shadow:3px 3px 0 #8d8d84; border:1px solid #111; }
+html[data-theme="tatsumaki"] body .study-summary { border-bottom:2px solid #252525; padding:14px 0 17px; }
+html[data-theme="tatsumaki"] body .study-list-heading h2 { font-family:SimSun,serif; font-weight:900; }
+html[data-theme="tatsumaki"] body .study-card-actions button[data-study="memorize"] { color:var(--day-accent); background:var(--day-selected); border:1px solid #aaa; border-radius:0; }
+
+/* Cover: deliberately unequal panels, a large title block, and a contact strip. */
+html[data-theme="tatsumaki"] body .tatsumaki-scene { display:block; margin:0 0 20px; border:2px solid #111; background:#111; box-shadow:5px 5px 0 #9a9a91; }
+.tatsumaki-stage { display:grid; grid-template-columns:31% minmax(0,1fr) 21%; grid-template-rows:1fr 1fr; gap:5px; height:264px; overflow:hidden; background:#111; }
+.tatsumaki-heading { position:relative; z-index:1; grid-row:1 / 3; padding:18px 22px; color:#fff; overflow:hidden; background:radial-gradient(#ffffff1f .8px,transparent .8px) 0 0 / 5px 5px,#111; }
+.tatsumaki-heading::after { content:""; position:absolute; width:70px; height:260px; right:-45px; top:-25px; transform:rotate(20deg); background:#fff; opacity:.07; pointer-events:none; }
+.tatsumaki-edition { display:flex; align-items:center; justify-content:space-between; gap:8px; font:8px/1.3 Consolas,monospace; letter-spacing:1.4px; padding-bottom:10px; border-bottom:1px solid #7b7b74; white-space:nowrap; }
+.tatsumaki-edition b { font:bold 24px/.9 Impact,"Arial Narrow",sans-serif; letter-spacing:-1px; }
+html[data-theme="tatsumaki"] body .tatsumaki-heading h2 { margin:14px 0 11px; color:#fff; font-family:"Noto Serif SC",SimSun,serif; transform:rotate(-5deg); }
+.tatsumaki-heading h2>span { display:block; font-size:25px; line-height:1.1; letter-spacing:6px; }
+.tatsumaki-heading h2>strong { display:block; font-size:78px; font-weight:900; line-height:1.1; letter-spacing:4px; text-shadow:3px 3px 0 #777; }
+.tatsumaki-heading p { margin:0; color:#e0e0d8; font:900 17px/.98 Impact,"Arial Narrow",sans-serif; letter-spacing:1px; }
+.tatsumaki-class { position:absolute; bottom:14px; left:22px; color:#aaa; font:8px/1.2 Consolas,monospace; letter-spacing:1.2px; }
+.tatsumaki-stage figure { position:relative; min-width:0; margin:0; overflow:hidden; background:#fff; }
+.tatsumaki-stage img { display:block; width:100%; height:100%; object-fit:cover; filter:grayscale(1); }
+.tatsumaki-focus { grid-column:2; grid-row:1 / 3; clip-path:polygon(6% 0,100% 0,94% 100%,0 100%); margin-inline:-8px !important; }
+.tatsumaki-focus img { object-position:50% 38%; }
+.tatsumaki-focus figcaption { position:absolute; left:8%; bottom:14px; padding:6px 11px; background:#111; color:#fff; transform:rotate(-3deg); border:1px solid #fff; box-shadow:3px 3px 0 #0005; }
+.tatsumaki-focus figcaption span { margin-right:6px; color:#bdbdb6; font:9px/1.2 Consolas,monospace; }
+.tatsumaki-focus figcaption b { font:700 13px/1.4 SimSun,serif; letter-spacing:3px; }
+.tatsumaki-detail { grid-column:3; grid-row:1; }
+.tatsumaki-detail img { object-position:48% 21%; }
+.tatsumaki-detail>span { position:absolute; right:7px; bottom:4px; writing-mode:vertical-rl; font:900 25px/1 SimSun,serif; color:#111; text-shadow:2px 2px #fff,-2px -2px #fff; }
+.tatsumaki-storm { grid-column:3; grid-row:2; }
+.tatsumaki-storm img { object-position:50% 37%; }
+.tatsumaki-storm>span { position:absolute; left:6px; top:4px; color:#111; font:900 27px/1.2 SimSun,serif; transform:rotate(-15deg); text-shadow:2px 2px #fff,-2px -2px #fff; }
+.tatsumaki-contact-sheet { display:flex; align-items:center; gap:17px; padding:10px 16px 11px; border-top:5px solid #111; color:#eee; background:#111; }
+.tatsumaki-contact-label { flex-shrink:0; min-width:83px; }
+.tatsumaki-contact-label b { display:block; font:700 16px/1.5 SimSun,serif; letter-spacing:6px; }
+.tatsumaki-contact-label small { display:block; margin-top:3px; color:#aaa; font:7px/1.3 Consolas,monospace; letter-spacing:1px; }
+.tatsumaki-scenes { display:flex; flex:1; min-width:0; gap:8px; }
+.tatsumaki-scenes button { position:relative; display:block; flex:1; min-width:0; height:48px; padding:0; border:1px solid #777; border-radius:0; overflow:hidden; background:#fff; cursor:pointer; transition:transform .16s ease,border-color .16s ease; }
+.tatsumaki-scenes button img { width:100%; height:100%; object-fit:cover; object-position:50% 30%; filter:grayscale(1) contrast(1.1); opacity:.68; transition:opacity .16s ease; }
+.tatsumaki-scenes button[data-tatsumaki-scene="action"] img { object-position:50% 34%; }
+.tatsumaki-scenes button[data-tatsumaki-scene="seated"] img { object-position:40% 48%; }
+.tatsumaki-scenes button[data-tatsumaki-scene="storm"] img { object-position:50% 37%; }
+.tatsumaki-scenes button span { position:absolute; left:0; bottom:0; padding:2px 4px; color:#fff; background:#111; font:9px/1 Consolas,monospace; }
+.tatsumaki-scenes button[aria-pressed="true"] { border:2px solid #fff; outline:1px solid #fff; outline-offset:2px; transform:translateY(-2px); }
+.tatsumaki-scenes button[aria-pressed="true"] img { opacity:1; }
+.tatsumaki-scenes button[aria-pressed="true"] span { color:#111; background:#fff; }
+html[data-theme="tatsumaki"] body .tatsumaki-scenes button:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+.tatsumaki-contact-note { flex-shrink:0; font:10px/1.7 SimSun,serif; letter-spacing:2px; color:#bababa; }
+
+/* Preserve monochrome across semantic statuses and auxiliary views. */
+html[data-theme="tatsumaki"] body :is(.recruit-overview-stats strong,.interview-source-card small,.interview-citations small,.interview-mobile-tools label,.recruit-feed-state,.icon-close) { color:var(--day-muted); }
+html[data-theme="tatsumaki"] body :is(#addModal h3,#syncModal h3,.sync-status-card strong) { color:var(--day-ink); }
+html[data-theme="tatsumaki"] body :is(.more-panel,.category-panel) .panel-handle { background:var(--day-control-line); }
+html[data-theme="tatsumaki"] body :is(.more-panel-overlay,.category-panel-overlay,.drawer-overlay,.modal-overlay,.recruit-modal-backdrop) { background:rgb(0 0 0 / 48%); }
+html[data-theme="tatsumaki"] body :is(.theme-picker,.interview-dialog)::backdrop { background:rgb(0 0 0 / 48%); }
+html[data-theme="tatsumaki"] body .recruit-panel-head>button { color:var(--day-accent); background:var(--day-soft); border-color:var(--day-control-line); }
+html[data-theme="tatsumaki"] body .recruit-panel-head>button:hover { color:var(--day-hover-ink); background:var(--day-hover-bg); border-color:var(--day-hover-line); }
+html[data-theme="tatsumaki"] body .recruit-panel-head>button.primary { color:#fff; background:var(--day-accent); border-color:var(--day-accent); }
+html[data-theme="tatsumaki"] body .recruit-loader { border-color:var(--day-line); border-top-color:var(--day-accent); }
+html[data-theme="tatsumaki"] body .toast { background:var(--day-accent); color:#fff; }
+html[data-theme="tatsumaki"] body :is(.study-priority,.study-status,.prep-level,.study-summary-count b,.study-card-footer>span,.resume-boundary,.resume-privacy-note) { color:#454542; background-color:transparent; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-status.known,.study-status.fuzzy,.study-status.hard,.prep-level.known,.prep-level.fuzzy,.prep-level.hard) { color:#454542; background-color:transparent; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-ratings button.selected,.resume-mastery button.selected) { background:#252525; border-color:#252525; color:#fff; }
+html[data-theme="tatsumaki"] body :is(.study-card-footer button[data-action="delete"],.study-card-footer button[data-action="perm-delete"],.empty-trash-btn) { color:#555550; }
+html[data-theme="tatsumaki"] body :is(.recruit-resource-grid header>span,.resource-icon,.quiz-title) { filter:grayscale(1); }
+.theme-preview-tatsumaki { background:#111 url('./assets/themes/tatsumaki-avatar.png') right center / auto 100% no-repeat; border-color:#333; filter:grayscale(1); }
+.theme-preview-tatsumaki :is(.theme-preview-top,.theme-preview-body) { position:relative; width:45%; background:#111; }
+.theme-preview-tatsumaki .theme-preview-top { padding:0 5px; color:#fff; }
+.theme-preview-tatsumaki .theme-preview-accent { width:9px; background:#fff; }
+.theme-preview-tatsumaki .theme-preview-body { grid-template-columns:12px minmax(0,1fr); }
+.theme-preview-tatsumaki .theme-preview-sidebar { padding-inline:3px; }
+.theme-preview-tatsumaki .theme-preview-content { padding-inline:4px; background:#f3f3ed; }
+html[data-theme="tatsumaki"] body dialog.theme-picker { border:2px solid #111; border-radius:0; box-shadow:7px 7px 0 #0007; }
+
+@media (hover:hover) {
+    .tatsumaki-scenes button:hover { transform:translateY(-3px); border-color:#fff; }
+    .tatsumaki-scenes button:hover img { opacity:1; }
+    html[data-theme="tatsumaki"] body .study-card.note:hover { border-color:#000; box-shadow:5px 5px 0 #111; }
+    html[data-theme="tatsumaki"] body :is(.study-primary,.career-primary):active { transform:translate(2px,2px); box-shadow:1px 1px 0 #8d8d84; }
+}
+@media (min-width:769px) and (max-width:1200px) {
+    html[data-theme="tatsumaki"] body .main { margin:22px 20px 48px; padding:20px; }
+    html[data-theme="tatsumaki"] body.context-directory .main { margin-left:204px; margin-right:20px; }
+    .tatsumaki-stage { grid-template-columns:33% minmax(0,1fr) 20%; height:238px; }
+    .tatsumaki-heading { padding:16px; }
+    .tatsumaki-heading h2>strong { font-size:65px; }
+    .tatsumaki-heading h2>span { font-size:21px; }
+    .tatsumaki-class { left:16px; font-size:7px; }
+    .tatsumaki-contact-note { display:none; }
+}
+@media (max-width:768px) {
+    html[data-theme="tatsumaki"] body::before { background-position:center,60% top; background-size:cover,auto 115%; }
+    html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.mobile-topbar,.mobile-bottombar) { background:#111; color:#f3f3ed; border-color:#777; box-shadow:none; }
+    html[data-theme="tatsumaki"][data-theme-mode="light"] body .mobile-topbar :is(.topbar-title,.theme-toggle,.topbar-search-btn) { color:#f3f3ed; background:transparent; border-color:#999; border-radius:0; }
+    html[data-theme="tatsumaki"] body .mobile-topbar .topbar-title::before { background:#fff url('./assets/themes/tatsumaki-avatar.png') center / cover no-repeat; border:1px solid #fff; border-radius:0; transform:rotate(-4deg); }
+    html[data-theme="tatsumaki"][data-theme-mode="light"] body .mobile-bottombar .nav-item { color:#bdbdb7; }
+    html[data-theme="tatsumaki"][data-theme-mode="light"] body .mobile-bottombar .nav-item.active { color:#fff; }
+    html[data-theme="tatsumaki"][data-theme-mode="light"] body .mobile-bottombar .nav-item.active .nav-icon { color:#111; background:#f7f7ef; border-radius:0; transform:skew(-7deg); }
+    html[data-theme="tatsumaki"] body .mobile-bottombar .nav-item .nav-badge { left:auto; right:2px; transform:none; background:#fff; color:#111; }
+    html[data-theme="tatsumaki"] body :is(.mobile-topbar,.mobile-bottombar) :focus-visible { outline-color:#fff; }
+    html[data-theme="tatsumaki"] body .main,
+    html[data-theme="tatsumaki"] body .main.shifted,
+    html[data-theme="tatsumaki"] body.study-mode .main,
+    html[data-theme="tatsumaki"] body.context-directory .main { margin:12px 7px 89px; margin-left:7px !important; width:calc(100% - 14px) !important; padding:12px 10px 23px; border:1px solid #000; box-shadow:4px 4px 0 #0008; }
+    html[data-theme="tatsumaki"] body .main-header { margin-bottom:13px; }
+    html[data-theme="tatsumaki"] body .main-header .search-wrap { margin-top:0; }
+    html[data-theme="tatsumaki"] body .main-header h1 { font-size:23px; }
+    html[data-theme="tatsumaki"] body #searchInput { min-height:42px; font-size:13px; }
+    html[data-theme="tatsumaki"] body .tatsumaki-scene { margin-inline:-3px; margin-bottom:14px; box-shadow:3px 3px 0 #777; }
+    .tatsumaki-stage { grid-template-columns:34% minmax(0,1fr) 22%; height:160px; gap:3px; }
+    .tatsumaki-heading { padding:10px 9px; }
+    .tatsumaki-edition { font-size:5px; letter-spacing:.2px; padding-bottom:7px; gap:3px; }
+    .tatsumaki-edition b { font-size:15px; }
+    html[data-theme="tatsumaki"] body .tatsumaki-heading h2 { margin:12px 0 10px; }
+    .tatsumaki-heading h2>span { font-size:15px; letter-spacing:3px; }
+    .tatsumaki-heading h2>strong { font-size:42px; letter-spacing:1px; text-shadow:2px 2px #777; }
+    .tatsumaki-heading p { font-size:10px; letter-spacing:.5px; }
+    .tatsumaki-class { display:none; }
+    .tatsumaki-focus { margin-inline:-4px !important; }
+    .tatsumaki-focus figcaption { left:9%; bottom:7px; padding:4px 7px; }
+    .tatsumaki-focus figcaption span { display:none; }
+    .tatsumaki-focus figcaption b { font-size:10px; letter-spacing:2px; }
+    .tatsumaki-detail>span { font-size:19px; right:3px; }
+    .tatsumaki-storm>span { font-size:19px; }
+    .tatsumaki-contact-sheet { padding:7px 8px 8px; gap:7px; border-top-width:3px; }
+    .tatsumaki-contact-label,.tatsumaki-contact-note { display:none; }
+    .tatsumaki-scenes { gap:6px; }
+    .tatsumaki-scenes button { height:44px; }
+    .tatsumaki-scenes button span { font-size:8px; }
+    html[data-theme="tatsumaki"] body .study-summary { padding:9px 0 12px; gap:10px; }
+    html[data-theme="tatsumaki"] body .study-summary-actions { gap:6px; }
+    html[data-theme="tatsumaki"] body .study-summary-actions button { font-size:11px; padding-inline:10px; }
+    html[data-theme="tatsumaki"] body .study-card.note { border-left-width:3px; box-shadow:3px 3px #252525; }
+}
+@media (max-width:360px) {
+    .tatsumaki-heading h2>strong { font-size:36px; }
+    .tatsumaki-heading h2>span { font-size:13px; }
+    .tatsumaki-edition { font-size:4px; }
+    .tatsumaki-heading p { font-size:9px; }
+    html[data-theme="tatsumaki"] body .study-summary-actions button { padding-inline:7px; font-size:10px; }
+}
+@media (max-width:768px) and (max-height:650px) {
+    .tatsumaki-stage { height:130px; }
+    html[data-theme="tatsumaki"] body .tatsumaki-heading h2 { margin-block:8px; }
+    .tatsumaki-heading h2>strong { font-size:36px; }
+    .tatsumaki-heading p { font-size:8px; }
+}
+@media (prefers-reduced-motion:reduce) {
+    html[data-theme="tatsumaki"] body .main,.tatsumaki-scenes button,.tatsumaki-scenes button img { transition:none; }
+}
