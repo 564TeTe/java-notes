@@ -92,6 +92,18 @@ html[data-theme="rose"] {
     --day-hover-bg:#f2e4e8; --day-hover-ink:#744b57;
     --day-hover-line:#caa8b1; --day-card-hover-line:#ceb1b8;
 }
+html[data-theme="tatsumaki"] {
+    --day-bg:#f3f3f0; --day-panel:#ffffff; --day-soft:#f5f5f2;
+    --day-line:#cecec8; --day-ink:#191919; --day-body:#383836;
+    --day-muted:#656560; --day-accent:#252525; --day-selected:#e6e6e0;
+    --day-nav:#fafaf7; --day-input-line:#b7b7af; --day-placeholder:#73736c;
+    --day-control-line:#bfbfb7; --day-hover-accent:#000000;
+    --day-selected-ink:#111111; --day-selected-line:#555550;
+    --day-code-bg:#eeeeea; --day-code-ink:#292927; --day-focus:#333333;
+    --day-selection-ink:#ffffff; --day-selection-bg:#333333;
+    --day-hover-bg:#eaeae5; --day-hover-ink:#111111;
+    --day-hover-line:#777770; --day-card-hover-line:#555550;
+}
 html:not([data-theme-mode="dark"]) body {
     --primary:var(--day-accent); --primary-light:var(--day-selected);
     --text:var(--day-ink); --text-muted:var(--day-muted); --bg:var(--day-bg); --card-bg:var(--day-panel); --border:var(--day-line);
@@ -354,4 +366,57 @@ html body .theme-option[aria-pressed="true"] { border-color:var(--primary); box-
     .theme-preview-note { height:7px; margin-top:4px; }
     .theme-option-title { margin-top:7px; }
     .theme-picker-foot { padding:11px 16px; }
+}
+
+/* Tatsumaki: user-supplied manga artwork, black ink and paper. */
+.tatsumaki-banner { display:none; }
+html[data-theme="tatsumaki"] body { --danger:#454545; --danger-light:#eeeeea; --mark-color:#444444; background-image:radial-gradient(#00000008 .5px,transparent .5px); background-size:5px 5px; }
+html[data-theme="tatsumaki"] body :is(.workspace-header,.mobile-topbar,.mobile-bottombar) { border-color:#252525; box-shadow:none; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-brand>span { background:#fff url('./assets/themes/tatsumaki-avatar.png') center / cover no-repeat; border:1px solid #252525; border-radius:3px; }
+html[data-theme="tatsumaki"] body .workspace-brand img { visibility:hidden; }
+html[data-theme="tatsumaki"] body .mobile-topbar .topbar-title::before { background-image:url('./assets/themes/tatsumaki-avatar.png'); background-color:#fff; border:1px solid #252525; border-radius:2px; }
+html[data-theme="tatsumaki"] body .main-header h1 { font-family:"Noto Serif SC","Source Han Serif SC",SimSun,serif; font-weight:700; }
+html[data-theme="tatsumaki"] body :is(.study-card.note,.interview-question-card,.study-quiz-card,.resume-qa-card,.recruit-panel,.recruit-job-card,.guide-core-card,.guide-article,.glossary-entry,.annotation-card,.annotation-basics) { border-color:#777770; border-radius:2px; box-shadow:none; }
+html[data-theme="tatsumaki"] body :is(.study-secondary,.study-primary,.career-secondary,.career-primary,.theme-toggle,.cat-btn,.choice-trigger,.choice-option) { border-radius:3px; }
+html[data-theme="tatsumaki"] body .cat-btn.active { box-shadow:inset 3px 0 #252525; }
+html[data-theme="tatsumaki"] body .mobile-bottombar .nav-item .nav-badge { left:auto; right:2px; transform:none; background:#454545; }
+html[data-theme="tatsumaki"] body .study-card-actions button[data-study="memorize"] { color:var(--day-accent); background:var(--day-selected); }
+html[data-theme="tatsumaki"] body :is(.recruit-overview-stats strong,.interview-source-card small,.interview-citations small,.interview-mobile-tools label,.recruit-feed-state,.icon-close) { color:var(--day-muted); }
+html[data-theme="tatsumaki"] body :is(#addModal h3,#syncModal h3,.sync-status-card strong) { color:var(--day-ink); }
+html[data-theme="tatsumaki"] body :is(.more-panel,.category-panel) .panel-handle { background:var(--day-control-line); }
+html[data-theme="tatsumaki"] body :is(.more-panel-overlay,.category-panel-overlay,.drawer-overlay,.modal-overlay,.recruit-modal-backdrop) { background:rgb(0 0 0 / 38%); }
+html[data-theme="tatsumaki"] body :is(.theme-picker,.interview-dialog)::backdrop { background:rgb(0 0 0 / 24%); }
+html[data-theme="tatsumaki"] body .recruit-panel-head>button { color:var(--day-accent); background:var(--day-soft); border-color:var(--day-control-line); }
+html[data-theme="tatsumaki"] body .recruit-panel-head>button:hover { color:var(--day-hover-ink); background:var(--day-hover-bg); border-color:var(--day-hover-line); }
+html[data-theme="tatsumaki"] body .recruit-panel-head>button.primary { color:#fff; background:var(--day-accent); border-color:var(--day-accent); }
+html[data-theme="tatsumaki"] body .recruit-loader { border-color:var(--day-line); border-top-color:var(--day-accent); }
+html[data-theme="tatsumaki"] body .toast { background:var(--day-accent); color:#fff; }
+html[data-theme="tatsumaki"] body :is(.study-priority,.study-status,.prep-level,.study-summary-count b,.study-card-footer>span,.resume-boundary,.resume-privacy-note) { color:#454542; background-color:transparent; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-status.known,.study-status.fuzzy,.study-status.hard,.prep-level.known,.prep-level.fuzzy,.prep-level.hard) { color:#454542; background-color:transparent; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-ratings button.selected,.resume-mastery button.selected) { background:#252525; border-color:#252525; color:#ffffff; }
+html[data-theme="tatsumaki"] body :is(.study-card-footer button[data-action="delete"],.study-card-footer button[data-action="perm-delete"],.empty-trash-btn,.workspace-tools small) { color:#555550; }
+html[data-theme="tatsumaki"] body :is(.recruit-resource-grid header>span,.resource-icon,.quiz-title) { filter:grayscale(1); }
+html[data-theme="tatsumaki"] body .tatsumaki-banner { position:relative; display:flex; align-items:center; min-width:0; height:154px; margin:0 0 20px; overflow:hidden; isolation:isolate; border:1px solid #252525; background:#fff; }
+.tatsumaki-banner-copy { position:relative; z-index:1; display:flex; flex-direction:column; align-items:flex-start; gap:5px; padding:0 30px; pointer-events:none; }
+.tatsumaki-banner-copy>span { padding:3px 7px; background:#252525; color:#fff; font:600 9px/1.5 Georgia,serif; letter-spacing:2px; }
+.tatsumaki-banner-copy>strong { color:#191919; font-family:"Noto Serif SC","Source Han Serif SC",SimSun,serif; font-size:29px; line-height:1.5; letter-spacing:2px; }
+.tatsumaki-banner-copy>small { color:#777770; font:9px/1.5 Georgia,serif; letter-spacing:1.4px; }
+.tatsumaki-banner-art { position:absolute; inset:0 0 0 auto; width:55%; height:100%; object-fit:cover; object-position:50% 42%; pointer-events:none; }
+.theme-preview-tatsumaki { position:relative; background:#fff url('./assets/themes/tatsumaki-avatar.png') right center / auto 100% no-repeat; border-color:#777770; }
+.theme-preview-tatsumaki :is(.theme-preview-top,.theme-preview-body) { position:relative; width:45%; background:rgb(255 255 255 / 90%); }
+.theme-preview-tatsumaki .theme-preview-top { padding:0 5px; }
+.theme-preview-tatsumaki .theme-preview-accent { width:9px; }
+.theme-preview-tatsumaki .theme-preview-body { grid-template-columns:12px minmax(0,1fr); }
+.theme-preview-tatsumaki .theme-preview-sidebar { padding-left:3px; padding-right:3px; }
+.theme-preview-tatsumaki .theme-preview-content { padding-left:4px; padding-right:4px; }
+@media (min-width:769px) and (min-height:800px) {
+    html[data-theme="tatsumaki"] body.context-directory .sidebar::after { content:""; display:block; flex-shrink:0; min-height:230px; margin-top:auto; border-top:1px solid #cecec8; background:#fff url('./assets/themes/tatsumaki-portrait.jpg') center bottom / auto 220px no-repeat; }
+}
+@media (max-width:768px) {
+    html[data-theme="tatsumaki"] body .tatsumaki-banner { height:108px; margin-bottom:14px; }
+    .tatsumaki-banner-copy { padding:0 14px; gap:3px; }
+    .tatsumaki-banner-copy>strong { font-size:21px; letter-spacing:0; }
+    .tatsumaki-banner-copy>span { font-size:8px; letter-spacing:1.5px; }
+    .tatsumaki-banner-copy>small { font-size:8px; letter-spacing:.5px; }
+    .tatsumaki-banner-art { width:50%; object-position:68% 30%; }
 }

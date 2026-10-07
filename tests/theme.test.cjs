@@ -12,7 +12,8 @@ const palettes = [
     { id: 'paper', name: '纸白', mode: 'light', color: '#f5f4f0' },
     { id: 'sage', name: '松绿', mode: 'light', color: '#eef2ec' },
     { id: 'rose', name: '暮玫', mode: 'light', color: '#f5efef' },
-    { id: 'ink', name: '墨蓝', mode: 'dark', color: '#121820' }
+    { id: 'ink', name: '墨蓝', mode: 'dark', color: '#121820' },
+    { id: 'tatsumaki', name: '龙卷', mode: 'light', color: '#f3f3f0' }
 ];
 
 function setup(saved, systemDark = false, blocked = false) {
@@ -115,7 +116,7 @@ function setup(saved, systemDark = false, blocked = false) {
     };
 }
 
-test('all eight saved palettes set their color and light or dark mode before controls initialize', () => {
+test('all nine saved palettes set their color and light or dark mode before controls initialize', () => {
     for (const palette of palettes) {
         const app = setup(palette.id, palette.mode !== 'dark');
         assert.equal(app.root.dataset.theme, palette.id);
@@ -133,7 +134,7 @@ test('system preference sets first-paint mode and invalid saved palettes fall ba
     assert.equal(light.root.dataset.themeMode, 'light');
 });
 
-test('appearance opens eight direct theme buttons and any selection persists without closing', () => {
+test('appearance opens nine direct theme buttons and any selection persists without closing', () => {
     const app = setup('light'); app.initialize(); app.open();
     assert.equal(app.root.dataset.theme, 'light');
     assert.equal(app.panel.open, true);
@@ -156,22 +157,25 @@ test('appearance opens eight direct theme buttons and any selection persists wit
 });
 
 test('system control removes the saved choice, follows current OS preference, and permits a later manual choice', () => {
-    const app = setup('ink'); app.initialize(); app.open();
-    assert.equal(app.systemControl().attrs['aria-pressed'], 'false');
-    app.reset();
-    assert.equal(app.store.has('workspace-theme'), false);
-    assert.equal(app.root.dataset.theme, 'light');
-    assert.equal(app.root.dataset.themeMode, 'light');
-    assert.equal(app.systemControl().attrs['aria-pressed'], 'true');
-    assert.match(app.status().textContent, /跟随系统.*日间/);
-    app.events.system({ matches: true });
-    assert.equal(app.root.dataset.theme, 'dark');
-    assert.equal(app.root.dataset.themeMode, 'dark');
-    assert.match(app.status().textContent, /跟随系统.*夜间/);
-    app.select('paper'); app.events.system({ matches: false });
-    assert.equal(app.root.dataset.theme, 'paper');
-    assert.equal(app.systemControl().attrs['aria-pressed'], 'false');
-    assert.equal(app.store.get('workspace-theme'), 'paper');
+    for (const saved of ['ink', 'tatsumaki']) {
+        const app = setup(saved); app.initialize(); app.open();
+        assert.equal(app.root.dataset.theme, saved);
+        assert.equal(app.systemControl().attrs['aria-pressed'], 'false');
+        app.reset();
+        assert.equal(app.store.has('workspace-theme'), false);
+        assert.equal(app.root.dataset.theme, 'light');
+        assert.equal(app.root.dataset.themeMode, 'light');
+        assert.equal(app.systemControl().attrs['aria-pressed'], 'true');
+        assert.match(app.status().textContent, /跟随系统.*日间/);
+        app.events.system({ matches: true });
+        assert.equal(app.root.dataset.theme, 'dark');
+        assert.equal(app.root.dataset.themeMode, 'dark');
+        assert.match(app.status().textContent, /跟随系统.*夜间/);
+        app.select('paper'); app.events.system({ matches: false });
+        assert.equal(app.root.dataset.theme, 'paper');
+        assert.equal(app.systemControl().attrs['aria-pressed'], 'false');
+        assert.equal(app.store.get('workspace-theme'), 'paper');
+    }
 });
 
 test('system preference applies until a palette is chosen and initially focuses the system control', () => {
@@ -225,6 +229,12 @@ test('cross-tab choices update mode, controls and the open picker, including sys
     assert.equal(app.choices().find(choice => choice.dataset.themeChoice === 'ink').attrs['aria-pressed'], 'true');
     assert.equal(app.systemControl().attrs['aria-pressed'], 'false');
     assert.ok(app.buttons.every(button => button.attrs['aria-label'].includes('墨蓝')));
+    app.events.storage({ key: 'workspace-theme', newValue: 'tatsumaki' });
+    assert.equal(app.root.dataset.theme, 'tatsumaki');
+    assert.equal(app.root.dataset.themeMode, 'light');
+    assert.equal(app.meta.content, '#f3f3f0');
+    assert.equal(app.choices().find(choice => choice.dataset.themeChoice === 'tatsumaki').attrs['aria-pressed'], 'true');
+    assert.ok(app.buttons.every(button => button.attrs['aria-label'].includes('龙卷')));
     app.events.storage({ key: 'workspace-theme', newValue: null });
     assert.equal(app.root.dataset.theme, 'dark');
     assert.equal(app.systemControl().attrs['aria-pressed'], 'true');

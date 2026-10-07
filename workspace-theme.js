@@ -9,6 +9,7 @@
         { id:'sage', name:'松绿', description:'浅绿 · 林木色', mode:'light', color:'#eef2ec', panel:'#fafcf8', accent:'#46634f', ink:'#29372d' },
         { id:'blue', name:'雾蓝', description:'蓝灰 · 冷色调', mode:'light', color:'#eef3f9', panel:'#ffffff', accent:'#3664ae', ink:'#20324d' },
         { id:'rose', name:'暮玫', description:'淡粉 · 灰玫色', mode:'light', color:'#f5efef', panel:'#fffafa', accent:'#865b64', ink:'#433237' },
+        { id:'tatsumaki', name:'龙卷', description:'黑白漫画 · 龙卷', mode:'light', color:'#f3f3f0', panel:'#ffffff', accent:'#252525', ink:'#191919' },
         { id:'dark', name:'夜间', description:'深灰 · 暗色调', mode:'dark', color:'#101214', panel:'#191c1f', accent:'#8cd5b3', ink:'#e0e5e3' },
         { id:'ink', name:'墨蓝', description:'深蓝 · 墨色调', mode:'dark', color:'#121820', panel:'#1b2430', accent:'#a7bdcf', ink:'#e1e7ed' }
     ];
@@ -52,7 +53,7 @@
         picker.innerHTML = `<header class="theme-picker-head"><div><h2 id="themePickerTitle">外观</h2><p>选择适合阅读的配色</p></div><button type="button" class="theme-picker-close" data-theme-close aria-label="关闭外观设置">×</button></header>
             <button type="button" class="theme-system" data-theme-system aria-pressed="false"><span class="theme-system-copy"><strong>跟随系统</strong><span>根据设备自动切换日间与夜间</span></span><span class="theme-system-check" aria-hidden="true">✓</span></button>
             <div class="theme-options" role="group" aria-label="主题配色">${themes.map(theme => `<button type="button" class="theme-option" data-theme-choice="${theme.id}" aria-pressed="false" aria-label="${theme.name}：${theme.description}" style="--preview-bg:${theme.color};--preview-panel:${theme.panel};--preview-accent:${theme.accent};--preview-ink:${theme.ink}">
-                <span class="theme-preview" aria-hidden="true"><span class="theme-preview-top"><span class="theme-preview-title">Aa</span><span class="theme-preview-accent"></span></span><span class="theme-preview-body"><span class="theme-preview-sidebar"><i></i><i></i><i></i></span><span class="theme-preview-content"><span class="theme-preview-heading"></span><span class="theme-preview-line"></span><span class="theme-preview-line"></span><span class="theme-preview-note"></span></span></span></span>
+                <span class="theme-preview${theme.id === 'tatsumaki' ? ' theme-preview-tatsumaki' : ''}" aria-hidden="true"><span class="theme-preview-top"><span class="theme-preview-title">Aa</span><span class="theme-preview-accent"></span></span><span class="theme-preview-body"><span class="theme-preview-sidebar"><i></i><i></i><i></i></span><span class="theme-preview-content"><span class="theme-preview-heading"></span><span class="theme-preview-line"></span><span class="theme-preview-line"></span><span class="theme-preview-note"></span></span></span></span>
                 <span class="theme-option-title"><strong>${theme.name}</strong><span class="theme-option-check" aria-hidden="true">✓</span></span><span class="theme-option-description">${theme.description}</span></button>`).join('')}</div>
             <footer class="theme-picker-foot"><span data-theme-status role="status" aria-live="polite"></span><span>自动保存</span></footer>`;
         document.body.append(picker);
