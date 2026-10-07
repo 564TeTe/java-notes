@@ -13,7 +13,7 @@ const palettes = [
     { id: 'sage', name: '松绿', mode: 'light', color: '#eef2ec' },
     { id: 'rose', name: '暮玫', mode: 'light', color: '#f5efef' },
     { id: 'ink', name: '墨蓝', mode: 'dark', color: '#121820' },
-    { id: 'tatsumaki', name: '龙卷', mode: 'light', color: '#f2f2ef' }
+    { id: 'tatsumaki', name: '龙卷', mode: 'light', color: '#f4f3ef' }
 ];
 
 function setup(saved, systemDark = false, blocked = false) {
@@ -232,7 +232,7 @@ test('cross-tab choices update mode, controls and the open picker, including sys
     app.events.storage({ key: 'workspace-theme', newValue: 'tatsumaki' });
     assert.equal(app.root.dataset.theme, 'tatsumaki');
     assert.equal(app.root.dataset.themeMode, 'light');
-    assert.equal(app.meta.content, '#f2f2ef');
+    assert.equal(app.meta.content, '#f4f3ef');
     assert.equal(app.choices().find(choice => choice.dataset.themeChoice === 'tatsumaki').attrs['aria-pressed'], 'true');
     assert.ok(app.buttons.every(button => button.attrs['aria-label'].includes('龙卷')));
     app.events.storage({ key: 'workspace-theme', newValue: null });

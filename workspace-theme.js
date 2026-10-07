@@ -9,7 +9,7 @@
         { id:'sage', name:'松绿', description:'浅绿 · 林木色', mode:'light', color:'#eef2ec', panel:'#fafcf8', accent:'#46634f', ink:'#29372d' },
         { id:'blue', name:'雾蓝', description:'蓝灰 · 冷色调', mode:'light', color:'#eef3f9', panel:'#ffffff', accent:'#3664ae', ink:'#20324d' },
         { id:'rose', name:'暮玫', description:'淡粉 · 灰玫色', mode:'light', color:'#f5efef', panel:'#fffafa', accent:'#865b64', ink:'#433237' },
-        { id:'tatsumaki', name:'龙卷', description:'漫画分章 · 一页一景', mode:'light', color:'#f2f2ef', panel:'#ffffff', accent:'#252525', ink:'#191919' },
+        { id:'tatsumaki', name:'龙卷', description:'纸墨漫画 · 沉浸阅读', mode:'light', color:'#f4f3ef', panel:'#ffffff', accent:'#252525', ink:'#191919' },
         { id:'dark', name:'夜间', description:'深灰 · 暗色调', mode:'dark', color:'#101214', panel:'#191c1f', accent:'#8cd5b3', ink:'#e0e5e3' },
         { id:'ink', name:'墨蓝', description:'深蓝 · 墨色调', mode:'dark', color:'#121820', panel:'#1b2430', accent:'#a7bdcf', ink:'#e1e7ed' }
     ];

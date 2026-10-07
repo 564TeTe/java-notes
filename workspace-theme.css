@@ -93,7 +93,7 @@ html[data-theme="rose"] {
     --day-hover-line:#caa8b1; --day-card-hover-line:#ceb1b8;
 }
 html[data-theme="tatsumaki"] {
-    --day-bg:#f2f2ef; --day-panel:#ffffff; --day-soft:#f5f5f2;
+    --day-bg:#f4f3ef; --day-panel:#ffffff; --day-soft:#f5f5f2;
     --day-line:#cecec8; --day-ink:#191919; --day-body:#383836;
     --day-muted:#656560; --day-accent:#252525; --day-selected:#e6e6e0;
     --day-nav:#fafaf7; --day-input-line:#b7b7af; --day-placeholder:#73736c;

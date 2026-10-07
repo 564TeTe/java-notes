@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v61";
+const CACHE_NAME = "java-notes-v62";
 const APP_SHELL = [
     "./assets/themes/tatsumaki-study.jpg",
     "./assets/themes/tatsumaki-dossier.jpg",
@@ -10,6 +10,7 @@ const APP_SHELL = [
     "./assets/themes/tatsumaki-panorama.png",
     "./assets/themes/tatsumaki-avatar.png",
     "./assets/themes/tatsumaki-uniform.jpg",
+    "./workspace-tatsumaki-resources.css", "./workspace-tatsumaki-controls.css",
     "./workspace-tatsumaki.css", "./workspace-tatsumaki.js",
     "./annotation-data.js", "./annotation-core.js", "./annotation.js", "./annotation.css",
     "./glossary-data.js", "./glossary-core.js", "./glossary.js", "./glossary.css", "./glossary-highlighter.js", "./glossary-highlighter.css",

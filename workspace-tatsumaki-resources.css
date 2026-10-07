@@ -1,0 +1,336 @@
+/* Resource desk: a command ledger beside the theme's full-height illustration. */
+html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer {
+    --desk-paper: #f4f3ef;
+    --desk-ink: #191b1a;
+    --desk-muted: #60615b;
+    --desk-line: #cbc9c1;
+    --desk-inset: #ebeae4;
+    min-width: 0;
+    color: var(--desk-ink);
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs {
+    gap: 12px;
+    margin: 0 0 22px;
+    border-bottom: 1px solid var(--desk-ink);
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs button {
+    min-height: 46px;
+    padding: 8px 14px 12px;
+    border-radius: 0;
+    color: var(--desk-muted);
+    font-size: 15px;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs button[aria-pressed="true"] {
+    color: var(--desk-ink);
+    border-bottom-color: var(--desk-ink);
+    border-bottom-width: 3px;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-toolbar {
+    grid-template-columns: minmax(0, 1fr) 44px;
+    gap: 14px 8px;
+    margin-bottom: 22px;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-modes {
+    grid-column: 1 / -1;
+    width: 100%;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-modes button {
+    min-height: 40px;
+    padding: 7px 12px;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--desk-muted);
+    background: none;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-modes button[aria-pressed="true"] {
+    color: var(--desk-ink);
+    background: none;
+    border-bottom-color: var(--desk-ink);
+    box-shadow: none;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-search { width: 100%; }
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-search input {
+    height: 44px;
+    border: 1px solid var(--desk-line);
+    border-radius: 0;
+    background: var(--desk-paper);
+    color: var(--desk-ink);
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-help > summary {
+    grid-column: 2;
+    grid-row: 2;
+    color: var(--desk-muted);
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-help-content {
+    background: var(--desk-inset);
+    border-color: var(--desk-line);
+    border-radius: 0;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-result-count {
+    margin-bottom: 12px;
+    gap: 12px;
+    color: var(--desk-muted);
+    font-size: 12px;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-core-grid {
+    display: block;
+    border: 0;
+    border-top: 2px solid var(--desk-ink);
+    border-radius: 0;
+    background: none;
+    overflow: visible;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-core-card {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr) 58px;
+    align-items: center;
+    gap: 8px 18px;
+    margin: 0;
+    padding: 20px 8px;
+    border: 0;
+    border-bottom: 1px solid var(--desk-line);
+    border-radius: 0;
+    background: var(--desk-paper);
+    box-shadow: none;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-core-meta { display: contents; }
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-core-meta > span {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: start;
+    padding-top: 3px;
+    color: var(--desk-muted);
+    font: 11px/1.7 Consolas, "Cascadia Code", monospace;
+    overflow-wrap: anywhere;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-core-card h2 {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    color: var(--desk-ink);
+    font: 600 14px/1.65 "Microsoft YaHei", sans-serif;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-core-meta .guide-copy {
+    display: block;
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    min-height: 40px;
+    padding: 6px 10px;
+    border: 1px solid var(--desk-line);
+    border-radius: 0;
+    background: var(--desk-paper);
+    color: var(--desk-ink);
+    font-size: 11px;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-command {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    min-height: 40px;
+    padding: 8px 10px;
+    background: var(--desk-inset);
+    border-radius: 0;
+    color: var(--desk-ink);
+    white-space: normal;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-command code {
+    display: block;
+    font-size: 12px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-reading-layout {
+    grid-template-columns: 168px minmax(0, 1fr);
+    gap: 20px;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-directory {
+    padding-right: 14px;
+    border-color: var(--desk-line);
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-directory button {
+    border-radius: 0;
+    color: var(--desk-muted);
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-directory button[aria-current="true"] {
+    color: var(--desk-ink);
+    background: var(--desk-inset);
+    box-shadow: inset 2px 0 var(--desk-ink);
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-article {
+    margin: 0;
+    padding: 4px 0 28px;
+    border: 0;
+    border-radius: 0;
+    background: var(--desk-paper);
+    box-shadow: none;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-article header { border-color: var(--desk-line); }
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-article header > h2 {
+    font: 700 25px/1.5 "Noto Serif SC", SimSun, serif;
+    color: var(--desk-ink);
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-prose { font-size: 14px; }
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-code-block {
+    border: 1px solid #343a37;
+    border-radius: 0;
+    background: #202622;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-code-bar {
+    color: #d5d8d1;
+    border-color: #535a54;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-code-block :is(pre, pre code) {
+    color: #f4f3ef;
+    background: transparent;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-code-block .guide-copy {
+    min-height: 36px;
+    background: #303832;
+    color: #f4f3ef;
+    border: 1px solid #70776e;
+    border-radius: 0;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-table-scroll { border-color: var(--desk-line); border-radius: 0; }
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-prose :is(th, td) { border-color: var(--desk-line); }
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-prose th { background: var(--desk-inset); }
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-grid {
+    display: block;
+    border-top: 2px solid var(--desk-ink);
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-grid .resource-card {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) minmax(100px, 24%);
+    gap: 5px 16px;
+    align-items: start;
+    padding: 22px 8px;
+    border: 0;
+    border-bottom: 1px solid var(--desk-line);
+    border-radius: 0;
+    background: var(--desk-paper);
+    color: var(--desk-ink);
+    box-shadow: none;
+    transform: none;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-card .res-icon {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    margin: 0;
+    font-size: 23px;
+    filter: grayscale(1);
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-card .res-name { grid-column: 2; margin: 0; color: var(--desk-ink); }
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-card .res-desc {
+    grid-column: 2;
+    color: var(--desk-muted);
+    line-height: 1.7;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-site-meta {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-card :is(.res-domain, .res-tag) {
+    color: var(--desk-muted);
+    overflow-wrap: anywhere;
+    background: none;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-card .res-tag {
+    padding: 2px 6px;
+    border: 1px solid var(--desk-line);
+    border-radius: 0;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] :is(.command-guide, .learning-resource-tabs) :is(button, input, select, summary):focus-visible,
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-card:focus-visible {
+    outline: 2px solid var(--desk-ink);
+    outline-offset: 3px;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-code-block button:focus-visible {
+    outline-color: #f4f3ef;
+}
+/* One dark tool surface anchors the paper ledger without darkening the reader. */
+html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .command-guide .guide-toolbar {
+    margin-bottom: 18px;
+    padding: 16px;
+    background: #191b1a;
+    color: #f4f3ef;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .guide-toolbar .guide-modes button {
+    background: transparent;
+    color: #d4d5cf;
+    border-color: transparent;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .guide-toolbar .guide-modes button[aria-pressed="true"] {
+    background: #f4f3ef;
+    color: #191b1a;
+    border-color: #f4f3ef;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .guide-toolbar .guide-search input {
+    background: #faf9f5;
+    color: #191b1a;
+    border-color: #faf9f5;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .guide-toolbar .guide-help > summary {
+    color: #d4d5cf;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .guide-toolbar .guide-help-content {
+    background: #f4f3ef;
+    color: #191b1a;
+    border-color: #cbc9c1;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .guide-toolbar :is(button, input, summary):focus-visible {
+    outline-color: #faf9f5;
+}
+html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .guide-toolbar .guide-help-content :is(button, a):focus-visible {
+    outline-color: #191b1a;
+}
+@media (hover: hover) {
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .guide-toolbar .guide-modes button:not([aria-pressed="true"]):hover { background: #343a36; color: #faf9f5; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-core-meta .guide-copy:hover { background: var(--desk-ink); color: var(--desk-paper); border-color: var(--desk-ink); }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-grid .resource-card:hover { background: var(--desk-inset); }
+}
+@media (max-width: 1200px) {
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-reading-layout { display: block; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-directory { display: none; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-mobile-directory {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 22px;
+        font-size: 12px;
+    }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-mobile-directory label { white-space: nowrap; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-mobile-directory :is(select, .choice-control) { min-width: 0; flex: 1; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-mobile-directory :is(select, .choice-trigger) { min-height: 44px; border: 1px solid var(--desk-line); border-radius: 0; color: var(--desk-ink); background: var(--desk-paper); }
+}
+@media (max-width: 768px) {
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs.showing-commands { display: flex; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs { gap: 10px; margin-bottom: 14px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs button { font-size: 14px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-toolbar { gap: 10px 4px; margin-bottom: 18px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .command-guide .guide-toolbar { padding: 12px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-modes { gap: 3px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-modes button { flex: 1; min-width: 0; min-height: 44px; padding: 7px 8px; font-size: 12px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-modes .guide-mobile-websites { display: none; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-search input { font-size: 16px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-core-card {
+        grid-template-columns: 60px minmax(0, 1fr) 52px;
+        gap: 9px 10px;
+        padding: 16px 2px;
+    }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-core-meta > span { grid-row: 1; font-size: 10px; align-self: center; padding: 0; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-core-card h2 { font-size: 13px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-core-meta .guide-copy { grid-row: 1; min-height: 44px; padding: 6px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-command { grid-column: 1 / -1; min-height: 44px; padding: 10px 12px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-article header > h2 { font-size: 21px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-grid .resource-card { grid-template-columns: 29px minmax(0, 1fr); gap: 5px 13px; padding: 19px 4px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-site-meta { grid-column: 2; grid-row: 3; flex-direction: row; flex-wrap: wrap; align-items: center; margin-top: 5px; gap: 8px 12px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-card .res-icon { font-size: 21px; }
+}
