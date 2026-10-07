@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v56";
+const CACHE_NAME = "java-notes-v57";
 const APP_SHELL = [
     "./annotation-data.js", "./annotation-core.js", "./annotation.js", "./annotation.css",
     "./glossary-data.js", "./glossary-core.js", "./glossary.js", "./glossary.css", "./glossary-highlighter.js", "./glossary-highlighter.css",

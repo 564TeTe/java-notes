@@ -3,10 +3,14 @@
     const key = 'workspace-theme';
     const system = matchMedia('(prefers-color-scheme: dark)');
     const themes = [
-        { id:'light', name:'日间', description:'灰绿 · 白色卡片', color:'#f3f5f2', panel:'#ffffff', accent:'#2f5d50', ink:'#22312d' },
-        { id:'blue', name:'雾蓝', description:'蓝灰 · 冷色调', color:'#eef3f9', panel:'#ffffff', accent:'#3664ae', ink:'#20324d' },
-        { id:'sand', name:'暖砂', description:'米白 · 陶棕色', color:'#f5efe6', panel:'#fffdf8', accent:'#975533', ink:'#44352b' },
-        { id:'dark', name:'夜间', description:'深灰 · 暗色调', color:'#101214', panel:'#191c1f', accent:'#8cd5b3', ink:'#e0e5e3' }
+        { id:'light', name:'日间', description:'灰绿 · 白色卡片', mode:'light', color:'#f3f5f2', panel:'#ffffff', accent:'#2f5d50', ink:'#22312d' },
+        { id:'paper', name:'纸白', description:'纸白 · 石灰色', mode:'light', color:'#f5f4f0', panel:'#fffefa', accent:'#555b52', ink:'#30342f' },
+        { id:'sand', name:'暖砂', description:'米白 · 陶棕色', mode:'light', color:'#f5efe6', panel:'#fffdf8', accent:'#975533', ink:'#44352b' },
+        { id:'sage', name:'松绿', description:'浅绿 · 林木色', mode:'light', color:'#eef2ec', panel:'#fafcf8', accent:'#46634f', ink:'#29372d' },
+        { id:'blue', name:'雾蓝', description:'蓝灰 · 冷色调', mode:'light', color:'#eef3f9', panel:'#ffffff', accent:'#3664ae', ink:'#20324d' },
+        { id:'rose', name:'暮玫', description:'淡粉 · 灰玫色', mode:'light', color:'#f5efef', panel:'#fffafa', accent:'#865b64', ink:'#433237' },
+        { id:'dark', name:'夜间', description:'深灰 · 暗色调', mode:'dark', color:'#101214', panel:'#191c1f', accent:'#8cd5b3', ink:'#e0e5e3' },
+        { id:'ink', name:'墨蓝', description:'深蓝 · 墨色调', mode:'dark', color:'#121820', panel:'#1b2430', accent:'#a7bdcf', ink:'#e1e7ed' }
     ];
     const valid = value => themes.some(theme => theme.id === value);
     const controls = [];
@@ -16,16 +20,20 @@
     function apply(theme) {
         const selected = themes.find(item => item.id === theme);
         document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.themeMode = selected.mode;
         const meta = document.querySelector('meta[name="theme-color"]');
         if (meta) meta.content = selected.color;
         controls.forEach(button => {
-            button.setAttribute('aria-label', `外观设置，当前${selected.name}主题`);
-            button.title = `外观 · 当前${selected.name}`;
+            button.setAttribute('aria-label', `外观设置，${preference === null ? '跟随系统，' : ''}当前${selected.name}主题`);
+            button.title = `外观 · ${preference === null ? '跟随系统 · ' : ''}当前${selected.name}`;
         });
         picker?.querySelectorAll('[data-theme-choice]').forEach(button => {
             button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme));
         });
-        if (picker) picker.querySelector('[data-theme-status]').textContent = `当前：${selected.name}`;
+        if (picker) {
+            picker.querySelector('[data-theme-system]').setAttribute('aria-pressed', String(preference === null));
+            picker.querySelector('[data-theme-status]').textContent = `${preference === null ? '跟随系统 · ' : ''}当前：${selected.name}`;
+        }
     }
     const current = () => preference || (system.matches ? 'dark' : 'light');
     apply(current());
@@ -41,9 +49,10 @@
         picker = document.createElement('dialog');
         picker.id = 'themePicker'; picker.className = 'theme-picker';
         picker.setAttribute('aria-labelledby', 'themePickerTitle');
-        picker.innerHTML = `<header class="theme-picker-head"><div><h2 id="themePickerTitle">外观</h2><p>选择喜欢的配色</p></div><button type="button" class="theme-picker-close" data-theme-close aria-label="关闭外观设置">×</button></header>
+        picker.innerHTML = `<header class="theme-picker-head"><div><h2 id="themePickerTitle">外观</h2><p>选择适合阅读的配色</p></div><button type="button" class="theme-picker-close" data-theme-close aria-label="关闭外观设置">×</button></header>
+            <button type="button" class="theme-system" data-theme-system aria-pressed="false"><span class="theme-system-copy"><strong>跟随系统</strong><span>根据设备自动切换日间与夜间</span></span><span class="theme-system-check" aria-hidden="true">✓</span></button>
             <div class="theme-options" role="group" aria-label="主题配色">${themes.map(theme => `<button type="button" class="theme-option" data-theme-choice="${theme.id}" aria-pressed="false" aria-label="${theme.name}：${theme.description}" style="--preview-bg:${theme.color};--preview-panel:${theme.panel};--preview-accent:${theme.accent};--preview-ink:${theme.ink}">
-                <span class="theme-preview" aria-hidden="true"><span class="theme-preview-top"><i></i><i></i><i></i></span><span class="theme-preview-body"><span class="theme-preview-sidebar"><i></i><i></i><i></i></span><span class="theme-preview-content"><i></i><span></span><span></span></span></span></span>
+                <span class="theme-preview" aria-hidden="true"><span class="theme-preview-top"><span class="theme-preview-title">Aa</span><span class="theme-preview-accent"></span></span><span class="theme-preview-body"><span class="theme-preview-sidebar"><i></i><i></i><i></i></span><span class="theme-preview-content"><span class="theme-preview-heading"></span><span class="theme-preview-line"></span><span class="theme-preview-line"></span><span class="theme-preview-note"></span></span></span></span>
                 <span class="theme-option-title"><strong>${theme.name}</strong><span class="theme-option-check" aria-hidden="true">✓</span></span><span class="theme-option-description">${theme.description}</span></button>`).join('')}</div>
             <footer class="theme-picker-foot"><span data-theme-status role="status" aria-live="polite"></span><span>自动保存</span></footer>`;
         document.body.append(picker);
@@ -54,7 +63,11 @@
         });
         picker.addEventListener('click', event => {
             const choice = event.target.closest('[data-theme-choice]');
-            if (choice && valid(choice.dataset.themeChoice)) {
+            if (event.target.closest('[data-theme-system]')) {
+                preference = null;
+                try { localStorage.removeItem(key); } catch (_) {}
+                apply(current());
+            } else if (choice && valid(choice.dataset.themeChoice)) {
                 preference = choice.dataset.themeChoice;
                 try { localStorage.setItem(key, preference); } catch (_) {}
                 apply(preference);
@@ -77,7 +90,9 @@
                 returnFocus = button;
                 picker.showModal();
                 controls.forEach(control => control.setAttribute('aria-expanded', 'true'));
-                picker.querySelector(`[data-theme-choice="${current()}"]`)?.focus({preventScroll:true});
+                const selected = picker.querySelector(preference === null ? '[data-theme-system]' : `[data-theme-choice="${current()}"]`);
+                selected?.focus({preventScroll:true});
+                if (preference !== null) selected?.scrollIntoView({block:'nearest', inline:'nearest'});
             });
             controls.push(button);
             parent.append(button);
