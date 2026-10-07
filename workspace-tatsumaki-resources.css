@@ -268,9 +268,9 @@ html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .g
     border-color: transparent;
 }
 html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .guide-toolbar .guide-modes button[aria-pressed="true"] {
-    background: #f4f3ef;
+    background: var(--tatsu-mint);
     color: #191b1a;
-    border-color: #f4f3ef;
+    border-color: var(--tatsu-mint);
 }
 html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .guide-toolbar .guide-search input {
     background: #faf9f5;

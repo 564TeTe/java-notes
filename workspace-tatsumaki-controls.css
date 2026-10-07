@@ -5,20 +5,24 @@ html[data-theme="tatsumaki"] {
     --tatsu-ink:#191b1a;
     --tatsu-muted:#66655f;
     --tatsu-line:#cbc9c1;
+    --tatsu-green:#38634f;
+    --tatsu-green-dark:#294737;
+    --tatsu-mint:#b8d8bc;
+    --tatsu-green-soft:#e0eadf;
     --tatsu-hover:color-mix(in srgb,var(--tatsu-paper) 72%,var(--tatsu-line));
 }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body {
     --day-bg:var(--tatsu-paper); --day-panel:var(--tatsu-white); --day-soft:var(--tatsu-paper);
     --day-ink:var(--tatsu-ink); --day-body:var(--tatsu-ink); --day-muted:var(--tatsu-muted);
-    --day-line:var(--tatsu-line); --day-accent:var(--tatsu-ink); --day-selected:var(--tatsu-paper);
+    --day-line:var(--tatsu-line); --day-accent:var(--tatsu-green); --day-selected:var(--tatsu-green-soft);
     --day-nav:var(--tatsu-paper); --day-input-line:var(--tatsu-line); --day-placeholder:var(--tatsu-muted);
-    --day-control-line:var(--tatsu-line); --day-hover-accent:var(--tatsu-ink);
-    --day-selected-ink:var(--tatsu-ink); --day-selected-line:var(--tatsu-ink);
-    --day-code-bg:var(--tatsu-paper); --day-code-ink:var(--tatsu-ink); --day-focus:var(--tatsu-ink);
-    --day-selection-ink:var(--tatsu-white); --day-selection-bg:var(--tatsu-ink);
+    --day-control-line:var(--tatsu-line); --day-hover-accent:var(--tatsu-green);
+    --day-selected-ink:var(--tatsu-green-dark); --day-selected-line:var(--tatsu-green);
+    --day-code-bg:var(--tatsu-paper); --day-code-ink:var(--tatsu-ink); --day-focus:var(--tatsu-green);
+    --day-selection-ink:var(--tatsu-white); --day-selection-bg:var(--tatsu-green);
     --day-hover-bg:var(--tatsu-hover); --day-hover-ink:var(--tatsu-ink);
     --day-hover-line:var(--tatsu-muted); --day-card-hover-line:var(--tatsu-muted);
-    --primary:var(--tatsu-ink); --primary-light:var(--tatsu-paper);
+    --primary:var(--tatsu-green); --primary-light:var(--tatsu-green-soft);
     --text:var(--tatsu-ink); --text-muted:var(--tatsu-muted); --bg:var(--tatsu-paper);
     --card-bg:var(--tatsu-white); --border:var(--tatsu-line);
     --study-ink:var(--tatsu-ink); --study-muted:var(--tatsu-muted); --study-accent:var(--tatsu-ink); --study-line:var(--tatsu-line);
@@ -62,7 +66,7 @@ html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-secondary,
 html[data-theme="tatsumaki"][data-theme-mode="light"] body .mobile-choice-segments .choice-options { background-color:var(--tatsu-paper); }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-filters,.study-pagination,.interview-dialog,.resume-reading,.prep-question-toolbar,.recruit-toolbar,.recruit-app-controls,.recruit-form,.glossary-toolbar,.annotation-toolbar,.guide-search,.guide-mobile-directory,.modal) :is(input,select,textarea) { background-color:var(--tatsu-white); color:var(--tatsu-ink); border-color:var(--tatsu-line); }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(input,textarea)::placeholder { color:var(--tatsu-muted); }
-html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(input[type="checkbox"],input[type="radio"]) { accent-color:var(--tatsu-ink); }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(input[type="checkbox"],input[type="radio"]) { accent-color:var(--tatsu-green); }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-answer a,.study-text,.study-linked button,.study-list-tools button,.study-card-footer button,.interview-source-card footer a,.interview-source-card footer button:not(.study-primary),.interview-platforms a,.interview-record footer button,.interview-citations a,.career-text,.resume-source-foot button,.resume-pitch-card header button,.resume-library-card>b,.recruit-job-card footer a,.recruit-application-card footer a,.recruit-application-card footer>span,.recruit-resource-grid b,.recruit-timeline em,.guide-prose a,.guide-reference,.guide-help-content :is(a,button),.annotation-return,.annotation-clear,.annotation-sources a,.pagination-compact :is(.page-range,.page-current,.page-settings>summary),.editor-close) { color:var(--tatsu-ink); }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-card-actions button[data-study="memorize"],.study-priority,.study-filter-toggle,.recruit-current-pill,.recruit-company-icon,.recruit-batch,.recruit-job-tags span,.resume-file-badge,.resume-source-chip,.resume-duration,.resume-story-card>header span,.resume-story-card dt,.resume-library-card :is(li,i),.resource-card .res-tag,.annotation-high,.modal .auto-badge) { background-color:var(--tatsu-paper); color:var(--tatsu-ink); border-color:var(--tatsu-line); }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.recruit-toggle,.recruit-pipeline div,.recruit-weekly,.recruit-resource-grid header>i) { background-color:var(--tatsu-paper); color:var(--tatsu-ink); border-color:var(--tatsu-line); }
@@ -103,10 +107,10 @@ html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-status.kno
 
 /* Primary actions and every selected segment share a strong, reversible state. */
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-primary,.career-primary,.btn-primary,.recruit-primary,.recruit-toolbar form button,.recruit-form footer button[type="submit"],.recruit-panel-head>button.primary,.study-library-nav button.active,.study-switch button.active,.study-quiz-sources>button.active,.study-ratings button.selected,.mastery-actions button.selected,.resume-mastery button.selected,.resume-filter.active,.resume-tab.active,.resume-reading-tabs button.active,.resume-reading-sources button.active,.resume-reading-tools button[aria-pressed="true"],.recruit-tab.active,.recruit-toggle button.active,.recruit-pipeline button.active,.choice-option[aria-pressed="true"],.mobile-choice-segments .choice-option[aria-pressed="true"],.interview-company-nav button.active,.workspace-marked-link.active,.cat-btn.active) {
-    background:var(--tatsu-ink); color:var(--tatsu-white); border-color:var(--tatsu-ink);
+    background:var(--tatsu-green); color:var(--tatsu-white); border-color:var(--tatsu-green);
 }
-html[data-theme="tatsumaki"][data-theme-mode="light"] body .command-guide :is(.guide-modes button[aria-pressed="true"],.guide-directory button[aria-current="true"]) { background:var(--tatsu-ink); color:var(--tatsu-white); border-color:var(--tatsu-ink); }
-html[data-theme="tatsumaki"][data-theme-mode="light"] body[data-workspace="resources"] .learning-resource-tabs button[aria-pressed="true"] { background:var(--tatsu-ink); color:var(--tatsu-white); border-color:var(--tatsu-ink); }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .command-guide :is(.guide-modes button[aria-pressed="true"],.guide-directory button[aria-current="true"]) { background:var(--tatsu-green); color:var(--tatsu-white); border-color:var(--tatsu-green); }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body[data-workspace="resources"] .learning-resource-tabs button[aria-pressed="true"] { background:var(--tatsu-green); color:var(--tatsu-white); border-color:var(--tatsu-green); }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-quiz-sources>button.active,.study-switch button.active,.resume-reading-sources button.active,.recruit-toggle button.active,.recruit-pipeline button.active,.interview-company-nav button.active,.choice-option[aria-pressed="true"]) :is(strong,small,span,p) { color:inherit; }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-secondary,.study-primary,.career-primary,.career-secondary,.btn-primary,.btn-cancel,.recruit-tab,.recruit-toggle button,.recruit-pipeline button,.resume-reading button,.study-ratings button,.choice-control button,.choice-control summary,.choice-control input,.pagination-compact button,.pagination-compact summary,.pagination-compact input,.pagination-compact select,.command-guide button,.command-guide select,.glossary-toolbar input,.glossary-toolbar select,.annotation-view button,.annotation-view summary,.annotation-view input,.annotation-view select):focus-visible { outline-color:var(--tatsu-ink); }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body .command-guide .guide-code-block button:focus-visible { outline-color:var(--tatsu-white); }

@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v62";
+const CACHE_NAME = "java-notes-v63";
 const APP_SHELL = [
     "./assets/themes/tatsumaki-study.jpg",
     "./assets/themes/tatsumaki-dossier.jpg",
