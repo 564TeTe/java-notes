@@ -1,14 +1,14 @@
 /* Black-ink stage, paper reading surfaces, and six original manga frames. */
 .tatsumaki-scene { display:none; }
-html[data-theme="tatsumaki"] { --tatsumaki-scene-image:url('./assets/themes/tatsumaki-action.png'); }
+html[data-theme="tatsumaki"] { --tatsumaki-scene-image:url('./assets/themes/tatsumaki-action.png'); --day-muted:#2f2f2f; --day-body:#262626; }
 html[data-theme="tatsumaki"] body {
     --danger:#454545; --danger-light:#eeeeea; --mark-color:#444;
     background:#141414; isolation:isolate;
 }
 html[data-theme="tatsumaki"] body::before {
     content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
-    background-image:linear-gradient(110deg,rgb(0 0 0 / 94%) 8%,rgb(0 0 0 / 66%) 50%,rgb(0 0 0 / 38%)),var(--tatsumaki-scene-image);
-    background-position:center, right 35%; background-size:cover,auto 135%; background-repeat:no-repeat;
+    background-image:linear-gradient(110deg,rgb(0 0 0 / 52%) 8%,rgb(0 0 0 / 28%) 50%,rgb(0 0 0 / 10%)),var(--tatsumaki-scene-image);
+    background-position:center, right 8%; background-size:cover,auto 170%; background-repeat:no-repeat;
     filter:grayscale(1);
 }
 html[data-theme="tatsumaki"] body::after {
@@ -16,7 +16,7 @@ html[data-theme="tatsumaki"] body::after {
     background:repeating-linear-gradient(130deg,transparent 0 72px,#ffffff0a 73px,transparent 74px 145px);
 }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header {
-    background:#101010; border-bottom:2px solid #eee; box-shadow:0 5px 0 #0008; gap:18px;
+    background:rgb(16 16 16 / 88%); border-bottom:2px solid #eee; box-shadow:0 5px 0 #0008; gap:18px;
 }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-brand { color:#fff; }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-brand>span {
@@ -34,7 +34,7 @@ html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header nav
 html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header nav button.active::after { height:4px; background:#111; left:10px; right:10px; bottom:7px; }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header :is(.workspace-tools button,.workspace-tools small) { color:#e9e9e5; border-color:#777; border-radius:0; background:transparent; }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header .workspace-tools button:hover { color:#111; background:#f5f5f0; border-color:#fff; }
-html[data-theme="tatsumaki"][data-theme-mode="light"] body.context-directory .sidebar { background:rgb(15 15 15 / 92%); border-right:1px solid #666; padding:23px 14px 18px; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body.context-directory .sidebar { background:rgb(15 15 15 / 84%); border-right:1px solid #666; padding:23px 14px 18px; }
 html[data-theme="tatsumaki"] body .workspace-directory-title { padding:0 7px 17px; }
 html[data-theme="tatsumaki"] body .workspace-directory-title h2 { color:#f3f3ed; font:700 16px/1.5 SimSun,serif; letter-spacing:3px; }
 html[data-theme="tatsumaki"] body .workspace-directory-title h2::before { content:"CONTENTS / 01"; display:block; font:9px/2.2 Consolas,monospace; color:#aaa; letter-spacing:2px; }
@@ -48,22 +48,24 @@ html[data-theme="tatsumaki"] body.context-directory .sidebar::after {
 }
 html[data-theme="tatsumaki"] body :is(.workspace-header,.sidebar) :focus-visible { outline-color:#fff; outline-offset:3px; }
 
-/* The reading sheet floats above the illustrated stage. */
+/* Transparent canvas with separate translucent reading layers. */
 html[data-theme="tatsumaki"] body .main,
 html[data-theme="tatsumaki"] body .main.shifted,
 html[data-theme="tatsumaki"] body.study-mode .main {
     max-width:1240px; margin:26px auto 58px; padding:24px 26px 34px;
-    background-color:#efefea;
-    background-image:radial-gradient(#0000000b .7px,transparent .7px); background-size:5px 5px;
-    border:2px solid #111; box-shadow:8px 8px 0 #0009;
+    background:transparent;
+    border:2px solid transparent; box-shadow:none;
 }
+html[data-theme="tatsumaki"] body .main>#notesContainer { padding:16px; background:rgb(248 248 244 / 60%); border:1px solid #ffffff80; box-shadow:5px 5px 0 #0003; }
 html[data-theme="tatsumaki"] body.context-directory .main { max-width:none; margin:26px 28px 58px 226px; }
 html[data-theme="tatsumaki"] body .main-header { margin-bottom:18px; }
-html[data-theme="tatsumaki"] body .main-header h1 { font:900 25px/1.4 "Noto Serif SC",SimSun,serif; letter-spacing:1px; }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .main-header h1 { width:fit-content; padding:6px 12px; color:#fff; background:rgb(12 12 12 / 82%); border:1px solid #ffffff80; font:900 25px/1.4 "Noto Serif SC",SimSun,serif; letter-spacing:1px; }
 html[data-theme="tatsumaki"] body #searchInput { border:1px solid #333; border-radius:0; box-shadow:3px 3px 0 #bdbdb4; }
 html[data-theme="tatsumaki"] body :is(.study-card.note,.interview-question-card,.study-quiz-card,.resume-qa-card,.recruit-panel,.recruit-job-card,.guide-core-card,.guide-article,.glossary-entry,.annotation-card,.annotation-basics) {
     border:1px solid #252525; border-radius:0; box-shadow:4px 4px 0 #31312e; margin-bottom:17px;
 }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-card.note,.interview-question-card,.study-quiz-card,.interview-record,.interview-source-card,.resume-qa-card,.resume-pitch-card,.resume-story-card,.resume-question-card,.recruit-panel,.recruit-job-card,.guide-core-card,.guide-article,.resource-card,.glossary-entry,.annotation-card,.annotation-basics) { background:rgb(255 255 255 / 66%); }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .study-card.note.marked { background:rgb(255 255 255 / 76%); }
 html[data-theme="tatsumaki"] body .study-card.note { border-left:4px solid #191919; }
 html[data-theme="tatsumaki"] body .study-card.note .study-number { font:11px/1.5 Consolas,monospace; letter-spacing:.4px; }
 html[data-theme="tatsumaki"] body :is(.study-secondary,.study-primary,.career-secondary,.career-primary,.theme-toggle,.choice-trigger,.choice-option) { border-radius:0; }
@@ -156,8 +158,8 @@ html[data-theme="tatsumaki"] body dialog.theme-picker { border:2px solid #111; b
     .tatsumaki-contact-note { display:none; }
 }
 @media (max-width:768px) {
-    html[data-theme="tatsumaki"] body::before { background-position:center,60% top; background-size:cover,auto 115%; }
-    html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.mobile-topbar,.mobile-bottombar) { background:#111; color:#f3f3ed; border-color:#777; box-shadow:none; }
+    html[data-theme="tatsumaki"] body::before { background-position:center,54% top; background-size:cover,auto 140%; }
+    html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.mobile-topbar,.mobile-bottombar) { background:rgb(17 17 17 / 92%); color:#f3f3ed; border-color:#777; box-shadow:none; }
     html[data-theme="tatsumaki"][data-theme-mode="light"] body .mobile-topbar :is(.topbar-title,.theme-toggle,.topbar-search-btn) { color:#f3f3ed; background:transparent; border-color:#999; border-radius:0; }
     html[data-theme="tatsumaki"] body .mobile-topbar .topbar-title::before { background:#fff url('./assets/themes/tatsumaki-avatar.png') center / cover no-repeat; border:1px solid #fff; border-radius:0; transform:rotate(-4deg); }
     html[data-theme="tatsumaki"][data-theme-mode="light"] body .mobile-bottombar .nav-item { color:#bdbdb7; }
@@ -168,7 +170,8 @@ html[data-theme="tatsumaki"] body dialog.theme-picker { border:2px solid #111; b
     html[data-theme="tatsumaki"] body .main,
     html[data-theme="tatsumaki"] body .main.shifted,
     html[data-theme="tatsumaki"] body.study-mode .main,
-    html[data-theme="tatsumaki"] body.context-directory .main { margin:12px 7px 89px; margin-left:7px !important; width:calc(100% - 14px) !important; padding:12px 10px 23px; border:1px solid #000; box-shadow:4px 4px 0 #0008; }
+    html[data-theme="tatsumaki"] body.context-directory .main { margin:12px 7px 89px; margin-left:7px !important; width:calc(100% - 14px) !important; padding:12px 3px 23px; border:1px solid transparent; box-shadow:none; }
+    html[data-theme="tatsumaki"] body .main>#notesContainer { padding:10px 8px; }
     html[data-theme="tatsumaki"] body .main-header { margin-bottom:13px; }
     html[data-theme="tatsumaki"] body .main-header .search-wrap { margin-top:0; }
     html[data-theme="tatsumaki"] body .main-header h1 { font-size:23px; }
