@@ -31,8 +31,8 @@ function applyStudyCuration() {
     for (const note of BANK) {
         if (Object.hasOwn(reasons, note.id) && !restoredCuratedIds.has(note.id) && !purgedIds.has(note.id)) deletedIds.add(note.id);
     }
-    // Do not change the sync timestamp during startup: a newer cloud snapshot
-    // must still load before this same reversible selection is applied to it.
+    // Startup curation is reversible maintenance, not a new user edit.
+    // Preserve the local timestamp stored in existing backups.
     localStorage.setItem('deleted-ids', JSON.stringify([...deletedIds]));
     localStorage.setItem('restored-curated-ids', JSON.stringify([...restoredCuratedIds]));
     localStorage.setItem('applied-curation-releases', JSON.stringify([...appliedCurationReleases]));
@@ -49,7 +49,7 @@ function saveCustomBankQuestion(values, id) {
     const note = { id: id || 'custom-bank-' + crypto.randomUUID(), question, answer, titleMode: question ? 'manual' : 'none', category: values.category || 'Java 基础', priority: values.priority || 'P1', company: values.company || '', kind: '自己添加', keywords: [], updatedAt: new Date().toISOString() };
     const updated = customBankQuestions.filter(n => n.id !== note.id);
     applyCustomBankQuestionsSnapshot([note, ...updated]);
-    scheduleCloudSync(); return note;
+    markLocalUpdated(); return note;
 }
 let studyEditorSource = 'personal';
 let studyEditorReturnInterview = false;
@@ -95,6 +95,10 @@ function getStudyPool(source = studySource) {
     if (source === 'personal') return getPersonalNotes();
     return getBankStudyRecords().filter(n => memorizedIds.has(n.id) === (source === 'memorized'));
 }
+function getMarkedStudyPool() {
+    return [...new Map([...getBankStudyRecords(), ...getPersonalNotes()].map(n => [n.id, n])).values()]
+        .filter(n => markedIds.has(n.id));
+}
 function refreshMemorizedStudy() {
     if (activeCategory !== 'all' && !studyCategories().includes(activeCategory)) activeCategory = 'all';
     activeNoteId = null;
@@ -115,7 +119,9 @@ getDeletedNotes = function() { return getAllStudyRecords().filter(n => deletedId
 deleteNote = function(id) {
     if (!getAllStudyRecords().some(n => n.id === id) || deletedIds.has(id) || purgedIds.has(id)) return;
     const note = userNotes.find(n => n.id === id);
-    const fromPersonal = studySource === 'personal' && !showInterviewExp;
+    const fromPersonal = !showInterviewExp && (showMarkedOnly
+        ? !getBankStudyRecords().some(record => record.id === id)
+        : studySource === 'personal');
     if (fromPersonal && (!note || note.bankOnly)) return;
     if (note) {
         // Keep identity, personal wording and learning history across both moves.
@@ -154,9 +160,9 @@ emptyTrash = function() {
 getFilteredNotes = function() {
     if (showQuiz) return quizNotes;
     if (showInterviewExp) return getInterviewFilteredQuestions();
-    const pool = showTrash ? getDeletedNotes() : getStudyPool();
+    const pool = showTrash ? getDeletedNotes() : showMarkedOnly ? getMarkedStudyPool() : getStudyPool();
     return StudyCore.filter(pool, {
-        category: showTrash || showMarkedOnly ? 'all' : activeCategory,
+        category: showTrash ? 'all' : activeCategory,
         keyword: document.getElementById('searchInput').value,
         priority: showTrash ? 'all' : studyPriority,
         level: showTrash ? 'all' : studyLevel,
@@ -183,7 +189,7 @@ function openStudy(source) {
 function studyOptions(values, selected) {
     return values.map(([value, label]) => `<option value="${studyEsc(value)}"${selected === value ? ' selected' : ''}>${studyEsc(label)}</option>`).join('');
 }
-function studyCategories(source = studySource) { return [...new Set(getStudyPool(source).map(n => n.category))]; }
+function studyCategories(source = studySource) { return [...new Set((showMarkedOnly ? getMarkedStudyPool() : getStudyPool(source)).map(n => n.category))]; }
 buildCategoryBtns = function() {
     const container = document.getElementById('categoryBtns');
     container.innerHTML = [['all', '全部'], ...studyCategories().map(c => [c, c])].map(([value, label]) =>
@@ -282,8 +288,8 @@ function studyCardIcon(name) {
     return `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]}</svg>`;
 }
 function studyCard(n) {
-    const isBank = studySource !== 'personal' && !showTrash;
-    const isMemorized = studySource === 'memorized' && !showTrash;
+    const isBank = !showTrash && (showMarkedOnly ? getBankStudyRecords().some(record => record.id === n.id) : studySource !== 'personal');
+    const isMemorized = isBank && memorizedIds.has(n.id);
     const copied = getPersonalNotes().some(u => u.sourceId === n.id || u.id === n.id);
     const level = mastery[n.id]?.level || 'new';
     const title = StudyCore.questionTitle(n);
@@ -305,7 +311,7 @@ function studyCard(n) {
 function renderStudyLibrary(filtered) {
     const bank = studySource !== 'personal';
     const memorized = studySource === 'memorized';
-    const pool = getStudyPool();
+    const pool = showMarkedOnly ? getMarkedStudyPool() : getStudyPool();
     const known = pool.filter(n => mastery[n.id]?.level === 'known').length;
     const weak = pool.filter(n => ['hard', 'fuzzy'].includes(mastery[n.id]?.level)).length;
     const pages = StudyCore.pagination(filtered.length, studyPageSize, studyPage).pages;
@@ -338,8 +344,13 @@ function renderStudyPagination(total, location) {
     const arrow = direction => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${direction === 'left' ? 'm14 6-6 6 6 6' : 'm10 6 6 6-6 6'}"/></svg>`;
     return `<nav class="study-pagination pagination-compact" data-page-location="${location}" aria-label="${location === 'top' ? '顶部' : '底部'}题目分页"><span class="page-range">${p.start + 1}–${p.end} <span>/ ${total} 条</span></span><div class="page-steps"><button data-study="page" data-page="${p.page - 1}" aria-label="上一页" ${p.page === 1 ? 'disabled' : ''}>${arrow('left')}</button><span class="page-current" aria-label="第 ${p.page} 页，共 ${p.pages} 页">${p.page}<span> / ${p.pages}</span></span><button data-study="page" data-page="${p.page + 1}" aria-label="下一页" ${p.page === p.pages ? 'disabled' : ''}>${arrow('right')}</button></div><details class="page-settings"><summary aria-label="分页设置">设置</summary><div class="page-settings-content"><label>每页条数<select data-page-size aria-label="每页条数">${studyOptions([10,20,50,100].map(n => [String(n), n + ' 条']), String(p.size))}</select></label><form data-page-jump><label>跳至<input type="number" inputmode="numeric" name="page" value="${p.page}" min="1" max="${p.pages}" step="1" required aria-label="跳转页码">页</label><button type="submit">前往</button></form><div class="page-boundaries"><button data-study="page" data-page="1" ${p.page === 1 ? 'disabled' : ''}>首页</button><button data-study="page" data-page="${p.pages}" ${p.page === p.pages ? 'disabled' : ''}>末页</button></div></div></details></nav>`;
 }
+function getQuizStudyPool(source = quizSource) {
+    const linked = source === quizSource && quizLinkedIds !== null;
+    const pool = linked && source === 'bank' ? getBankStudyRecords() : getStudyPool(source);
+    return linked ? StudyCore.filter(pool, { ids: quizLinkedIds }, mastery) : pool;
+}
 function getQuizPool() {
-    return StudyCore.filter(getStudyPool(quizSource), { category: quizCategory, level: quizLevel, ids: quizLinkedIds }, mastery);
+    return StudyCore.filter(getQuizStudyPool(), { category: quizCategory, level: quizLevel }, mastery);
 }
 startQuiz = function(source) {
     resetStudyModes(); showQuiz = true;
@@ -356,10 +367,10 @@ function drawStudyQuiz() {
 function renderStudyQuiz() {
     const pool = getQuizPool();
     const assessed = quizNotes.filter(n => mastery[n.id]?.session === studyQuizSession).length;
-    return `${studyHeader()}<div class="study-quiz-sources" role="group" aria-label="抽查来源">${[['bank', '题库'], ['personal', '我的笔记']].map(([source, title]) => `<button data-study="quiz-source" data-source="${source}" class="${quizSource === source ? 'active' : ''}" aria-pressed="${quizSource === source}"><strong>${title}<small>${getStudyPool(source).length} 道</small></strong></button>`).join('')}</div>
-    <div class="study-filters quiz-config"><label>知识分类<select data-quiz-filter="category">${studyOptions([['all', '全部分类'], ...studyCategories(quizSource).map(c => [c, c])], quizCategory)}</select></label><label>练习范围<select data-quiz-filter="level">${studyOptions([['all', '全部内容'], ['weak', '只练不会 / 模糊'], ['new', '只练未复习']], quizLevel)}</select></label><label class="quiz-count-field">每组题数<select data-quiz-filter="count">${studyOptions([['3', '3 道'], ['5', '5 道'], ['10', '10 道']], String(quizCount))}</select></label><button class="study-primary" data-study="draw" ${pool.length ? '' : 'disabled'}>${quizStarted ? '换一组题' : '开始抽查'} →</button></div>
+    return `${studyHeader()}<div class="study-quiz-sources" role="group" aria-label="抽查来源">${[['bank', quizLinkedIds ? '面经题目' : '题库'], ['personal', '我的笔记']].map(([source, title]) => `<button data-study="quiz-source" data-source="${source}" class="${quizSource === source ? 'active' : ''}" aria-pressed="${quizSource === source}"><strong>${title}<small>${getQuizStudyPool(source).length} 道</small></strong></button>`).join('')}</div>
+    <div class="study-filters quiz-config"><label>知识分类<select data-quiz-filter="category">${studyOptions([['all', '全部分类'], ...[...new Set(getQuizStudyPool().map(n => n.category))].map(c => [c, c])], quizCategory)}</select></label><label>练习范围<select data-quiz-filter="level">${studyOptions([['all', '全部内容'], ['weak', '只练不会 / 模糊'], ['new', '只练未复习']], quizLevel)}</select></label><label class="quiz-count-field">每组题数<select data-quiz-filter="count">${studyOptions([['3', '3 道'], ['5', '5 道'], ['10', '10 道']], String(quizCount))}</select></label><button class="study-primary" data-study="draw" ${pool.length ? '' : 'disabled'}>${quizStarted ? '换一组题' : '开始抽查'} →</button></div>
     ${quizLinkedIds ? `<div class="study-linked">面经关联：${studyEsc(quizLinkedTitle)}<button data-study="quiz-unlink">取消关联 ×</button></div>` : ''}
-    <div class="study-list-heading"><p>当前可抽 ${pool.length} 道${pool.length < quizCount && pool.length ? ' · 数量不足时抽取全部，不重复' : ''}</p>${quizStarted ? `<span>${quizSource === 'bank' ? '全题库' : '我的笔记'} · 本组 ${quizNotes.length} 道 · 已自评 ${assessed} 道</span>` : ''}</div>
+    <div class="study-list-heading"><p>当前可抽 ${pool.length} 道${pool.length < quizCount && pool.length ? ' · 数量不足时抽取全部，不重复' : ''}</p>${quizStarted ? `<span>${quizLinkedIds ? studyEsc(quizLinkedTitle) : quizSource === 'bank' ? '全题库' : '我的笔记'} · 本组 ${quizNotes.length} 道 · 已自评 ${assessed} 道</span>` : ''}</div>
     ${!pool.length && !quizNotes.length ? `<div class="study-empty"><h3>当前范围没有可抽查的内容</h3><p>${quizLevel === 'weak' ? '标记为“不会”或“模糊”的题会出现在这里。' : '切换分类，或先添加笔记。'}</p><button class="study-secondary" data-study="quiz-reset">恢复全部范围</button><button class="study-secondary" data-study="source" data-source="personal">去我的笔记</button></div>` : ''}
     ${quizNotes.map((n, i) => { const title = StudyCore.questionTitle(n), revealed = !title || quizRevealed.has(i); return `<article class="study-quiz-card"><div class="study-card-meta"><span class="study-number">${String(i + 1).padStart(2, '0')}</span><span>${studyEsc(n.category)}</span><span>${studyEsc(n.number || '我的笔记')}</span></div>${title ? `<h3>${studyEsc(title)}</h3><button class="study-secondary" data-study="reveal" data-index="${i}" aria-expanded="${revealed}">${revealed ? '收起答案' : '查看答案'}</button>` : ''}${revealed ? `<div class="study-answer">${studyMarkdown(n.answer)}</div>${studyRatings(n, i)}` : ''}</article>`; }).join('')}`;
 }

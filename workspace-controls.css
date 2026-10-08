@@ -137,13 +137,13 @@ body:has(.modal-overlay.open),body:has(.interview-dialog[open]),body:has(.recrui
     .interview-search-row { margin-top:8px; gap:8px; }
     .interview-search-row .study-text { font-size:12px; }
     .interview-question-card .study-card-footer>span { font-size:10px; }
-    #addModal,#syncModal { background:#f8faf6; backdrop-filter:none; align-items:stretch; }
-    #addModal .modal,#syncModal .modal { width:100%; max-width:none; height:100dvh; max-height:100dvh; margin:0; padding:18px 18px calc(20px + env(safe-area-inset-bottom)); border-radius:0; box-shadow:none; overscroll-behavior:contain; }
-    #addModal h3,#syncModal h3 { padding:6px 0; font-size:19px; color:#294d3a; }
+    #addModal,#backupModal { background:#f8faf6; backdrop-filter:none; align-items:stretch; }
+    #addModal .modal,#backupModal .modal { width:100%; max-width:none; height:100dvh; max-height:100dvh; margin:0; padding:18px 18px calc(20px + env(safe-area-inset-bottom)); border-radius:0; box-shadow:none; overscroll-behavior:contain; }
+    #addModal h3,#backupModal h3 { padding:6px 0; font-size:19px; color:#294d3a; }
     #addModal .modal-sub { display:none; }
     #addModal .btn-row { position:sticky; bottom:calc(-20px - env(safe-area-inset-bottom)); margin:18px -18px 0; padding:12px 18px calc(12px + env(safe-area-inset-bottom)); background:#f8faf6; border-top:1px solid #dfe7dc; z-index:2; }
     #addModal .btn-row button { min-height:44px; font-size:14px; }
-    #addModal :is(textarea,input),#syncModal :is(textarea,input),.interview-dialog :is(textarea,input) { font-size:16px; }
+    #addModal :is(textarea,input),#backupModal :is(textarea,input),.interview-dialog :is(textarea,input) { font-size:16px; }
     #addModal .answer-ta { min-height:180px; }
     .interview-dialog { width:100%; max-width:none; height:100dvh; max-height:100dvh; margin:0; border:0; border-radius:0; padding:18px; overflow-y:auto; }
     .interview-dialog header { margin-bottom:16px; }

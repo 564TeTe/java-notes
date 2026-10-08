@@ -10,7 +10,7 @@ html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer {
 }
 html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs {
     gap: 12px;
-    margin: 0 0 22px;
+    margin: 0 0 16px;
     border-bottom: 1px solid var(--desk-ink);
 }
 html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs button {
@@ -18,7 +18,7 @@ html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource
     padding: 8px 14px 12px;
     border-radius: 0;
     color: var(--desk-muted);
-    font-size: 15px;
+    font-size: 14px;
 }
 html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs button[aria-pressed="true"] {
     color: var(--desk-ink);
@@ -91,7 +91,7 @@ html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .gu
     align-items: center;
     gap: 8px 18px;
     margin: 0;
-    padding: 20px 8px;
+    padding: 14px 8px;
     border: 0;
     border-bottom: 1px solid var(--desk-line);
     border-radius: 0;
@@ -171,10 +171,10 @@ html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .gu
 }
 html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-article header { border-color: var(--desk-line); }
 html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-article header > h2 {
-    font: 700 25px/1.5 "Noto Serif SC", SimSun, serif;
+    font: 700 21px/1.5 "Noto Serif SC", SimSun, serif;
     color: var(--desk-ink);
 }
-html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-prose { font-size: 14px; }
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-prose { font-size: 13px; line-height:1.8; }
 html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-code-block {
     border: 1px solid #343a37;
     border-radius: 0;
@@ -207,7 +207,7 @@ html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-grid .re
     grid-template-columns: 34px minmax(0, 1fr) minmax(100px, 24%);
     gap: 5px 16px;
     align-items: start;
-    padding: 22px 8px;
+    padding: 16px 8px;
     border: 0;
     border-bottom: 1px solid var(--desk-line);
     border-radius: 0;
@@ -313,7 +313,7 @@ html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .g
 @media (max-width: 768px) {
     html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs.showing-commands { display: flex; }
     html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs { gap: 10px; margin-bottom: 14px; }
-    html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs button { font-size: 14px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .learning-resource-tabs button { font-size: 13px; }
     html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-toolbar { gap: 10px 4px; margin-bottom: 18px; }
     html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .command-guide .guide-toolbar { padding: 12px; }
     html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-modes { gap: 3px; }
@@ -323,14 +323,14 @@ html[data-theme="tatsumaki"] body[data-workspace="resources"] #notesContainer .g
     html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-core-card {
         grid-template-columns: 60px minmax(0, 1fr) 52px;
         gap: 9px 10px;
-        padding: 16px 2px;
+        padding: 12px 2px;
     }
     html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-core-meta > span { grid-row: 1; font-size: 10px; align-self: center; padding: 0; }
     html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-core-card h2 { font-size: 13px; }
     html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-core-meta .guide-copy { grid-row: 1; min-height: 44px; padding: 6px; }
     html[data-theme="tatsumaki"] body[data-workspace="resources"] .command-guide .guide-command { grid-column: 1 / -1; min-height: 44px; padding: 10px 12px; }
-    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-article header > h2 { font-size: 21px; }
-    html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-grid .resource-card { grid-template-columns: 29px minmax(0, 1fr); gap: 5px 13px; padding: 19px 4px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-article header > h2 { font-size: 18px; }
+    html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-grid .resource-card { grid-template-columns: 29px minmax(0, 1fr); gap: 5px 13px; padding: 14px 4px; }
     html[data-theme="tatsumaki"] body[data-workspace="resources"] .guide-site-meta { grid-column: 2; grid-row: 3; flex-direction: row; flex-wrap: wrap; align-items: center; margin-top: 5px; gap: 8px 12px; }
     html[data-theme="tatsumaki"] body[data-workspace="resources"] .resource-card .res-icon { font-size: 21px; }
 }

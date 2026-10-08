@@ -74,10 +74,10 @@ test('legacy personal answers round-trip without restoring retired input panels'
     const app = setup('resume');
     const id = 'q-zhishu-3';
     const answer = '</textarea><script>alert(1)</script>\n我的复盘';
-    let syncs = 0;
-    app.scheduleCloudSync = () => syncs++;
+    let localUpdates = 0;
+    app.markLocalUpdated = () => localUpdates++;
     app.saveResumeDraft(id, answer);
-    assert.equal(syncs, 1);
+    assert.equal(localUpdates, 1);
     assert.equal(JSON.parse(app.localStorage.getItem('resume-prep-drafts'))[id], answer);
     const snapshot = JSON.parse(JSON.stringify(app.getResumePrepSnapshot()));
     app.applyResumePrepSnapshot({mastery:{}, checklist:{}});

@@ -12,9 +12,10 @@ const profiles = [
     { module: 'recruitment', scene: 'reach', file: 'tatsumaki-reach.jpg', layout: 'poster', chapter: '05 / OPPORTUNITIES', title: '秋招专区', caption: '招聘信息 · 投递进展', position: '65% 24%' },
     { module: 'resources', scene: 'welcome', file: 'tatsumaki-welcome.jpg', layout: 'catalog', chapter: '06 / REFERENCE', title: '学习资源', caption: '常用命令 · 学习资料', position: '50% 22%' },
     { module: 'personal', scene: 'wink', file: 'tatsumaki-wink.jpg', layout: 'note', chapter: '07 / MY NOTES', title: '我的笔记', caption: '记录想法 · 整理所学', position: '50% 40%' },
-    { module: 'memorized', scene: 'panorama', file: 'tatsumaki-panorama.png', layout: 'panorama', chapter: '08 / REVIEW', title: '已背会', caption: '复习巩固 · 温故知新', position: '50% 50%' },
+    { module: 'memorized', scene: 'review', file: 'tatsumaki-review.png', layout: 'review', chapter: '08 / REVIEW', title: '已背会', caption: '复习巩固 · 温故知新', position: '50% 50%' },
     { module: 'marked', scene: 'avatar', file: 'tatsumaki-avatar.png', layout: 'bookmark', chapter: '09 / BOOKMARKS', title: '重点收藏', caption: '值得再看一遍', position: '50% 35%' },
-    { module: 'glossary', scene: 'uniform', file: 'tatsumaki-uniform.jpg', layout: 'lexicon', chapter: '10 / GLOSSARY', title: '术语词典', caption: '概念速查 · 理清术语', position: '50% 20%' }
+    { module: 'glossary', scene: 'uniform', file: 'tatsumaki-uniform.jpg', layout: 'lexicon', chapter: '10 / GLOSSARY', title: '术语词典', caption: '概念速查 · 理清术语', position: '50% 20%' },
+    { module: 'annotations', scene: 'annotations', file: 'tatsumaki-annotations.jpg', layout: 'reference', chapter: '11 / ANNOTATIONS', title: '注解专区', caption: '注解速查 · 理清用法', position: '50% 50%' }
 ];
 
 function setup({ module = 'bank', saved = 'storm', theme = 'tatsumaki', readyState = 'complete', missing } = {}) {
@@ -90,14 +91,14 @@ function assertProfile(app, module) {
     assert.equal(app.caption.textContent, profile.caption);
 }
 
-test('ten illustrated modules each receive a unique main image and their own chapter, title and layout', () => {
+test('eleven illustrated modules each receive a unique main image and their own chapter, title and layout', () => {
     const sources = [];
     for (const profile of profiles) {
         const app = setup({ module: profile.module });
         assertProfile(app, profile.module);
         sources.push(app.main.src);
     }
-    assert.equal(new Set(sources).size, 10);
+    assert.equal(new Set(sources).size, 11);
 });
 
 test('workspace navigation updates the module image and complete heading', () => {
@@ -108,9 +109,46 @@ test('workspace navigation updates the module image and complete heading', () =>
     }
 });
 
+test('annotation navigation preserves its image through repeated workspace notifications and restores review art on return', () => {
+    const app = setup({ module: 'memorized' });
+    app.navigate('annotations');
+    assertProfile(app, 'annotations');
+    const writes = app.sourceWrites.length;
+    app.notifyAttribute('data-workspace');
+    app.notifyAttribute('data-unrelated');
+    assert.equal(app.sourceWrites.length, writes);
+    app.navigate('memorized');
+    assertProfile(app, 'memorized');
+});
+
+test('every mapped illustration is included as a local image asset', () => {
+    for (const profile of profiles) {
+        const asset = fs.readFileSync(path.join(__dirname, '../assets/themes', profile.file));
+        const isPng = asset.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+        const isJpeg = asset[0] === 255 && asset[1] === 216 && asset[2] === 255;
+        assert.ok(isPng || isJpeg, `${profile.module} ships a PNG or JPEG image`);
+    }
+});
+
+test('review and annotation portraits use the shared full-image blend and keep reading content below on mobile', () => {
+    const css = fs.readFileSync(path.join(__dirname, '../workspace-tatsumaki.css'), 'utf8');
+    assert.match(css, /\.tatsumaki-illustration\s*\{[^}]*mix-blend-mode:\s*multiply/);
+    assert.match(css, /\.tatsumaki-artwork img\s*\{[^}]*width:\s*auto;[^}]*height:\s*auto;[^}]*object-fit:\s*contain/);
+    for (const module of ['memorized', 'annotations']) {
+        const moduleRules = [...css.matchAll(new RegExp(`[^{}]*body\\[data-workspace="${module}"\\][^{}]*\\{([^}]*)\\}`, 'g'))];
+        assert.ok(moduleRules.length, `${module} has a reading layout`);
+        for (const rule of moduleRules) {
+            assert.doesNotMatch(rule[1], /aspect-ratio:\s*12\s*\/\s*5|mix-blend-mode:\s*normal|object-fit:\s*cover/);
+        }
+    }
+    const mobile = css.slice(css.indexOf('@media (max-width:768px)'));
+    assert.match(mobile, /body\[data-workspace="annotations"\] \.main>#notesContainer\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*grid-row:\s*3/);
+    assert.match(mobile, /body\[data-workspace="memorized"\] \.main>#notesContainer\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*grid-row:\s*3/);
+});
+
 test('utility modules hide the art without assigning a duplicate image and core navigation restores it', () => {
     const app = setup();
-    for (const module of ['trash', 'annotations']) {
+    for (const module of ['trash']) {
         app.navigate(module);
         assert.equal(app.hero.hidden, true);
         assert.equal(app.body.dataset.tatsumakiArt, 'off');

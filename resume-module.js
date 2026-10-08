@@ -9,7 +9,7 @@
  function load(k){try{const v=JSON.parse(localStorage.getItem(k)||'{}');return obj(v)?v:{};}catch(_){return {};}}
  const cleanDrafts=v=>Object.fromEntries(data().questions.filter(q=>typeof v[q.id]==='string'&&v[q.id]).map(q=>[q.id,v[q.id].slice(0,6000)]));
  const state={tab:'questions',source:'all',search:'',level:'all',topic:'all',priority:'all',page:1,visible:true,toggled:new Set(),mockId:null,mastery:load(KEYS[0]),checklist:load(KEYS[1]),drafts:cleanDrafts(load(KEYS[2]))};
- function persist(){try{[state.mastery,state.checklist,state.drafts].forEach((v,i)=>localStorage.setItem(KEYS[i],JSON.stringify(v)));}catch(_){if(typeof toast==='function')toast('未保存到本机，请检查存储空间');return;}if(typeof scheduleCloudSync==='function')scheduleCloudSync();}
+ function persist(){try{[state.mastery,state.checklist,state.drafts].forEach((v,i)=>localStorage.setItem(KEYS[i],JSON.stringify(v)));}catch(_){if(typeof toast==='function')toast('未保存到本机，请检查存储空间');return;}if(typeof markLocalUpdated==='function')markLocalUpdated();}
  const revealed=id=>state.visible?!state.toggled.has(id):state.toggled.has(id);
  const topics=()=>[...new Set(data().questions.filter(q=>state.source==='all'||q.source===state.source).map(q=>q.topic).filter(Boolean))];
  function filtered(){const term=state.search.trim().toLowerCase();return data().questions.filter(q=>{

@@ -9,7 +9,7 @@ try { interviewRecords = StudyCore.restoreInterviews(JSON.parse(localStorage.get
 
 function saveInterviewRecords() {
     localStorage.setItem('interview-records', JSON.stringify(interviewRecords));
-    scheduleCloudSync();
+    markLocalUpdated();
 }
 function getInterviewSnapshot() { return interviewRecords; }
 function applyInterviewSnapshot(value) {
@@ -30,7 +30,9 @@ function getInterviewCompanies() {
 function getCompanyQuestions(company = interviewCompany) {
     const sources = getInterviewSources().filter(s => company === 'all' || s.company === company);
     const ids = new Set(sources.flatMap(s => s.questionIds));
-    return getStudyPool('bank').filter(n => ids.has(n.id) || (n.company && (company === 'all' || n.company === company)));
+    // A company dossier is a source view. Memorizing a question moves its study
+    // placement, while its company association and canonical ID remain intact.
+    return getBankStudyRecords().filter(n => ids.has(n.id) || (n.company && (company === 'all' || n.company === company)));
 }
 function getInterviewFilteredQuestions() {
     return StudyCore.filter(getCompanyQuestions(), { keyword: interviewKeyword }, mastery);
@@ -46,7 +48,21 @@ function renderInterviewQuestion(n) {
     const sources = getInterviewSources().filter(s => (interviewCompany === 'all' || s.company === interviewCompany) && s.questionIds.includes(n.id));
     const title = StudyCore.questionTitle(n);
     const open = !title || !collapsedNotes.has(n.id);
-    return `<article class="study-card interview-question-card" id="note-${studyEsc(n.id)}"><div class="study-card-meta"><span class="study-number">${studyEsc(n.number || '自建面经')}</span><span>${studyEsc(n.category)}</span><span>${studyEsc(n.company || [...new Set(sources.map(s=>s.company))].join(' / '))}</span><span class="study-status">${studyLevelNames[mastery[n.id]?.level || 'new']}</span></div>${title ? `<button class="study-question" data-study="expand" data-id="${studyEsc(n.id)}" aria-expanded="${open}" aria-controls="answer-${studyEsc(n.id)}"><span>${studyEsc(title)}</span><span class="study-chevron">${open ? '−' : '+'}</span></button>` : ''}<div class="study-answer answer${open ? '' : ' collapsed'}" id="answer-${studyEsc(n.id)}">${studyMarkdown(n.answer)}${studyRatings(n)}</div><footer class="study-card-footer"><span>${n.company ? '自己记录的面经' : '面经考点改写 / 延展'}</span><div><button data-study="copy" data-id="${studyEsc(n.id)}">记入笔记</button>${n.id.startsWith('custom-bank-') ? `<button data-interview="edit-question" data-id="${studyEsc(n.id)}" data-company="${studyEsc(n.company || '')}">编辑</button>` : ''}<button data-action="delete" data-id="${studyEsc(n.id)}">删除</button></div></footer>${sources.length ? `<details class="interview-citations"><summary>题目来源 · ${sources.length} 条面经</summary>${sources.map(s=>`<p><a href="${studyEsc(s.url)}" target="_blank" rel="noopener noreferrer">${studyEsc(s.title)} ↗</a><small>${studyEsc(s.description)}</small></p>`).join('')}</details>` : ''}</article>`;
+    const memorized = memorizedIds.has(n.id);
+    const marked = markedIds.has(n.id);
+    const label = studyEsc(title || '面经题目');
+    return `<article class="study-card interview-question-card${marked ? ' marked' : ''}" id="note-${studyEsc(n.id)}"><div class="study-card-meta"><span class="study-number">${studyEsc(n.number || '自建面经')}</span><span>${studyEsc(n.category)}</span><span>${studyEsc(n.company || [...new Set(sources.map(s=>s.company))].join(' / '))}</span><span class="study-status">${memorized ? '已背' : studyLevelNames[mastery[n.id]?.level || 'new']}</span></div>${title ? `<button class="study-question" data-study="expand" data-id="${studyEsc(n.id)}" aria-expanded="${open}" aria-controls="answer-${studyEsc(n.id)}"><span>${studyEsc(title)}</span><span class="study-chevron">${open ? '−' : '+'}</span></button>` : ''}<div class="study-answer answer${open ? '' : ' collapsed'}" id="answer-${studyEsc(n.id)}">${studyMarkdown(n.answer)}${studyRatings(n)}</div><footer class="study-card-footer"><span>${n.company ? '自己记录的面经' : '面经考点改写 / 延展'}</span><div class="study-card-actions"><button data-study="${memorized ? 'restore-memorized' : 'memorize'}" data-id="${studyEsc(n.id)}" aria-label="${memorized ? '移回题库' : '标记已背'}：${label}" title="${memorized ? '移回题库' : '标记已背'}">${studyCardIcon(memorized ? 'return' : 'memorized')}<span class="study-action-label">${memorized ? '移回题库' : '标记已背'}</span></button><button data-study="mark" data-id="${studyEsc(n.id)}" aria-pressed="${marked}" aria-label="${marked ? '取消重点' : '标记重点'}：${label}">${studyCardIcon('mark')}${marked ? '已标重点' : '重点'}</button><button data-study="copy" data-id="${studyEsc(n.id)}" title="记入笔记">${studyCardIcon('note')}记入笔记</button><details class="study-card-more"><summary aria-label="更多操作：${label}">${studyCardIcon('more')}<span>更多</span></summary><div class="study-card-menu">${n.id.startsWith('custom-bank-') ? `<button data-interview="edit-question" data-id="${studyEsc(n.id)}" data-company="${studyEsc(n.company || '')}">编辑题目</button>` : ''}<button data-action="delete" data-id="${studyEsc(n.id)}">删除题目</button></div></details></div></footer>${sources.length ? `<details class="interview-citations"><summary>题目来源 · ${sources.length} 条面经</summary>${sources.map(s=>`<p><a href="${studyEsc(s.url)}" target="_blank" rel="noopener noreferrer">${studyEsc(s.title)} ↗</a><small>${studyEsc(s.description)}</small></p>`).join('')}</details>` : ''}</article>`;
+}
+
+function startInterviewQuiz(ids, title) {
+    const available = new Set(getBankStudyRecords().map(n => n.id));
+    const linkedIds = [...new Set(ids)].filter(id => available.has(id));
+    if (!linkedIds.length) { toast('当前面经没有可抽查的题目'); return; }
+    startQuiz('bank');
+    quizLinkedIds = linkedIds;
+    quizLinkedTitle = title;
+    studyQuizSession = Date.now();
+    drawStudyQuiz();
 }
 function renderCompanyReferences() {
     const sources = getInterviewSources().filter(s => interviewCompany === 'all' || s.company === interviewCompany);
@@ -119,7 +135,7 @@ function initInterviewWorkspace() {
         else if (action === 'new-company') openInterviewQuestionEditor('');
         else if (action === 'edit-question') openInterviewQuestionEditor(btn.dataset.company, id);
         else if (action === 'reset-search') { interviewKeyword = ''; studyPage = 1; renderAll(); }
-        else if (action === 'company-practice') { const c=btn.dataset.company; const ids=getInterviewFilteredQuestions().map(n=>n.id); startQuiz('bank'); quizLinkedIds=ids; quizLinkedTitle=(c==='all'?'全部公司':c)+' 面经'; renderAll(); }
+        else if (action === 'company-practice') { const c=btn.dataset.company; startInterviewQuiz(getInterviewFilteredQuestions().map(n=>n.id), (c==='all'?'全部公司':c)+' 面经'); }
         else if (action === 'add-company') { openInterviewQuestionEditor(btn.dataset.company); }
         else if (action === 'reset') { interviewCompany = 'all'; interviewKeyword = ''; renderAll(); }
         else if (action === 'new') openInterviewEditor();
@@ -132,7 +148,7 @@ function initInterviewWorkspace() {
         else if (action === 'questions' || action === 'practice') {
             const source = window.QUESTION_BANK_DATA.sources.find(s => s.id === id); if (!source) return;
             if (action === 'questions') { openStudy('bank'); studyLinkedIds = source.questionIds; studyLinkedTitle = source.title; renderAll(); }
-            else { startQuiz('bank'); quizLinkedIds = source.questionIds; quizLinkedTitle = source.title; renderAll(); }
+            else startInterviewQuiz(source.questionIds, source.title);
         }
         else if (action === 'guide') {
             resetStudyModes(); showResumePrep = true;

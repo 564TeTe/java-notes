@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v63";
+const CACHE_NAME = "java-notes-v65";
 const APP_SHELL = [
     "./assets/themes/tatsumaki-study.jpg",
     "./assets/themes/tatsumaki-dossier.jpg",
@@ -8,6 +8,9 @@ const APP_SHELL = [
     "./assets/themes/tatsumaki-welcome.jpg",
     "./assets/themes/tatsumaki-wink.jpg",
     "./assets/themes/tatsumaki-panorama.png",
+    "./assets/themes/tatsumaki-review.png",
+    "./assets/themes/tatsumaki-annotations.jpg",
+    "./assets/themes/tatsumaki-brand.png",
     "./assets/themes/tatsumaki-avatar.png",
     "./assets/themes/tatsumaki-uniform.jpg",
     "./workspace-tatsumaki-resources.css", "./workspace-tatsumaki-controls.css",
@@ -25,7 +28,7 @@ const APP_SHELL = [
     "./data/question-bank.js", "./study-core.js", "./study-module.js", "./interview-module.js", "./study-workspace.css",
     "./assets/interviews/lx-2026-09-08.html", "./assets/interviews/lx-2026-09-08.md",
     "./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png",
-    "./sync-config.js", "./resume-data.js", "./resume-module.js", "./recruitment.css", "./career-workspace.css", "./recruitment-module.js", "./data/recruitment-jobs.json",
+    "./resume-data.js", "./resume-module.js", "./recruitment.css", "./career-workspace.css", "./recruitment-module.js", "./data/recruitment-jobs.json",
     "./assets/resume/sun-te-resume.pdf",
     "./assets/resume/zhishu-interview-guide.docx",
     "./assets/resume/yonyou-interview-guide.docx",

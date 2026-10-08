@@ -1,7 +1,7 @@
 {
   "name": "Java 面试工作台",
   "short_name": "面试工作台",
-  "description": "可离线使用、支持多端同步的 Java 后端面试复习工具",
+  "description": "可离线使用、支持本地备份的 Java 后端面试复习工具",
   "lang": "zh-CN",
   "start_url": "./",
   "scope": "./",

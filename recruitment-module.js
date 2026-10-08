@@ -86,7 +86,7 @@
     function persist() {
         localStorage.setItem(APP_KEY, JSON.stringify(applications));
         localStorage.setItem(ACTION_KEY, JSON.stringify(actionChecks));
-        if (typeof scheduleCloudSync === "function") scheduleCloudSync();
+        if (typeof markLocalUpdated === "function") markLocalUpdated();
     }
     function notify(message) {
         if (typeof toast === "function") toast(message);

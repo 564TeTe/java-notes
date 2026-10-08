@@ -17,7 +17,7 @@ function setup({ archivedEdition = false, priorityCuration = false, glossary = f
     context.window = context;
     const run = code => vm.runInContext(code, context);
     for (const name of ['resume-data.js', 'resume-question-expansion.js', 'resume-claims.js', 'resume-workbench.js', 'resume-module.js', 'recruitment-module.js', 'data/question-bank.js', 'data/question-curation.js', 'study-core.js']) run(fs.readFileSync(path.join(root,name), 'utf8'));
-    // Existing edition/sync tests use their original curation fixture. Priority
+    // Existing edition/backup tests use their original curation fixture. Priority
     // archive tests below exercise the current production configuration.
     if (!priorityCuration) run('QUESTION_BANK_CURATION.archives=[]; QUESTION_BANK_CURATION.reasons=Object.fromEntries((QUESTION_BANK_DATA.archivedQuestions||[]).map(q=>[q.id,q.archiveReason]));');
     if (archivedEdition) run('QUESTION_BANK_CURATION.reasons=Object.fromEntries(QUESTION_BANK_DATA.questions.filter(q=>q.restoredToMainBank).map(q=>[q.id,"测试归档"])); QUESTION_BANK_CURATION.releases=[];');
@@ -226,7 +226,6 @@ test('full backups preserve and restore resume workbench records including legac
     assert.equal(run('getResumePrepSnapshot().workbench.claims["br-report"].responsibility'),'审批完成后生成工资明细');
     run('applyStateSnapshot({resumePrep:{workbench:"bad"}})');
     assert.equal(run('getResumePrepSnapshot().workbench.claims["br-report"].verified'),true);
-    assert.equal(run('syncApplyingRemote'),false);
 });
 test('imported data has 672 unique active and archived questions, 13 categories, complete source references', () => {
     const { run } = setup();
@@ -473,9 +472,9 @@ test('legacy cloud snapshots receive curated trash without erasing unrelated del
     assert.equal(run('getDeletedNotes().length'), 244);
 });
 
-test('curation keeps a new device eligible to load newer cloud data during startup', () => {
+test('startup curation does not mark untouched local records as manual edits', () => {
     const { run, store } = setup({ archivedEdition: true });
-    run('loadSyncSession=applySidebarState=bindEvents=initMobile=updateSyncUI=registerPWA=function(){};window.matchMedia=()=>({matches:false}); init();');
+    run('applySidebarState=bindEvents=initMobile=registerPWA=function(){};window.matchMedia=()=>({matches:false}); init();');
     assert.equal(run('getDeletedNotes().length'), 244);
     assert.equal(store.get(run('LOCAL_UPDATED_KEY')), undefined);
 });

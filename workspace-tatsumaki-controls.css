@@ -9,6 +9,9 @@ html[data-theme="tatsumaki"] {
     --tatsu-green-dark:#294737;
     --tatsu-mint:#b8d8bc;
     --tatsu-green-soft:#e0eadf;
+    --tatsu-action:#c3d8c3;
+    --tatsu-action-ink:#273c2e;
+    --tatsu-action-line:#a5bea6;
     --tatsu-hover:color-mix(in srgb,var(--tatsu-paper) 72%,var(--tatsu-line));
 }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body {
@@ -43,7 +46,7 @@ html[data-theme="tatsumaki"][data-theme-mode="light"] body[data-workspace="resou
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-card.note,.study-quiz-card,.interview-source-card,.interview-record,.resume-source-row,.resume-source-card,.resume-pitch-card,.resume-story-card,.resume-qa-card,.resume-question-card,.resume-reading-files,.recruit-panel,.recruit-job-card,.recruit-application-card,.resource-card,.glossary-entry,.annotation-card,.annotation-basics,.annotation-empty,.career-empty,.modal,.interview-dialog,.recruit-form,.choice-body,.pagination-compact .page-settings-content) {
     background-color:var(--tatsu-white); border-color:var(--tatsu-line); color:var(--tatsu-ink);
 }
-html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-intro,.study-empty,.study-quiz-guide,.study-linked,.prep-start,.resume-today,.resume-followup,.resume-story-card dl>div,.resume-boundary,.resume-privacy-note,.recruit-overview,.recruit-context,.recruit-source-note,.recruit-phase,.annotation-route,.annotation-pitfalls,.guide-help-content,.sync-status-card,.trash-header) {
+html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-intro,.study-empty,.study-quiz-guide,.study-linked,.prep-start,.resume-today,.resume-followup,.resume-story-card dl>div,.resume-boundary,.resume-privacy-note,.recruit-overview,.recruit-context,.recruit-source-note,.recruit-phase,.annotation-route,.annotation-pitfalls,.guide-help-content,.backup-status-card,.trash-header) {
     background-color:var(--tatsu-paper); color:var(--tatsu-ink); border-color:var(--tatsu-line);
 }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-summary,.study-card-footer,.study-ratings,.study-progress,.study-linked,.interview-platforms,.interview-record footer,.interview-citations,.interview-company-head,.company-references,.company-nav-tools,.prep-navigation,.prep-progress,.resume-reading-tabs,.resume-reading-card-footer,.resume-answer>p,.resume-followup,.recruit-tabs,.recruit-overview-stats div,.recruit-resource-grid>a,.guide-core-card,.guide-code-block,.guide-code-bar,.guide-table-scroll,.guide-prose :is(th,td),.annotation-detail,.annotation-toolbar,.annotation-basics-content article,.annotation-sources) { border-color:var(--tatsu-line); }
@@ -107,10 +110,16 @@ html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-status.kno
 
 /* Primary actions and every selected segment share a strong, reversible state. */
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-primary,.career-primary,.btn-primary,.recruit-primary,.recruit-toolbar form button,.recruit-form footer button[type="submit"],.recruit-panel-head>button.primary,.study-library-nav button.active,.study-switch button.active,.study-quiz-sources>button.active,.study-ratings button.selected,.mastery-actions button.selected,.resume-mastery button.selected,.resume-filter.active,.resume-tab.active,.resume-reading-tabs button.active,.resume-reading-sources button.active,.resume-reading-tools button[aria-pressed="true"],.recruit-tab.active,.recruit-toggle button.active,.recruit-pipeline button.active,.choice-option[aria-pressed="true"],.mobile-choice-segments .choice-option[aria-pressed="true"],.interview-company-nav button.active,.workspace-marked-link.active,.cat-btn.active) {
-    background:var(--tatsu-green); color:var(--tatsu-white); border-color:var(--tatsu-green);
+    background:var(--tatsu-action); color:var(--tatsu-action-ink); border-color:var(--tatsu-action-line);
 }
-html[data-theme="tatsumaki"][data-theme-mode="light"] body .command-guide :is(.guide-modes button[aria-pressed="true"],.guide-directory button[aria-current="true"]) { background:var(--tatsu-green); color:var(--tatsu-white); border-color:var(--tatsu-green); }
-html[data-theme="tatsumaki"][data-theme-mode="light"] body[data-workspace="resources"] .learning-resource-tabs button[aria-pressed="true"] { background:var(--tatsu-green); color:var(--tatsu-white); border-color:var(--tatsu-green); }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .command-guide :is(.guide-modes button[aria-pressed="true"],.guide-directory button[aria-current="true"]) { background:var(--tatsu-action); color:var(--tatsu-action-ink); border-color:var(--tatsu-action-line); }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body[data-workspace="resources"] .learning-resource-tabs button[aria-pressed="true"] { background:var(--tatsu-action); color:var(--tatsu-action-ink); border-color:var(--tatsu-action-line); }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-quiz-sources>button.active,.study-switch button.active,.resume-reading-sources button.active,.recruit-toggle button.active,.recruit-pipeline button.active,.interview-company-nav button.active,.choice-option[aria-pressed="true"]) :is(strong,small,span,p) { color:inherit; }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-secondary,.study-primary,.career-primary,.career-secondary,.btn-primary,.btn-cancel,.recruit-tab,.recruit-toggle button,.recruit-pipeline button,.resume-reading button,.study-ratings button,.choice-control button,.choice-control summary,.choice-control input,.pagination-compact button,.pagination-compact summary,.pagination-compact input,.pagination-compact select,.command-guide button,.command-guide select,.glossary-toolbar input,.glossary-toolbar select,.annotation-view button,.annotation-view summary,.annotation-view input,.annotation-view select):focus-visible { outline-color:var(--tatsu-ink); }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body .command-guide .guide-code-block button:focus-visible { outline-color:var(--tatsu-white); }
+
+/* Light sage actions keep small button labels clear on the paper surface. */
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header nav button.active { background:var(--tatsu-action); color:var(--tatsu-action-ink); }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body :is(.study-primary,.career-primary,.btn-primary,.recruit-primary):hover { background:#b5cfb7; color:var(--tatsu-action-ink); border-color:var(--tatsu-action-line); }
+html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .quiz-config>button { background:var(--tatsu-action); color:var(--tatsu-action-ink); border-color:var(--tatsu-action-line); }
+html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .quiz-config>button:disabled { opacity:.65; }

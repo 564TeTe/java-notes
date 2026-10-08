@@ -1,4 +1,4 @@
-# 部署与多端同步
+# 部署与本地备份
 
 ## 1. GitHub Pages
 
@@ -9,13 +9,14 @@
 5. 选择 `main` 和 `/ (root)`，保存。
 6. 网站地址为 `https://<用户名>.github.io/java-notes/`。
 
-## 2. Supabase 同步
+## 2. 本地数据与备份
 
-1. 创建 Supabase 项目。
-2. 在 `SQL Editor` 执行 `supabase-schema.sql`。
-3. 在项目设置/API 页面复制 Project URL 与 publishable key。
-4. 填入 `sync-config.js`，不要使用 `service_role` key。
-5. 在 Supabase Auth URL Configuration 中加入 GitHub Pages 网站地址。
-6. 重新提交后，电脑和手机使用同一邮箱账号登录即可同步。
+题目、笔记、收藏、已背状态、熟练度和回收站记录保存在当前设备、当前浏览器的本地存储中，可离线使用。
 
-没有配置 Supabase 时，应用仍能离线使用，并可通过“更多 -> 数据与同步”导入或导出备份。
+通过桌面工具栏或手机“更多 -> 本地备份”导出 JSON 文件，可将学习记录迁移到其他设备。导入备份会替换当前记录，建议先导出当前数据。
+
+## 3. 应用更新
+
+应用启动、重新回到页面或恢复网络时会自动检查新版本。新版准备好后点击“更新”即可使用；“本地备份”弹窗也提供当前版本与“检查更新”按钮。
+
+发布修改时统一更新 `index.html` 的应用版本及修改资源的查询版本、`version.json`、`app-updates.js` 的兜底版本和 `sw.js` 的缓存名称/资源清单，确保离线缓存刷新。更新不会清除本地学习记录。

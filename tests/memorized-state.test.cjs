@@ -30,7 +30,7 @@ function setup(store = new Map()) {
         function applyRecruitmentSnapshot() {}
         function applyInterviewSnapshot() {}
         function applyCustomBankQuestionsSnapshot() {}
-        renderAll = buildCategoryBtns = toast = bindEvents = initMobile = updateSyncUI = registerPWA = applySidebarState = function() {};
+        renderAll = buildCategoryBtns = toast = bindEvents = initMobile = registerPWA = applySidebarState = function() {};
     `);
     return { run, store };
 }
@@ -77,7 +77,6 @@ test('invalid memorized snapshot records reject the entire snapshot before mutat
     assert.throws(() => run('applyStateSnapshot({userNotes:[],deletedIds:["bank-Q01-001"],memorizedIds:["bank-Q01-002",5]});'), /已背.*格式/);
     assert.equal(run('JSON.stringify(getStateSnapshot())'), before);
     assert.deepEqual([...store], persisted);
-    assert.equal(run('syncApplyingRemote'), false);
 });
 
 test('legacy permanent deletion and empty trash remove memorized records', () => {

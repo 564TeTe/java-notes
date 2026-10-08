@@ -8,9 +8,10 @@
         { module: 'recruitment', scene: 'reach', src: './assets/themes/tatsumaki-reach.jpg', layout: 'poster', chapter: '05 / OPPORTUNITIES', title: '秋招专区', caption: '招聘信息 · 投递进展', position: '65% 24%' },
         { module: 'resources', scene: 'welcome', src: './assets/themes/tatsumaki-welcome.jpg', layout: 'catalog', chapter: '06 / REFERENCE', title: '学习资源', caption: '常用命令 · 学习资料', position: '50% 22%' },
         { module: 'personal', scene: 'wink', src: './assets/themes/tatsumaki-wink.jpg', layout: 'note', chapter: '07 / MY NOTES', title: '我的笔记', caption: '记录想法 · 整理所学', position: '50% 40%' },
-        { module: 'memorized', scene: 'panorama', src: './assets/themes/tatsumaki-panorama.png', layout: 'panorama', chapter: '08 / REVIEW', title: '已背会', caption: '复习巩固 · 温故知新', position: '50% 50%' },
+        { module: 'memorized', scene: 'review', src: './assets/themes/tatsumaki-review.png', layout: 'review', chapter: '08 / REVIEW', title: '已背会', caption: '复习巩固 · 温故知新', position: '50% 50%' },
         { module: 'marked', scene: 'avatar', src: './assets/themes/tatsumaki-avatar.png', layout: 'bookmark', chapter: '09 / BOOKMARKS', title: '重点收藏', caption: '值得再看一遍', position: '50% 35%' },
-        { module: 'glossary', scene: 'uniform', src: './assets/themes/tatsumaki-uniform.jpg', layout: 'lexicon', chapter: '10 / GLOSSARY', title: '术语词典', caption: '概念速查 · 理清术语', position: '50% 20%' }
+        { module: 'glossary', scene: 'uniform', src: './assets/themes/tatsumaki-uniform.jpg', layout: 'lexicon', chapter: '10 / GLOSSARY', title: '术语词典', caption: '概念速查 · 理清术语', position: '50% 20%' },
+        { module: 'annotations', scene: 'annotations', src: './assets/themes/tatsumaki-annotations.jpg', layout: 'reference', chapter: '11 / ANNOTATIONS', title: '注解专区', caption: '注解速查 · 理清用法', position: '50% 50%' }
     ];
 
     function initialize() {

@@ -5,6 +5,67 @@ const vm = require('node:vm');
 const path = require('node:path');
 const root = path.join(__dirname, '..');
 
+test('focused review includes memorized questions and personal copies regardless of the previous workspace', () => {
+    const { run } = setup();
+    run('const focused=saveCustomBankQuestion({question:"面经重点",answer:"原始答案",category:"公司分类",company:"测试公司"}); userNotes=[{id:"user-focused-copy",sourceId:focused.id,question:"个人理解",answer:"我的理解",category:"笔记分类"}]; markedIds.add(focused.id); markedIds.add("user-focused-copy"); memorizeStudyNote(focused.id); showMarkedOnly=true;');
+    for (const source of ['bank', 'personal', 'memorized']) {
+        run(`studySource=${JSON.stringify(source)};`);
+        assert.deepEqual(Array.from(run('getFilteredNotes().map(n=>n.id).sort()')), [run('focused.id'), 'user-focused-copy'].sort());
+        assert.ok(run('studyCategories().includes("公司分类") && studyCategories().includes("笔记分类")'));
+    }
+    run('deletedIds.add(focused.id);');
+    assert.deepEqual(Array.from(run('getFilteredNotes().map(n=>n.id)')), ['user-focused-copy']);
+});
+
+test('focused cards restore memorized questions and keep personal copies editable', () => {
+    const { run } = setup();
+    run('const focused=getStudyPool("bank")[0]; memorizeStudyNote(focused.id); showMarkedOnly=true; studySource="personal";');
+    assert.match(run('studyCard(focused)'), /data-study="restore-memorized"/);
+    assert.match(run('studyCard(focused)'), /study-status known">已背/);
+    const copy = run('studyCard({id:"user-copy",sourceId:focused.id,question:"个人理解",answer:"笔记",category:"Java 基础"})');
+    assert.match(copy, /data-study="edit"/);
+    assert.doesNotMatch(copy, /data-study="memorize"/);
+});
+
+test('focused review deletes questions and moves personal copies according to their own source', () => {
+    const { run } = setup();
+    run('const target=getStudyPool("bank")[0]; userNotes=[{id:"user-focused-copy",sourceId:target.id,question:"个人理解",answer:"笔记",category:"笔记分類"}]; markedIds.add(target.id); markedIds.add("user-focused-copy"); showMarkedOnly=true; studySource="personal"; deleteNote(target.id);');
+    assert.ok(run('deletedIds.has(target.id)'));
+    run('studySource="bank"; deleteNote("user-focused-copy");');
+    assert.ok(run('!deletedIds.has("user-focused-copy")'));
+    assert.ok(run('getBankStudyRecords().some(n=>n.id==="user-focused-copy")'));
+    assert.ok(run('!getPersonalNotes().some(n=>n.id==="user-focused-copy")'));
+});
+
+test('focused review applies its category filter to the combined collection', () => {
+    const { run } = setup();
+    run('const target=getStudyPool("bank")[0]; userNotes=[{id:"user-focused-copy",sourceId:target.id,question:"个人理解",answer:"笔记",category:"笔记分类"}]; markedIds.add(target.id); markedIds.add("user-focused-copy"); showMarkedOnly=true; activeCategory="笔记分类";');
+    assert.deepEqual(Array.from(run('getFilteredNotes().map(n=>n.id)')), ['user-focused-copy']);
+    run('activeCategory="不存在的分类";');
+    assert.equal(run('getFilteredNotes().length'), 0);
+});
+
+test('desktop category clicks keep the focused collection open', () => {
+    const { run } = setup();
+    run('const categoryControl=document.getElementById("categoryBtns"); categoryControl.addEventListener=(type,listener)=>{if(type==="click") categoryControl.listener=listener;}; bindEvents(); showMarkedOnly=true; categoryControl.listener({target:{classList:{contains:value=>value==="cat-btn",add(){}},dataset:{cat:"Java 基础"}}});');
+    assert.equal(run('showMarkedOnly'), true);
+    assert.equal(run('activeCategory'), 'Java 基础');
+});
+
+test('linked interview quiz includes memorized questions and uses the linked categories and count', () => {
+    const { run } = setup();
+    run('const linked=saveCustomBankQuestion({question:"已背面经",answer:"完整答案",category:"面经唯一分类",company:"测试公司"}); memorizeStudyNote(linked.id); startQuiz("bank");');
+    assert.ok(run('!getQuizPool().some(n=>n.id===linked.id)'));
+    run('quizLinkedIds=[linked.id]; quizLinkedTitle="测试公司";');
+    assert.deepEqual(Array.from(run('getQuizPool().map(n=>n.id)')), [run('linked.id')]);
+    const html = run('renderStudyQuiz()');
+    assert.match(html, /面经题目<small>1 道/);
+    assert.match(html, /<option value="面经唯一分类">/);
+    assert.doesNotMatch(html, /<option value="MySQL">/);
+    run('drawStudyQuiz();');
+    assert.equal(run('quizNotes[0].id'), run('linked.id'));
+});
+
 function setup() {
     const store = new Map();
     const element = { value: '', textContent: '', innerHTML: '', style: {}, dataset: {},
@@ -18,7 +79,7 @@ function setup() {
     const context = vm.createContext({ console, URL, FormData, crypto: require('node:crypto').webcrypto,
         localStorage: { getItem: k => store.get(k), setItem: (k,v) => store.set(k,v), removeItem: k => store.delete(k) },
         document: { getElementById: getElement, querySelector: () => element, querySelectorAll: () => [], addEventListener(){} },
-        setTimeout(){}, clearTimeout(){}, confirm: () => true, requestAnimationFrame(){}, scrollTo(){} });
+        setTimeout(){}, clearTimeout(){}, confirm: () => true, requestAnimationFrame(){}, scrollTo(){}, addEventListener(){} });
     context.window = context;
     const run = code => vm.runInContext(code, context);
     for (const name of ['resume-data.js', 'resume-question-expansion.js', 'resume-claims.js', 'resume-workbench.js', 'resume-module.js', 'recruitment-module.js', 'data/question-bank.js', 'data/question-curation.js', 'study-core.js']) run(fs.readFileSync(path.join(root, name), 'utf8'));

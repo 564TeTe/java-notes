@@ -3,11 +3,11 @@
 html[data-theme="tatsumaki"] { --day-bg:#f4f3ef; --day-panel:#faf9f5; --day-soft:#eae9e3; --day-line:#cbc9c1; --day-ink:#191b1a; --day-body:#343632; --day-muted:#66655f; }
 html[data-theme="tatsumaki"] body { --danger:#444641; --danger-light:#e9e8e1; background:#f4f3ef; isolation:isolate; }
 /* Quiet paper and manga screentone; character art is only painted once. */
-html[data-theme="tatsumaki"] body::before { content:""; position:fixed; inset:56px 0 0; z-index:-2; pointer-events:none; background:radial-gradient(ellipse at 98% 12%,#d4e2d3 0,transparent 50%),repeating-linear-gradient(0deg,#191b1a02 0 1px,transparent 1px 4px),#f4f3ef; }
-html[data-theme="tatsumaki"] body::after { content:""; position:fixed; right:0; bottom:0; width:34vw; height:48vh; z-index:-1; pointer-events:none; background:radial-gradient(#52795c33 .7px,transparent .9px) 0 0 / 6px 6px; mask-image:linear-gradient(140deg,transparent 5%,#000); }
+html[data-theme="tatsumaki"] body::before { content:""; position:fixed; inset:56px 0 0; z-index:-2; pointer-events:none; background:repeating-linear-gradient(0deg,#191b1a02 0 1px,transparent 1px 4px),#f4f3ef; }
+html[data-theme="tatsumaki"] body::after { content:""; position:fixed; right:0; bottom:0; width:34vw; height:48vh; z-index:-1; pointer-events:none; background:radial-gradient(#191b1a22 .7px,transparent .9px) 0 0 / 6px 6px; mask-image:linear-gradient(140deg,transparent 5%,#000); }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-header { background:#191b1a; color:#f4f3ef; border-bottom:1px solid #191b1a; box-shadow:none; gap:18px; }
 html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-brand { color:#f4f3ef; }
-html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-brand>span { background:#f4f3ef; border:1px solid #f4f3ef; border-radius:2px; filter:grayscale(1); }
+html[data-theme="tatsumaki"][data-theme-mode="light"] body .workspace-brand>span { background:#f4f3ef; border:1px solid #f4f3ef; border-radius:2px; }
 html[data-theme="tatsumaki"] body .workspace-brand small { color:#aaa9a1; }
 html[data-theme="tatsumaki"] body .workspace-header nav { min-width:0; overflow-x:auto; scrollbar-width:none; }
 html[data-theme="tatsumaki"] body .workspace-tools { flex-shrink:0; }
@@ -82,13 +82,16 @@ html[data-theme="tatsumaki"] body[data-workspace="recruitment"] .main { grid-tem
 html[data-theme="tatsumaki"] body[data-workspace="recruitment"] .recruit-panel { border-top:3px solid #191b1a; border-radius:0; }
 html[data-theme="tatsumaki"] body[data-workspace="personal"] .tatsumaki-illustration { height:min(64dvh,570px); min-height:0; }
 html[data-theme="tatsumaki"] body[data-workspace="marked"] .tatsumaki-illustration { height:430px; min-height:0; }
-/* The supplied landscape stays in its native ratio and color. */
-html[data-theme="tatsumaki"] body[data-workspace="memorized"] .main { grid-template-columns:minmax(0,1fr) minmax(280px,48%); }
-html[data-theme="tatsumaki"] body[data-workspace="memorized"] .tatsumaki-illustration { grid-row:1; position:relative; top:auto; height:auto; min-height:0; display:block; border:0; mix-blend-mode:normal; }
-html[data-theme="tatsumaki"] body[data-workspace="memorized"] .tatsumaki-artwork { display:block; }
-html[data-theme="tatsumaki"] body[data-workspace="memorized"] .tatsumaki-artwork img { width:100%; height:auto; aspect-ratio:12 / 5; filter:none; mix-blend-mode:normal; mask-image:none; object-fit:contain; }
-html[data-theme="tatsumaki"] body[data-workspace="memorized"] .main-header { grid-column:1 / -1; margin-top:22px; }
-html[data-theme="tatsumaki"] body[data-workspace="memorized"] .main>#notesContainer { grid-column:1 / -1; }
+/* Review keeps the portrait beside the reading list; the handbook gets a quieter, narrower stage. */
+html[data-theme="tatsumaki"] body[data-workspace="memorized"] .main { grid-template-columns:minmax(0,1fr) clamp(250px,25vw,360px); }
+html[data-theme="tatsumaki"] body[data-workspace="memorized"] .tatsumaki-illustration { height:min(72dvh,740px); min-height:0; }
+html[data-theme="tatsumaki"] body[data-workspace="memorized"] .tatsumaki-artwork img { max-height:calc(min(72dvh,740px) - 56px); }
+html[data-theme="tatsumaki"] body[data-workspace="annotations"] .main { grid-template-columns:minmax(0,1fr) clamp(240px,20vw,290px); column-gap:40px; max-width:1460px; }
+html[data-theme="tatsumaki"] body[data-workspace="annotations"] .tatsumaki-heading { padding-bottom:20px; border-top:3px solid var(--tatsu-green); }
+html[data-theme="tatsumaki"] body[data-workspace="annotations"] .tatsumaki-illustration { height:min(68dvh,640px); min-height:0; }
+html[data-theme="tatsumaki"] body[data-workspace="annotations"] .tatsumaki-artwork img { max-height:calc(min(68dvh,640px) - 56px); }
+html[data-theme="tatsumaki"] body[data-workspace="annotations"] .annotation-intro { gap:20px; }
+html[data-theme="tatsumaki"] body[data-workspace="annotations"] .annotation-card-summary { grid-template-columns:minmax(180px,.7fr) minmax(0,1fr) 12px; gap:14px; }
 .theme-preview-tatsumaki { background:#f4f3ef url('./assets/themes/tatsumaki-avatar.png') right center / auto 100% no-repeat; border-color:#cbc9c1; filter:grayscale(1); background-blend-mode:multiply; }
 .theme-preview-tatsumaki :is(.theme-preview-top,.theme-preview-body) { position:relative; width:46%; background:#191b1a; }
 .theme-preview-tatsumaki .theme-preview-top { color:#fff; }
@@ -101,7 +104,8 @@ html[data-theme="tatsumaki"] body dialog.theme-picker { border-radius:4px; }
  html[data-theme="tatsumaki"] body[data-workspace="resources"] .main { grid-template-columns:220px minmax(0,1fr); column-gap:26px; }
  html[data-theme="tatsumaki"] body[data-workspace="quiz"] .main { grid-template-columns:34% minmax(0,1fr); column-gap:32px; }
  html[data-theme="tatsumaki"] body[data-workspace="interviews"] .interview-company-layout { grid-template-columns:140px minmax(0,1fr); gap:15px; }
- html[data-theme="tatsumaki"] body[data-workspace="memorized"] .main { grid-template-columns:minmax(0,1fr) 48%; }
+ html[data-theme="tatsumaki"] body[data-workspace="memorized"] .main { grid-template-columns:minmax(0,1fr) 240px; }
+ html[data-theme="tatsumaki"] body[data-workspace="annotations"] .main { grid-template-columns:minmax(0,1fr) 220px; column-gap:24px; }
  .tatsumaki-illustration { min-height:360px; }
  html[data-theme="tatsumaki"] body .tatsumaki-heading h2 { font-size:42px; }
 }
@@ -137,6 +141,19 @@ html[data-theme="tatsumaki"] body dialog.theme-picker { border-radius:4px; }
  html[data-theme="tatsumaki"] body .main-header .search-wrap { margin-top:0; }
  html[data-theme="tatsumaki"] body .main>#notesContainer { grid-column:1 / -1; grid-row:3; }
  html[data-theme="tatsumaki"] body[data-workspace="bank"] .study-card.note { padding:17px 15px 12px; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .main { padding-top:6px; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .tatsumaki-illustration { height:188px; transform:none; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .tatsumaki-heading { padding:8px 0 12px; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .tatsumaki-heading h2 { margin:6px 0; line-height:1.2; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .tatsumaki-heading p { line-height:1.5; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .main-header { margin:4px 0 8px; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .study-summary { gap:6px; padding:2px 0 8px; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .study-summary-count { gap:8px; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .study-list-bar { margin:0 0 4px; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .study-list-bar>.study-list-heading { min-height:40px; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .study-list-heading :is(.study-filter-toggle,.study-list-tools button) { min-height:40px; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .study-list-bar>.study-pagination.pagination-compact { padding:0; gap:4px 8px; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .pagination-compact .page-steps button { width:40px; height:40px; min-height:40px; }
  html[data-theme="tatsumaki"] body[data-workspace="resources"] .main { grid-template-columns:minmax(0,1fr) 43%; column-gap:18px; }
  html[data-theme="tatsumaki"] body[data-workspace="resources"] .tatsumaki-heading { border:0; grid-column:1; grid-row:1; padding:14px 0; }
  html[data-theme="tatsumaki"] body[data-workspace="resources"] .tatsumaki-heading h2 { font-size:37px; }
@@ -150,17 +167,24 @@ html[data-theme="tatsumaki"] body dialog.theme-picker { border-radius:4px; }
  html[data-theme="tatsumaki"] body[data-workspace="interviews"] .interview-company-layout { display:block; }
  html[data-theme="tatsumaki"] body[data-workspace="personal"] .tatsumaki-illustration { height:200px; }
  html[data-theme="tatsumaki"] body[data-workspace="marked"] .tatsumaki-illustration { height:180px; }
- html[data-theme="tatsumaki"] body[data-workspace="memorized"] .main { grid-template-columns:1fr; }
- html[data-theme="tatsumaki"] body[data-workspace="memorized"] .tatsumaki-heading { grid-row:1; padding-bottom:14px; }
- html[data-theme="tatsumaki"] body[data-workspace="memorized"] .tatsumaki-illustration { grid-column:1; grid-row:2; height:auto; }
- html[data-theme="tatsumaki"] body[data-workspace="memorized"] .tatsumaki-artwork { height:auto; }
- html[data-theme="tatsumaki"] body[data-workspace="memorized"] .main-header { grid-row:3; margin-top:18px; }
- html[data-theme="tatsumaki"] body[data-workspace="memorized"] .main>#notesContainer { grid-row:4; }
+ html[data-theme="tatsumaki"] body[data-workspace="memorized"] .main { grid-template-columns:minmax(0,1fr) 44%; column-gap:14px; }
+ html[data-theme="tatsumaki"] body[data-workspace="memorized"] .tatsumaki-illustration { height:240px; }
+ html[data-theme="tatsumaki"] body[data-workspace="memorized"] .tatsumaki-artwork img { max-height:100%; }
+ html[data-theme="tatsumaki"] body[data-workspace="memorized"] .main>#notesContainer { grid-column:1 / -1; grid-row:3; }
+ html[data-theme="tatsumaki"] body[data-workspace="annotations"] .main { grid-template-columns:minmax(0,1fr) 40%; column-gap:14px; }
+ html[data-theme="tatsumaki"] body[data-workspace="annotations"] .tatsumaki-heading { border:0; padding:14px 0; }
+ html[data-theme="tatsumaki"] body[data-workspace="annotations"] .tatsumaki-illustration { height:220px; }
+ html[data-theme="tatsumaki"] body[data-workspace="annotations"] .tatsumaki-artwork img { max-height:100%; }
+ html[data-theme="tatsumaki"] body[data-workspace="annotations"] .main>#notesContainer { grid-column:1 / -1; grid-row:3; }
+ html[data-theme="tatsumaki"] body[data-workspace="annotations"] .annotation-card-summary { grid-template-columns:minmax(0,1fr) 12px; gap:6px 12px; }
+ html[data-theme="tatsumaki"] body[data-workspace="annotations"] .annotation-card-name,html[data-theme="tatsumaki"] body[data-workspace="annotations"] .annotation-card-purpose { grid-column:1; }
+ html[data-theme="tatsumaki"] body[data-workspace="annotations"] .annotation-card-summary>.annotation-chevron { grid-column:2; grid-row:1 / 3; }
 }
 @media (max-width:350px) {
  html[data-theme="tatsumaki"] body .tatsumaki-heading h2 { font-size:28px; }
  html[data-theme="tatsumaki"] body[data-workspace="resources"] .tatsumaki-heading h2 { font-size:30px; }
  html[data-theme="tatsumaki"] body .tatsumaki-illustration { height:200px; }
+ html[data-theme="tatsumaki"] body[data-workspace="bank"] .tatsumaki-illustration { height:164px; }
  .tatsumaki-heading p { font-size:9px; }
 }
 @media (prefers-reduced-motion:reduce) { html[data-theme="tatsumaki"] body .main { transition:none; } }
@@ -198,7 +222,6 @@ html[data-theme="tatsumaki"] body :is(.resume-reading-tabs button,.recruit-tabs 
 }
 
 .tatsumaki-illustration::before,.tatsumaki-illustration::after { content:none; }
-html[data-theme="tatsumaki"] body[data-workspace="memorized"] .tatsumaki-signature { display:none; }
 html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .study-list-heading :is(p,span) { color:#c4c5ba; }
 html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .study-quiz-sources { display:grid; width:100%; max-width:none; grid-template-columns:repeat(2,minmax(0,1fr)); }
 html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .quiz-config label select { width:100%; }
@@ -217,4 +240,91 @@ html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .quiz-c
 html[data-theme="tatsumaki"] body[data-workspace="quiz"] .tatsumaki-heading .tatsumaki-chapter { color:var(--tatsu-mint); }
 @media(max-width:768px) {
  html[data-theme="tatsumaki"] body[data-workspace="quiz"] .tatsumaki-heading .tatsumaki-chapter { color:var(--tatsu-green); }
+}
+
+/* Compact chapter pages: the artwork shares a short introduction with the title. */
+html[data-theme="tatsumaki"] body { font-size:13px; }
+html[data-theme="tatsumaki"] body .main,html[data-theme="tatsumaki"] body .main.shifted,html[data-theme="tatsumaki"] body.study-mode .main { padding-top:24px; }
+html[data-theme="tatsumaki"] body[data-tatsumaki-art="on"] .tatsumaki-heading { padding:6px 0 16px; }
+html[data-theme="tatsumaki"] body[data-tatsumaki-art="on"] .tatsumaki-heading h2 { font-size:clamp(30px,3vw,40px); line-height:1.2; margin:8px 0; }
+html[data-theme="tatsumaki"] body .tatsumaki-heading p { line-height:1.6; }
+html[data-theme="tatsumaki"] body[data-tatsumaki-art="on"] .tatsumaki-illustration { height:min(54dvh,540px); min-height:0; }
+html[data-theme="tatsumaki"] body[data-tatsumaki-art="on"] .tatsumaki-artwork img { max-height:calc(min(54dvh,540px) - 44px); }
+@media (min-width:769px) {
+ html[data-theme="tatsumaki"] body[data-workspace="marked"] .tatsumaki-illustration { height:min(44dvh,400px); }
+ html[data-theme="tatsumaki"] body[data-workspace="marked"] .tatsumaki-artwork img { max-height:calc(min(44dvh,400px) - 44px); }
+}
+html[data-theme="tatsumaki"] body .tatsumaki-signature { padding-top:8px; margin-top:8px; }
+html[data-theme="tatsumaki"] body .study-summary { gap:8px; padding:3px 0 12px; }
+html[data-theme="tatsumaki"] body :is(.study-card.note,.interview-question-card,.study-quiz-card,.resume-qa-card,.recruit-panel,.recruit-job-card,.guide-core-card,.guide-article,.glossary-entry,.annotation-card,.annotation-basics) { margin-bottom:10px; }
+html[data-theme="tatsumaki"] body :is(.study-question,.resume-question) { font-size:15px; line-height:1.65; }
+html[data-theme="tatsumaki"] body .study-card .study-question { font-size:15px; }
+html[data-theme="tatsumaki"] body :is(.study-answer,.note .answer,.resume-answer,.resume-answer>p,.resume-pitch-card p,.glossary-entry p,.annotation-detail) { font-size:13px; line-height:1.8; }
+html[data-theme="tatsumaki"] body :is(.interview-company-head h2,.interview-record-intro h2,.resume-section-heading h2,.resume-check-head h2,.resume-library-head h2,.recruit-panel-head h2) { font-size:18px; }
+html[data-theme="tatsumaki"] body :is(.resume-pitch-card h3,.resume-story-card h3,.resume-library-card h3,.resume-source-card h3,.study-quiz-card h3) { font-size:15px; }
+html[data-theme="tatsumaki"] body :is(.study-empty h3,.recruit-empty h3,.career-empty h3) { font-size:16px; }
+html[data-theme="tatsumaki"] body :is(.glossary-entry h2,.annotation-group-heading h2,.recruit-job-card h3,.recruit-app-main h3) { font-size:14px; }
+html[data-theme="tatsumaki"] body .annotation-basics-content h3 { font-size:13px; }
+html[data-theme="tatsumaki"] body :is(.resume-stat-grid strong,.recruit-overview-stats strong) { font-size:20px; }
+html[data-theme="tatsumaki"] body .recruit-stats strong { font-size:16px; }
+html[data-theme="tatsumaki"] body .recruit-overview h2 { font-size:21px; }
+html[data-theme="tatsumaki"] body .prep-start h2 { font-size:21px; }
+html[data-theme="tatsumaki"] body .prep-progress strong { font-size:28px; }
+html[data-theme="tatsumaki"] body .prep-navigation { margin-bottom:14px; }
+html[data-theme="tatsumaki"] body .resume-section-heading { margin:18px 0 12px; }
+html[data-theme="tatsumaki"] body :is(.resume-source-card,.resume-pitch-card,.resume-story-card,.recruit-panel) { padding:18px; }
+html[data-theme="tatsumaki"] body .annotation-intro { margin-bottom:10px; gap:12px; }
+html[data-theme="tatsumaki"] body .annotation-intro-text { font-size:13px; }
+html[data-theme="tatsumaki"] body .annotation-version { margin:8px 0 12px; }
+html[data-theme="tatsumaki"] body .annotation-toolbar { padding-bottom:12px; }
+html[data-theme="tatsumaki"] body .annotation-count { margin:10px 0 14px; }
+html[data-theme="tatsumaki"] body .annotation-card-summary { min-height:54px; padding:12px 14px; }
+html[data-theme="tatsumaki"] body .annotation-basics>summary { min-height:44px; padding:10px 12px; }
+html[data-theme="tatsumaki"] body[data-workspace="interviews"] .interview-question-card { padding:14px 16px; }
+html[data-theme="tatsumaki"] body[data-workspace="quiz"] .tatsumaki-heading { padding:22px 24px 14px; }
+html[data-theme="tatsumaki"] body[data-workspace="quiz"] .main>#notesContainer { padding:0 24px 24px; }
+html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .quiz-config { gap:12px; padding:16px 0; }
+html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .study-quiz-sources>button { min-height:54px; padding:12px; }
+html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .study-quiz-card { margin-top:14px; padding:18px; }
+html[data-theme="tatsumaki"] body[data-workspace="quiz"] .main::before { min-height:460px; }
+html[data-theme="tatsumaki"] body[data-workspace="resources"] .main>#notesContainer { padding:18px 22px; }
+@media (max-width:768px) {
+ html[data-theme="tatsumaki"] body::before { inset:64px 0 0; }
+ html[data-theme="tatsumaki"] body .main,html[data-theme="tatsumaki"] body .main.shifted,html[data-theme="tatsumaki"] body.study-mode .main,html[data-theme="tatsumaki"] body.context-directory .main { padding-top:6px; }
+ html[data-theme="tatsumaki"] body[data-tatsumaki-art="on"] .tatsumaki-heading { padding:6px 0 10px; }
+ html[data-theme="tatsumaki"] body[data-tatsumaki-art="on"] .tatsumaki-heading h2 { font-size:28px; margin:6px 0; }
+ html[data-theme="tatsumaki"] body .tatsumaki-heading p { line-height:1.5; }
+ html[data-theme="tatsumaki"] body[data-tatsumaki-art="on"] .tatsumaki-illustration { height:168px; min-height:0; }
+ html[data-theme="tatsumaki"] body[data-workspace="quiz"] .tatsumaki-illustration { height:178px; }
+ html[data-theme="tatsumaki"] body[data-tatsumaki-art="on"] .tatsumaki-artwork img { max-height:100%; }
+ html[data-theme="tatsumaki"] body[data-tatsumaki-art="on"] .main-header { margin:4px 0 8px; }
+ html[data-theme="tatsumaki"] body .study-summary { gap:6px; padding:2px 0 8px; }
+ html[data-theme="tatsumaki"] body .study-summary-count { gap:8px; }
+ html[data-theme="tatsumaki"] body .study-list-bar { margin:0 0 4px; }
+ html[data-theme="tatsumaki"] body .study-list-bar>.study-list-heading { min-height:40px; }
+ html[data-theme="tatsumaki"] body .study-list-heading :is(.study-filter-toggle,.study-list-tools button) { min-height:40px; }
+ html[data-theme="tatsumaki"] body .study-list-bar>.study-pagination.pagination-compact { padding:0; gap:4px 8px; }
+ html[data-theme="tatsumaki"] body .pagination-compact .page-steps button { width:40px; height:40px; min-height:40px; }
+ html[data-theme="tatsumaki"] body .study-card.note .study-question { font-size:14px; line-height:1.6; }
+ html[data-theme="tatsumaki"] body .interview-question-card .study-question { font-size:14px; line-height:1.6; }
+ html[data-theme="tatsumaki"] body .interview-question-card .study-card-actions { gap:6px; }
+ html[data-theme="tatsumaki"] body .interview-question-card .study-card-actions>button,html[data-theme="tatsumaki"] body .interview-question-card .study-card-more>summary { width:40px; min-height:40px; padding:8px; font-size:0; gap:0; }
+ html[data-theme="tatsumaki"] body .interview-question-card .study-card-actions>button .study-action-label,html[data-theme="tatsumaki"] body .interview-question-card .study-card-more>summary .study-action-label { display:none; }
+ html[data-theme="tatsumaki"] body .interview-question-card .study-card-footer>span { font-size:11px; }
+ html[data-theme="tatsumaki"] body :is(.interview-company-head h2,.interview-record-intro h2,.resume-section-heading h2,.resume-check-head h2,.resume-library-head h2,.recruit-panel-head h2) { font-size:16px; }
+ html[data-theme="tatsumaki"] body[data-workspace="quiz"] .main::before { min-height:0; }
+ html[data-theme="tatsumaki"] body[data-workspace="quiz"] .main>#notesContainer { padding:14px 14px 18px; }
+ html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .quiz-config { gap:12px 10px; padding:14px 0; }
+ html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .study-quiz-sources>button { min-height:44px; padding:8px 10px; }
+ html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .quiz-config>button { min-height:40px; margin-top:2px; font-size:13px; }
+ html[data-theme="tatsumaki"] body[data-workspace="quiz"] #notesContainer .study-progress { padding-top:10px; }
+ html[data-theme="tatsumaki"] body[data-workspace="resources"] .main>#notesContainer { padding:12px 10px; }
+ html[data-theme="tatsumaki"] body :is(.study-summary-actions button,.study-card-actions button,.interview-company-actions button,.career-primary,.career-secondary,.resume-filter,.recruit-tab,.choice-option,.resume-mastery button,.study-ratings button,.mastery-actions button,.pagination-compact button) { min-height:40px; }
+ html[data-theme="tatsumaki"] body :is(.resume-source-card,.resume-pitch-card,.resume-story-card,.recruit-panel) { padding:14px; }
+ html[data-theme="tatsumaki"] body .recruit-tabs { top:64px; }
+}
+@media (max-width:350px) {
+ html[data-theme="tatsumaki"] body[data-tatsumaki-art="on"] .tatsumaki-heading h2 { font-size:24px; }
+ html[data-theme="tatsumaki"] body[data-tatsumaki-art="on"] .tatsumaki-illustration { height:152px; }
+ html[data-theme="tatsumaki"] body[data-workspace="quiz"] .tatsumaki-illustration { height:164px; }
 }
