@@ -171,6 +171,7 @@ getFilteredNotes = function() {
 };
 function resetStudyModes() {
     showAnnotations = showGlossary = showQuiz = showTrash = showMarkedOnly = showResources = showInterviewExp = showResumePrep = showRecruitment = false;
+    if (typeof showMindMap !== 'undefined') showMindMap = false;
     activeNoteId = null;
 }
 function clearStudyFilters() {
@@ -321,7 +322,7 @@ function renderStudyLibrary(filtered) {
     if (!showTrash && !showMarkedOnly) html += memorized
         ? `<section class="study-summary" aria-label="已背进度"><div class="study-summary-count"><span>已背 <strong>${pool.length}</strong> 道题目</span><span>需要再复习时可移回题库</span></div><div class="study-summary-actions"><button class="study-secondary" data-study="source" data-source="bank">返回题库 →</button></div></section>`
         : `<section class="study-summary" aria-label="学习进度"><div class="study-summary-count"><span>共 <strong>${pool.length}</strong> ${bank ? '道题目' : '条笔记'}</span><span>已掌握 <b>${known}</b></span><span>待巩固 <b>${weak}</b></span>${bank ? `<button class="study-text study-memorized-link" data-study="source" data-source="memorized">已背 <b>${getStudyPool('memorized').length}</b> →</button>` : ''}</div><div class="study-summary-actions">${bank ? '<button class="study-text" data-study="add-bank">＋ 添加题目</button><button class="study-secondary" data-study="weak">练习薄弱题</button>' : '<button class="study-secondary" data-study="add">＋ 写笔记</button>'}<button class="study-primary" data-study="quiz" data-source="${studySource}" ${pool.length ? '' : 'disabled'}>${bank ? '开始抽查' : '复习笔记'} →</button></div></section>`;
-    if (studyLinkedIds && !showTrash) html += `<div class="study-linked">面经关联：${studyEsc(studyLinkedTitle)}<button data-study="clear">查看全部题库 ×</button></div>`;
+    if (studyLinkedIds && !showTrash) html += `<div class="study-linked">关联内容：${studyEsc(studyLinkedTitle)}<button data-study="clear">查看全部题库 ×</button></div>`;
     html += `<div class="study-list-bar"><div class="study-list-heading"><h2>${showTrash ? '已删除' : showMarkedOnly ? '已标记' : activeCategory !== 'all' ? studyEsc(activeCategory) : memorized ? '已背题目' : bank ? '全部题目' : '全部笔记'} <span>${filtered.length}</span></h2>${!showTrash ? studyFilterToggle() : ''}${studyAnswerToggle(filtered)}</div>${filtered.length ? renderStudyPagination(filtered.length, 'top') : ''}${!showTrash ? studyFilters() : ''}</div>`;
     if (showTrash && filtered.length) html += '<button class="study-secondary" onclick="emptyTrash()">清空回收站</button>';
     if (!filtered.length) html += `<div class="study-empty"><span>⌕</span><h3>${showTrash ? (getDeletedNotes().length ? '没有匹配的已删除内容' : '回收站是空的') : memorized && !pool.length ? '还没有已背题目' : !bank && !pool.length ? '暂无笔记' : '暂时没有符合条件的内容'}</h3><p>${showTrash ? '从题库删除的题目会显示在这里，可恢复或永久清除。' : memorized && !pool.length ? '在题库点击“标记已背”，题目会移到这里，题库中不再显示。' : bank ? '换一个关键词，或清空筛选继续学习。' : '写下第一条笔记，或从题库保存你想复习的问题。'}</p>${memorized && !pool.length ? '<button class="study-secondary" data-study="source" data-source="bank">去题库背题</button>' : '<button class="study-secondary" data-study="clear">清空筛选</button>'}${!bank && !showTrash ? '<button class="study-primary" data-study="add">写笔记</button>' : ''}</div>`;
@@ -369,7 +370,7 @@ function renderStudyQuiz() {
     const assessed = quizNotes.filter(n => mastery[n.id]?.session === studyQuizSession).length;
     return `${studyHeader()}<div class="study-quiz-sources" role="group" aria-label="抽查来源">${[['bank', quizLinkedIds ? '面经题目' : '题库'], ['personal', '我的笔记']].map(([source, title]) => `<button data-study="quiz-source" data-source="${source}" class="${quizSource === source ? 'active' : ''}" aria-pressed="${quizSource === source}"><strong>${title}<small>${getQuizStudyPool(source).length} 道</small></strong></button>`).join('')}</div>
     <div class="study-filters quiz-config"><label>知识分类<select data-quiz-filter="category">${studyOptions([['all', '全部分类'], ...[...new Set(getQuizStudyPool().map(n => n.category))].map(c => [c, c])], quizCategory)}</select></label><label>练习范围<select data-quiz-filter="level">${studyOptions([['all', '全部内容'], ['weak', '只练不会 / 模糊'], ['new', '只练未复习']], quizLevel)}</select></label><label class="quiz-count-field">每组题数<select data-quiz-filter="count">${studyOptions([['3', '3 道'], ['5', '5 道'], ['10', '10 道']], String(quizCount))}</select></label><button class="study-primary" data-study="draw" ${pool.length ? '' : 'disabled'}>${quizStarted ? '换一组题' : '开始抽查'} →</button></div>
-    ${quizLinkedIds ? `<div class="study-linked">面经关联：${studyEsc(quizLinkedTitle)}<button data-study="quiz-unlink">取消关联 ×</button></div>` : ''}
+    ${quizLinkedIds ? `<div class="study-linked">关联内容：${studyEsc(quizLinkedTitle)}<button data-study="quiz-unlink">取消关联 ×</button></div>` : ''}
     <div class="study-list-heading"><p>当前可抽 ${pool.length} 道${pool.length < quizCount && pool.length ? ' · 数量不足时抽取全部，不重复' : ''}</p>${quizStarted ? `<span>${quizLinkedIds ? studyEsc(quizLinkedTitle) : quizSource === 'bank' ? '全题库' : '我的笔记'} · 本组 ${quizNotes.length} 道 · 已自评 ${assessed} 道</span>` : ''}</div>
     ${!pool.length && !quizNotes.length ? `<div class="study-empty"><h3>当前范围没有可抽查的内容</h3><p>${quizLevel === 'weak' ? '标记为“不会”或“模糊”的题会出现在这里。' : '切换分类，或先添加笔记。'}</p><button class="study-secondary" data-study="quiz-reset">恢复全部范围</button><button class="study-secondary" data-study="source" data-source="personal">去我的笔记</button></div>` : ''}
     ${quizNotes.map((n, i) => { const title = StudyCore.questionTitle(n), revealed = !title || quizRevealed.has(i); return `<article class="study-quiz-card"><div class="study-card-meta"><span class="study-number">${String(i + 1).padStart(2, '0')}</span><span>${studyEsc(n.category)}</span><span>${studyEsc(n.number || '我的笔记')}</span></div>${title ? `<h3>${studyEsc(title)}</h3><button class="study-secondary" data-study="reveal" data-index="${i}" aria-expanded="${revealed}">${revealed ? '收起答案' : '查看答案'}</button>` : ''}${revealed ? `<div class="study-answer">${studyMarkdown(n.answer)}</div>${studyRatings(n, i)}` : ''}</article>`; }).join('')}`;
@@ -377,8 +378,10 @@ function renderStudyQuiz() {
 let studyQuizSession = Date.now();
 const legacyRenderNotes = renderNotes;
 renderNotes = function(filtered) {
-    const special = showAnnotations || showGlossary || showResumePrep || showRecruitment || showResources;
+    const mindmap = typeof showMindMap !== 'undefined' && showMindMap;
+    const special = showAnnotations || showGlossary || mindmap || showResumePrep || showRecruitment || showResources;
     document.body.classList.toggle('study-mode', !special);
+    document.body.classList.toggle('mindmap-mode', mindmap && !showAnnotations && !showGlossary);
     document.body.classList.toggle('interview-mode', showInterviewExp);
     if (showAnnotations) {
         document.body.classList.remove('resume-mode', 'recruitment-mode', 'interview-mode');
@@ -396,6 +399,16 @@ renderNotes = function(filtered) {
         document.getElementById('notesContainer').innerHTML = renderGlossary();
         return;
     }
+    if (mindmap) {
+        document.body.classList.remove('resume-mode', 'recruitment-mode', 'interview-mode');
+        document.getElementById('mainTitle').textContent = '思维导图';
+        document.getElementById('topbarTitle').textContent = '思维导图';
+        document.getElementById('mainSubtitle').textContent = '';
+        document.querySelector('.main-header .stats').style.display = 'none';
+        document.getElementById('notesContainer').innerHTML = typeof renderMindMap === 'function' ? renderMindMap() : '';
+        if (typeof mountMindMap === 'function') mountMindMap();
+        return;
+    }
     if (special) { legacyRenderNotes(filtered); return; }
     document.body.classList.remove('resume-mode', 'recruitment-mode');
     const title = showInterviewExp ? '公司面经' : showMarkedOnly ? '重点复习' : showQuiz ? '随机抽查' : showTrash ? '回收站' : studySource === 'memorized' ? '已背区' : studySource === 'bank' ? 'Java 后端题库' : '我的笔记';
@@ -407,7 +420,7 @@ renderNotes = function(filtered) {
 };
 const legacyRenderTOC = renderTOC;
 renderTOC = function(filtered) {
-    if (showAnnotations || showGlossary || showInterviewExp || showQuiz || showResources || showTrash) {
+    if (showAnnotations || showGlossary || (typeof showMindMap !== 'undefined' && showMindMap) || showInterviewExp || showQuiz || showResources || showTrash) {
         document.getElementById('tocList').innerHTML = '';
         document.getElementById('noResult').style.display = 'none'; return;
     }
@@ -422,7 +435,7 @@ refreshNoteDisplay = function() { renderAll(); };
 updateBadges = function() {
     legacyStudyBadges(); updateMobileNavActive();
     document.querySelectorAll('[data-study-nav]').forEach(btn => {
-        const active = !showAnnotations && !showGlossary && !showQuiz && !showTrash && !showMarkedOnly && !showInterviewExp && !showResumePrep && !showRecruitment && !showResources && btn.dataset.studyNav === studySource;
+        const active = !showAnnotations && !showGlossary && !(typeof showMindMap !== 'undefined' && showMindMap) && !showQuiz && !showTrash && !showMarkedOnly && !showInterviewExp && !showResumePrep && !showRecruitment && !showResources && btn.dataset.studyNav === studySource;
         btn.classList.toggle('active', active); btn.setAttribute('aria-pressed', active);
     });
 };

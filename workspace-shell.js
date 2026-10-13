@@ -6,6 +6,7 @@ function workspaceIcon(name) {
         annotations:'<circle cx="12" cy="12" r="9"/><path d="M16 8v6a2 2 0 0 0 4 0M16 12a4 4 0 1 1-4-4 4 4 0 0 1 4 4"/>',
         personal:'<path d="M13 4H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-8"/><path d="m16 3 5 5M10 14l-1 4 4-1 9-9a2 2 0 0 0-5-5Z"/>',
         interviews:'<path d="M20 15a3 3 0 0 1-3 3H9l-5 3v-6a3 3 0 0 1-2-3V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3Z"/><path d="M7 8h8M7 12h5"/>',
+        mindmap:'<rect x="3" y="9" width="6" height="6" rx="2"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/><path d="M9 12h4V5.5h3M13 12v6.5h3"/>',
         quiz:'<path d="M3 6h3c5 0 7 12 12 12h3M3 18h3c2 0 3-2 5-5m2-2c2-3 3-5 5-5h3"/><path d="m18 3 3 3-3 3m0 6 3 3-3 3"/>',
         more:'<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
         backup:'<path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/>',
@@ -22,6 +23,7 @@ function workspaceIcon(name) {
 function currentWorkspacePage() {
     if (typeof showAnnotations !== 'undefined' && showAnnotations) return 'annotations';
     if (showGlossary) return 'glossary';
+    if (typeof showMindMap !== 'undefined' && showMindMap) return 'mindmap';
     if (showInterviewExp) return 'interviews';
     if (showResumePrep) return 'resume';
     if (showRecruitment) return 'recruitment';
@@ -90,6 +92,7 @@ function navigateWorkspace(page) {
         return;
     }
     resetStudyModes(); clearStudyFilters();
+    if (typeof showMindMap !== 'undefined') showMindMap = page === 'mindmap';
     showInterviewExp = page === 'interviews'; showResumePrep = page === 'resume';
     showRecruitment = page === 'recruitment'; showResources = page === 'resources';
     showTrash = page === 'trash'; showMarkedOnly = page === 'marked';
@@ -101,7 +104,7 @@ function renderWorkspaceShell() {
     document.body.classList.toggle('context-directory', ['bank','personal','memorized','marked'].includes(page));
     document.querySelectorAll('[data-workspace-link]').forEach(button => {
         const key = button.dataset.workspaceLink;
-        const active = key === page || (key === 'more' && ['memorized','glossary','annotations','resume','recruitment','resources','trash','marked'].includes(page));
+        const active = key === page || (key === 'more' && ['memorized','mindmap','glossary','annotations','resume','recruitment','resources','trash','marked'].includes(page));
         button.classList.toggle('active', active);
         button.setAttribute('aria-current', active ? 'page' : 'false');
     });
@@ -125,7 +128,7 @@ function initWorkspaceShell() {
     const header = document.createElement('header');
     header.className = 'workspace-header';
     const topArtwork = '<div class="workspace-top-art" aria-hidden="true"><img src="./assets/themes/tatsumaki-panorama.png" alt="" width="3840" height="1600" decoding="async"></div>';
-    header.innerHTML = `<a class="workspace-brand" href="#" aria-label="面试工作台，返回题库" data-workspace-link="bank"><span><img src="./assets/themes/tatsumaki-brand.png" alt="" width="539" height="539" decoding="async"></span><strong>面试工作台</strong></a><nav aria-label="功能导航">${[['bank','题库'],['memorized','已背区'],['personal','我的笔记'],['interviews','公司面经'],['quiz','随机抽查'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['glossary','术语词典'],['annotations','注解专区']].map(([id,label])=>`<button data-workspace-link="${id}">${label}</button>`).join('')}</nav>${topArtwork}<div class="workspace-tools"><button data-workspace-link="trash">回收站 <small id="workspaceTrashCount" hidden></small></button><button data-workspace-link="backup">本地备份</button></div>`;
+    header.innerHTML = `<a class="workspace-brand" href="#" aria-label="面试工作台，返回题库" data-workspace-link="bank"><span><img src="./assets/themes/tatsumaki-brand.png" alt="" width="539" height="539" decoding="async"></span><strong>面试工作台</strong></a><nav aria-label="功能导航">${[['bank','题库'],['memorized','已背区'],['personal','我的笔记'],['interviews','公司面经'],['quiz','随机抽查'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['mindmap','思维导图'],['glossary','术语词典'],['annotations','注解专区']].map(([id,label])=>`<button data-workspace-link="${id}">${label}</button>`).join('')}</nav>${topArtwork}<div class="workspace-tools"><button data-workspace-link="trash">回收站 <small id="workspaceTrashCount" hidden></small></button><button data-workspace-link="backup">本地备份</button></div>`;
     document.body.prepend(header);
     document.getElementById('topbarTitle').insertAdjacentHTML('beforebegin', topArtwork);
     const sideTitle = document.createElement('div');
@@ -134,8 +137,8 @@ function initWorkspaceShell() {
     const search = document.querySelector('.search-wrap');
     document.querySelector('.main-header').appendChild(search);
     const bottom = document.querySelector('.mobile-bottombar');
-    bottom.innerHTML = [['bank','题库'],['personal','笔记'],['interviews','面经'],['quiz','抽查'],['more','更多']].map(([id,label])=>`<button class="nav-item" data-workspace-link="${id}"><span class="nav-icon" aria-hidden="true">${workspaceIcon(id)}</span>${label}${id==='more'?'<span id="mobileMoreBadge" class="nav-badge" hidden></span>':''}</button>`).join('');
-    document.querySelector('.more-grid').innerHTML = [['memorized','已背区'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['glossary','术语词典'],['annotations','注解专区'],['trash','回收站'],['marked','重点复习'],['backup','本地备份'],['portrait','锁定竖屏']].map(([id,label])=>`<button data-workspace-link="${id}"${id==='portrait'?' id="mobileOrientationBtn" aria-describedby="mobileOrientationStatus" hidden':''}>${workspaceIcon(id)}${id==='portrait'?`<span id="mobileOrientationLabel">${label}</span>`:label}${id==='marked'?'<span id="mobileMarkedBadge" hidden></span>':''}</button>`).join('');
+    bottom.innerHTML = [['bank','题库'],['personal','笔记'],['interviews','面经'],['quiz','抽查'],['more','更多']].map(([id,label])=>`<button class="nav-item" data-workspace-link="${id}"><span class="nav-icon" aria-hidden="true">${workspaceIcon(id)}</span>${label}</button>`).join('');
+    document.querySelector('.more-grid').innerHTML = [['memorized','已背区'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['mindmap','思维导图'],['glossary','术语词典'],['annotations','注解专区'],['trash','回收站'],['marked','重点复习'],['backup','本地备份'],['portrait','锁定竖屏']].map(([id,label])=>`<button data-workspace-link="${id}"${id==='portrait'?' id="mobileOrientationBtn" aria-describedby="mobileOrientationStatus" hidden':''}>${workspaceIcon(id)}${id==='portrait'?`<span id="mobileOrientationLabel">${label}</span>`:label}</button>`).join('');
     window.MobileOrientation?.subscribe?.(renderMobileOrientation);
     document.addEventListener('click', e => {
         const button = e.target.closest('[data-workspace-link]');
