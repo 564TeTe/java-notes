@@ -1,0 +1,12 @@
+{
+  "name": "java-learning-workspace",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "build:xiaolin": "node scripts/build-xiaolin.cjs"
+  },
+  "devDependencies": {
+    "cheerio": "1.2.0",
+    "markdown-it": "14.1.1"
+  }
+}

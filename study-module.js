@@ -170,6 +170,7 @@ getFilteredNotes = function() {
     }, mastery).sort((a, b) => Number(sunkIds.has(a.id)) - Number(sunkIds.has(b.id)));
 };
 function resetStudyModes() {
+    if (typeof showXiaolin !== 'undefined') showXiaolin = false;
     showAnnotations = showGlossary = showQuiz = showTrash = showMarkedOnly = showResources = showInterviewExp = showResumePrep = showRecruitment = false;
     if (typeof showMindMap !== 'undefined') showMindMap = false;
     activeNoteId = null;
@@ -379,7 +380,8 @@ let studyQuizSession = Date.now();
 const legacyRenderNotes = renderNotes;
 renderNotes = function(filtered) {
     const mindmap = typeof showMindMap !== 'undefined' && showMindMap;
-    const special = showAnnotations || showGlossary || mindmap || showResumePrep || showRecruitment || showResources;
+    const xiaolin = typeof showXiaolin !== 'undefined' && showXiaolin;
+    const special = showAnnotations || showGlossary || xiaolin || mindmap || showResumePrep || showRecruitment || showResources;
     document.body.classList.toggle('study-mode', !special);
     document.body.classList.toggle('mindmap-mode', mindmap && !showAnnotations && !showGlossary);
     document.body.classList.toggle('interview-mode', showInterviewExp);
@@ -397,6 +399,16 @@ renderNotes = function(filtered) {
         document.getElementById('mainSubtitle').textContent = '';
         document.querySelector('.main-header .stats').style.display = 'none';
         document.getElementById('notesContainer').innerHTML = renderGlossary();
+        return;
+    }
+    if (xiaolin) {
+        document.body.classList.remove('resume-mode', 'recruitment-mode', 'interview-mode');
+        document.getElementById('mainTitle').textContent = '小林java';
+        document.getElementById('topbarTitle').textContent = '小林java';
+        document.getElementById('mainSubtitle').textContent = '';
+        document.querySelector('.main-header .stats').style.display = 'none';
+        document.getElementById('notesContainer').innerHTML = renderXiaolin();
+        mountXiaolin();
         return;
     }
     if (mindmap) {
@@ -420,7 +432,7 @@ renderNotes = function(filtered) {
 };
 const legacyRenderTOC = renderTOC;
 renderTOC = function(filtered) {
-    if (showAnnotations || showGlossary || (typeof showMindMap !== 'undefined' && showMindMap) || showInterviewExp || showQuiz || showResources || showTrash) {
+    if (showAnnotations || showGlossary || (typeof showXiaolin !== 'undefined' && showXiaolin) || (typeof showMindMap !== 'undefined' && showMindMap) || showInterviewExp || showQuiz || showResources || showTrash) {
         document.getElementById('tocList').innerHTML = '';
         document.getElementById('noResult').style.display = 'none'; return;
     }
@@ -435,7 +447,7 @@ refreshNoteDisplay = function() { renderAll(); };
 updateBadges = function() {
     legacyStudyBadges(); updateMobileNavActive();
     document.querySelectorAll('[data-study-nav]').forEach(btn => {
-        const active = !showAnnotations && !showGlossary && !(typeof showMindMap !== 'undefined' && showMindMap) && !showQuiz && !showTrash && !showMarkedOnly && !showInterviewExp && !showResumePrep && !showRecruitment && !showResources && btn.dataset.studyNav === studySource;
+        const active = !showAnnotations && !showGlossary && !(typeof showXiaolin !== 'undefined' && showXiaolin) && !(typeof showMindMap !== 'undefined' && showMindMap) && !showQuiz && !showTrash && !showMarkedOnly && !showInterviewExp && !showResumePrep && !showRecruitment && !showResources && btn.dataset.studyNav === studySource;
         btn.classList.toggle('active', active); btn.setAttribute('aria-pressed', active);
     });
 };

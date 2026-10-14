@@ -23,6 +23,7 @@ function workspaceIcon(name) {
 function currentWorkspacePage() {
     if (typeof showAnnotations !== 'undefined' && showAnnotations) return 'annotations';
     if (showGlossary) return 'glossary';
+    if (typeof showXiaolin !== 'undefined' && showXiaolin) return 'xiaolin';
     if (typeof showMindMap !== 'undefined' && showMindMap) return 'mindmap';
     if (showInterviewExp) return 'interviews';
     if (showResumePrep) return 'resume';
@@ -92,6 +93,7 @@ function navigateWorkspace(page) {
         return;
     }
     resetStudyModes(); clearStudyFilters();
+    if (typeof showXiaolin !== 'undefined') showXiaolin = page === 'xiaolin';
     if (typeof showMindMap !== 'undefined') showMindMap = page === 'mindmap';
     showInterviewExp = page === 'interviews'; showResumePrep = page === 'resume';
     showRecruitment = page === 'recruitment'; showResources = page === 'resources';
@@ -104,7 +106,7 @@ function renderWorkspaceShell() {
     document.body.classList.toggle('context-directory', ['bank','personal','memorized','marked'].includes(page));
     document.querySelectorAll('[data-workspace-link]').forEach(button => {
         const key = button.dataset.workspaceLink;
-        const active = key === page || (key === 'more' && ['memorized','mindmap','glossary','annotations','resume','recruitment','resources','trash','marked'].includes(page));
+        const active = key === page || (key === 'more' && ['xiaolin','memorized','mindmap','glossary','annotations','resume','recruitment','resources','trash','marked'].includes(page));
         button.classList.toggle('active', active);
         button.setAttribute('aria-current', active ? 'page' : 'false');
     });
@@ -128,7 +130,7 @@ function initWorkspaceShell() {
     const header = document.createElement('header');
     header.className = 'workspace-header';
     const topArtwork = '<div class="workspace-top-art" aria-hidden="true"><img src="./assets/themes/tatsumaki-panorama.png" alt="" width="3840" height="1600" decoding="async"></div>';
-    header.innerHTML = `<a class="workspace-brand" href="#" aria-label="面试工作台，返回题库" data-workspace-link="bank"><span><img src="./assets/themes/tatsumaki-brand.png" alt="" width="539" height="539" decoding="async"></span><strong>面试工作台</strong></a><nav aria-label="功能导航">${[['bank','题库'],['memorized','已背区'],['personal','我的笔记'],['interviews','公司面经'],['quiz','随机抽查'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['mindmap','思维导图'],['glossary','术语词典'],['annotations','注解专区']].map(([id,label])=>`<button data-workspace-link="${id}">${label}</button>`).join('')}</nav>${topArtwork}<div class="workspace-tools"><button data-workspace-link="trash">回收站 <small id="workspaceTrashCount" hidden></small></button><button data-workspace-link="backup">本地备份</button></div>`;
+    header.innerHTML = `<a class="workspace-brand" href="#" aria-label="面试工作台，返回题库" data-workspace-link="bank"><span><img src="./assets/themes/tatsumaki-brand.png" alt="" width="539" height="539" decoding="async"></span><strong>面试工作台</strong></a><nav aria-label="功能导航">${[['bank','题库'],['xiaolin','小林java'],['memorized','已背区'],['personal','我的笔记'],['interviews','公司面经'],['quiz','随机抽查'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['mindmap','思维导图'],['glossary','术语词典'],['annotations','注解专区']].map(([id,label])=>`<button data-workspace-link="${id}">${label}</button>`).join('')}</nav>${topArtwork}<div class="workspace-tools"><button data-workspace-link="trash">回收站 <small id="workspaceTrashCount" hidden></small></button><button data-workspace-link="backup">本地备份</button></div>`;
     document.body.prepend(header);
     document.getElementById('topbarTitle').insertAdjacentHTML('beforebegin', topArtwork);
     const sideTitle = document.createElement('div');
@@ -138,7 +140,7 @@ function initWorkspaceShell() {
     document.querySelector('.main-header').appendChild(search);
     const bottom = document.querySelector('.mobile-bottombar');
     bottom.innerHTML = [['bank','题库'],['personal','笔记'],['interviews','面经'],['quiz','抽查'],['more','更多']].map(([id,label])=>`<button class="nav-item" data-workspace-link="${id}"><span class="nav-icon" aria-hidden="true">${workspaceIcon(id)}</span>${label}</button>`).join('');
-    document.querySelector('.more-grid').innerHTML = [['memorized','已背区'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['mindmap','思维导图'],['glossary','术语词典'],['annotations','注解专区'],['trash','回收站'],['marked','重点复习'],['backup','本地备份'],['portrait','锁定竖屏']].map(([id,label])=>`<button data-workspace-link="${id}"${id==='portrait'?' id="mobileOrientationBtn" aria-describedby="mobileOrientationStatus" hidden':''}>${workspaceIcon(id)}${id==='portrait'?`<span id="mobileOrientationLabel">${label}</span>`:label}</button>`).join('');
+    document.querySelector('.more-grid').innerHTML = [['xiaolin','小林java'],['memorized','已背区'],['resume','简历准备'],['recruitment','秋招专区'],['resources','学习资源'],['mindmap','思维导图'],['glossary','术语词典'],['annotations','注解专区'],['trash','回收站'],['marked','重点复习'],['backup','本地备份'],['portrait','锁定竖屏']].map(([id,label])=>`<button data-workspace-link="${id}"${id==='portrait'?' id="mobileOrientationBtn" aria-describedby="mobileOrientationStatus" hidden':''}>${workspaceIcon(id)}${id==='portrait'?`<span id="mobileOrientationLabel">${label}</span>`:label}</button>`).join('');
     window.MobileOrientation?.subscribe?.(renderMobileOrientation);
     document.addEventListener('click', e => {
         const button = e.target.closest('[data-workspace-link]');

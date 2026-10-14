@@ -43,11 +43,27 @@
         return normalized;
     }
     function getMindMapSnapshot() { read(); if (loadError) throw new Error(loadError); if (!flushEdit()) throw new Error(savedLabel); return copy(snapshot); }
-    function applyMindMapSnapshot(value) {
+    function applyMindMapSnapshot(value, commitCompanion) {
         read();
         const incoming = Core.normalizeSnapshot(value);
         if (!incoming.learning && snapshot.learning) incoming.learning = copy(snapshot.learning);
+        // A combined backup must not replace maps if its companion store fails.
+        const previous = snapshot, previousStorage = localStorage.getItem(KEY);
+        const updatedKey = typeof LOCAL_UPDATED_KEY === 'string' ? LOCAL_UPDATED_KEY : null;
+        const previousUpdated = updatedKey ? localStorage.getItem(updatedKey) : null;
         const next = persist(incoming);
+        try { if (typeof commitCompanion === 'function') commitCompanion(); }
+        catch (error) {
+            snapshot = previous;
+            if (previousStorage === null) localStorage.removeItem(KEY);
+            else localStorage.setItem(KEY, previousStorage);
+            if (updatedKey) {
+                if (previousUpdated === null) localStorage.removeItem(updatedKey);
+                else localStorage.setItem(updatedKey, previousUpdated);
+            }
+            savedLabel = '导入失败，已保留原导图';
+            throw error;
+        }
         loadError = ''; rawStorage = ''; undo = []; redo = []; selected = null;
         transforms.clear(); pendingEdit = null; clearTimeout(editTimer);
         return copy(next);

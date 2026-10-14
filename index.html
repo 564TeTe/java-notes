@@ -6,7 +6,7 @@
     <meta name="description" content="可离线使用、支持本地备份的 Java 后端面试复习工具">
     <meta name="theme-color" content="#f3f5f2">
     <script src="./workspace-theme.js?v=10"></script>
-    <meta name="app-version" content="69">
+    <meta name="app-version" content="70">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Java 面试复习工作台 · 题库与笔记</title>
@@ -797,6 +797,7 @@ pre code { background: transparent; color: inherit; padding: 0; }
     <link rel="stylesheet" href="./workspace-tatsumaki.css?v=10">
     <link rel="stylesheet" href="./workspace-tatsumaki-resources.css?v=3">
     <link rel="stylesheet" href="./workspace-tatsumaki-controls.css?v=4">
+    <link rel="stylesheet" href="./xiaolin.css?v=70">
     <link rel="stylesheet" href="./mindmap.css?v=69">
 </head>
 <body>
@@ -1080,6 +1081,7 @@ let showTrash = false;             // 回收站视图
 let showQuiz = false;              // 随机抽查模式
 let showResources = false;         // 外部资源视图
 let showGlossary = false;          // 独立术语词典，保留原题库状态
+let showXiaolin = false;           // 独立学习手册，与题库数据和记录隔离
 let showAnnotations = false;       // 独立注解学习专区，保留底层页面状态
 let showMindMap = false;           // 知识导图与学习进度
 let showInterviewExp = false;     // 面经专区视图
@@ -1395,7 +1397,7 @@ function startQuiz() {
     showResumePrep = false;
     showRecruitment = false;
     activeCategory = "all";
-    showMindMap = false;
+    showMindMap = false; showXiaolin = false;
     activeNoteId = null;
     document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
     const allBtn = document.querySelector("#categoryBtns .cat-btn[data-cat='all']");
@@ -1699,7 +1701,7 @@ function updateStats(filtered) {
 
 // ===================== 事件绑定 =====================
 function bindEvents() {
-    document.getElementById("searchInput").addEventListener("input", () => { showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; showRecruitment = false; showMindMap = false; activeNoteId = null; renderAll(); });
+    document.getElementById("searchInput").addEventListener("input", () => { showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; showRecruitment = false; showMindMap = false; showXiaolin = false; activeNoteId = null; renderAll(); });
 
     // 分类按钮
     document.getElementById("categoryBtns").addEventListener("click", e => {
@@ -1713,7 +1715,7 @@ function bindEvents() {
         showInterviewExp = false;
         showResumePrep = false;
         showRecruitment = false;
-        showMindMap = false;
+        showMindMap = false; showXiaolin = false;
         activeNoteId = null;
         renderAll();
     });
@@ -1768,7 +1770,7 @@ function bindEvents() {
         activeCategory = "all";
         document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
         document.querySelector("#categoryBtns .cat-btn[data-cat='all']").classList.add("active");
-        showMindMap = false;
+        showMindMap = false; showXiaolin = false;
         activeNoteId = null;
         renderAll();
     });
@@ -1785,7 +1787,7 @@ function bindEvents() {
         activeCategory = "all";
         document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
         if (!showTrash) document.querySelector("#categoryBtns .cat-btn[data-cat='all']").classList.add("active");
-        showMindMap = false;
+        showMindMap = false; showXiaolin = false;
         activeNoteId = null;
         renderAll();
     });
@@ -1802,7 +1804,7 @@ function bindEvents() {
         activeCategory = "all";
         document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
         if (!showResources) document.querySelector("#categoryBtns .cat-btn[data-cat='all']").classList.add("active");
-        showMindMap = false;
+        showMindMap = false; showXiaolin = false;
         activeNoteId = null;
         renderAll();
     });
@@ -1819,7 +1821,7 @@ function bindEvents() {
         activeCategory = "all";
         document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
         if (!showInterviewExp) document.querySelector("#categoryBtns .cat-btn[data-cat='all']").classList.add("active");
-        showMindMap = false;
+        showMindMap = false; showXiaolin = false;
         activeNoteId = null;
         renderAll();
     });
@@ -1834,7 +1836,7 @@ function bindEvents() {
         showInterviewExp = false;
         showRecruitment = false;
         activeCategory = "all";
-        showMindMap = false;
+        showMindMap = false; showXiaolin = false;
         activeNoteId = null;
         renderAll();
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1850,7 +1852,7 @@ function bindEvents() {
         showResources = false;
         showInterviewExp = false;
         activeCategory = "all";
-        showMindMap = false;
+        showMindMap = false; showXiaolin = false;
         activeNoteId = null;
         renderAll();
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1888,7 +1890,7 @@ function bindEvents() {
 
     // 键盘快捷键
     document.addEventListener("keydown", e => {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); document.getElementById(showAnnotations ? "annotationSearch" : showGlossary ? "glossarySearch" : showMindMap ? "mindmapSearch" : "searchInput")?.focus(); }
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); document.getElementById(showXiaolin && !showAnnotations && !showGlossary ? "xiaolinSearch" : showAnnotations ? "annotationSearch" : showGlossary ? "glossarySearch" : showMindMap ? "mindmapSearch" : "searchInput")?.focus(); }
         if ((e.ctrlKey || e.metaKey) && e.key === "b") { e.preventDefault(); toggleSidebar(); }
         if (e.key === "Escape") {
             document.getElementById("searchInput").blur();
@@ -1943,12 +1945,15 @@ function getStateSnapshot() {
         interviews: getInterviewSnapshot(),
         customBankQuestions: getCustomBankQuestions(),
         mindmaps: typeof getMindMapSnapshot === 'function' ? getMindMapSnapshot() : undefined,
+        xiaolin: typeof getXiaolinSnapshot === 'function' ? getXiaolinSnapshot() : undefined,
         updatedAt: localStorage.getItem(LOCAL_UPDATED_KEY) || new Date().toISOString()
     };
 }
 
 function applyStateSnapshot(data) {
     if (!data || typeof data !== "object") throw new Error("备份数据格式无效");
+    if (data.xiaolin !== undefined && (typeof XiaolinCore === 'undefined' || typeof applyXiaolinSnapshot !== 'function')) throw new Error('小林java 模块尚未加载');
+    const validatedXiaolin = data.xiaolin === undefined ? undefined : XiaolinCore.normalizeSnapshot(data.xiaolin);
     // A bad map must reject the whole backup before any study records change.
     if (data.mindmaps !== undefined && (typeof MindMapCore === 'undefined' || typeof applyMindMapSnapshot !== 'function')) throw new Error('思维导图模块尚未加载');
     const validatedMindmaps = data.mindmaps === undefined ? undefined : MindMapCore.normalizeSnapshot(data.mindmaps);
@@ -1959,7 +1964,9 @@ function applyStateSnapshot(data) {
     if (data.restoredCuratedIds !== undefined && (!Array.isArray(data.restoredCuratedIds) || data.restoredCuratedIds.some(id => typeof id !== 'string'))) throw new Error('题库恢复记录格式无效');
     if (data.appliedCurationReleases !== undefined && (!Array.isArray(data.appliedCurationReleases) || data.appliedCurationReleases.some(id => typeof id !== 'string'))) throw new Error('题库整理更新记录格式无效');
     // Map persistence may fail on quota; abort before replacing other records.
-    if (validatedMindmaps !== undefined) applyMindMapSnapshot(validatedMindmaps);
+    const importReading = () => { if (validatedXiaolin !== undefined) applyXiaolinSnapshot(validatedXiaolin); };
+    if (validatedMindmaps !== undefined) applyMindMapSnapshot(validatedMindmaps, importReading);
+    else importReading();
     userNotes = Array.isArray(data.userNotes) ? data.userNotes : [];
     markedIds = new Set(Array.isArray(data.markedIds) ? data.markedIds : []);
     memorizedIds = new Set(validatedMemorizedIds);
@@ -2069,7 +2076,7 @@ function initMobile() {
     // 移动端搜索同步到桌面搜索
     document.getElementById("mobileSearchInput").addEventListener("input", function() {
         document.getElementById("searchInput").value = this.value;
-        showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; showRecruitment = false; showMindMap = false; activeNoteId = null;
+        showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; showRecruitment = false; showMindMap = false; showXiaolin = false; activeNoteId = null;
         renderAll();
         closeDrawer();
     });
@@ -2101,7 +2108,7 @@ function initMobile() {
             updateMobileNavActive();
             return;
         }
-        showMindMap = false;
+        showMindMap = false; showXiaolin = false;
         activeNoteId = null;
         updateMobileNavActive();
         renderAll();
@@ -2156,7 +2163,7 @@ function handleMoreAction(action) {
     showRecruitment = false;
     showQuiz = false;
     activeCategory = "all";
-    showMindMap = false;
+    showMindMap = false; showXiaolin = false;
     activeNoteId = null;
     renderAll();
     updateMobileNavActive();
@@ -2178,7 +2185,7 @@ function selectCategory(cat) {
     studyPage = 1;
     activeCategory = cat;
     showMarkedOnly = false; showTrash = false; showQuiz = false; showResources = false; showInterviewExp = false; showResumePrep = false; showRecruitment = false;
-    showMindMap = false;
+    showMindMap = false; showXiaolin = false;
     activeNoteId = null;
     document.querySelectorAll("#categoryBtns .cat-btn").forEach(b => b.classList.remove("active"));
     const desktopBtn = document.querySelector(`#categoryBtns .cat-btn[data-cat="${cat}"]`);
@@ -2217,12 +2224,12 @@ function init() {
 </script>
 <script src="./data/command-guide.js?v=1"></script>
 <script src="./command-guide.js?v=2"></script>
-<script src="./study-module.js?v=69"></script>
+<script src="./study-module.js?v=70"></script>
 <script src="./interview-module.js?v=9"></script>
-<script src="./app-updates.js?v=69"></script>
+<script src="./app-updates.js?v=70"></script>
 <script src="./mobile-orientation.js?v=2"></script>
 <script src="./workspace-controls.js?v=1"></script>
-<script src="./workspace-shell.js?v=69"></script>
+<script src="./workspace-shell.js?v=70"></script>
 <script src="./workspace-tatsumaki.js?v=3"></script>
 <script src="./glossary-data.js?v=1"></script>
 <script src="./glossary-core.js?v=1"></script>
@@ -2236,7 +2243,11 @@ function init() {
 <script src="./data/java-learning-runtime.js?v=69"></script>
 <script src="./java-learning-core.js?v=69"></script>
 <script src="./java-learning-view.js?v=69"></script>
-<script src="./mindmap-module.js?v=69"></script>
-<script>initStudyWorkspace(); init(); initWorkspaceShell(); GlossaryHighlighter.init(glossaryIndex, document.getElementById('notesContainer'));</script>
+<script src="./mindmap-module.js?v=70"></script>
+<script src="./data/xiaolin/catalog.js?v=70"></script>
+<script src="./xiaolin-core.js?v=70"></script>
+<script src="./xiaolin-view.js?v=70"></script>
+<script src="./xiaolin-module.js?v=70"></script>
+<script>initStudyWorkspace(); init(); initWorkspaceShell(); GlossaryHighlighter.init(glossaryIndex, document.getElementById('notesContainer')); if(new URLSearchParams(location.search).get('view') === 'xiaolin') navigateWorkspace('xiaolin');</script>
 </body>
 </html>

@@ -181,7 +181,7 @@ test('desktop and mobile navigation expose mindmaps and all new assets load befo
     assert.match(elements.get('.more-grid').innerHTML, /data-workspace-link="mindmap"/);
     const styles = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(match => match[1]);
     assert.match(styles.at(-1), /mindmap\.css/);
-    assert.match(html, /mindmap-core\.js\?v=69[^]*mindmap-module\.js\?v=69[^]*<script>initStudyWorkspace/);
+    assert.match(html, /mindmap-core\.js\?v=\d+[^]*mindmap-module\.js\?v=\d+[^]*<script>initStudyWorkspace/);
     const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
     for (const name of ['mindmap-core.js', 'mindmap-module.js', 'mindmap.css', 'data/java-learning-language.js', 'data/java-learning-runtime.js', 'java-learning-core.js', 'java-learning-view.js']) assert.ok(sw.includes(`"./${name}"`));
 });

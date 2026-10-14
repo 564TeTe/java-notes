@@ -1,0 +1,147 @@
+/* A reading desk: paper, ink, chapter numbers, and a quiet green margin. */
+.xl-workspace,.xl-warning{--xl-paper:#fffefb;--xl-ground:#f5f4ed;--xl-ink:#253a32;--xl-body:#3e4b43;--xl-muted:#68766c;--xl-line:#dce1d6;--xl-accent:#365e48;--xl-soft:#eaf0e5;--xl-code:#f0f2ed;color:var(--xl-ink)}
+html[data-theme-mode="dark"] .xl-workspace,html[data-theme-mode="dark"] .xl-warning{--xl-paper:#1b2521;--xl-ground:#151e1a;--xl-ink:#e4ece3;--xl-body:#cbd6cc;--xl-muted:#a4b4a7;--xl-line:#39483e;--xl-accent:#afd2b3;--xl-soft:#2c3b30;--xl-code:#111a15}
+html body[data-workspace="xiaolin"] .main{max-width:1340px;margin:0 auto;padding:26px 36px 90px;width:100%;min-width:0}
+html body[data-workspace="xiaolin"] .main-header{display:none}
+html body[data-workspace="xiaolin"] #backTop{display:none}
+html body[data-workspace="xiaolin"] #notesContainer{padding:0;min-width:0}
+.xl-workspace button,.xl-warning button{font:inherit;cursor:pointer;color:var(--xl-ink);background:transparent;border:1px solid var(--xl-line);border-radius:5px;padding:8px 13px;line-height:1.5}
+.xl-workspace button:disabled{opacity:.4;cursor:default}
+.xl-workspace button:hover:not(:disabled){background:var(--xl-soft);border-color:var(--xl-accent)}
+.xl-workspace :is(button,a,input,select,textarea,summary):focus-visible{outline:2px solid var(--xl-accent);outline-offset:4px}
+.xl-workspace a{color:var(--xl-accent);text-underline-offset:4px;overflow-wrap:anywhere}
+.xl-workspace .xl-primary{background:var(--xl-accent);color:var(--xl-paper);border-color:var(--xl-accent);padding:12px 21px;font-size:14px}
+.xl-workspace .xl-primary:hover:not(:disabled){background:var(--xl-ink);color:var(--xl-paper)}
+.xl-hero{display:grid;grid-template-columns:1fr 255px;align-items:center;gap:40px;padding:36px 24px 42px 6px;border-bottom:1px solid var(--xl-line)}
+.xl-eyebrow{font:11px/1.7 Consolas,monospace;letter-spacing:2px;color:var(--xl-muted);margin-bottom:15px}
+html body .xl-hero h1{font:600 58px/1.2 'Noto Serif SC','Source Han Serif SC','Songti SC',SimSun,serif;letter-spacing:-2px;color:var(--xl-ink);margin-bottom:22px}
+.xl-hero h1 span{font:italic 58px/1 Georgia,serif;margin-left:12px;letter-spacing:-3px;color:var(--xl-accent)}
+.xl-lead{font-size:22px;letter-spacing:1px;margin:12px 0;color:var(--xl-ink)}
+.xl-intro{color:var(--xl-muted);font-size:14px;line-height:1.9;margin:10px 0 25px}
+.xl-hero-actions{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.xl-hero-actions>span,.xl-resume-label{font-size:12px;color:var(--xl-muted)}
+.xl-resume-label{margin-top:14px;max-width:600px}
+.xl-book-art{transform:rotate(4deg);justify-self:end;width:210px;margin-right:10px}
+.xl-book-cover{background:#294c3b;color:#f5f1df;padding:22px 22px 22px 30px;min-height:260px;position:relative;border-left:8px solid #203b2f;box-shadow:6px 6px 0 #d9decc,8px 8px 0 #bcc6b7,16px 19px 24px #1d38241a}
+.xl-book-cover:before{content:"";position:absolute;left:6px;top:0;bottom:0;border-left:1px solid #63826b}
+.xl-book-cover small{font-size:10px;letter-spacing:2px;opacity:.8}
+.xl-book-cover strong{display:block;font:32px/1.35 'Noto Serif SC',SimSun,serif;letter-spacing:3px;margin:24px 0}
+.xl-book-cover em{color:#d1dfac;font-style:normal}
+.xl-book-cover>span{display:block;font:8px/1.8 Consolas,monospace;letter-spacing:1px}
+.xl-book-caption{text-align:center;font-size:10px;color:var(--xl-muted);margin-top:18px;letter-spacing:1px}
+.xl-library-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:26px 0 30px;flex-wrap:wrap}
+.xl-tabs{display:flex;gap:5px}
+.xl-tabs button{border:0;padding:10px 14px;font-size:13px;color:var(--xl-muted)}
+.xl-tabs .is-active{background:var(--xl-soft);color:var(--xl-accent);font-weight:700}
+.xl-search{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--xl-muted)}
+.xl-search input{border:1px solid var(--xl-line);border-radius:5px;padding:10px 12px;min-width:260px;font:13px/1.5 inherit;background:var(--xl-paper);color:var(--xl-ink)}
+.xl-shelf-group{margin:0 0 34px}
+.xl-group-heading{display:flex;gap:13px;align-items:center;margin:0 0 15px}
+.xl-group-heading>span{font:italic 22px Georgia,serif;color:var(--xl-muted)}
+html body .xl-group-heading h2{font-size:17px;font-weight:600;color:var(--xl-ink);white-space:nowrap}
+.xl-group-heading>i{height:1px;background:var(--xl-line);width:100%;margin-left:8px}
+.xl-books{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.xl-workspace button.xl-book{padding:21px 22px 18px;text-align:left;background:var(--xl-paper);border-radius:3px;position:relative;border-left:3px solid var(--xl-accent);overflow:hidden;min-height:180px;transition:transform .15s,border-color .15s}
+.xl-book:hover{transform:translateY(-2px)}
+.xl-book-top{display:flex;justify-content:space-between;font-size:11px;color:var(--xl-muted);margin-bottom:22px}
+.xl-book-top>b{font-weight:400;font-size:18px;line-height:1}
+html body .xl-book h3{font:600 21px/1.5 'Noto Serif SC','Songti SC',SimSun,serif;color:var(--xl-ink);margin:0 0 6px}
+.xl-book>p{font-size:12px;color:var(--xl-muted)}
+.xl-book-bottom{display:flex;align-items:center;justify-content:space-between;font-size:11px;margin-top:22px;color:var(--xl-accent)}
+.xl-progress-track{height:3px;position:absolute;bottom:0;left:0;right:0;background:var(--xl-soft)}
+.xl-progress-track>span{display:block;height:100%;background:var(--xl-accent)}
+.xl-attribution{border-top:1px solid var(--xl-line);padding-top:20px;font-size:11px;color:var(--xl-muted);line-height:1.9}
+.xl-results-heading{display:flex;align-items:center;justify-content:space-between;padding:10px 0 20px}
+html body .xl-results-heading h2{font-size:19px;color:var(--xl-ink)}
+.xl-results-heading>span{font-size:12px;color:var(--xl-muted)}
+.xl-workspace button.xl-result{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--xl-line);border-radius:0;padding:18px 12px}
+.xl-result small,.xl-result>span{display:block;color:var(--xl-muted);font-size:11px}
+.xl-result strong{display:block;margin:6px 0 9px;font-size:16px;line-height:1.7}
+.xl-result p{white-space:pre-wrap;font-size:13px;margin:10px 0;color:var(--xl-body);overflow-wrap:anywhere}
+.xl-pages{display:flex;justify-content:center;align-items:center;gap:20px;margin:22px 0;font-size:13px}
+.xl-empty{padding:70px 24px;text-align:center}
+html body .xl-empty h2,html body .xl-empty h3{font-size:22px;color:var(--xl-ink);margin:10px 0}
+.xl-empty p{font-size:14px;color:var(--xl-muted);margin:15px 0 25px}
+.xl-reader-toolbar{position:sticky;top:56px;z-index:12;background:var(--xl-ground);border-bottom:1px solid var(--xl-line);display:flex;align-items:center;gap:16px;padding:12px 0;margin-bottom:22px;box-shadow:0 5px 12px #16261a05}
+.xl-reader-toolbar>div{display:flex;align-items:center;gap:6px;margin-left:auto}
+.xl-reader-toolbar button{font-size:12px;min-height:36px}
+.xl-reader-toolbar output{min-width:20px;text-align:center;font:12px Consolas,monospace}
+.xl-toolbar-title{font-size:12px;color:var(--xl-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xl-reader-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:32px;align-items:start}
+.xl-directory{position:sticky;top:136px;max-height:calc(100dvh - 160px);overflow-y:auto;scrollbar-width:thin;padding:4px 14px 14px 0}
+.xl-directory-panel>summary{display:none}
+.xl-directory-content>label{font-size:10px;letter-spacing:1px;color:var(--xl-muted);display:block;margin-bottom:8px}
+.xl-directory-content select{width:100%;border:1px solid var(--xl-line);background:var(--xl-paper);color:var(--xl-ink);font:14px/1.5 inherit;padding:10px 7px;border-radius:4px;min-height:40px}
+#xiaolinTopicProgress{font-size:11px;color:var(--xl-muted);padding:12px 0 18px;border-bottom:1px solid var(--xl-line);margin-bottom:12px}
+.xl-directory nav{display:flex;flex-direction:column;gap:4px}
+.xl-directory nav button{display:flex;align-items:baseline;text-align:left;border:0;font-size:12px;gap:10px;padding:10px 8px}
+.xl-directory nav button span{font:11px Consolas,monospace;color:var(--xl-muted)}
+.xl-directory nav button strong{font-weight:400;overflow-wrap:anywhere}
+.xl-directory nav button[aria-current="page"]{background:var(--xl-soft);color:var(--xl-accent)}
+.xl-directory nav button[aria-current="page"] strong{font-weight:600}
+.xl-directory-hint{font-size:11px;color:var(--xl-muted);border-top:1px solid var(--xl-line);margin-top:24px;padding-top:18px;line-height:1.9}
+.xl-reading-paper{min-width:0;background:var(--xl-paper);border:1px solid var(--xl-line);border-radius:3px}
+.xl-chapter{padding:40px 46px 28px;min-width:0}
+.xl-chapter-heading{padding-bottom:25px;border-bottom:1px solid var(--xl-line);scroll-margin-top:140px}
+html body .xl-chapter-heading h1{font:600 34px/1.5 'Noto Serif SC','Songti SC',SimSun,serif;color:var(--xl-ink);margin:10px 0 16px;overflow-wrap:anywhere}
+.xl-chapter-meta{display:flex;gap:18px;font-size:11px;color:var(--xl-muted);flex-wrap:wrap}
+.xl-preface,.xl-outline{font-size:13px;background:var(--xl-ground);padding:14px 18px;margin:20px 0;border-radius:3px}
+.xl-workspace summary{cursor:pointer;line-height:1.7}
+.xl-outline summary>span{color:var(--xl-muted);font-size:11px;margin-left:6px}
+.xl-outline ol{padding-left:26px;margin-top:15px;color:var(--xl-muted)}
+.xl-outline button{border:0;padding:5px 7px;text-align:left;display:block;font-size:13px}
+.xl-chapter-intro{margin-top:25px}
+.xl-section{padding-top:36px;margin-top:16px;scroll-margin-top:118px;border-top:1px solid var(--xl-line);min-width:0}
+.xl-section>header{display:flex;gap:14px;align-items:baseline;margin-bottom:24px}
+.xl-section-number{font:italic 18px Georgia,serif;color:var(--xl-muted);flex-shrink:0}
+html body .xl-section h2{font-size:calc(var(--xl-font-size,18px) + 5px);color:var(--xl-ink);font-weight:650;line-height:1.65;overflow-wrap:anywhere}
+.xl-prose{font-size:var(--xl-font-size,18px);line-height:1.95;color:var(--xl-body);overflow-wrap:anywhere;min-width:0}
+.xl-prose p{margin:16px 0}
+.xl-prose :is(ul,ol){padding-left:1.5em;margin:16px 0}
+.xl-prose :is(ul,ol) :is(ul,ol){margin:6px 0}
+.xl-prose li{padding-left:3px;margin:6px 0}
+.xl-prose li>p{margin:6px 0}
+.xl-prose strong{color:var(--xl-ink);font-weight:650}
+html body .xl-prose :is(h1,h2,h3,h4,h5,h6){font-size:1.1em;color:var(--xl-ink);margin:30px 0 14px;line-height:1.65}
+.xl-prose blockquote{margin:20px 0;padding:2px 18px;border-left:3px solid var(--xl-accent);background:var(--xl-soft);font-size:.95em}
+.xl-prose img{display:block;max-width:100%;height:auto;margin:24px auto;border-radius:3px;background:white;object-fit:contain}
+.xl-prose img[hidden]{display:none}
+.xl-image-fallback{display:block;border:1px dashed var(--xl-line);padding:22px;text-align:center;font-size:13px;margin:20px 0}
+.xl-prose code{font-family:Consolas,'Cascadia Code',monospace;font-size:.85em;background:var(--xl-code);padding:2px 5px;border-radius:3px;color:var(--xl-accent);overflow-wrap:anywhere}
+.xl-prose pre{position:relative;margin:22px 0;padding:40px 20px 20px;max-width:100%;overflow-x:auto;background:var(--xl-code);border:1px solid var(--xl-line);border-radius:5px;font-size:.85em;line-height:1.8;tab-size:4;white-space:pre;overflow-wrap:normal}
+.xl-prose pre code{padding:0;background:none;border:0;font-size:inherit;line-height:inherit;color:var(--xl-body);overflow-wrap:normal}
+.xl-workspace .xl-copy{position:absolute;right:10px;top:7px;padding:2px 8px;font-size:11px;background:var(--xl-paper);border-color:var(--xl-line)}
+.xl-table-scroll{overflow-x:auto;max-width:100%;margin:22px 0;font-size:.86em}
+.xl-prose table{border-collapse:collapse;width:100%;line-height:1.75}
+.xl-prose :is(th,td){border:1px solid var(--xl-line);text-align:left;padding:12px 15px;min-width:100px}
+.xl-prose th{background:var(--xl-soft);font-weight:600;color:var(--xl-ink)}
+.xl-prose hr{border:0;border-top:1px solid var(--xl-line);margin:24px 0}
+.xl-section-actions{display:flex;align-items:center;gap:10px;margin:24px 0 16px;flex-wrap:wrap}
+.xl-section-actions button{font-size:12px;padding:7px 12px}
+.xl-section-actions button[aria-pressed="true"]{background:var(--xl-soft);color:var(--xl-accent);border-color:var(--xl-accent)}
+.xl-section-actions a{margin-left:auto;font-size:11px;color:var(--xl-muted)}
+.xl-note{padding:13px 0 22px;color:var(--xl-muted);font-size:12px}
+.xl-note label{display:block;margin:14px 0 10px;font-size:12px}
+.xl-note textarea{display:block;width:100%;box-sizing:border-box;border:1px solid var(--xl-line);border-radius:4px;background:var(--xl-ground);color:var(--xl-ink);padding:14px;font:14px/1.8 inherit;resize:vertical;min-height:110px}
+.xl-note-status{display:block;font-size:10px;margin-top:6px}
+.xl-chapter-nav{display:flex;justify-content:space-between;gap:20px;border-top:1px solid var(--xl-line);padding-top:26px;margin-top:30px}
+.xl-chapter-nav button{text-align:left;flex:1;max-width:50%;border:0;padding:10px 0}
+.xl-chapter-nav button:last-child{text-align:right}
+.xl-chapter-nav small{display:block;color:var(--xl-muted);font-size:11px;margin-bottom:8px}
+.xl-chapter-nav strong{font-size:14px;display:block;line-height:1.7}
+.xl-resource-notice,.xl-warning{padding:18px;background:var(--xl-soft);font-size:13px;line-height:1.8;margin:20px 0;border-left:3px solid var(--xl-accent)}
+.xl-warning button{margin-left:12px}
+.xl-reading-status{font-size:12px;text-align:center;color:var(--xl-muted);margin-top:20px}
+.xl-workspace .xl-back-top{position:fixed;bottom:24px;right:24px;width:40px;height:40px;background:var(--xl-paper);z-index:15;box-shadow:0 2px 12px #16261a12}
+.xl-focused .xl-directory{display:none}
+.xl-focused .xl-reader-layout{grid-template-columns:minmax(0,860px);justify-content:center}
+#xiaolinLibrary{scroll-margin-top:90px}
+@media(min-width:1500px){.xl-reader-layout{grid-template-columns:235px minmax(0,1fr);gap:50px}}
+@media(max-width:1000px){html body[data-workspace="xiaolin"] .main{padding:16px 22px 90px}.xl-reader-layout{grid-template-columns:190px minmax(0,1fr);gap:18px}.xl-chapter{padding:30px}.xl-books{grid-template-columns:repeat(2,minmax(0,1fr))}.xl-hero{padding-top:22px}.xl-book-art{width:180px}.xl-book-cover{min-height:230px;padding:20px}.xl-book-cover strong{font-size:28px}}
+@media(max-width:860px){.xl-reader-layout{display:block}.xl-directory{position:static;max-height:none;padding:0;margin-bottom:16px}.xl-directory-panel{border:1px solid var(--xl-line);background:var(--xl-paper);border-radius:4px}.xl-directory-panel>summary{display:flex;justify-content:space-between;padding:12px 16px;font-size:13px}.xl-directory-panel>summary span{font-size:11px;color:var(--xl-muted)}.xl-directory-content{padding:6px 16px 18px}.xl-directory nav{max-height:280px;overflow:auto}.xl-directory-hint{display:none}.xl-chapter{padding:30px}.xl-focused .xl-reader-layout{display:block}}
+@media(max-width:768px){html body[data-workspace="xiaolin"] .main{padding:12px 14px 100px}.xl-hero{grid-template-columns:1fr 110px;padding:22px 2px 28px;gap:15px}.xl-eyebrow{font-size:9px;letter-spacing:1px}.xl-hero .xl-eyebrow{max-width:150px}html body .xl-hero h1,.xl-hero h1 span{font-size:38px}.xl-hero h1 span{margin-left:7px}.xl-hero h1{margin-bottom:16px}.xl-lead{font-size:17px;letter-spacing:0}.xl-intro{font-size:12px;margin:10px 0 18px}.xl-desktop-break{display:none}.xl-hero-actions{gap:12px}.xl-hero-actions>span{font-size:10px}.xl-workspace .xl-primary{padding:10px 14px;font-size:12px}.xl-book-art{width:105px;margin-right:0;align-self:start;margin-top:30px}.xl-book-cover{min-height:176px;padding:12px;border-left-width:4px;box-shadow:4px 4px 0 #d9decc,6px 6px 0 #bcc6b7,10px 15px 20px #1d38241a}.xl-book-cover small{font-size:7px;letter-spacing:0}.xl-book-cover strong{font-size:22px;margin:20px 0;letter-spacing:1px}.xl-book-cover>span{font-size:6px;letter-spacing:0}.xl-book-caption{font-size:8px;margin-top:12px;letter-spacing:0}.xl-library-toolbar{gap:14px;margin:20px 0 24px}.xl-tabs{width:100%;justify-content:space-between;gap:0}.xl-tabs button{font-size:12px;padding:9px 14px}.xl-search{width:100%}.xl-search>span{white-space:nowrap}.xl-search input{min-width:0;width:100%;font-size:13px}.xl-books{gap:10px}.xl-workspace button.xl-book{padding:16px 13px;min-height:173px}.xl-book-top{font-size:9px;margin-bottom:18px}html body .xl-book h3{font-size:19px}.xl-book p{font-size:11px}.xl-book-bottom{font-size:10px;margin-top:18px}.xl-group-heading{gap:10px}.xl-shelf-group{margin-bottom:28px}.xl-reader-toolbar{top:64px;gap:6px;padding:10px 0;margin-bottom:12px}.xl-reader-toolbar button{padding:7px 9px;min-height:38px;font-size:11px}.xl-toolbar-title{display:none}.xl-reader-toolbar>div{gap:4px}.xl-reader-toolbar output{font-size:11px;min-width:16px}.xl-chapter{padding:26px 20px}.xl-chapter-heading{padding-bottom:20px}html body .xl-chapter-heading h1{font-size:28px}.xl-chapter-meta{font-size:10px;gap:12px}.xl-section{padding-top:28px;scroll-margin-top:132px}.xl-section>header{gap:10px;margin-bottom:20px}html body .xl-section h2{font-size:calc(var(--xl-font-size,18px) + 2px)}.xl-prose{line-height:1.95}.xl-prose pre{padding:38px 14px 16px;font-size:.78em}.xl-prose :is(th,td){padding:10px;min-width:90px}.xl-preface,.xl-outline{padding:12px;font-size:12px}.xl-section-actions{gap:8px}.xl-section-actions button{font-size:11px;padding:8px 10px}.xl-chapter-nav{gap:16px}.xl-chapter-nav strong{font-size:12px}.xl-workspace .xl-back-top{bottom:83px;right:15px;width:34px;height:34px;padding:4px}.xl-attribution{font-size:10px}.xl-result strong{font-size:15px}}
+@media(prefers-reduced-motion:reduce){.xl-book{transition:none!important}.xl-book:hover{transform:none}}
+
+.xl-reader-toolbar .xl-directory-toggle{display:none}
+@media(max-width:860px){.xl-reader-toolbar .xl-directory-toggle{display:block}.xl-directory-panel{scroll-margin-top:128px}}
+@media(max-width:380px){.xl-reader-toolbar{gap:3px}.xl-reader-toolbar button{padding:7px 6px}.xl-reader-toolbar>div{gap:2px}}

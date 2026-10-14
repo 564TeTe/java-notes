@@ -2,3 +2,4 @@
 output/
 .playwright-mcp/
 *.log
+node_modules/
