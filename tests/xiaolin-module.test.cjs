@@ -39,3 +39,13 @@ test('continuous chapter renders answers immediately, safely escapes personal no
     const html=app.run(`XiaolinView.chapter({topic:xiaolinIndex.topics[0],chapter:{id:'chapter',title:'概念',introduction:{html:''},sections:[{id:'one',title:'Java 的特点',source:'https://xiaolincoding.com',kind:'lesson',html:'<p>跨平台与面向对象</p>'}]},state:{entries:{one:{note:'<script>alert(1)</script>'}}}})`);
     assert.match(html,/跨平台与面向对象/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>|查看答案|data-study=/);
 });
+
+test('mobile reader uses a smaller visible font without changing saved desktop preference',()=>{
+    const app=setup({version:1,entries:{},fontSize:18});
+    const mobile=app.run(`XiaolinView.reader(xiaolinIndex,xiaolinState,{topicId:'java',mobile:true})`);
+    assert.match(mobile,/--xl-font-size:16px/);
+    assert.match(mobile,/<output id="xiaolinFontSize">16<\/output>/);
+    const desktop=app.run(`XiaolinView.reader(xiaolinIndex,xiaolinState,{topicId:'java',mobile:false})`);
+    assert.match(desktop,/--xl-font-size:18px/);
+    assert.equal(app.run('getXiaolinSnapshot().fontSize'),18);
+});

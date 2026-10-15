@@ -145,3 +145,49 @@ html body .xl-prose :is(h1,h2,h3,h4,h5,h6){font-size:1.1em;color:var(--xl-ink);m
 .xl-reader-toolbar .xl-directory-toggle{display:none}
 @media(max-width:860px){.xl-reader-toolbar .xl-directory-toggle{display:block}.xl-directory-panel{scroll-margin-top:128px}}
 @media(max-width:380px){.xl-reader-toolbar{gap:3px}.xl-reader-toolbar button{padding:7px 6px}.xl-reader-toolbar>div{gap:2px}}
+
+/* Compact article layout: spend the phone's width on the text itself. */
+@media(max-width:860px){
+    html[data-theme] body[data-workspace="xiaolin"] .main{padding:8px 0 96px;margin:0;margin-left:0!important;width:100%!important}
+    .xl-shelf,.xl-warning{margin-inline:12px}
+    .xl-reader-toolbar{gap:8px;margin:0 12px 8px;padding:4px 0;min-height:48px}
+    .xl-reader-toolbar button{font-size:12px;min-height:40px;padding:6px 10px}
+    .xl-reader-toolbar>div{gap:4px}
+    .xl-reader-toolbar output{font-size:12px;min-width:18px}
+    .xl-reader-toolbar [data-xl-action="focus"]{display:none}
+    .xl-reader-toolbar [data-xl-action^="font-"]{min-width:36px;padding-inline:6px}
+    .xl-toolbar-title{display:none}
+    .xl-directory{margin:0 12px 8px}
+    .xl-directory:not(:has(details[open])){display:none}
+    .xl-reading-paper{border:0;border-radius:0}
+    .xl-chapter{padding:16px max(12px,env(safe-area-inset-right)) 24px max(12px,env(safe-area-inset-left))}
+    .xl-chapter-heading{padding-bottom:12px}
+    .xl-chapter-heading .xl-eyebrow{margin-bottom:4px;font-size:10px}
+    html body .xl-chapter-heading h1{font-size:24px;line-height:1.4;margin:5px 0 10px}
+    .xl-chapter-meta{font-size:11px;gap:12px}
+    .xl-preface,.xl-outline{padding:8px 10px;margin:10px 0;font-size:12px}
+    .xl-section{padding-top:20px;margin-top:12px}
+    .xl-section>header{gap:8px;margin-bottom:12px}
+    .xl-section-number{font-size:14px}
+    html body .xl-section h2{font-size:calc(var(--xl-font-size,16px) + 2px);line-height:1.5}
+    .xl-prose{line-height:1.7}
+    .xl-prose p{margin:10px 0}
+    .xl-prose :is(ul,ol){padding-left:1.25em;margin:10px 0}
+    .xl-prose li{padding-left:0;margin:5px 0}
+    html body .xl-prose :is(h1,h2,h3,h4,h5,h6){margin:20px 0 10px}
+    .xl-prose blockquote{margin:14px 0;padding:2px 12px}
+    .xl-prose img{margin:16px auto}
+    .xl-prose pre{margin:14px 0;font-size:.85em;line-height:1.65}
+    .xl-section-actions{margin:16px 0 8px}
+    .xl-note{padding:8px 0 14px}
+    .xl-chapter-nav{margin-top:20px;padding-top:16px}
+    .xl-workspace .xl-back-top{right:8px;opacity:.85}
+    .xl-workspace button.xl-book{min-height:140px;padding:14px 12px}
+    .xl-book-top{margin-bottom:10px}
+    .xl-book-bottom{margin-top:12px}
+    html body .xl-book h3{font-size:18px}
+}
+@media(max-width:768px){
+    .xl-reader-toolbar{top:52px}
+    html[data-theme="tatsumaki"] .xl-reader-toolbar{top:64px}
+}

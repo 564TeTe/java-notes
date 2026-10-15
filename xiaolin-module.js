@@ -32,6 +32,11 @@ function renderXiaolin(){
     const warning=xiaolinLoadWarning?'<div class="xl-warning" role="alert">原阅读记录无法读取，已暂停覆盖保存。请导出原记录后，通过本地备份导入有效记录。<button type="button" data-xl-action="export-raw">导出原记录</button></div>':'';
     return warning+(xiaolinUI.topicId?XiaolinView.reader(xiaolinIndex,xiaolinState,xiaolinUI,xiaolinCache.get(xiaolinUI.topicId)):XiaolinView.shelf(xiaolinIndex,xiaolinState,xiaolinUI));
 }
+function updateXiaolinFont(){
+    const size=xiaolinState.fontSize-(xiaolinUI.mobile?2:0);
+    document.querySelector('.xl-reader')?.style.setProperty('--xl-font-size',size+'px');
+    const output=document.getElementById('xiaolinFontSize');if(output)output.textContent=size;
+}
 function loadXiaolinTopic(id){
     if(xiaolinCache.has(id))return Promise.resolve(xiaolinCache.get(id));
     if(xiaolinPending.has(id))return xiaolinPending.get(id);
@@ -126,8 +131,7 @@ document.addEventListener('click',async event=>{
     else if(action==='focus'){xiaolinUI.focused=!xiaolinUI.focused;document.querySelector('.xl-reader')?.classList.toggle('xl-focused',xiaolinUI.focused);button.textContent=xiaolinUI.focused?'显示目录':'专注阅读';button.setAttribute('aria-pressed',xiaolinUI.focused);}
     else if(action==='font-down'||action==='font-up'){
         xiaolinState.fontSize=Math.min(22,Math.max(16,xiaolinState.fontSize+(action==='font-up'?2:-2)));persistXiaolin();
-        document.querySelector('.xl-reader')?.style.setProperty('--xl-font-size',xiaolinState.fontSize+'px');
-        document.getElementById('xiaolinFontSize').textContent=xiaolinState.fontSize;
+        updateXiaolinFont();
         document.querySelector('[data-xl-action="font-down"]').disabled=xiaolinState.fontSize===16;
         document.querySelector('[data-xl-action="font-up"]').disabled=xiaolinState.fontSize===22;
     }else if(action==='done'||action==='star'){
@@ -145,6 +149,7 @@ document.addEventListener('error',event=>{
 window.addEventListener('pagehide',()=>{if(xiaolinNoteTimer||xiaolinScrollTimer)persistXiaolin();});
 window.matchMedia?.('(max-width: 860px)').addEventListener?.('change',event=>{
     xiaolinUI.mobile=event.matches;
+    updateXiaolinFont();
     const panel=document.querySelector('.xl-directory-panel');
     if(panel)panel.open=!event.matches;
 });
