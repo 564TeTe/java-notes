@@ -232,9 +232,10 @@ html body .xl-contents-group>h2{font-size:13px;color:var(--xl-muted);font-weight
 .xl-quick-nav button[aria-current]{background:var(--xl-accent);color:var(--xl-paper);font-weight:700}
 @media(min-width:861px){.xl-reader{padding-right:40px}}
 @media(max-width:860px){
-    .xl-quick-nav{right:4px;padding:3px}
-    .xl-quick-nav>summary{display:block;font:12px/30px Consolas,monospace;min-width:26px;text-align:center;color:var(--xl-accent)}
-    .xl-quick-nav nav{display:grid;grid-template-columns:repeat(5,34px);padding:5px;gap:4px}
+    .xl-quick-nav{position:static;transform:none;padding:0;border:0;background:none;box-shadow:none;flex-shrink:0}
+    .xl-quick-nav>summary{display:block;font:12px/26px Consolas,monospace;min-width:54px;min-height:40px;padding:6px 4px;border:1px solid var(--xl-line);border-radius:5px;text-align:center;color:var(--xl-accent)}
+    .xl-quick-nav[open]>summary{background:var(--xl-soft);border-color:var(--xl-accent)}
+    .xl-quick-nav nav{position:absolute;right:0;top:calc(100% + 6px);display:grid;grid-template-columns:repeat(5,34px);padding:8px;gap:4px;background:var(--xl-paper);border:1px solid var(--xl-line);border-radius:8px;box-shadow:0 8px 24px #16261a18}
     .xl-quick-nav button{width:34px;min-height:36px}
 }
 @media(max-width:768px){

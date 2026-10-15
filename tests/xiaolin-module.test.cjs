@@ -80,3 +80,12 @@ test('sections expose accessible collapse controls while keeping notes in the DO
     assert.equal($('[data-xl-action="expand-all"]').length,1);
     assert.equal($('[data-xl-action="collapse-all"]').length,1);
 });
+
+test('mobile quick navigation lives in the toolbar and displays chapter length',()=>{
+    const app=setup(),{load}=require('cheerio');
+    const data=fs.readFileSync(path.join(__dirname,'../data/xiaolin/java.json'),'utf8');
+    const $=load(app.run(`XiaolinView.reader(xiaolinIndex,xiaolinState,{topicId:'java',chapterId:xiaolinIndex.topics[0].chapters[0].id,mobile:true},${data})`));
+    assert.equal($('.xl-reader-toolbar>.xl-quick-nav').length,1);
+    assert.equal($('.xl-quick-nav>summary').text(),'1/10 ▾');
+    assert.equal($('.xl-quick-nav').is('[open]'),false);
+});

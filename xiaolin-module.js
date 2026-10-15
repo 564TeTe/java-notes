@@ -90,7 +90,7 @@ function syncXiaolinPosition(){
         if(button.dataset.id===id){
             const changed=!button.hasAttribute('aria-current');
             button.setAttribute('aria-current','location');
-            const summary=document.querySelector('.xl-quick-nav>summary');if(summary)summary.textContent=button.textContent+'⋯';
+            const summary=document.querySelector('.xl-quick-nav>summary');if(summary)summary.textContent=button.textContent+'/'+sections.length+' ▾';
             if(changed){
                 const nav=button.parentElement,box=button.getBoundingClientRect(),frame=nav.getBoundingClientRect();
                 if(frame.height&&box.top<frame.top)nav.scrollTop+=box.top-frame.top;
@@ -144,6 +144,8 @@ document.addEventListener('input',event=>{
 document.addEventListener('compositionend',event=>{if(event.target.id==='xiaolinSearch'){xiaolinUI.search=event.target.value;xiaolinUI.page=1;refreshXiaolinResults();}});
 document.addEventListener('change',event=>{if(event.target.id==='xiaolinTopicSelect')openXiaolinChapter(event.target.value);});
 document.addEventListener('click',async event=>{
+    const quick=document.querySelector('.xl-quick-nav');
+    if(xiaolinUI.mobile&&quick?.open&&!quick.contains(event.target))quick.open=false;
     const copy=event.target.closest('[data-xl-copy]');
     if(copy){try{await navigator.clipboard.writeText(copy.parentElement.querySelector('code').textContent);copy.textContent='已复制';setTimeout(()=>{copy.textContent='复制';},1500);}catch(_){toast('复制失败，请选中代码手动复制。');}return;}
     const button=event.target.closest('[data-xl-action]');if(!button)return;
@@ -190,6 +192,10 @@ document.addEventListener('error',event=>{
     img.dataset.failed='true';const notice=document.createElement('a');notice.className='xl-image-fallback';notice.href=img.src;notice.target='_blank';notice.rel='noopener noreferrer';notice.textContent='图解暂时无法加载 · 查看原图 ↗';img.hidden=true;img.after(notice);
 },true);
 window.addEventListener('pagehide',()=>{if(xiaolinNoteTimer||xiaolinScrollTimer)persistXiaolin();});
+document.addEventListener('keydown',event=>{
+    const quick=document.querySelector('.xl-quick-nav');
+    if(event.key==='Escape'&&xiaolinUI.mobile&&quick?.open){quick.open=false;quick.querySelector('summary')?.focus();}
+});
 window.addEventListener('scroll',queueXiaolinPosition,{passive:true});
 window.addEventListener('resize',queueXiaolinPosition);
 window.matchMedia?.('(max-width: 860px)').addEventListener?.('change',event=>{
