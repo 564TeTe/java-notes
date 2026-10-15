@@ -69,3 +69,14 @@ test('library directory exposes every chapter under its topic with a direct read
     assert.equal(resumed('details[open]').attr('data-xl-topic'),'java');
     assert.equal(resumed('[aria-current="location"]').length,1);
 });
+
+test('sections expose accessible collapse controls while keeping notes in the DOM',()=>{
+    const app=setup(),{load}=require('cheerio');
+    const $=load(app.run(`XiaolinView.chapter({topic:xiaolinIndex.topics[0],chapter:{id:'chapter',title:'概念',sections:[{id:'one',title:'Java 的特点',source:'https://xiaolincoding.com',kind:'lesson',html:'<p>正文</p>'}]},state:{entries:{one:{note:'保留笔记'}}},collapsed:new Set(['one'])})`));
+    const button=$('[data-xl-action="toggle-section"]');
+    assert.equal(button.attr('aria-expanded'),'false');
+    assert.equal($('#'+button.attr('aria-controls')).is('[hidden]'),true);
+    assert.equal($('textarea').text(),'保留笔记');
+    assert.equal($('[data-xl-action="expand-all"]').length,1);
+    assert.equal($('[data-xl-action="collapse-all"]').length,1);
+});

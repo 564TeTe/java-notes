@@ -4,9 +4,9 @@ const xiaolinIndex=XiaolinCore.createIndex(window.XIAOLIN_CATALOG);
 let xiaolinState=XiaolinCore.normalizeSnapshot(),xiaolinLoadWarning=false,xiaolinSaveError=false;
 try {const saved=localStorage.getItem(XIAOLIN_KEY);if(saved)xiaolinState=XiaolinCore.normalizeSnapshot(JSON.parse(saved));}
 catch (_) {xiaolinLoadWarning=true;}
-const xiaolinUI={topicId:null,chapterId:null,search:'',filter:'all',page:1,focused:false,mobile:false,error:'',pendingJump:null};
+const xiaolinUI={topicId:null,chapterId:null,search:'',filter:'all',page:1,focused:false,mobile:false,error:'',pendingJump:null,collapsed:new Set()};
 const xiaolinCache=new Map(),xiaolinPending=new Map();
-let xiaolinNoteTimer,xiaolinScrollTimer,xiaolinObserver;
+let xiaolinNoteTimer,xiaolinScrollTimer,xiaolinObserver,xiaolinPositionFrame;
 function persistXiaolin(){
     clearTimeout(xiaolinNoteTimer);
     if(xiaolinLoadWarning){toast('原阅读记录无法读取，已保留原数据。请先导出原记录，再恢复阅读记录。');return false;}
@@ -65,11 +65,44 @@ function mountXiaolin(){
     if(typeof IntersectionObserver!=='undefined'){
         xiaolinObserver=new IntersectionObserver(entries=>{
             if(!showXiaolin||showGlossary||showAnnotations)return;
-            const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);
-            if(visible[0])rememberXiaolinSection(visible[0].target.closest('[data-xl-section]').dataset.xlSection);
+            syncXiaolinPosition();
         },{rootMargin:'-90px 0px -65% 0px',threshold:0});
         document.querySelectorAll('.xl-section>header').forEach(header=>xiaolinObserver.observe(header));
     }
+    syncXiaolinPosition();
+}
+function setXiaolinSectionOpen(id,open){
+    const section=document.getElementById(id),button=section?.querySelector('[data-xl-action="toggle-section"]');
+    if(!button)return;
+    if(open)xiaolinUI.collapsed.delete(id);else xiaolinUI.collapsed.add(id);
+    button.setAttribute('aria-expanded',String(open));
+    button.querySelector('small').textContent=open?'收起 ▴':'展开 ▾';
+    section.querySelector('.xl-section-body').hidden=!open;
+}
+function syncXiaolinPosition(){
+    if(!showXiaolin||showGlossary||showAnnotations)return;
+    const sections=[...document.querySelectorAll('.xl-section')];if(!sections.length)return;
+    const edge=Math.max((document.querySelector('.xl-reader-toolbar')?.getBoundingClientRect().bottom||90)+24,parseFloat(getComputedStyle(sections[0]).scrollMarginTop)||0)+2;
+    let current=sections[0];
+    for(const section of sections){if(section.getBoundingClientRect().top<=edge)current=section;else break;}
+    const id=current.dataset.xlSection;
+    document.querySelectorAll('.xl-quick-nav button').forEach(button=>{
+        if(button.dataset.id===id){
+            const changed=!button.hasAttribute('aria-current');
+            button.setAttribute('aria-current','location');
+            const summary=document.querySelector('.xl-quick-nav>summary');if(summary)summary.textContent=button.textContent+'⋯';
+            if(changed){
+                const nav=button.parentElement,box=button.getBoundingClientRect(),frame=nav.getBoundingClientRect();
+                if(frame.height&&box.top<frame.top)nav.scrollTop+=box.top-frame.top;
+                else if(frame.height&&box.bottom>frame.bottom)nav.scrollTop+=box.bottom-frame.bottom;
+            }
+        }else button.removeAttribute('aria-current');
+    });
+    if(xiaolinState.last?.sectionId!==id)rememberXiaolinSection(id);
+}
+function queueXiaolinPosition(){
+    if(!showXiaolin||xiaolinPositionFrame)return;
+    xiaolinPositionFrame=requestAnimationFrame(()=>{xiaolinPositionFrame=null;syncXiaolinPosition();});
 }
 function rememberXiaolinSection(sectionId){
     const section=xiaolinIndex.byId.get(sectionId);
@@ -80,9 +113,11 @@ function rememberXiaolinSection(sectionId){
 function jumpXiaolin(id,focus=false){
     const target=document.getElementById(id || 'xiaolinChapterTop');
     if(!target)return;
+    if(id)setXiaolinSectionOpen(id,true);
     target.scrollIntoView({block:'start',behavior:'instant'});
     if(focus)(target.querySelector?.('h2') || target).focus?.({preventScroll:true});
     if(id)rememberXiaolinSection(id);
+    syncXiaolinPosition();
 }
 function openXiaolinChapter(topicId,chapterId,sectionId=''){
     const topic=xiaolinIndex.byTopic.get(topicId);if(!topic)return;
@@ -120,7 +155,15 @@ document.addEventListener('click',async event=>{
     else if(action==='home'){persistXiaolin();xiaolinUI.topicId=null;xiaolinUI.error='';renderAll();window.scrollTo({top:0});}
     else if(action==='filter'){xiaolinUI.filter=button.dataset.filter;xiaolinUI.page=1;renderAll();document.getElementById('xiaolinLibrary')?.scrollIntoView({block:'start'});}
     else if(action==='results-prev'||action==='results-next'){xiaolinUI.page+=action==='results-next'?1:-1;refreshXiaolinResults();document.getElementById('xiaolinLibrary')?.scrollIntoView({block:'start'});}
-    else if(action==='jump')jumpXiaolin(id,true);
+    else if(action==='toggle-section'){setXiaolinSectionOpen(id,button.getAttribute('aria-expanded')!=='true');syncXiaolinPosition();}
+    else if(action==='expand-all'||action==='collapse-all'){
+        document.querySelectorAll('.xl-section').forEach(section=>setXiaolinSectionOpen(section.dataset.xlSection,action==='expand-all'));
+        syncXiaolinPosition();
+    }
+    else if(action==='jump'){
+        jumpXiaolin(id,true);
+        const quick=document.querySelector('.xl-quick-nav');if(xiaolinUI.mobile&&quick)quick.open=false;
+    }
     else if(action==='top')jumpXiaolin('',true);
     else if(action==='directory'){
         xiaolinUI.focused=false;document.querySelector('.xl-reader')?.classList.remove('xl-focused');
@@ -147,9 +190,12 @@ document.addEventListener('error',event=>{
     img.dataset.failed='true';const notice=document.createElement('a');notice.className='xl-image-fallback';notice.href=img.src;notice.target='_blank';notice.rel='noopener noreferrer';notice.textContent='图解暂时无法加载 · 查看原图 ↗';img.hidden=true;img.after(notice);
 },true);
 window.addEventListener('pagehide',()=>{if(xiaolinNoteTimer||xiaolinScrollTimer)persistXiaolin();});
+window.addEventListener('scroll',queueXiaolinPosition,{passive:true});
+window.addEventListener('resize',queueXiaolinPosition);
 window.matchMedia?.('(max-width: 860px)').addEventListener?.('change',event=>{
     xiaolinUI.mobile=event.matches;
     updateXiaolinFont();
     const panel=document.querySelector('.xl-directory-panel');
     if(panel)panel.open=!event.matches;
+    const quick=document.querySelector('.xl-quick-nav');if(quick)quick.open=!event.matches;
 });

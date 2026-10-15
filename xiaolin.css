@@ -215,6 +215,28 @@ html body .xl-contents-group>h2{font-size:13px;color:var(--xl-muted);font-weight
 .xl-topic-tree small{font-size:10px;color:var(--xl-muted);white-space:nowrap}
 .xl-topic-tree [aria-current="location"]{background:var(--xl-soft);color:var(--xl-accent)}
 .xl-prose>p:not(:has(img)){text-indent:2em}
+.xl-fold-tools{display:flex;gap:8px;margin:16px 0 10px}
+.xl-fold-tools button{font-size:12px;padding:6px 12px}
+.xl-section>header h2{flex:1;min-width:0}
+.xl-workspace .xl-section-toggle{display:flex;align-items:baseline;justify-content:space-between;gap:12px;width:100%;text-align:left;border:0;padding:0;border-radius:0;font:inherit;color:inherit}
+.xl-workspace .xl-section-toggle:hover:not(:disabled){background:none;color:var(--xl-accent)}
+.xl-section-toggle small{font:11px/1.5 sans-serif;color:var(--xl-muted);white-space:nowrap}
+.xl-section-body[hidden]{display:none}
+.xl-section:has(.xl-section-body[hidden]){padding-top:16px;margin-top:8px}
+.xl-section:has(.xl-section-body[hidden])>header{margin-bottom:14px}
+.xl-quick-nav{position:fixed;right:max(10px,calc((100vw - 1340px)/2 + 4px));top:50%;transform:translateY(-50%);z-index:14;background:var(--xl-paper);border:1px solid var(--xl-line);border-radius:8px;padding:4px;box-shadow:0 3px 16px #16261a0a}
+.xl-quick-nav>summary{display:none;list-style:none}
+.xl-quick-nav>summary::-webkit-details-marker{display:none}
+.xl-quick-nav nav{display:flex;flex-direction:column;gap:3px;max-height:55dvh;overflow:auto;scrollbar-width:thin}
+.xl-quick-nav button{width:28px;min-height:28px;padding:3px;border:0;font:12px/1.5 Consolas,monospace;color:var(--xl-muted)}
+.xl-quick-nav button[aria-current]{background:var(--xl-accent);color:var(--xl-paper);font-weight:700}
+@media(min-width:861px){.xl-reader{padding-right:40px}}
+@media(max-width:860px){
+    .xl-quick-nav{right:4px;padding:3px}
+    .xl-quick-nav>summary{display:block;font:12px/30px Consolas,monospace;min-width:26px;text-align:center;color:var(--xl-accent)}
+    .xl-quick-nav nav{display:grid;grid-template-columns:repeat(5,34px);padding:5px;gap:4px}
+    .xl-quick-nav button{width:34px;min-height:36px}
+}
 @media(max-width:768px){
     html body .xl-library-heading h1{font-size:24px}
     .xl-library-heading{padding:10px 0 14px}
