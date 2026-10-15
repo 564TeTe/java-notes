@@ -49,3 +49,23 @@ test('mobile reader uses a smaller visible font without changing saved desktop p
     assert.match(desktop,/--xl-font-size:18px/);
     assert.equal(app.run('getXiaolinSnapshot().fontSize'),18);
 });
+
+test('library directory exposes every chapter under its topic with a direct reading action',()=>{
+    const app=setup(),{load}=require('cheerio');
+    const $=load(app.run('XiaolinView.books(xiaolinIndex,xiaolinState)'));
+    const topics=JSON.parse(app.run('JSON.stringify(xiaolinIndex.topics)'));
+    assert.equal($('details').length,topics.length);
+    for(const topic of topics){
+        const node=$(`details[data-xl-topic="${topic.id}"]`);
+        assert.ok(node.children('summary').text().includes(topic.title));
+        for(const chapter of topic.chapters){
+            const button=node.find(`button[data-xl-action="chapter"][data-id="${chapter.id}"]`);
+            assert.equal(button.attr('data-topic'),topic.id);
+            assert.ok(button.text().includes(chapter.title));
+        }
+    }
+    app.run('xiaolinState.last={topicId:"java",chapterId:xiaolinIndex.topics[0].chapters[0].id,sectionId:""}');
+    const resumed=load(app.run('XiaolinView.books(xiaolinIndex,xiaolinState)'));
+    assert.equal(resumed('details[open]').attr('data-xl-topic'),'java');
+    assert.equal(resumed('[aria-current="location"]').length,1);
+});

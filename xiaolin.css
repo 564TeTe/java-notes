@@ -191,3 +191,42 @@ html body .xl-prose :is(h1,h2,h3,h4,h5,h6){font-size:1.1em;color:var(--xl-ink);m
     .xl-reader-toolbar{top:52px}
     html[data-theme="tatsumaki"] .xl-reader-toolbar{top:64px}
 }
+
+/* A conventional directory, with chapters directly under each topic. */
+.xl-library-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 0 20px;border-bottom:1px solid var(--xl-line)}
+html body .xl-library-heading h1{font-size:28px;line-height:1.4;color:var(--xl-ink);margin:0 0 5px;font-weight:650}
+.xl-library-heading>div>span{font-size:12px;color:var(--xl-muted)}
+.xl-library-heading .xl-resume-label{flex-basis:100%;margin:0;font-size:12px}
+.xl-contents-group{margin-bottom:24px}
+html body .xl-contents-group>h2{font-size:13px;color:var(--xl-muted);font-weight:600;margin:0;padding:10px 0;border-bottom:1px solid var(--xl-line)}
+.xl-topic-tree{border-bottom:1px solid var(--xl-line)}
+.xl-topic-tree>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px 4px;min-height:48px}
+.xl-topic-tree>summary::-webkit-details-marker{display:none}
+.xl-topic-tree>summary:hover{background:var(--xl-soft)}
+.xl-topic-tree>summary strong{font-size:16px;font-weight:600;flex:1;min-width:0}
+.xl-tree-arrow{font-size:22px;line-height:1;width:16px;text-align:center;color:var(--xl-muted);transition:transform .15s}
+.xl-topic-tree[open]>summary .xl-tree-arrow{transform:rotate(90deg)}
+.xl-tree-count{font-size:11px;color:var(--xl-muted);white-space:nowrap}
+.xl-topic-tree>ol{list-style:none;padding:0 0 6px 24px;margin:0}
+.xl-topic-tree li{margin:0;border-left:1px solid var(--xl-line)}
+.xl-topic-tree li>button{border:0;border-radius:0;display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;padding:10px 12px;min-height:44px;font-size:14px}
+.xl-tree-number{font:11px Consolas,monospace;color:var(--xl-muted)}
+.xl-tree-title{flex:1;min-width:0;overflow-wrap:anywhere}
+.xl-topic-tree small{font-size:10px;color:var(--xl-muted);white-space:nowrap}
+.xl-topic-tree [aria-current="location"]{background:var(--xl-soft);color:var(--xl-accent)}
+.xl-prose>p:not(:has(img)){text-indent:2em}
+@media(max-width:768px){
+    html body .xl-library-heading h1{font-size:24px}
+    .xl-library-heading{padding:10px 0 14px}
+    .xl-library-toolbar{margin:12px 0 16px;gap:10px}
+    .xl-topic-tree>summary strong{font-size:15px}
+    /* Integrate the existing artwork as a small avatar beside the page title. */
+    html[data-theme="tatsumaki"] body[data-workspace="xiaolin"]{padding-top:52px}
+    html[data-theme="tatsumaki"][data-theme-mode="light"] body[data-workspace="xiaolin"] .mobile-topbar{height:52px;gap:10px;background:#f4f3ef;color:#253a32;border-bottom:1px solid #dce1d6;box-shadow:none}
+    html[data-theme="tatsumaki"] body[data-workspace="xiaolin"] .mobile-topbar .workspace-top-art{flex:0 0 34px;width:34px;height:34px;overflow:hidden;border-radius:50%;order:-1;background:#dce8d9}
+    html[data-theme="tatsumaki"] body[data-workspace="xiaolin"] .mobile-topbar .workspace-top-art img{width:34px;height:34px;max-width:none;object-fit:cover;object-position:center;mask-image:none;filter:none}
+    html[data-theme="tatsumaki"] body[data-workspace="xiaolin"] .mobile-topbar .topbar-title{position:static;clip-path:none;width:auto;height:auto;margin:0;padding:0;overflow:visible;flex:1;font-size:14px;color:#253a32}
+    html[data-theme="tatsumaki"][data-theme-mode="light"] body[data-workspace="xiaolin"] .mobile-topbar .theme-toggle{color:#365e48;border-color:#d0d9cd;border-radius:6px}
+    html[data-theme="tatsumaki"] body[data-workspace="xiaolin"] .mobile-topbar :focus-visible{outline-color:#365e48}
+    html[data-theme="tatsumaki"] body[data-workspace="xiaolin"] .xl-reader-toolbar{top:52px}
+}
