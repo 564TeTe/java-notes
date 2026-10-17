@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v77";
+const CACHE_NAME = "java-notes-v79";
 const APP_SHELL = [
     "./assets/themes/xiaolin/panel-01.png",
     "./assets/themes/xiaolin/panel-02.png",

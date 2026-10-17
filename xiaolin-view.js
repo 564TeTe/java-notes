@@ -4,8 +4,9 @@
     const esc=value=>String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const action=(name,label,attrs='',className='')=>`<button type="button" class="${className}" data-xl-action="${name}" ${attrs}>${label}</button>`;
     const link=(url,label)=>`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${label} ↗</a>`;
-    function marginArt(){
-        return `<aside class="xl-art-rail" aria-hidden="true"><figure class="xl-margin-figure xl-margin-standing"><img src="./assets/themes/xiaolin/panel-09.png" alt="" loading="lazy"><figcaption>戦慄のタツマキ <span>—</span></figcaption></figure><figure class="xl-margin-figure xl-margin-floating"><img src="./assets/themes/xiaolin/panel-08.png" alt="" loading="lazy"></figure><figure class="xl-margin-figure xl-margin-sketch"><img src="./assets/themes/xiaolin/panel-11.png" alt="" loading="lazy"></figure></aside>`;
+    function marginArt(side){
+        const panel=side==='left'?'08':'09';
+        return `<aside class="xl-art-rail xl-art-${side}" aria-hidden="true"><figure class="xl-margin-figure"><img src="./assets/themes/xiaolin/panel-${panel}.png" alt="" loading="eager"></figure></aside>`;
     }
     // Each supplied panel has a home; artwork stays outside navigation and prose.
     const readingPanels={java:6,collections:1,juc:4,jvm:5,spring:2,mysql:3,redis:7,network:8,os:11,data:12,mq:4,cap:7,systemdesign:9,linux:10,git:2,docker:6,win:11};
@@ -22,9 +23,11 @@
     function shelf(index,state,ui){
         const total=XiaolinCore.progress(index,state),last=state.last && index.byTopic.get(state.last.topicId);
         return `<section class="xl-workspace xl-shelf" aria-label="小林java 学习手册">
+            ${marginArt('left')}<div class="xl-library-center">
             <header class="xl-library-heading"><div><h1>小林java</h1><span>${index.topics.length} 个专题 · ${total.total} 个知识小节</span></div>${last?action('resume','继续阅读 →','','xl-primary'):action('topic','开始阅读 →','data-id="java"','xl-primary')}${last?`<p class="xl-resume-label">上次：${esc(last.title)} · ${esc(index.byId.get(state.last.sectionId)?.title || last.chapters.find(c=>c.id===state.last.chapterId)?.title || '')}</p>`:''}</header>
             <div class="xl-library-toolbar"><div class="xl-tabs" role="group" aria-label="阅读内容">${[['all','全部专题'],['starred','我的收藏'],['notes','阅读笔记']].map(([id,name])=>action('filter',name,`data-filter="${id}" aria-pressed="${ui.filter===id}"`,ui.filter===id?'is-active':'')).join('')}</div><label class="xl-search"><span>查找知识</span><input id="xiaolinSearch" type="search" placeholder="搜索标题或章节，如 HashMap" value="${esc(ui.search)}" autocomplete="off" aria-controls="xiaolinLibrary"></label></div>
-            <div class="xl-library-layout"><div id="xiaolinLibrary">${ui.search.trim()||ui.filter!=='all'?results(index,state,ui):books(index,state)}</div>${marginArt()}</div>
+            <div class="xl-library-layout"><div id="xiaolinLibrary">${ui.search.trim()||ui.filter!=='all'?results(index,state,ui):books(index,state)}</div></div>
+            </div>${marginArt('right')}
         </section>`;
     }
     function books(index,state){

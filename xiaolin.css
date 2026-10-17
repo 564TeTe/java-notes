@@ -269,45 +269,32 @@ html[data-theme="tatsumaki"] .xl-workspace{
     --xl-paper:#faf9f5;--xl-ground:#f4f3ef;--xl-ink:#253a32;--xl-body:#3e4b43;
     --xl-muted:#68766c;--xl-line:#d7dcd2;--xl-accent:#38634f;--xl-soft:#e6ece1;
 }
+/* Two full figures frame the centered directory without entering its rows. */
+.xl-library-center{min-width:0}
 @media(min-width:1000px){
-    html[data-theme="tatsumaki"] .xl-library-layout{
-        display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,34%);column-gap:72px;
-        align-items:stretch;
+    html[data-theme="tatsumaki"] body[data-workspace="xiaolin"] .main:has(.xl-shelf){max-width:1800px}
+    html[data-theme="tatsumaki"] body[data-workspace="xiaolin"] #notesContainer:has(.xl-shelf){max-width:none}
+    html[data-theme="tatsumaki"] .xl-shelf{
+        display:grid;grid-template-columns:minmax(140px,1fr) minmax(480px,2.8fr) minmax(140px,1fr);
+        gap:clamp(20px,3vw,56px);align-items:start;
     }
     html[data-theme="tatsumaki"] .xl-art-rail{
-        display:flex;flex-direction:column;justify-content:space-between;gap:44px;
-        min-width:0;pointer-events:none;user-select:none;padding:12px 0 20px;
+        display:block;position:sticky;top:112px;margin-top:190px;min-width:0;
+        pointer-events:none;user-select:none;
     }
     html[data-theme="tatsumaki"] .xl-margin-figure{
-        position:relative;isolation:isolate;margin:0;width:100%;flex-shrink:0;
-        background:var(--xl-margin-paper);
+        position:relative;isolation:isolate;margin:0;width:100%;
+        height:min(580px,calc(100dvh - 150px));background:var(--xl-margin-paper);
     }
     html[data-theme="tatsumaki"] .xl-margin-figure img{
-        display:block;width:100%;height:100%;object-fit:contain;filter:grayscale(1);mix-blend-mode:multiply;
+        display:block;width:100%;height:100%;object-fit:contain;
+        filter:grayscale(1);mix-blend-mode:multiply;
     }
-    html[data-theme="tatsumaki"] .xl-margin-standing{height:410px;align-self:flex-end}
-    html[data-theme="tatsumaki"] .xl-margin-standing:before{
-        content:'';position:absolute;inset:20% 12% 10% 16%;z-index:-1;
-        background:radial-gradient(ellipse,#d5e0ce70,transparent 70%);
+    html[data-theme="tatsumaki"] .xl-art-right .xl-margin-figure:before{
+        content:'';position:absolute;inset:22% 6% 15%;z-index:-1;
+        background:radial-gradient(ellipse,#d5e0ce60,transparent 70%);
     }
-    html[data-theme="tatsumaki"] .xl-margin-standing figcaption{
-        position:absolute;left:0;top:22px;writing-mode:vertical-rl;
-        color:#768773;font:11px/1.7 'Songti SC',SimSun,serif;letter-spacing:4px;
-    }
-    html[data-theme="tatsumaki"] .xl-margin-standing figcaption span{margin-top:14px;color:#a6b1a0}
-    html[data-theme="tatsumaki"] .xl-margin-floating{height:440px;width:100%;align-self:flex-start}
-    html[data-theme="tatsumaki"] .xl-margin-sketch{height:270px;width:88%;align-self:flex-end;opacity:.65}
-    html[data-theme="tatsumaki"] .xl-margin-sketch img{
-        mask-image:linear-gradient(to bottom,#000 78%,transparent 99%);
-    }
-    /* Keep a short search/collection page compact instead of stretching it for art. */
-    html[data-theme="tatsumaki"] .xl-library-layout:has(.xl-results) .xl-art-rail{justify-content:flex-start}
-    html[data-theme="tatsumaki"] .xl-library-layout:has(.xl-results) .xl-margin-figure:not(:first-child){display:none}
-}
-@media(min-width:1000px) and (max-width:1180px){
-    html[data-theme="tatsumaki"] .xl-library-layout{column-gap:40px;grid-template-columns:minmax(0,1fr) 280px}
-    html[data-theme="tatsumaki"] .xl-margin-standing{height:370px}
-    html[data-theme="tatsumaki"] .xl-margin-floating{height:340px}
+    html[data-theme="tatsumaki"] .xl-library-center .xl-search{margin-left:auto}
 }
 
 /* Reading-margin plates: the directory keeps its original full height. */
