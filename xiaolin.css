@@ -253,3 +253,107 @@ html body .xl-contents-group>h2{font-size:13px;color:var(--xl-muted);font-weight
     html[data-theme="tatsumaki"] body[data-workspace="xiaolin"] .mobile-topbar :focus-visible{outline-color:#365e48}
     html[data-theme="tatsumaki"] body[data-workspace="xiaolin"] .xl-reader-toolbar{top:52px}
 }
+
+/* Artwork lives in the unused margin, never in the directory or reading text. */
+.xl-art-rail{display:none}
+html[data-theme="tatsumaki"] body[data-workspace="xiaolin"]{
+    --xl-margin-paper:#f4f3ef;
+    background:var(--xl-margin-paper);
+}
+html[data-theme="tatsumaki"] body[data-workspace="xiaolin"]::before{
+    background:var(--xl-margin-paper);
+    opacity:1;
+}
+html[data-theme="tatsumaki"] body[data-workspace="xiaolin"]::after{display:none}
+html[data-theme="tatsumaki"] .xl-workspace{
+    --xl-paper:#faf9f5;--xl-ground:#f4f3ef;--xl-ink:#253a32;--xl-body:#3e4b43;
+    --xl-muted:#68766c;--xl-line:#d7dcd2;--xl-accent:#38634f;--xl-soft:#e6ece1;
+}
+@media(min-width:1000px){
+    html[data-theme="tatsumaki"] .xl-library-layout{
+        display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,34%);column-gap:72px;
+        align-items:stretch;
+    }
+    html[data-theme="tatsumaki"] .xl-art-rail{
+        display:flex;flex-direction:column;justify-content:space-between;gap:44px;
+        min-width:0;pointer-events:none;user-select:none;padding:12px 0 20px;
+    }
+    html[data-theme="tatsumaki"] .xl-margin-figure{
+        position:relative;isolation:isolate;margin:0;width:100%;flex-shrink:0;
+        background:var(--xl-margin-paper);
+    }
+    html[data-theme="tatsumaki"] .xl-margin-figure img{
+        display:block;width:100%;height:100%;object-fit:contain;filter:grayscale(1);mix-blend-mode:multiply;
+    }
+    html[data-theme="tatsumaki"] .xl-margin-standing{height:410px;align-self:flex-end}
+    html[data-theme="tatsumaki"] .xl-margin-standing:before{
+        content:'';position:absolute;inset:20% 12% 10% 16%;z-index:-1;
+        background:radial-gradient(ellipse,#d5e0ce70,transparent 70%);
+    }
+    html[data-theme="tatsumaki"] .xl-margin-standing figcaption{
+        position:absolute;left:0;top:22px;writing-mode:vertical-rl;
+        color:#768773;font:11px/1.7 'Songti SC',SimSun,serif;letter-spacing:4px;
+    }
+    html[data-theme="tatsumaki"] .xl-margin-standing figcaption span{margin-top:14px;color:#a6b1a0}
+    html[data-theme="tatsumaki"] .xl-margin-floating{height:440px;width:100%;align-self:flex-start}
+    html[data-theme="tatsumaki"] .xl-margin-sketch{height:270px;width:88%;align-self:flex-end;opacity:.65}
+    html[data-theme="tatsumaki"] .xl-margin-sketch img{
+        mask-image:linear-gradient(to bottom,#000 78%,transparent 99%);
+    }
+    /* Keep a short search/collection page compact instead of stretching it for art. */
+    html[data-theme="tatsumaki"] .xl-library-layout:has(.xl-results) .xl-art-rail{justify-content:flex-start}
+    html[data-theme="tatsumaki"] .xl-library-layout:has(.xl-results) .xl-margin-figure:not(:first-child){display:none}
+}
+@media(min-width:1000px) and (max-width:1180px){
+    html[data-theme="tatsumaki"] .xl-library-layout{column-gap:40px;grid-template-columns:minmax(0,1fr) 280px}
+    html[data-theme="tatsumaki"] .xl-margin-standing{height:370px}
+    html[data-theme="tatsumaki"] .xl-margin-floating{height:340px}
+}
+
+/* Reading-margin plates: the directory keeps its original full height. */
+.xl-reader-art{display:none}
+@media(min-width:1000px){
+    html[data-theme="tatsumaki"] .xl-reader-art{
+        display:block;max-width:200px;margin:28px auto 8px;pointer-events:none;user-select:none;
+    }
+    html[data-theme="tatsumaki"] .xl-art-mat{
+        position:relative;isolation:isolate;background:var(--xl-margin-paper);
+    }
+    html[data-theme="tatsumaki"] .xl-reader-art img{
+        display:block;width:100%;height:auto;object-fit:contain;mix-blend-mode:multiply;
+        filter:grayscale(1);
+    }
+    html[data-theme="tatsumaki"] .xl-art-paper .xl-art-mat{
+        mask-image:linear-gradient(to bottom,transparent,#000 6px,#000 82%,transparent);
+    }
+    html[data-theme="tatsumaki"] .xl-art-panel-01 .xl-art-mat{
+        mask-image:radial-gradient(ellipse 74% 76% at 50% 43%,#000 50%,transparent 72%);
+    }
+    html[data-theme="tatsumaki"] .xl-art-panel-01 img{filter:grayscale(1) brightness(1.025)}
+    /* The 1280x720 source contains a 720x720 drawing between 280px black bars.
+       Remove those bars only; preserve the entire original drawing. */
+    html[data-theme="tatsumaki"] .xl-art-letterbox .xl-art-mat{
+        aspect-ratio:1;overflow:hidden;
+        mask-image:linear-gradient(to bottom,#000 86%,transparent);
+    }
+    html[data-theme="tatsumaki"] .xl-art-letterbox img{
+        position:absolute;inset:0 auto auto -38.888889%;width:177.777778%;max-width:none;height:100%;
+    }
+    /* Lift the grey scan paper to white before multiplying against the desk. */
+    html[data-theme="tatsumaki"] .xl-art-silver img{filter:grayscale(1) brightness(1.09)}
+    html[data-theme="tatsumaki"] .xl-art-silver .xl-art-mat{
+        mask-image:linear-gradient(to bottom,transparent,#000 4px,#000 91%,transparent);
+    }
+    /* Scene panels retain their tonal background and full composition.
+       Feather just the outer edge, without cropping into the character. */
+    html[data-theme="tatsumaki"] .xl-art-scene .xl-art-mat{
+        mask-image:linear-gradient(90deg,transparent,#000 7px,#000 calc(100% - 7px),transparent),linear-gradient(0deg,transparent,#000 9px,#000 calc(100% - 9px),transparent);
+        mask-composite:intersect;
+    }
+    html[data-theme="tatsumaki"] .xl-reader-art figcaption{
+        display:flex;align-items:center;gap:8px;margin-top:12px;color:#798773;
+        font:9px/1.6 'Songti SC',SimSun,serif;letter-spacing:1px;
+    }
+    html[data-theme="tatsumaki"] .xl-reader-art figcaption i{flex:1;border-top:1px solid #d4dbce}
+    html[data-theme="tatsumaki"] .xl-reader-art figcaption small{font:9px/1.6 Consolas,monospace;letter-spacing:0}
+}

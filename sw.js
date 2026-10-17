@@ -1,5 +1,19 @@
-const CACHE_NAME = "java-notes-v74";
+const CACHE_NAME = "java-notes-v77";
 const APP_SHELL = [
+    "./assets/themes/xiaolin/panel-01.png",
+    "./assets/themes/xiaolin/panel-02.png",
+    "./assets/themes/xiaolin/panel-03.png",
+    "./assets/themes/xiaolin/panel-04.png",
+    "./assets/themes/xiaolin/panel-05.png",
+    "./assets/themes/xiaolin/panel-06.png",
+    "./assets/themes/xiaolin/panel-07.png",
+    "./assets/themes/xiaolin/panel-08.png",
+    "./assets/themes/xiaolin/panel-09.png",
+    "./assets/themes/xiaolin/panel-10.png",
+    "./assets/themes/xiaolin/panel-11.png",
+    "./assets/themes/xiaolin/panel-12.png",
+
+
     "./xiaolin-core.js", "./xiaolin-view.js", "./xiaolin-module.js", "./xiaolin.css", "./data/xiaolin/catalog.js", "./data/xiaolin/java.json", "./data/xiaolin/collections.json", "./data/xiaolin/juc.json", "./data/xiaolin/jvm.json", "./data/xiaolin/spring.json", "./data/xiaolin/mysql.json", "./data/xiaolin/redis.json", "./data/xiaolin/network.json", "./data/xiaolin/os.json", "./data/xiaolin/data.json", "./data/xiaolin/mq.json", "./data/xiaolin/cap.json", "./data/xiaolin/systemdesign.json", "./data/xiaolin/linux.json", "./data/xiaolin/git.json", "./data/xiaolin/docker.json", "./data/xiaolin/win.json",
     "./assets/themes/tatsumaki-study.jpg",
     "./assets/themes/tatsumaki-dossier.jpg",
