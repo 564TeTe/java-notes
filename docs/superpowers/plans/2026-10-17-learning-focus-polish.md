@@ -32,3 +32,7 @@
 - Verification: 352 Node tests passed; browser flows passed at 320, 390 and 1440 pixels, including normal and focused handoff/return, scroll and zoom, note saves, keyboard trapping, personal editing, dark mode and offline reload.
 - Independent review caught a mobile directory popup overlap; fixed with a regression test and verified at 320 pixels.
 - Local preview only. No deployment performed in this iteration.
+
+## Release integration
+
+User requested deployment after preview acceptance. Integrated remote main 5442161 (Xiaolin two-sided artwork), retaining both the shelf design and immersive reader changes. Release version raised to 80 because remote production had already used 79. Runtime asset queries and offline cache use the new version.
