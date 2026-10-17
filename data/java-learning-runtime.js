@@ -21,8 +21,14 @@
     jmm: source('JLS 17：线程、监视器与内存模型', 'https://docs.oracle.com/javase/specs/jls/se17/html/jls-17.html'),
     object: source('Java 17：Object 的等待与通知', api + 'java.base/java/lang/Object.html'),
     reentrant: source('Java 17：ReentrantLock', api + 'java.base/java/util/concurrent/locks/ReentrantLock.html'),
+    aqs: source('Java 17：AbstractQueuedSynchronizer', api + 'java.base/java/util/concurrent/locks/AbstractQueuedSynchronizer.html'),
+    park: source('Java 17：LockSupport', api + 'java.base/java/util/concurrent/locks/LockSupport.html'),
+    condition: source('Java 17：Condition', api + 'java.base/java/util/concurrent/locks/Condition.html'),
+    semaphore: source('Java 17：Semaphore', api + 'java.base/java/util/concurrent/Semaphore.html'),
+    latch: source('Java 17：CountDownLatch', api + 'java.base/java/util/concurrent/CountDownLatch.html'),
     atomic: source('Java 17：原子变量包', api + 'java.base/java/util/concurrent/atomic/package-summary.html'),
     concurrentMap: source('Java 17：ConcurrentHashMap', api + 'java.base/java/util/concurrent/ConcurrentHashMap.html'),
+    concurrentMapSource: source('OpenJDK 17u：ConcurrentHashMap 实现', 'https://github.com/openjdk/jdk17u/blob/master/src/java.base/share/classes/java/util/concurrent/ConcurrentHashMap.java'),
     queue: source('Java 17：BlockingQueue', api + 'java.base/java/util/concurrent/BlockingQueue.html'),
     executor: source('Java 17：ThreadPoolExecutor', api + 'java.base/java/util/concurrent/ThreadPoolExecutor.html'),
     service: source('Java 17：ExecutorService', api + 'java.base/java/util/concurrent/ExecutorService.html'),
@@ -38,10 +44,14 @@
     java: source('JDK 17：java 命令与运行选项', tools + 'java.html'),
     gc: source('HotSpot 17：垃圾收集实现', 'https://docs.oracle.com/en/java/javase/17/gctuning/garbage-collector-implementation.html'),
     g1: source('HotSpot 17：G1 收集器', 'https://docs.oracle.com/en/java/javase/17/gctuning/garbage-first-g1-garbage-collector1.html'),
+    zgc: source('HotSpot 17：垃圾收集调优指南（ZGC 章节）', 'https://docs.oracle.com/en/java/javase/17/gctuning/hotspot-virtual-machine-garbage-collection-tuning-guide.pdf'),
+    zgcVersions: source('OpenJDK：ZGC 版本与配置', 'https://wiki.openjdk.org/spaces/flyingpdf/pdfpageexport.action?pageId=34668579'),
     metaspace: source('HotSpot 17：元空间与其他内存考虑', 'https://docs.oracle.com/en/java/javase/17/gctuning/other-considerations.html'),
     reference: source('Java 17：引用类型与可达性', api + 'java.base/java/lang/ref/package-summary.html'),
     jcmd: source('JDK 17：jcmd 诊断命令', tools + 'jcmd.html'),
     jfr: source('JDK 17：JFR 记录分析', tools + 'jfr.html'),
+    performance: source('JDK 17：使用 JFR 分析性能', 'https://docs.oracle.com/en/java/javase/17/troubleshoot/troubleshoot-performance-issues-using-jfr.html'),
+    troubleshoot: source('JDK 17：故障诊断指南（内存泄漏章节）', 'https://docs.oracle.com/en/java/javase/17/troubleshoot/troubleshooting-guide.pdf'),
     connection: source('Java 17：JDBC Connection', api + 'java.sql/java/sql/Connection.html'),
     prepared: source('Java 17：PreparedStatement', api + 'java.sql/java/sql/PreparedStatement.html'),
     dataSource: source('Java 17：DataSource', api + 'java.sql/javax/sql/DataSource.html'),
@@ -177,6 +187,69 @@
       terms: ['CAS', 'ABA', 'compareAndSet'], sources: [S.atomic]
     },
     {
+      id: 'concurrency-aqs', parentId: 'concurrency', title: 'AQS 同步器骨架',
+      summary: '资源规则由子类定义，排队等待交给框架。',
+      explanation: 'AbstractQueuedSynchronizer 把同步状态与获取、释放过程分开。子类定义何时能获取资源以及怎样改变 state，AQS 负责获取失败后的排队、阻塞和重试。理解它时先画出资源状态转换，再看等待流程，便能串起显式锁、信号量和闭锁，而不必把每种工具都从头记忆。',
+      example: '互斥锁：空闲 -> 某线程持有 -> 释放。\nAQS 负责等待者怎样排队；锁实现负责判断当前线程是否能完成状态转换。',
+      pitfall: 'AQS 不是一把可直接使用的锁，也不会自动让任意 state 规则变得正确；业务代码通常使用成熟同步工具。',
+      prerequisites: ['concurrency-cas', 'concurrency-reentrant-lock'], related: ['concurrency-aqs-state', 'concurrency-aqs-queue', 'concurrency-aqs-shared'],
+      terms: ['AQS', 'AbstractQueuedSynchronizer', '同步器'], sources: [S.aqs]
+    },
+    {
+      id: 'concurrency-aqs-state', parentId: 'concurrency-aqs', title: 'state 与资源语义',
+      summary: '同一个状态字段可以表达不同的资源规则。',
+      explanation: 'AQS 用一个 int state 表达同步状态，并提供具有 volatile 语义的读写与 CAS 更新。state 的含义取决于实现：重入锁可表达持有次数，信号量可表达剩余许可，闭锁可表达未完成计数。状态值只是一部分，独占工具还需要区分持有者，不能看到非零就一概理解为锁住。',
+      example: '重入锁：同一持有者再次获取，计数从 1 变为 2；只释放一次回到 1，其他线程仍不能进入。',
+      pitfall: 'volatile 只解决特定可见性和顺序问题；检查后修改这种复合状态转换仍需原子更新或其他协调。',
+      prerequisites: ['concurrency-aqs', 'concurrency-volatile'], related: ['concurrency-cas', 'concurrency-aqs-shared'],
+      terms: ['AQS state', '重入计数', '同步状态'], sources: [S.aqs, S.reentrant, S.semaphore, S.latch]
+    },
+    {
+      id: 'concurrency-aqs-queue', parentId: 'concurrency-aqs', title: '等待队列与重新竞争',
+      summary: '排队管理等待者，唤醒后仍要尝试获取资源。',
+      explanation: '获取资源失败的线程可进入 AQS 的等待队列。队列节点记录等待线程及其等待状态，让释放方能通知后续等待者；被唤醒后，线程仍要重新执行获取判断，成功后才离开等待过程。中断和超时可能取消等待，框架也要处理这些节点，因而队列并非简单的任务列表。',
+      example: '线程 A 持有锁，B 排队等待。A 释放后 B 被唤醒，但只有 B 的获取操作成功，B 才能执行临界区。',
+      pitfall: 'FIFO 排队结构不等于严格 FIFO 获锁；是否允许新到线程插队，还取决于同步器的公平策略。',
+      prerequisites: ['concurrency-aqs-state'], related: ['concurrency-park', 'concurrency-lock-fairness', 'concurrency-interrupt'],
+      terms: ['AQS队列', '同步队列', 'CLH', '阻塞唤醒'], sources: [S.aqs, S.reentrant]
+    },
+    {
+      id: 'concurrency-park', parentId: 'concurrency-aqs', title: 'park / unpark 与许可',
+      summary: '单个许可连接唤醒与阻塞，条件仍需另外维护。',
+      explanation: 'LockSupport 为线程关联至多一个许可。park 有许可时消耗它并返回，否则可以阻塞；unpark 提供许可，因此对已启动线程先 unpark 后 park 也可以正常配合。许可不会累加。park 也可能因中断或虚假唤醒返回，调用方必须用具备可见性保证的条件判断是否继续等待。',
+      example: '示意：while (!ready) {\n  if (Thread.currentThread().isInterrupted()) return;\n  LockSupport.park(blocker);\n}\n// ready 需有同步保障，发布方设置后 unpark(waiter)。',
+      pitfall: 'park 不会像 Object.wait 那样释放监视器；在持锁状态下 park，可能让负责改变条件的线程永远拿不到锁。',
+      prerequisites: ['concurrency-aqs-queue', 'concurrency-volatile'], related: ['concurrency-wait-notify', 'concurrency-interrupt'],
+      terms: ['LockSupport', 'park', 'unpark', '许可'], sources: [S.park]
+    },
+    {
+      id: 'concurrency-aqs-shared', parentId: 'concurrency-aqs', title: '独占与共享获取',
+      summary: '共享表示可同时放行多个等待者，并不取消限制。',
+      explanation: '独占模式通常只允许一个持有者进入；共享模式允许状态满足条件时有多个线程通过。Semaphore 把许可作为配额，获取消耗许可、释放归还；CountDownLatch 则等待计数归零，一旦打开就持续放行。二者都可复用共享等待机制，但资源含义与能否重复使用并不相同。',
+      example: 'Semaphore slots = new Semaphore(3);\nslots.acquire();\ntry { callRemoteService(); }\nfinally { slots.release(); }\n// 业务约定最多 3 个同时进行的调用。',
+      pitfall: '共享模式不是无条件并行。CountDownLatch 不能重置；Semaphore 也不会替业务校验多释放了一次许可。',
+      prerequisites: ['concurrency-aqs-state', 'concurrency-interrupt'], related: ['concurrency-executor-sizing', 'concurrency-blocking-queue'],
+      terms: ['AQS共享模式', '独占锁', 'Semaphore', 'CountDownLatch'], sources: [S.aqs, S.semaphore, S.latch]
+    },
+    {
+      id: 'concurrency-condition', parentId: 'concurrency-reentrant-lock', title: 'Condition 等待与信号',
+      summary: '一把锁可以配多个条件队列，分别等待业务条件。',
+      explanation: 'ReentrantLock 的 Condition 将等待条件分组，例如队列未满与队列非空。持有锁时调用 await 会释放锁并等待，返回前重新获取锁；signal 让等待者有机会继续竞争，不会把锁立即移交给它。业务状态的检查和修改都应受同一把锁保护，并用 while 重新检查条件。',
+      example: 'lock.lock();\ntry {\n  while (queue.isEmpty()) notEmpty.await();\n  return queue.remove();\n} finally { lock.unlock(); }',
+      pitfall: 'signal 不会把某个业务条件变为 true；先修改受保护状态再通知，且不要把条件等待队列与获锁队列混为一谈。',
+      prerequisites: ['concurrency-reentrant-lock', 'concurrency-wait-notify'], related: ['concurrency-aqs-queue', 'concurrency-blocking-queue'],
+      terms: ['Condition', 'await', 'signal', '条件队列'], sources: [S.condition, S.reentrant]
+    },
+    {
+      id: 'concurrency-lock-fairness', parentId: 'concurrency-reentrant-lock', title: '公平性与锁竞争',
+      summary: '获取顺序和吞吐量之间存在需要测量的取舍。',
+      explanation: '公平 ReentrantLock 在竞争时倾向于让等待最久的线程获取锁，减少等待时间差异；非公平锁允许某些新到线程先尝试，有时能减少交接开销。公平性约束的是锁的竞争策略，不是操作系统调度。选择策略要观察吞吐与等待延迟，而不是把公平直接等同于更快或业务更正确。',
+      example: 'ReentrantLock lock = new ReentrantLock(true);\n// 普通 lock 获取遵循公平策略；无超时的 tryLock() 仍允许在锁空闲时插队。',
+      pitfall: '只设置公平锁不会解决长临界区或死锁；先减少锁内阻塞工作，再根据真实竞争测量策略影响。',
+      prerequisites: ['concurrency-reentrant-lock', 'concurrency-aqs-queue'], related: ['jvm-cpu-diagnosis', 'concurrency-condition'],
+      terms: ['公平锁', '非公平锁', '锁竞争', 'tryLock'], sources: [S.reentrant]
+    },
+    {
       id: 'concurrency-atomic', parentId: 'concurrency-cas', title: '原子变量',
       summary: '原子变量封装单个状态的安全更新。',
       explanation: 'AtomicInteger 等类型提供原子的读取修改写入操作，使计数与状态转换不必手写同步。它们保护的是各自的操作，不能自动维护多个变量间的不变量。更新函数可能因竞争被重新执行，所以函数应根据输入计算新值而不产生外部副作用。',
@@ -195,6 +268,24 @@
       terms: ['ConcurrentHashMap', 'computeIfAbsent', 'putIfAbsent'], sources: [S.concurrentMap]
     },
     {
+      id: 'concurrency-concurrent-map-resize', parentId: 'concurrency-concurrent-map', title: '并发扩容与转发节点',
+      summary: '迁移可以协作进行，读取仍需找到正确的新旧桶。',
+      explanation: 'OpenJDK 17 的 ConcurrentHashMap 扩容会按区间迁移桶，符合条件的更新线程可帮助迁移。迁移完成的旧桶用转发节点指向新表；读操作遇到它时转到新表查找。这个机制把一次大迁移拆给多个线程完成，同时维持访问路径，不能简单套用早期 JDK 分段锁的解释。',
+      example: '旧桶迁移完成 -> 放置 ForwardingNode -> 后来的 get 沿新表继续找键。\n更新线程遇到扩容状态时，可能参与迁移后再重试更新。',
+      pitfall: '协作扩容不等于所有读线程都迁移数据；实现细节也不能推出跨多个键的操作具有事务原子性。',
+      prerequisites: ['concurrency-concurrent-map', 'collections-resize'], related: ['collections-hashmap-capacity', 'concurrency-cas'],
+      terms: ['ConcurrentHashMap扩容', 'ForwardingNode', '协助扩容', 'transfer'], sources: [S.concurrentMapSource]
+    },
+    {
+      id: 'concurrency-concurrent-map-atomic', parentId: 'concurrency-concurrent-map', title: '单键原子操作与边界',
+      summary: '把读取、判断和修改交给一次原子映射操作。',
+      explanation: 'ConcurrentHashMap 的 compute、computeIfAbsent、merge 等方法可以对单个键完成原子复合更新，避免 get 后再 put 的竞争窗口。回调应短小，并遵守不能在计算中修改此映射等方法约束。原子边界是映射操作，不会覆盖返回对象后续的任意修改，也不保证整个表是固定时刻的快照。',
+      example: 'counts.merge("java", 1, Integer::sum);\n// 安全地累加这个键；不要改成 get("java") 后在外部加一再 put。',
+      pitfall: '在 computeIfAbsent 中执行慢速网络调用可能拖住相关更新；“只创建一次”也不能跨删除、异常和之后的重试无限成立。',
+      prerequisites: ['concurrency-concurrent-map', 'concurrency-shared-state'], related: ['concurrency-atomic', 'collections-immutable'],
+      terms: ['computeIfAbsent', 'ConcurrentHashMap原子性', 'merge', '复合操作'], sources: [S.concurrentMap]
+    },
+    {
       id: 'concurrency-blocking-queue', parentId: 'concurrency', title: 'BlockingQueue 与背压',
       summary: '有界阻塞队列协调生产速度与消费速度。',
       explanation: 'BlockingQueue 把元素交接与等待条件封装起来。队列为空时消费者可等待，队列已满时生产者可阻塞或限时失败，这使有限容量能够向上游传递压力。入队前的操作对另一线程取得该元素后的操作可见，适合构建任务流水线。',
@@ -211,6 +302,33 @@
       pitfall: 'newFixedThreadPool 使用无界队列，持续超负荷会积压；示例需要按实际负载配置容量和拒绝行为。',
       prerequisites: ['concurrency-thread', 'concurrency-blocking-queue'], related: ['concurrency-executor-lifecycle'],
       terms: ['ThreadPoolExecutor', '线程池', '核心线程数', '拒绝策略'], sources: [S.executor, S.service]
+    },
+    {
+      id: 'concurrency-executor-flow', parentId: 'concurrency-executor', title: '任务提交的四段路径',
+      summary: '核心线程、队列、最大线程和拒绝共同决定去向。',
+      explanation: 'ThreadPoolExecutor 接收任务时，通常先尝试补足核心线程；达到核心数后优先入队，入队失败再尝试增加线程直到最大值，仍无法接受就进入拒绝策略。线程池关闭以及并发状态变化还需再次检查。队列类型决定这些路径多常被触发，无界队列通常让 maximumPoolSize 难以发挥扩容作用。',
+      example: '设 core=2、max=4、队列容量=2，任务持续阻塞且池在运行：\n前 2 个交给线程，接着 2 个排队，再新增 2 个线程，继续提交则可能被拒绝。',
+      pitfall: '并不是“先把线程开到最大再排队”；上述顺序示例依赖任务尚未完成，实际执行中队列和线程状态会同时变化。',
+      prerequisites: ['concurrency-executor', 'concurrency-blocking-queue'], related: ['concurrency-executor-rejection', 'concurrency-executor-sizing'],
+      terms: ['线程池执行流程', 'corePoolSize', 'maximumPoolSize', 'workQueue'], sources: [S.executor]
+    },
+    {
+      id: 'concurrency-executor-rejection', parentId: 'concurrency-executor', title: '饱和、拒绝与背压',
+      summary: '资源不足时要明确任务失败、等待或转移的语义。',
+      explanation: '拒绝发生在执行器关闭或线程和队列都不能接收任务时。默认 AbortPolicy 抛出异常，让调用方明确知道提交失败；CallerRunsPolicy 在池未关闭时由提交线程执行，用提交速度反馈压力。丢弃策略适用于业务明确允许丢失的场景，不能让需要结果的请求悄悄消失。',
+      example: 'try { executor.execute(task); }\ncatch (RejectedExecutionException e) {\n  recordOverload();\n  throw e; // 由接口边界转换为明确失败\n}',
+      pitfall: 'CallerRunsPolicy 可能阻塞请求线程，且池关闭后会丢弃任务；静默丢弃 submit 的 FutureTask 还可能使等待结果的一方一直等下去。',
+      prerequisites: ['concurrency-executor-flow'], related: ['concurrency-blocking-queue', 'concurrency-executor-lifecycle'],
+      terms: ['拒绝策略', 'AbortPolicy', 'CallerRunsPolicy', 'RejectedExecutionException'], sources: [S.executor]
+    },
+    {
+      id: 'concurrency-executor-sizing', parentId: 'concurrency-executor', title: '线程数与容量评估',
+      summary: '用任务性质和下游容量确定边界，再用负载验证。',
+      explanation: '计算密集任务增加线程过多会增加竞争，等待外部 I/O 的任务则可能需要更多并发来利用空闲 CPU。但线程数还受数据库连接数、远端限流、内存和延迟目标约束。先区分任务，设置有界队列与明确拒绝，再观察活跃线程、排队时间和尾延迟，逐步调节而不是背一个万能公式。',
+      example: '远端只允许 20 个同时请求时，把线程池调到 200 不会让它变成 200 的容量。\n用许可或并发限制保护下游，并测量队列等待是否超出超时预算。',
+      pitfall: '队列变大只是延后拒绝，可能把过载变成长时间等待和内存压力；多个线程池也可能争用同一批 CPU 或连接。',
+      prerequisites: ['concurrency-executor-flow', 'concurrency-blocking-queue'], related: ['concurrency-aqs-shared', 'data-access-connection-pool', 'jvm-profiling'],
+      terms: ['线程池参数', '线程池大小', '线程池调优', '有界队列'], sources: [S.executor, S.semaphore]
     },
     {
       id: 'concurrency-executor-lifecycle', parentId: 'concurrency-executor', title: '执行器关闭与任务结果',
@@ -321,6 +439,15 @@
       terms: ['Java堆', '堆内存', '对象分配'], sources: [S.vm, S.gc]
     },
     {
+      id: 'jvm-allocation', parentId: 'jvm-heap', title: '对象分配与 TLAB',
+      summary: '线程可以在堆内的局部分配区快速申请对象空间。',
+      explanation: 'HotSpot 可为线程提供 TLAB，在其专用分配区域内申请小对象，减少每次分配都争用共享边界的成本。TLAB 用完需要补充，大对象或不合适的分配可走其他路径。它仍属于 Java 堆，优化的是分配过程；对象发布给其他线程后，访问是否安全仍取决于同步规则。',
+      example: '请求解析不断创建临时对象：JFR 可定位分配最集中的类和调用位置。\n先检查重复构造与无用中间对象，再判断是否需要调整 GC。',
+      pitfall: '“线程局部分配”不等于对象在线程栈上，也不等于对象永远线程私有；对象寿命和可达性要单独分析。',
+      prerequisites: ['jvm-heap', 'language-references'], related: ['jvm-profiling', 'jvm-g1'],
+      terms: ['TLAB', '对象分配', '分配速率', '线程本地分配缓冲区'], sources: [S.performance, S.java]
+    },
+    {
       id: 'jvm-stack', parentId: 'jvm-runtime-areas', title: '线程栈与栈帧',
       summary: '每次方法调用通过栈帧保存执行上下文。',
       explanation: '线程调用方法时创建栈帧，其中包括局部变量表、操作数栈和动态链接等信息；方法正常返回或异常退出后栈帧结束。局部引用在线程栈中并不意味着对象只能由本线程访问。递归调用持续增加栈深度，超过允许范围会触发栈溢出。',
@@ -346,6 +473,24 @@
       pitfall: '对象不再需要但仍被缓存强引用，是逻辑内存泄漏；GC 无法理解业务上已经不需要它。',
       prerequisites: ['jvm-heap'], related: ['jvm-gc-algorithms', 'concurrency-thread-local'],
       terms: ['可达性分析', 'GC Roots', '强引用', '弱引用'], sources: [S.reference, S.gc]
+    },
+    {
+      id: 'jvm-gc-roots', parentId: 'jvm-reachability', title: 'GC Roots 与保留路径',
+      summary: '沿根到对象的路径，解释对象为什么仍然存活。',
+      explanation: 'GC 从根集合出发分析可达对象，例如线程正在使用的引用和本地接口持有的引用，存活类关联的静态字段也可能继续保留对象。排查泄漏时，不只看谁占内存，还要追踪是哪条根路径把它留下来。两个对象互相引用本身不足以保活，关键是它们是否仍被程序的有效入口连接。',
+      example: '仍存活的类 -> static 缓存 -> 用户列表 -> 已过期用户。\n过期用户即使业务不再使用，也会被这条强引用链保留。',
+      pitfall: '把变量设为 null 只断开一条路径，其他缓存、回调或线程局部值仍可能引用对象；离开作用域也不是立即回收的指令。',
+      prerequisites: ['jvm-reachability', 'language-references'], related: ['jvm-oom', 'concurrency-thread-local', 'jvm-references'],
+      terms: ['GC Roots', '引用链', '可达性分析', '内存泄漏'], sources: [S.reference, S.troubleshoot]
+    },
+    {
+      id: 'jvm-references', parentId: 'jvm-reachability', title: '引用强度与回收通知',
+      summary: '弱化保留关系与收到清理通知是两个不同问题。',
+      explanation: '强引用通常持续保留对象；软、弱、虚引用则让程序以不同方式参与对象生命周期。弱引用不能阻止弱可达对象被回收，虚引用用于清理通知且 get 始终返回 null。ReferenceQueue 用于接收引用对象的入队通知，程序应保留这些引用对象自身，才能持续关心它们对应的生命周期变化。',
+      example: 'WeakReference<Object> ref = new WeakReference<>(value);\nObject live = ref.get();\nif (live != null) use(live);\n// 获取一次并保存，避免多次 get 之间状态变化。',
+      pitfall: '弱引用不承诺下次 GC 或某个时间点必定回收；软引用也不能替代可控的缓存容量、过期与淘汰策略。',
+      prerequisites: ['jvm-reachability'], related: ['jvm-gc-roots', 'concurrency-thread-local', 'io-resources'],
+      terms: ['SoftReference', 'WeakReference', 'PhantomReference', 'ReferenceQueue'], sources: [S.reference]
     },
     {
       id: 'jvm-gc-algorithms', parentId: 'jvm-reachability', title: '垃圾回收基本算法',
@@ -375,6 +520,33 @@
       terms: ['G1', 'Region', 'Mixed GC', '并发标记'], sources: [S.g1]
     },
     {
+      id: 'jvm-remembered-set', parentId: 'jvm-g1', title: '跨区引用与记忆集',
+      summary: '局部回收仍要知道外部哪些位置引用了本区对象。',
+      explanation: 'G1 回收部分 Region 时，其他区域可能仍引用其中的对象，不能仅从回收区域内部判断存活。记忆集帮助找到进入某个区域的外部引用；写屏障与卡表等机制记录引用变化，再维护需要扫描的信息。它避免每次局部回收都完整扫描整个堆，但也需要额外内存和维护时间。',
+      example: '老年代对象 A -> 本次要回收的年轻区域中的 B。\n扫描相应跨区引用后仍能发现 B，不能因为 A 不在本次回收集合中就忽略它。',
+      pitfall: '卡表记录的是粗粒度内存区域，不能等同于精确的对象引用清单；“只回收年轻代”也不代表完全不用检查老年代引用。',
+      prerequisites: ['jvm-g1', 'jvm-gc-roots'], related: ['jvm-concurrent-marking', 'jvm-stw'],
+      terms: ['Remembered Set', 'RSet', '记忆集', '卡表', '跨代引用'], sources: [S.g1]
+    },
+    {
+      id: 'jvm-concurrent-marking', parentId: 'jvm-g1', title: '并发标记与 SATB',
+      summary: '应用修改引用时，收集器必须维持正确的存活视图。',
+      explanation: 'G1 标记期间应用线程仍可改变对象之间的引用。SATB 按标记开始时的存活视图工作，引用写入屏障记录被覆盖的旧引用，帮助避免遗漏原先可达的对象；随后还有停顿阶段完成必要收尾。开始时存活、期间已经无用的对象可能保留到之后的回收，这种浮动垃圾是并发处理的代价之一。',
+      example: '标记器尚未扫描 A.field 时，应用把它从 B 改为 null。\nSATB 通过记录旧引用 B 保留这条待处理线索，避免只看修改后的图而漏掉它。',
+      pitfall: '并发标记不等于全程无停顿；SATB 与增量更新是不同思路，不能把两种写屏障规则混用成同一个算法。',
+      prerequisites: ['jvm-g1', 'jvm-reachability'], related: ['jvm-remembered-set', 'jvm-stw', 'jvm-zgc'],
+      terms: ['SATB', '并发标记', '三色标记', '漏标', '浮动垃圾'], sources: [S.g1]
+    },
+    {
+      id: 'jvm-zgc', parentId: 'jvm-gc-algorithms', title: 'ZGC 与低停顿取舍',
+      summary: '把大量回收工作并发执行，用资源余量换低停顿。',
+      explanation: 'Java 17 的 ZGC 是非分代的低停顿收集器，把大量标记与对象搬移工作和应用并发执行。堆不仅要容纳存活对象，还要留出回收期间继续分配的余量，并预留 CPU 给回收线程。Java 21 才引入可选择的分代 ZGC，因此不能把后续版本的参数与机制直接套到 Java 17。',
+      example: 'Java 17 启动示例：\njava -XX:+UseZGC -Xmx2g -Xlog:gc -jar app.jar\n// 比较实际停顿、CPU 和分配压力，而不是只比较收集器名字。',
+      pitfall: '低停顿目标不是整个请求永远低延迟的保证；锁等待、I/O 或分配赶不上回收都可能造成业务延迟。',
+      prerequisites: ['jvm-gc-algorithms', 'jvm-stw'], related: ['jvm-g1', 'jvm-concurrent-marking', 'jvm-profiling'],
+      terms: ['ZGC', '低延迟GC', '并发回收', '分代ZGC'], sources: [S.zgc, S.zgcVersions]
+    },
+    {
       id: 'jvm-diagnostics', parentId: 'jvm', title: '线程转储与堆转储',
       summary: '转储把故障时的执行和对象关系保留下来。',
       explanation: '线程转储展示线程调用栈、状态和部分持锁信息，适合分析等待、死锁或执行热点。堆转储记录对象与引用关系，适合分析谁保留了大量对象。先根据症状选择证据，再看多次采样或保留路径，比只看异常名称更接近根因。',
@@ -382,6 +554,24 @@
       pitfall: '堆转储可能开销较大并包含敏感业务数据；单次线程快照不能证明某方法长期占用处理器。',
       prerequisites: ['jvm-runtime-areas', 'concurrency-lifecycle'], related: ['jvm-profiling'],
       terms: ['jcmd', '线程dump', '堆转储', 'heap dump'], sources: [S.jcmd]
+    },
+    {
+      id: 'jvm-oom', parentId: 'jvm-diagnostics', title: 'OOM 分类与证据',
+      summary: '先识别耗尽的资源，再区分容量不足与持续泄漏。',
+      explanation: 'OutOfMemoryError 并不只表示 Java 堆小。异常细节可能指向堆、元空间或本地资源等不同边界，处理前应同时看错误消息、负载和相应资源趋势。堆问题可比较转储中的大对象、数量变化和根保留路径；容量正常但无用对象持续被保留，才是需要修复引用关系的泄漏线索。',
+      example: '预先配置堆故障证据：\n-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./dumps\n堆转储可能很大，应准备容量，并结合 GC 日志和分配趋势分析。',
+      pitfall: '盲目增大 -Xmx 不能修复元空间或本地资源耗尽，也可能挤占本地内存；一次堆快照中对象多不等于已经证明泄漏。',
+      prerequisites: ['jvm-diagnostics', 'jvm-gc-roots', 'jvm-metaspace'], related: ['jvm-profiling', 'jvm-allocation', 'concurrency-thread-local'],
+      terms: ['OutOfMemoryError', 'OOM', '堆内存溢出', '内存泄漏排查'], sources: [S.troubleshoot, S.java]
+    },
+    {
+      id: 'jvm-cpu-diagnosis', parentId: 'jvm-diagnostics', title: 'CPU 与等待瓶颈定位',
+      summary: '把机器负载、线程活动与调用栈放到同一时间段看。',
+      explanation: '先判断是进程持续消耗 CPU，还是请求变慢但 CPU 并不忙。计算热点可用 JFR 采样定位，经多次线程转储观察是否持续停留在同一调用路径；低 CPU 的慢请求则应关注锁、队列和外部 I/O。同时核对 GC 开销和负载变化，避免把某次偶然出现的栈帧当作最终原因。',
+      example: 'jcmd <pid> Thread.print\njcmd <pid> JFR.start name=cpu settings=profile duration=30s filename=cpu.jfr\n// 用同一时间窗口的 CPU、线程和 GC 记录交叉判断。',
+      pitfall: 'RUNNABLE 不等于正在占满 CPU，单次栈也不能证明死循环；本地线程 ID 的表示方式还应与使用的平台工具对应。',
+      prerequisites: ['jvm-diagnostics', 'concurrency-lifecycle'], related: ['jvm-profiling', 'concurrency-lock-fairness', 'concurrency-executor-sizing'],
+      terms: ['CPU飙高', '线程栈分析', 'JFR', '性能排查', '死循环'], sources: [S.performance, S.jcmd]
     },
     {
       id: 'jvm-profiling', parentId: 'jvm-diagnostics', title: '性能剖析与 JFR',

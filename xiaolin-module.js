@@ -4,7 +4,7 @@ const xiaolinIndex=XiaolinCore.createIndex(window.XIAOLIN_CATALOG);
 let xiaolinState=XiaolinCore.normalizeSnapshot(),xiaolinLoadWarning=false,xiaolinSaveError=false;
 try {const saved=localStorage.getItem(XIAOLIN_KEY);if(saved)xiaolinState=XiaolinCore.normalizeSnapshot(JSON.parse(saved));}
 catch (_) {xiaolinLoadWarning=true;}
-const xiaolinUI={topicId:null,chapterId:null,search:'',filter:'all',page:1,focused:false,mobile:false,error:'',pendingJump:null,collapsed:new Set()};
+const xiaolinUI={topicId:null,chapterId:null,search:'',filter:'all',page:1,focused:false,mobile:false,error:'',pendingJump:null,collapsed:new Set(),mindmapReturn:null};
 const xiaolinCache=new Map(),xiaolinPending=new Map();
 let xiaolinNoteTimer,xiaolinScrollTimer,xiaolinObserver,xiaolinPositionFrame;
 function persistXiaolin(){
@@ -49,6 +49,8 @@ function loadXiaolinTopic(id){
 }
 function mountXiaolin(){
     xiaolinObserver?.disconnect();
+    const reader=document.querySelector('.xl-reader');
+    window.LearningFocus?.sync(reader,!!reader&&showXiaolin&&!showGlossary&&!showAnnotations&&xiaolinUI.focused,{kind:'xiaolin',onExit:()=>setXiaolinFocus(false)});
     if(!showXiaolin || showGlossary || showAnnotations)return;
     const id=xiaolinUI.topicId;
     if(!id)return;
@@ -86,6 +88,10 @@ function syncXiaolinPosition(){
     let current=sections[0];
     for(const section of sections){if(section.getBoundingClientRect().top<=edge)current=section;else break;}
     const id=current.dataset.xlSection;
+    const position=document.querySelector('.xl-focus-position'),ordinal=sections.indexOf(current)+1;
+    if(position){position.textContent=ordinal+' / '+sections.length;position.setAttribute('aria-label','当前第 '+ordinal+' 节，共 '+sections.length+' 节');}
+    const title=document.querySelector('.xl-focus-title');
+    if(title){const label=xiaolinIndex.byId.get(id)?.title;if(label){title.textContent=label;title.title=label;}}
     document.querySelectorAll('.xl-quick-nav button').forEach(button=>{
         if(button.dataset.id===id){
             const changed=!button.hasAttribute('aria-current');
@@ -127,6 +133,62 @@ function openXiaolinChapter(topicId,chapterId,sectionId=''){
     xiaolinState.last={topicId,chapterId:chapter.id,sectionId:xiaolinUI.pendingJump};persistXiaolin();
     renderAll();
 }
+function flushXiaolinForNavigation(){
+    if(showXiaolin)syncXiaolinPosition();
+    document.querySelectorAll('[data-xl-note]').forEach(field=>{
+        const id=field.dataset.xlNote;
+        if(xiaolinIndex.byId.has(id))xiaolinState.entries[id]={done:false,starred:false,...xiaolinState.entries[id],note:field.value.slice(0,20000)};
+    });
+    clearTimeout(xiaolinNoteTimer);clearTimeout(xiaolinScrollTimer);
+    xiaolinNoteTimer=null;xiaolinScrollTimer=null;
+    if(xiaolinPositionFrame)window.cancelAnimationFrame?.(xiaolinPositionFrame);
+    xiaolinPositionFrame=null;xiaolinObserver?.disconnect();
+    return persistXiaolin();
+}
+function setXiaolinFocus(enabled){
+    enabled=!!enabled;
+    if(xiaolinUI.focused===enabled)return;
+    const selector='.xl-section > header, .xl-section .xl-prose > *, .xl-section-actions, .xl-note';
+    const edge=document.querySelector('.xl-reader-toolbar')?.getBoundingClientRect().bottom||0;
+    const blocks=[...document.querySelectorAll(selector)];
+    const anchor=blocks.findIndex(block=>block.getBoundingClientRect().bottom>edge+12);
+    const offset=anchor>=0?blocks[anchor].getBoundingClientRect().top-edge:0,scroll=window.scrollY||0;
+    const topicId=xiaolinUI.topicId,chapterId=xiaolinUI.chapterId;
+    flushXiaolinForNavigation();
+    xiaolinUI.focused=enabled;
+    renderAll();
+    requestAnimationFrame(()=>{
+        if(!showXiaolin||showGlossary||showAnnotations||xiaolinUI.topicId!==topicId||xiaolinUI.chapterId!==chapterId||xiaolinUI.focused!==enabled)return;
+        const target=anchor>=0?document.querySelectorAll(selector)[anchor]:null;
+        const nextEdge=document.querySelector('.xl-reader-toolbar')?.getBoundingClientRect().bottom||0;
+        window.scrollTo({top:Math.max(0,target?(window.scrollY||0)+target.getBoundingClientRect().top-nextEdge-offset:scroll),behavior:'instant'});
+        syncXiaolinPosition();
+        document.querySelector('[data-xl-action="focus"]')?.focus({preventScroll:true});
+    });
+}
+function openXiaolinFromMindMap(sectionId,concept){
+    xiaolinUI.mindmapReturn=null;
+    const section=typeof sectionId==='string'?xiaolinIndex.byId.get(sectionId):null;
+    if(!section||section.kind!=='lesson'||!concept||typeof concept!=='object'||Array.isArray(concept)
+        ||typeof concept.id!=='string'||!concept.id.trim()||concept.id.length>300
+        ||typeof concept.title!=='string'||!concept.title.trim()||concept.title.length>300
+        ||typeof window.navigateWorkspace!=='function')return false;
+    flushXiaolinForNavigation();
+    xiaolinUI.mindmapReturn={id:concept.id,title:concept.title,previousFocused:xiaolinUI.focused};
+    if(concept.focused===true)xiaolinUI.focused=true;
+    window.navigateWorkspace('xiaolin');
+    openXiaolinChapter(section.topicId,section.chapterId,section.id);
+    return true;
+}
+function returnFromXiaolinToMindMap(){
+    const context=xiaolinUI.mindmapReturn;
+    if(!context||typeof window.returnToMindMapLearning!=='function')return false;
+    flushXiaolinForNavigation();
+    if(window.returnToMindMapLearning(context.id)!==true)return false;
+    if(typeof context.previousFocused==='boolean')xiaolinUI.focused=context.previousFocused;
+    xiaolinUI.mindmapReturn=null;
+    return true;
+}
 function refreshXiaolinResults(){const target=document.getElementById('xiaolinLibrary');if(target)target.innerHTML=xiaolinUI.search.trim()||xiaolinUI.filter!=='all'?XiaolinView.results(xiaolinIndex,xiaolinState,xiaolinUI):XiaolinView.books(xiaolinIndex,xiaolinState);}
 function updateXiaolinProgress(){
     const target=document.getElementById('xiaolinTopicProgress'),progress=XiaolinCore.progress(xiaolinIndex,xiaolinState,xiaolinUI.topicId);
@@ -142,19 +204,25 @@ document.addEventListener('input',event=>{
     clearTimeout(xiaolinNoteTimer);xiaolinNoteTimer=setTimeout(()=>{const saved=persistXiaolin();status.textContent=saved?'已保存到当前浏览器':'保存失败，请导出本地备份保留输入';},450);
 });
 document.addEventListener('compositionend',event=>{if(event.target.id==='xiaolinSearch'){xiaolinUI.search=event.target.value;xiaolinUI.page=1;refreshXiaolinResults();}});
-document.addEventListener('change',event=>{if(event.target.id==='xiaolinTopicSelect')openXiaolinChapter(event.target.value);});
+document.addEventListener('change',event=>{
+    if(event.target.id==='xiaolinTopicSelect')openXiaolinChapter(event.target.value);
+    if(event.target.id==='xiaolinFocusChapter')openXiaolinChapter(xiaolinUI.topicId,event.target.value);
+});
 document.addEventListener('click',async event=>{
     const quick=document.querySelector('.xl-quick-nav');
     if(xiaolinUI.mobile&&quick?.open&&!quick.contains(event.target))quick.open=false;
+    const settings=document.querySelector('.xl-reading-settings');
+    if(settings?.open&&!settings.contains(event.target))settings.open=false;
     const copy=event.target.closest('[data-xl-copy]');
     if(copy){try{await navigator.clipboard.writeText(copy.parentElement.querySelector('code').textContent);copy.textContent='已复制';setTimeout(()=>{copy.textContent='复制';},1500);}catch(_){toast('复制失败，请选中代码手动复制。');}return;}
     const button=event.target.closest('[data-xl-action]');if(!button)return;
     const {xlAction:action,id}=button.dataset;
-    if(action==='topic')openXiaolinChapter(id);
+    if(action==='return-mindmap')returnFromXiaolinToMindMap();
+    else if(action==='topic')openXiaolinChapter(id);
     else if(action==='chapter')openXiaolinChapter(button.dataset.topic,id);
     else if(action==='section'){const s=xiaolinIndex.byId.get(id);if(s)openXiaolinChapter(s.topicId,s.chapterId,id);}
     else if(action==='resume'&&xiaolinState.last){const last=xiaolinState.last;openXiaolinChapter(last.topicId,last.chapterId,last.sectionId);}
-    else if(action==='home'){persistXiaolin();xiaolinUI.topicId=null;xiaolinUI.error='';renderAll();window.scrollTo({top:0});}
+    else if(action==='home'){flushXiaolinForNavigation();if(typeof xiaolinUI.mindmapReturn?.previousFocused==='boolean')xiaolinUI.focused=xiaolinUI.mindmapReturn.previousFocused;xiaolinUI.mindmapReturn=null;xiaolinUI.topicId=null;xiaolinUI.error='';renderAll();window.scrollTo({top:0});}
     else if(action==='filter'){xiaolinUI.filter=button.dataset.filter;xiaolinUI.page=1;renderAll();document.getElementById('xiaolinLibrary')?.scrollIntoView({block:'start'});}
     else if(action==='results-prev'||action==='results-next'){xiaolinUI.page+=action==='results-next'?1:-1;refreshXiaolinResults();document.getElementById('xiaolinLibrary')?.scrollIntoView({block:'start'});}
     else if(action==='toggle-section'){setXiaolinSectionOpen(id,button.getAttribute('aria-expanded')!=='true');syncXiaolinPosition();}
@@ -163,17 +231,18 @@ document.addEventListener('click',async event=>{
         syncXiaolinPosition();
     }
     else if(action==='jump'){
-        jumpXiaolin(id,true);
         const quick=document.querySelector('.xl-quick-nav');if(xiaolinUI.mobile&&quick)quick.open=false;
+        const settings=document.querySelector('.xl-reading-settings');if(settings)settings.open=false;
+        jumpXiaolin(id,true);
     }
     else if(action==='top')jumpXiaolin('',true);
     else if(action==='directory'){
-        xiaolinUI.focused=false;document.querySelector('.xl-reader')?.classList.remove('xl-focused');
-        const focus=document.querySelector('[data-xl-action="focus"]');if(focus){focus.textContent='专注阅读';focus.setAttribute('aria-pressed','false');}
+        const settings=document.querySelector('.xl-reading-settings');if(settings)settings.open=false;
+        if(xiaolinUI.focused)setXiaolinFocus(false);
         const panel=document.querySelector('.xl-directory-panel');if(panel){panel.open=true;panel.scrollIntoView({block:'start',behavior:'instant'});panel.querySelector('summary')?.focus({preventScroll:true});}
     }
     else if(action==='retry'){xiaolinUI.error='';renderAll();}
-    else if(action==='focus'){xiaolinUI.focused=!xiaolinUI.focused;document.querySelector('.xl-reader')?.classList.toggle('xl-focused',xiaolinUI.focused);button.textContent=xiaolinUI.focused?'显示目录':'专注阅读';button.setAttribute('aria-pressed',xiaolinUI.focused);}
+    else if(action==='focus')setXiaolinFocus(!xiaolinUI.focused);
     else if(action==='font-down'||action==='font-up'){
         xiaolinState.fontSize=Math.min(22,Math.max(16,xiaolinState.fontSize+(action==='font-up'?2:-2)));persistXiaolin();
         updateXiaolinFont();
@@ -193,8 +262,11 @@ document.addEventListener('error',event=>{
 },true);
 window.addEventListener('pagehide',()=>{if(xiaolinNoteTimer||xiaolinScrollTimer)persistXiaolin();});
 document.addEventListener('keydown',event=>{
+    if(event.defaultPrevented)return;
+    const settings=document.querySelector('.xl-reading-settings');
+    if(event.key==='Escape'&&settings?.open){settings.open=false;settings.querySelector('summary')?.focus();event.preventDefault();return;}
     const quick=document.querySelector('.xl-quick-nav');
-    if(event.key==='Escape'&&xiaolinUI.mobile&&quick?.open){quick.open=false;quick.querySelector('summary')?.focus();}
+    if(event.key==='Escape'&&xiaolinUI.mobile&&quick?.open){quick.open=false;quick.querySelector('summary')?.focus();event.preventDefault();}
 });
 window.addEventListener('scroll',queueXiaolinPosition,{passive:true});
 window.addEventListener('resize',queueXiaolinPosition);

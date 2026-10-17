@@ -1,0 +1,7 @@
+/* Surrounding application chrome stays outside the learning surface. */
+html body[data-learning-focus] { padding-top:0 !important; }
+html body[data-learning-focus]::before,html body[data-learning-focus]::after { display:none !important; }
+body[data-learning-focus] :is(.workspace-header,.mobile-topbar,.mobile-bottombar,.sidebar,.fab,.back-top,.app-update-notice) { display:none !important; }
+body[data-learning-focus] .main-header { display:none !important; }
+html body[data-learning-focus="xiaolin"] .main { max-width:none; width:100% !important; padding:0 !important; margin:0 !important; }
+body[data-learning-focus="xiaolin"] #notesContainer { padding:0; margin:0; }

@@ -138,6 +138,74 @@ check('createIndex', 'bundled Java lessons form ten complete topics with valid c
     }
 });
 
+const deeperConcepts = {
+    'collections-hashmap-lookup': 'collections-hashmap',
+    'collections-hashmap-capacity': 'collections-resize',
+    'concurrency-aqs': 'concurrency',
+    'concurrency-aqs-state': 'concurrency-aqs',
+    'concurrency-aqs-queue': 'concurrency-aqs',
+    'concurrency-park': 'concurrency-aqs',
+    'concurrency-aqs-shared': 'concurrency-aqs',
+    'concurrency-condition': 'concurrency-reentrant-lock',
+    'concurrency-lock-fairness': 'concurrency-reentrant-lock',
+    'concurrency-concurrent-map-resize': 'concurrency-concurrent-map',
+    'concurrency-concurrent-map-atomic': 'concurrency-concurrent-map',
+    'concurrency-executor-flow': 'concurrency-executor',
+    'concurrency-executor-rejection': 'concurrency-executor',
+    'concurrency-executor-sizing': 'concurrency-executor',
+    'jvm-gc-roots': 'jvm-reachability',
+    'jvm-remembered-set': 'jvm-g1',
+    'jvm-concurrent-marking': 'jvm-g1',
+    'jvm-zgc': 'jvm-gc-algorithms',
+    'jvm-oom': 'jvm-diagnostics',
+    'jvm-cpu-diagnosis': 'jvm-diagnostics',
+    'jvm-allocation': 'jvm-heap',
+    'jvm-references': 'jvm-reachability'
+};
+
+test('deep learning branches teach mechanisms beneath existing stable concept IDs', () => {
+    const index = core.createIndex([require('../data/java-learning-language.js'), require('../data/java-learning-runtime.js')]);
+    for (const [id, parentId] of Object.entries(deeperConcepts)) {
+        const lesson = index.byId.get(id);
+        assert.ok(lesson, 'missing concept: ' + id);
+        assert.equal(lesson.parentId, parentId, id);
+        assert.ok(index.byId.has(parentId), 'existing parent must remain: ' + parentId);
+        assert.ok(!/[?？]/.test(lesson.title), 'concept titles must not become question navigation: ' + id);
+        for (const [field, minimum] of Object.entries({ summary: 12, explanation: 70, example: 25, pitfall: 20 })) {
+            assert.ok(lesson[field].length >= minimum, id + ' needs a useful ' + field);
+        }
+        assert.ok(lesson.prerequisites.length > 0, id + ' must have a learning entry point');
+        assert.ok(lesson.related.length > 0, id + ' must connect to other concepts');
+        for (const field of ['prerequisites', 'related']) {
+            assert.equal(new Set(lesson[field]).size, lesson[field].length, id + ': duplicate ' + field);
+            assert.ok(!lesson[field].includes(id), id + ': self reference');
+        }
+        assert.ok(lesson.sources.length > 0, id + ' needs primary references');
+        for (const reference of lesson.sources) {
+            const url = new URL(reference.url);
+            assert.equal(url.protocol, 'https:');
+            assert.ok(['docs.oracle.com', 'openjdk.org', 'wiki.openjdk.org', 'github.com'].includes(url.hostname), id + ': primary source');
+            if (url.hostname === 'github.com') assert.ok(url.pathname.startsWith('/openjdk/'), id + ': OpenJDK source');
+        }
+        const graph = core.buildMap(index, undefined, parentId);
+        assert.ok(graph.nodes.some(node => node.id === id), id + ' must be reachable from its branch');
+    }
+});
+
+test('new implementation lessons identify Java versions and preserve conceptual progress records', () => {
+    const index = core.createIndex([require('../data/java-learning-language.js'), require('../data/java-learning-runtime.js')]);
+    for (const id of ['collections-hashmap-lookup', 'collections-hashmap-capacity', 'concurrency-concurrent-map-resize', 'jvm-zgc']) {
+        const lesson = index.byId.get(id);
+        assert.ok(lesson, 'missing versioned lesson: ' + id);
+        assert.match(lesson.explanation, /(?:Java|JDK|HotSpot)\s*17/, id + ': baseline must be explicit');
+    }
+    const oldRecord = { entries: { 'collections-hashmap': { status: 'mastered', note: '我自己的理解' } } };
+    const graph = core.buildMap(index, oldRecord, 'collections-hashmap');
+    assert.equal(graph.nodes.find(node => node.id === 'collections-hashmap').status, 'mastered');
+    assert.equal(graph.nodes.find(node => node.id === 'collections-hashmap-lookup').status, 'new');
+    assert.deepEqual(oldRecord.entries['collections-hashmap'], { status: 'mastered', note: '我自己的理解' });
+});
+
 test('bundled content scripts register browser parts and produce precise practice links to the real bank', () => {
     const vm=require('node:vm'), context=vm.createContext({URL}); context.window=context;
     for(const filename of ['mindmap-core.js','data/java-learning-language.js','data/java-learning-runtime.js','java-learning-core.js','data/question-bank.js']) {

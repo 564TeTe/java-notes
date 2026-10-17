@@ -17,7 +17,7 @@ function setup(saved, phone=false) {
         const control={dataset:{mmAction:action,...dataset}};
         handlers.click({target:{closest:selector=>selector==='[data-mm-action]'?control:selector==='.mindmap-view'?{}:null}});
     };
-    return {store,run,click,handlers};
+    return {store,run,click,handlers,context};
 }
 test('Java learning is the default and works with an entirely empty question bank',()=>{
     const app=setup();
@@ -55,7 +55,7 @@ test('learning inspector teaches the concept before showing practice questions a
     const html=app.run(`const idx=JavaLearningCore.createIndex(JAVA_LEARNING_PARTS); const n=idx.nodes.find(n=>n.id==='collections-hashmap'); JavaLearningView.inspector({node:n,index:idx,entry:{status:'new',note:'<img src=x onerror=alert(1)>'},questions:[],hasChildren:true});`);
     assert.match(html,/理解原理/);assert.match(html,/示例/);assert.match(html,/易错点/);assert.match(html,/官方资料/);
     assert.doesNotMatch(html,/<img src=x/);
-    assert.ok(html.indexOf('理解原理')<html.indexOf('练习巩固'));
+    assert.doesNotMatch(html,/练习巩固/,'empty practice does not interrupt the lesson');
 });
 
 test('concept notes flush before switching mode and copied branches carry explanations',()=>{
@@ -123,4 +123,73 @@ test('phone drilling and going up keep the read-concept target on the visible br
     assert.match(app.run('renderMindMap()'),/id="mindmapSelectedTitle">语言基础</);
     app.click('branch-up');
     assert.match(app.run('renderMindMap()'),/id="mindmapSelectedTitle">Java 知识学习</);
+});
+
+function readingSetup(phone=true){
+    const app=setup(undefined,phone);
+    app.run(fs.readFileSync(path.join(__dirname,'../java-learning-reading.js'),'utf8'));
+    app.run(`window.XIAOLIN_CATALOG={topics:[{id:'collections',title:'集合',chapters:[{id:'map',title:'Map'}],sections:[{id:'hash-section',title:'HashMap原理',chapterId:'map',kind:'lesson'}]}]};
+        window.JAVA_LEARNING_XIAOLIN={'collections-hashmap':['hash-section']};
+        window.readState={entries:{}};window.getXiaolinSnapshot=()=>readState;
+        window.handoffs=[];window.openXiaolinFromMindMap=(id,concept)=>{handoffs.push({id,concept});return true;};
+        window.returnPages=[];window.navigateWorkspace=page=>returnPages.push(page);
+        window.requestAnimationFrame=fn=>fn();window.scrollTo=()=>{};`);
+    app.run('renderMindMap()');app.click('lesson-topic',{id:'collections'});app.run('renderMindMap()');
+    app.click('lesson-jump',{id:'collections-hashmap'});
+    return app;
+}
+test('curated reading opens exact section, flushes pending notes and restores phone concept context',()=>{
+    const app=readingSetup();
+    app.handlers.input({target:{id:'mindmapLearningNote',value:'读前的疑问'},isComposing:false});
+    app.click('read-xiaolin',{id:'hash-section'});
+    assert.equal(app.run('handoffs.length'),1);
+    assert.equal(app.run('handoffs[0].concept.id'),'collections-hashmap');
+    assert.equal(app.run('getMindMapSnapshot().learning.entries["collections-hashmap"].note'),'读前的疑问');
+    app.run('readState.entries["hash-section"]={done:true}');
+    assert.equal(app.run('returnToMindMapLearning("collections-hashmap")'),true);
+    assert.equal(app.run('returnPages.at(-1)'),'mindmap');
+    const html=app.run('renderMindMap()');
+    assert.match(html,/data-reading="true"/);
+    const inspector={innerHTML:'',querySelectorAll:()=>[]};
+    app.context.document.getElementById=id=>id==='mindmapInspector'?inspector:id==='mindmapViewport'?{clientWidth:390,clientHeight:400,addEventListener(){},isConnected:false}:null;
+    app.run('mountMindMap()');
+    assert.match(inspector.innerHTML,/已读懂 1 \/ 1/);
+    assert.equal(app.run('getMindMapSnapshot().learning.topicId'),'collections');
+    assert.equal(app.run('getMindMapSnapshot().learning.entries["collections-hashmap"].status'),'new');
+    assert.equal(app.run('returnToMindMapLearning("collections-hashmap")'),false,'return context consumed');
+});
+test('invalid or unrelated reading references cannot navigate and return IDs must match',()=>{
+    const app=readingSetup();app.click('read-xiaolin',{id:'missing'});
+    assert.equal(app.run('handoffs.length'),0);
+    app.click('read-xiaolin',{id:'hash-section'});
+    assert.equal(app.run('returnToMindMapLearning("language")'),false);
+    assert.equal(app.run('returnToMindMapLearning("collections-hashmap")'),true);
+});
+
+test('hidden phone reading canvas keeps its last measured width for return navigation',()=>{
+    const app=readingSetup();
+    const viewport={clientWidth:370,clientHeight:400,addEventListener(){},isConnected:false};
+    app.context.document.getElementById=id=>id==='mindmapViewport'?viewport:null;
+    app.run('const measured=[];const originalLayout=JavaLearningCore.layoutMobile;JavaLearningCore.layoutMobile=(map,id,width)=>{measured.push(width);return originalLayout(map,id,width)};mountMindMap()');
+    viewport.clientWidth=0;viewport.clientHeight=0;
+    app.click('read-concept');app.run('mountMindMap()');
+    assert.deepEqual(JSON.parse(app.run('JSON.stringify(measured)')),[370,370]);
+});
+
+test('desktop focused reading and map are separate surfaces and edits survive transitions',()=>{
+ const app=setup();app.run('renderMindMap()');app.click('lesson-topic',{id:'collections'});app.run('renderMindMap()');
+ app.handlers.input({target:{id:'mindmapLearningNote',value:'聚焦理解集合接口'},isComposing:false});
+ app.click('focus-reading');
+ assert.match(app.run('renderMindMap()'),/class="mindmap-view mm-focus"/);
+ assert.match(app.run('renderMindMap()'),/data-focus-surface="reading"/);
+ app.click('focus-map');assert.match(app.run('renderMindMap()'),/data-focus-surface="map"/);
+ app.click('focus-exit');assert.doesNotMatch(app.run('renderMindMap()'),/class="mindmap-view mm-focus"/);
+ assert.equal(app.run('getMindMapSnapshot().learning.entries.collections.note'),'聚焦理解集合接口');
+});
+
+test('focused Xiaolin handoff restores the concept reading surface',()=>{
+ const app=readingSetup(false);app.click('focus-reading');app.click('read-xiaolin',{id:'hash-section'});
+ assert.equal(app.run('handoffs[0].concept.focused'),true);
+ assert.equal(app.run('returnToMindMapLearning("collections-hashmap")'),true);
+ assert.match(app.run('renderMindMap()'),/data-focus-surface="reading"/);
 });

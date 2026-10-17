@@ -67,6 +67,12 @@ html body .xl-empty h2,html body .xl-empty h3{font-size:22px;color:var(--xl-ink)
 .xl-reader-toolbar button{font-size:12px;min-height:36px}
 .xl-reader-toolbar output{min-width:20px;text-align:center;font:12px Consolas,monospace}
 .xl-toolbar-title{font-size:12px;color:var(--xl-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xl-from-mindmap .xl-reader-toolbar{flex-wrap:wrap;row-gap:6px}
+.xl-reader-toolbar>.xl-mindmap-context{flex:0 0 100%;min-width:0;margin:0;gap:12px}
+.xl-mindmap-context button{flex-shrink:0;white-space:nowrap;color:var(--xl-accent)}
+.xl-mindmap-concept{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--xl-muted);font-size:12px}
+.xl-from-mindmap :is(.xl-section,.xl-chapter-heading,.xl-directory-panel){scroll-margin-top:190px}
+@media(min-width:861px){.xl-from-mindmap .xl-directory{top:180px;max-height:calc(100dvh - 204px)}}
 .xl-reader-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:32px;align-items:start}
 .xl-directory{position:sticky;top:136px;max-height:calc(100dvh - 160px);overflow-y:auto;scrollbar-width:thin;padding:4px 14px 14px 0}
 .xl-directory-panel>summary{display:none}
@@ -142,8 +148,7 @@ html body .xl-prose :is(h1,h2,h3,h4,h5,h6){font-size:1.1em;color:var(--xl-ink);m
 @media(max-width:768px){html body[data-workspace="xiaolin"] .main{padding:12px 14px 100px}.xl-hero{grid-template-columns:1fr 110px;padding:22px 2px 28px;gap:15px}.xl-eyebrow{font-size:9px;letter-spacing:1px}.xl-hero .xl-eyebrow{max-width:150px}html body .xl-hero h1,.xl-hero h1 span{font-size:38px}.xl-hero h1 span{margin-left:7px}.xl-hero h1{margin-bottom:16px}.xl-lead{font-size:17px;letter-spacing:0}.xl-intro{font-size:12px;margin:10px 0 18px}.xl-desktop-break{display:none}.xl-hero-actions{gap:12px}.xl-hero-actions>span{font-size:10px}.xl-workspace .xl-primary{padding:10px 14px;font-size:12px}.xl-book-art{width:105px;margin-right:0;align-self:start;margin-top:30px}.xl-book-cover{min-height:176px;padding:12px;border-left-width:4px;box-shadow:4px 4px 0 #d9decc,6px 6px 0 #bcc6b7,10px 15px 20px #1d38241a}.xl-book-cover small{font-size:7px;letter-spacing:0}.xl-book-cover strong{font-size:22px;margin:20px 0;letter-spacing:1px}.xl-book-cover>span{font-size:6px;letter-spacing:0}.xl-book-caption{font-size:8px;margin-top:12px;letter-spacing:0}.xl-library-toolbar{gap:14px;margin:20px 0 24px}.xl-tabs{width:100%;justify-content:space-between;gap:0}.xl-tabs button{font-size:12px;padding:9px 14px}.xl-search{width:100%}.xl-search>span{white-space:nowrap}.xl-search input{min-width:0;width:100%;font-size:13px}.xl-books{gap:10px}.xl-workspace button.xl-book{padding:16px 13px;min-height:173px}.xl-book-top{font-size:9px;margin-bottom:18px}html body .xl-book h3{font-size:19px}.xl-book p{font-size:11px}.xl-book-bottom{font-size:10px;margin-top:18px}.xl-group-heading{gap:10px}.xl-shelf-group{margin-bottom:28px}.xl-reader-toolbar{top:64px;gap:6px;padding:10px 0;margin-bottom:12px}.xl-reader-toolbar button{padding:7px 9px;min-height:38px;font-size:11px}.xl-toolbar-title{display:none}.xl-reader-toolbar>div{gap:4px}.xl-reader-toolbar output{font-size:11px;min-width:16px}.xl-chapter{padding:26px 20px}.xl-chapter-heading{padding-bottom:20px}html body .xl-chapter-heading h1{font-size:28px}.xl-chapter-meta{font-size:10px;gap:12px}.xl-section{padding-top:28px;scroll-margin-top:132px}.xl-section>header{gap:10px;margin-bottom:20px}html body .xl-section h2{font-size:calc(var(--xl-font-size,18px) + 2px)}.xl-prose{line-height:1.95}.xl-prose pre{padding:38px 14px 16px;font-size:.78em}.xl-prose :is(th,td){padding:10px;min-width:90px}.xl-preface,.xl-outline{padding:12px;font-size:12px}.xl-section-actions{gap:8px}.xl-section-actions button{font-size:11px;padding:8px 10px}.xl-chapter-nav{gap:16px}.xl-chapter-nav strong{font-size:12px}.xl-workspace .xl-back-top{bottom:83px;right:15px;width:34px;height:34px;padding:4px}.xl-attribution{font-size:10px}.xl-result strong{font-size:15px}}
 @media(prefers-reduced-motion:reduce){.xl-book{transition:none!important}.xl-book:hover{transform:none}}
 
-.xl-reader-toolbar .xl-directory-toggle{display:none}
-@media(max-width:860px){.xl-reader-toolbar .xl-directory-toggle{display:block}.xl-directory-panel{scroll-margin-top:128px}}
+@media(max-width:860px){.xl-directory-panel{scroll-margin-top:128px}}
 @media(max-width:380px){.xl-reader-toolbar{gap:3px}.xl-reader-toolbar button{padding:7px 6px}.xl-reader-toolbar>div{gap:2px}}
 
 /* Compact article layout: spend the phone's width on the text itself. */
@@ -154,7 +159,7 @@ html body .xl-prose :is(h1,h2,h3,h4,h5,h6){font-size:1.1em;color:var(--xl-ink);m
     .xl-reader-toolbar button{font-size:12px;min-height:40px;padding:6px 10px}
     .xl-reader-toolbar>div{gap:4px}
     .xl-reader-toolbar output{font-size:12px;min-width:18px}
-    .xl-reader-toolbar [data-xl-action="focus"]{display:none}
+    .xl-reader-toolbar [data-xl-action="focus"]{display:inline-flex}
     .xl-reader-toolbar [data-xl-action^="font-"]{min-width:36px;padding-inline:6px}
     .xl-toolbar-title{display:none}
     .xl-directory{margin:0 12px 8px}
@@ -269,45 +274,32 @@ html[data-theme="tatsumaki"] .xl-workspace{
     --xl-paper:#faf9f5;--xl-ground:#f4f3ef;--xl-ink:#253a32;--xl-body:#3e4b43;
     --xl-muted:#68766c;--xl-line:#d7dcd2;--xl-accent:#38634f;--xl-soft:#e6ece1;
 }
+/* Two full figures frame the centered directory without entering its rows. */
+.xl-library-center{min-width:0}
 @media(min-width:1000px){
-    html[data-theme="tatsumaki"] .xl-library-layout{
-        display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,34%);column-gap:72px;
-        align-items:stretch;
+    html[data-theme="tatsumaki"] body[data-workspace="xiaolin"] .main:has(.xl-shelf){max-width:1800px}
+    html[data-theme="tatsumaki"] body[data-workspace="xiaolin"] #notesContainer:has(.xl-shelf){max-width:none}
+    html[data-theme="tatsumaki"] .xl-shelf{
+        display:grid;grid-template-columns:minmax(140px,1fr) minmax(480px,2.8fr) minmax(140px,1fr);
+        gap:clamp(20px,3vw,56px);align-items:start;
     }
     html[data-theme="tatsumaki"] .xl-art-rail{
-        display:flex;flex-direction:column;justify-content:space-between;gap:44px;
-        min-width:0;pointer-events:none;user-select:none;padding:12px 0 20px;
+        display:block;position:sticky;top:112px;margin-top:190px;min-width:0;
+        pointer-events:none;user-select:none;
     }
     html[data-theme="tatsumaki"] .xl-margin-figure{
-        position:relative;isolation:isolate;margin:0;width:100%;flex-shrink:0;
-        background:var(--xl-margin-paper);
+        position:relative;isolation:isolate;margin:0;width:100%;
+        height:min(580px,calc(100dvh - 150px));background:var(--xl-margin-paper);
     }
     html[data-theme="tatsumaki"] .xl-margin-figure img{
-        display:block;width:100%;height:100%;object-fit:contain;filter:grayscale(1);mix-blend-mode:multiply;
+        display:block;width:100%;height:100%;object-fit:contain;
+        filter:grayscale(1);mix-blend-mode:multiply;
     }
-    html[data-theme="tatsumaki"] .xl-margin-standing{height:410px;align-self:flex-end}
-    html[data-theme="tatsumaki"] .xl-margin-standing:before{
-        content:'';position:absolute;inset:20% 12% 10% 16%;z-index:-1;
-        background:radial-gradient(ellipse,#d5e0ce70,transparent 70%);
+    html[data-theme="tatsumaki"] .xl-art-right .xl-margin-figure:before{
+        content:'';position:absolute;inset:22% 6% 15%;z-index:-1;
+        background:radial-gradient(ellipse,#d5e0ce60,transparent 70%);
     }
-    html[data-theme="tatsumaki"] .xl-margin-standing figcaption{
-        position:absolute;left:0;top:22px;writing-mode:vertical-rl;
-        color:#768773;font:11px/1.7 'Songti SC',SimSun,serif;letter-spacing:4px;
-    }
-    html[data-theme="tatsumaki"] .xl-margin-standing figcaption span{margin-top:14px;color:#a6b1a0}
-    html[data-theme="tatsumaki"] .xl-margin-floating{height:440px;width:100%;align-self:flex-start}
-    html[data-theme="tatsumaki"] .xl-margin-sketch{height:270px;width:88%;align-self:flex-end;opacity:.65}
-    html[data-theme="tatsumaki"] .xl-margin-sketch img{
-        mask-image:linear-gradient(to bottom,#000 78%,transparent 99%);
-    }
-    /* Keep a short search/collection page compact instead of stretching it for art. */
-    html[data-theme="tatsumaki"] .xl-library-layout:has(.xl-results) .xl-art-rail{justify-content:flex-start}
-    html[data-theme="tatsumaki"] .xl-library-layout:has(.xl-results) .xl-margin-figure:not(:first-child){display:none}
-}
-@media(min-width:1000px) and (max-width:1180px){
-    html[data-theme="tatsumaki"] .xl-library-layout{column-gap:40px;grid-template-columns:minmax(0,1fr) 280px}
-    html[data-theme="tatsumaki"] .xl-margin-standing{height:370px}
-    html[data-theme="tatsumaki"] .xl-margin-floating{height:340px}
+    html[data-theme="tatsumaki"] .xl-library-center .xl-search{margin-left:auto}
 }
 
 /* Reading-margin plates: the directory keeps its original full height. */
@@ -356,4 +348,65 @@ html[data-theme="tatsumaki"] .xl-workspace{
     }
     html[data-theme="tatsumaki"] .xl-reader-art figcaption i{flex:1;border-top:1px solid #d4dbce}
     html[data-theme="tatsumaki"] .xl-reader-art figcaption small{font:9px/1.6 Consolas,monospace;letter-spacing:0}
+}
+
+/* Keep reading tools available without occupying the reading line. */
+.xl-reader-toolbar .xl-toolbar-actions{flex-shrink:0;gap:6px}
+.xl-reading-settings{position:static;font-size:12px}
+.xl-reading-settings>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;white-space:nowrap;min-height:38px;padding:6px 10px;border:1px solid var(--xl-line);border-radius:5px;box-sizing:border-box}
+.xl-reading-settings>summary::-webkit-details-marker{display:none}
+.xl-reading-settings[open]>summary{background:var(--xl-soft);border-color:var(--xl-accent)}
+.xl-settings-panel{position:absolute;right:0;top:calc(100% + 8px);width:280px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 120px);overflow:auto;box-sizing:border-box;padding:14px;background:var(--xl-paper);border:1px solid var(--xl-line);border-radius:8px;box-shadow:0 8px 28px #16261a20;z-index:15}
+.xl-font-controls{display:flex;align-items:center;gap:10px}
+.xl-font-controls>span{flex:1;color:var(--xl-muted)}
+.xl-settings-panel>label{display:block;color:var(--xl-muted);margin:18px 0 6px;font-size:11px}
+.xl-settings-panel>select{width:100%;min-width:0;min-height:40px;border:1px solid var(--xl-line);padding:8px;background:var(--xl-paper);color:var(--xl-ink);border-radius:4px;font:inherit}
+.xl-settings-panel .xl-settings-directory{margin-top:12px;width:100%;text-align:left}
+.xl-settings-sections{display:flex;flex-direction:column;gap:2px;margin-top:12px}
+.xl-settings-sections button{width:100%;display:flex;align-items:baseline;gap:10px;border:0;text-align:left;line-height:1.6;padding:8px 6px}
+.xl-settings-sections button span{font:11px Consolas,monospace;color:var(--xl-muted);flex-shrink:0}
+.xl-focus-toggle{white-space:nowrap;align-items:center;justify-content:center}
+
+/* Focus keeps the document scroll: section tracking, selection and notes remain native. */
+.xl-focused{max-width:920px;margin:0 auto;padding:0}
+html[data-theme] body .xl-focused .xl-reader-toolbar{top:0;margin:0;padding:8px 16px;min-height:56px;gap:12px;flex-wrap:nowrap;background:var(--xl-paper);box-sizing:border-box;border-bottom:1px solid var(--xl-line);box-shadow:none}
+.xl-focused .xl-reader-toolbar .xl-focus-context{margin-left:0;display:flex;flex:1;align-items:center;gap:12px;min-width:0}
+.xl-focus-title{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:13px;font-weight:600;color:var(--xl-ink)}
+.xl-focus-position{flex-shrink:0;white-space:nowrap;font:11px Consolas,monospace;color:var(--xl-muted)}
+.xl-focused .xl-reader-toolbar .xl-toolbar-actions{margin-left:auto}
+.xl-focused .xl-reader-layout{display:block;max-width:820px;margin:0 auto}
+.xl-focused .xl-reading-paper{border:0;box-shadow:none;border-radius:0;background:var(--xl-paper)}
+.xl-focused .xl-chapter{padding:28px 48px 64px}
+.xl-focused :is(.xl-directory,.xl-chapter-meta,.xl-chapter-heading>.xl-eyebrow,.xl-fold-tools,.xl-outline,.xl-back-top,.xl-reading-status){display:none}
+.xl-focused :is(.xl-section,.xl-chapter-heading){scroll-margin-top:80px}
+.xl-focused .xl-chapter-heading{padding-bottom:16px}
+.xl-focused .xl-section{padding-top:24px}
+.xl-focused .xl-prose{line-height:1.95}
+html[data-theme] .xl-focused .xl-reader-art{display:none}
+html[data-theme][data-theme-mode="dark"] .xl-workspace,
+html[data-theme][data-theme-mode="dark"] .xl-warning{
+    --xl-paper:#1b2521;--xl-ground:#151e1a;--xl-ink:#e4ece3;--xl-body:#cbd6cc;
+    --xl-muted:#a4b4a7;--xl-line:#39483e;--xl-accent:#afd2b3;--xl-soft:#2c3b30;--xl-code:#111a15;
+}
+html[data-theme][data-theme-mode="dark"] body[data-workspace="xiaolin"]{
+    --xl-margin-paper:#151e1a;background:var(--xl-margin-paper);
+}
+@media(max-width:860px){
+    .xl-reader-toolbar{gap:6px}
+    .xl-reading-settings>summary{min-height:40px;padding:6px 8px}
+    .xl-reader-toolbar .xl-toolbar-actions{gap:4px}
+    .xl-reader-toolbar .xl-focus-toggle{padding-inline:8px}
+    .xl-focused{min-height:100dvh}
+    html[data-theme] body .xl-focused .xl-reader-toolbar{padding:6px max(10px,env(safe-area-inset-right)) 6px max(10px,env(safe-area-inset-left));gap:8px;min-height:52px}
+    .xl-focused .xl-reader-toolbar .xl-focus-context{gap:6px}
+    .xl-focused .xl-chapter{padding:20px max(16px,env(safe-area-inset-right)) 48px max(16px,env(safe-area-inset-left))}
+    .xl-focused .xl-prose{line-height:1.85}
+    .xl-focused .xl-focus-return{padding-inline:7px;white-space:nowrap}
+    .xl-focused .xl-settings-panel{max-height:calc(100dvh - 88px)}
+}
+@media(max-width:380px){
+    .xl-focused .xl-focus-title{display:none}
+    .xl-focused .xl-reader-toolbar .xl-focus-context{justify-content:center}
+    .xl-reader-toolbar>.xl-quick-nav>summary{min-width:46px}
+    .xl-reader-toolbar button{padding-inline:7px}
 }

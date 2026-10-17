@@ -10,14 +10,61 @@
     const uid = () => 'mm-' + crypto.randomUUID();
     let snapshot, loadError = '', rawStorage = '', savedLabel = '本地自动保存';
     let selected = null, query = '', view = 'canvas', focusMode = false, mobileReading = false;
+    let focusSurface = 'map', focusSearchOpen = false, focusOrigin = null;
+    let focusedReadingPosition = {id:null,top:0};
     const onPhone = () => !!root.matchMedia?.('(max-width: 768px)')?.matches;
     let knowledgeFolds = new Map(), transforms = new Map(), undo = [], redo = [];
     let resizeObserver, activeLayout, activeMap, currentRecords = [], drag = null, activeStats;
     let pendingEdit, editTimer, activePointers = new Map(), pinch = null;
     let lessonIndex, lessonFolds = new Map(), showRelations = false, mobileBranch = null;
+    let readingIndex, readingReturn = null, restoringReadingView = false, mobileCanvasWidth = 340;
     const hasLessons = () => !!(root.JavaLearningCore && root.JAVA_LEARNING_PARTS?.length);
     const isLearning = () => snapshot?.activeMapId === 'java-learning' && hasLessons();
     function curriculum() { return lessonIndex ||= root.JavaLearningCore.createIndex(root.JAVA_LEARNING_PARTS); }
+    function conceptReadings(id) {
+        if (!root.JavaLearningReading || !root.XIAOLIN_CATALOG || !root.JAVA_LEARNING_XIAOLIN) return null;
+        readingIndex ||= root.JavaLearningReading.createIndex(curriculum(), root.XIAOLIN_CATALOG, root.JAVA_LEARNING_XIAOLIN);
+        return root.JavaLearningReading.forConcept(readingIndex,id,root.getXiaolinSnapshot?.() || {});
+    }
+    function openConceptReading(sectionId) {
+        if (!isLearning() || typeof root.openXiaolinFromMindMap !== 'function') return;
+        if (!conceptReadings(selected)?.sections.some(s=>s.id===sectionId)) return;
+        const context={id:selected,topicId:snapshot.learning.topicId,query,view,focusMode,focusSurface,mobileReading,mobileBranch,
+            folds:[...lessonFolds],transforms:[...transforms].map(([id,value])=>[id,{...value}]),
+            scrollY:root.scrollY || 0,workspaceScroll:document.querySelector('.mindmap-view')?.scrollTop || 0,
+            inspectorScroll:document.getElementById('mindmapInspector')?.scrollTop || 0,
+            outlineScroll:document.getElementById('mindmapOutline')?.scrollTop || 0,
+            moreOpen:!!document.querySelector('.mm-reading-more')?.open,sectionId};
+        readingReturn=context;
+        if (!root.openXiaolinFromMindMap(sectionId,{id:selected,title:curriculum().byId.get(selected).title,focused:focusMode})) readingReturn=null;
+    }
+    function returnToMindMapLearning(id) {
+        if (!readingReturn || readingReturn.id!==id || !curriculum().byId.has(id) || !flushEdit()) return false;
+        const context=readingReturn,next=copy(snapshot);
+        next.activeMapId='java-learning';next.learning.topicId=context.topicId;
+        try { persist(next); } catch(error) { notify(error.message); return false; }
+        selected=id;query=context.query;view=context.view;focusMode=context.focusMode;mobileReading=context.mobileReading;
+        focusSurface=context.focusSurface;focusSearchOpen=false;
+        mobileBranch=context.mobileBranch;lessonFolds=new Map(context.folds);transforms=new Map(context.transforms);
+        // Workspace CSS is applied after mount. Restore only once that layout settles.
+        restoringReadingView=true;
+        root.navigateWorkspace('mindmap');
+        readingReturn=null;
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{
+            paintCanvas();
+            transforms=new Map(context.transforms.map(([id,value])=>[id,{...value}]));paintTransform();
+            root.scrollTo?.({top:context.scrollY,behavior:'instant'});
+            const workspace=document.querySelector('.mindmap-view');if(workspace)workspace.scrollTop=context.workspaceScroll;
+            const inspector=document.getElementById('mindmapInspector'),outline=document.getElementById('mindmapOutline');
+            const more=document.querySelector('.mm-reading-more');if(more)more.open=context.moreOpen;
+            if(inspector)inspector.scrollTop=context.inspectorScroll;
+            if(outline)outline.scrollTop=context.outlineScroll;
+            const link=[...(inspector?.querySelectorAll('[data-mm-action="read-xiaolin"]') || [])].find(el=>el.dataset.id===context.sectionId);
+            link?.focus?.({preventScroll:true});
+            restoringReadingView=false;
+        }));
+        return true;
+    }
 
     function notify(message) { if (typeof toast === 'function') toast(message); }
     function read() {
@@ -114,6 +161,8 @@
     function updateSaveLabel() {
         const el = document.getElementById('mindmapSave');
         if (el) el.textContent = savedLabel;
+        const intro=document.querySelector('.mm-intro');
+        if(intro)intro.classList.toggle('mm-save-error',!['本地自动保存','已保存到本机'].includes(savedLabel));
     }
     function paintHistory() {
         const backward = document.querySelector('[data-mm-action="undo"]'), forward = document.querySelector('[data-mm-action="redo"]');
@@ -171,19 +220,20 @@
         const error = loadError ? `<div class="mm-error" role="alert">${esc(loadError)}<div>${button('raw-export', '导出原始数据')}${button('reset-storage', '重新初始化')}</div></div>` : '';
         const topics = isLearning() ? [{id:'java-root',title:'全部知识'},...curriculum().topics] : [];
         if (isLearning() && !topics.some(n=>n.id===map.rootId)) topics.push(curriculum().byId.get(map.rootId));
-        return `<section class="mindmap-view${focusMode ? ' mm-focus' : ''}" data-view="${view}" data-reading="${isLearning() && mobileReading}" data-mode="${isLearning() ? 'learning' : editable() ? 'personal' : 'questions'}" aria-label="思维导图工作区">
-            <div class="mm-intro"><div><span class="mm-eyebrow">${isLearning() ? 'JAVA ATLAS / JAVA 知识地图' : 'KNOWLEDGE ATLAS / 知识图谱'}</span><p>${isLearning() ? '从语法到运行机制，把概念串起来。' : '把知识连成体系，看清理解到了哪里。'}</p></div><span id="mindmapSave" class="mm-save" role="status">${esc(savedLabel)}</span></div>
+        return `<section class="mindmap-view${focusMode ? ' mm-focus' : ''}" data-view="${view}" data-reading="${isLearning() && mobileReading}" data-mode="${isLearning() ? 'learning' : editable() ? 'personal' : 'questions'}" data-focus-surface="${focusSurface}" data-focus-search="${focusSearchOpen}" aria-label="思维导图工作区">
+            <header class="mm-focusbar"><strong id="mindmapFocusTitle">${esc(selection().title)}</strong><div>${isLearning() ? button('focus-map','看图',`aria-pressed="${focusSurface==='map'}"`)+button('focus-read','阅读',`aria-pressed="${focusSurface==='reading'}"`) : ''}${button('focus-search','查找','aria-label="查找概念 Ctrl+K"')}${button('focus-exit','退出专注','title="退出专注 Esc"')}</div></header>
+            <div class="mm-intro${!['本地自动保存','已保存到本机'].includes(savedLabel)?' mm-save-error':''}"><span id="mindmapSave" class="mm-save" role="status">${esc(savedLabel)}</span></div>
             ${error}
             <div class="mm-library"><div class="mm-tabs" role="group" aria-label="导图来源">${hasLessons() ? button('learning', 'Java 学习', `aria-pressed="${isLearning()}"`) : ''}${button('knowledge', '题库导航', `aria-pressed="${snapshot.activeMapId === 'knowledge'}"`)}${button('personal', '我的导图 <small>' + snapshot.maps.length + '</small>', `aria-pressed="${editable()}"`)}</div>
-                <div class="mm-library-tools">${editable() ? `<label class="mm-map-picker"><span class="mm-sr">切换导图</span><select id="mindmapSelect" aria-label="切换导图">${snapshot.maps.map(m => `<option value="${esc(m.id)}"${m.id === map.id ? ' selected' : ''}>${esc(m.title)}</option>`).join('')}</select></label>` : `<span class="mm-library-hint">${isLearning() ? '概念 · 原理 · 示例 · 知识联系' : '关联现有题库 · 进度实时更新'}</span>`}
-                ${button('new', '＋ 新建导图', 'class="mm-primary"')}
-                <details class="mm-menu"><summary aria-label="导图操作"><span class="mm-menu-label">导图操作</span><span class="mm-menu-compact" aria-hidden="true">···</span></summary><div>${button('new','＋ 新建导图','class="mm-mobile-new"')}${isLearning() ? button('lesson-relations','知识关联',`class="mm-mobile-new" aria-pressed="${showRelations}"`) : ''}${button('template', '新建知识梳理模板')}${button('duplicate', editable() ? '复制当前导图' : '复制总览到我的导图')}${button('json-export', '导出 JSON 备份')}${button('svg-export', '导出 SVG 图片')}${button('import', '导入 JSON')}${editable() ? button('delete-map', '删除当前导图', 'class="mm-danger"') : ''}</div></details></div>
+                <div class="mm-library-tools">${editable() ? `<label class="mm-map-picker"><span class="mm-sr">切换导图</span><select id="mindmapSelect" aria-label="切换导图">${snapshot.maps.map(m => `<option value="${esc(m.id)}"${m.id === map.id ? ' selected' : ''}>${esc(m.title)}</option>`).join('')}</select></label>` : ''}
+                ${editable() ? button('new', '＋ 新建导图', 'class="mm-primary"') : ''}
+                <details class="mm-menu"><summary aria-label="导图操作"><span class="mm-menu-label">导图操作</span><span class="mm-menu-compact" aria-hidden="true">···</span></summary><div>${button('new','＋ 新建导图','class="mm-mobile-new"')}${isLearning() ? button('lesson-relations','知识关联',`aria-pressed="${showRelations}"`)+button('expand-all','展开全部分支')+button('collapse-all','收起分支') : ''}${button('template', '新建知识梳理模板')}${button('duplicate', editable() ? '复制当前导图' : '复制总览到我的导图')}${button('json-export', '导出 JSON 备份')}${button('svg-export', '导出 SVG 图片')}${button('import', '导入 JSON')}${editable() ? button('delete-map', '删除当前导图', 'class="mm-danger"') : ''}</div></details></div>
             </div>
-            ${isLearning() ? `<nav class="mm-learning-topics" aria-label="Java 学习专题">${topics.map(n=>button('lesson-topic',esc(n.title),`data-id="${esc(n.id)}" aria-pressed="${map.rootId===n.id}"`)).join('')}</nav><div class="mm-topic-picker"><label for="mindmapTopicSelect">学习专题</label><select id="mindmapTopicSelect" aria-label="学习专题">${topics.map(n=>`<option value="${esc(n.id)}"${map.rootId===n.id?' selected':''}>${esc(n.title)}</option>`).join('')}</select></div><p class="mm-learning-guide">点击概念阅读讲解，展开分支观察结构。<span>Java 17 核心知识；新特性在条目内注明版本。Web / Spring 为后端扩展。</span></p>` : ''}
+            ${isLearning() ? `<div class="mm-topic-picker"><label for="mindmapTopicSelect">学习专题</label><select id="mindmapTopicSelect" aria-label="学习专题">${topics.map(n=>`<option value="${esc(n.id)}"${map.rootId===n.id?' selected':''}>${esc(n.title)}</option>`).join('')}</select></div>` : ''}
             <div class="mm-progress" id="mindmapProgress">${progressMarkup(map)}</div>
-            <div class="mm-toolbar"><label class="mm-search"><span class="mm-sr">搜索导图节点</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 5 5"/></svg><input id="mindmapSearch" type="search" placeholder="${onPhone() ? '搜索概念' : isLearning() ? '搜索全部 Java 概念、原理或笔记…' : '搜索知识点或笔记…'}" value="${esc(query)}" autocomplete="off" aria-controls="mindmapResults"></label>${isLearning() ? button('lesson-relations','知识关联',`aria-pressed="${showRelations}" title="显示已展开节点间的前置关系与相关概念"`) : ''}<div class="mm-view-switch" role="group" aria-label="显示方式">${button('canvas', '导图', `aria-pressed="${view === 'canvas'}"`)}${button('outline', '大纲', `aria-pressed="${view === 'outline'}"`)}</div><div class="mm-history">${button('undo', '↶', `aria-label="撤销" title="撤销 Ctrl+Z"${!undo.length ? ' disabled' : ''}`)}${button('redo', '↷', `aria-label="重做" title="重做 Ctrl+Shift+Z"${!redo.length ? ' disabled' : ''}`)}</div>${button('focus', focusMode ? '退出专注' : '专注模式', `aria-pressed="${focusMode}"`)}</div>
+            <div class="mm-toolbar"><label class="mm-search"><span class="mm-sr">搜索导图节点</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 5 5"/></svg><input id="mindmapSearch" type="search" placeholder="${onPhone() ? '搜索概念' : isLearning() ? '搜索全部 Java 概念、原理或笔记…' : '搜索知识点或笔记…'}" value="${esc(query)}" autocomplete="off" aria-controls="mindmapResults"></label><div class="mm-view-switch" role="group" aria-label="显示方式">${button('canvas', '导图', `aria-pressed="${view === 'canvas'}"`)}${button('outline', '大纲', `aria-pressed="${view === 'outline'}"`)}</div>${editable() ? `<div class="mm-history">${button('undo', '↶', `aria-label="撤销" title="撤销 Ctrl+Z"${!undo.length ? ' disabled' : ''}`)}${button('redo', '↷', `aria-label="重做" title="重做 Ctrl+Shift+Z"${!redo.length ? ' disabled' : ''}`)}</div>` : ''}${button('focus', focusMode ? '退出专注' : '专注模式', `aria-pressed="${focusMode}"`)}</div>
             <div id="mindmapResults" class="mm-results" aria-live="polite"></div>
-            <div class="mm-workspace"><div class="mm-board">${isLearning() ? '<div id="mindmapMobilePath" class="mm-mobile-path" aria-label="当前知识层级"></div>' : ''}<div id="mindmapViewport" class="mm-viewport" tabindex="0" aria-label="思维导图画布，可拖动平移，使用加减按钮缩放"${view === 'outline' ? ' hidden' : ''}><svg id="mindmapSvg" xmlns="http://www.w3.org/2000/svg" aria-label="知识节点关系"><g id="mindmapTransform"></g></svg></div><div id="mindmapOutline" class="mm-outline" tabindex="0" aria-label="知识大纲"${view !== 'outline' ? ' hidden' : ''}></div><div class="mm-board-footer"><span class="mm-gesture-hint">拖动画布 · 双击节点展开 · Ctrl + 滚轮缩放</span><div class="mm-zoom">${button('zoom-out', '−', 'aria-label="缩小"')}<output id="mindmapZoom">100%</output>${button('zoom-in', '＋', 'aria-label="放大"')}${button('fit', '适应')}${button('center', '定位')}${button('expand-all', '展开')}${button('collapse-all', '收起')}</div></div>${isLearning() ? `<button type="button" class="mm-reading-launch" data-mm-action="read-concept" aria-controls="mindmapInspector"><span id="mindmapSelectedTitle">${esc(selection().title)}</span><span>阅读讲解 →</span></button>` : ''}</div><aside id="mindmapInspector" class="mm-inspector" aria-label="节点详情" tabindex="-1"></aside></div>
+            <div class="mm-workspace"><div class="mm-board">${isLearning() ? '<div id="mindmapMobilePath" class="mm-mobile-path" aria-label="当前知识层级"></div>' : ''}<div id="mindmapViewport" class="mm-viewport" tabindex="0" aria-label="思维导图画布，可拖动平移，使用加减按钮缩放"${view === 'outline' ? ' hidden' : ''}><svg id="mindmapSvg" xmlns="http://www.w3.org/2000/svg" aria-label="知识节点关系"><g id="mindmapTransform"></g></svg></div><div id="mindmapOutline" class="mm-outline" tabindex="0" aria-label="知识大纲"${view !== 'outline' ? ' hidden' : ''}></div><div class="mm-board-footer"><span class="mm-gesture-hint">拖动画布 · 双击节点展开 · Ctrl + 滚轮缩放</span><div class="mm-zoom">${button('zoom-out', '−', 'aria-label="缩小"')}<output id="mindmapZoom">100%</output>${button('zoom-in', '＋', 'aria-label="放大"')}${button('fit', '适应')}${button('center', '定位')}${!isLearning() ? button('expand-all', '展开')+button('collapse-all', '收起') : ''}</div></div>${isLearning() ? `<button type="button" class="mm-reading-launch" data-mm-action="read-concept" aria-controls="mindmapInspector"><span id="mindmapSelectedTitle">${esc(selection().title)}</span><span>阅读讲解 →</span></button>` : ''}</div><aside id="mindmapInspector" class="mm-inspector" aria-label="节点详情" tabindex="-1"></aside></div>
             <p class="mm-footnote"><span class="mm-dot new"></span>未学习 <span class="mm-dot learning"></span>学习中 <span class="mm-dot mastered"></span>已掌握 <span>${isLearning() ? '实线：知识层级 · 虚线：概念关联 · 学习笔记保存在本机' : '已背与掌握分别统计 · 数据仅保存在当前浏览器'}</span></p>
             <input id="mindmapImport" type="file" accept=".json,application/json" hidden>
             <dialog id="mindmapNewDialog" class="mm-dialog"><form id="mindmapNewForm"><h2>新建思维导图</h2><p>从一个主题开始，慢慢建立自己的知识体系。</p><label>中心主题<input name="title" id="mindmapNewTitle" maxlength="160" required placeholder="例如：Java 并发知识梳理" autocomplete="off"></label><div>${button('cancel-new', '取消')}<button type="submit" class="mm-btn mm-primary">创建导图</button></div></form></dialog>
@@ -282,8 +332,10 @@
     function paintCanvas() {
         const viewport=document.getElementById('mindmapViewport');
         const mobile = onPhone() && isLearning() && root.JavaLearningCore.layoutMobile;
+        // Reading hides the canvas; its zero width must not replace the last layout.
+        if(mobile && viewport?.clientWidth) mobileCanvasWidth=viewport.clientWidth;
         if (!activeMap.nodes.some(n=>n.id===mobileBranch)) mobileBranch=activeMap.rootId;
-        activeLayout = mobile ? root.JavaLearningCore.layoutMobile(activeMap,mobileBranch,viewport?.clientWidth || 340) : Core.layout(activeMap);
+        activeLayout = mobile ? root.JavaLearningCore.layoutMobile(activeMap,mobileBranch,mobileCanvasWidth) : Core.layout(activeMap);
         const group = document.getElementById('mindmapTransform'); if (group) group.innerHTML = svgContent(activeMap, activeLayout, false, isLearning());
         const path=document.getElementById('mindmapMobilePath');
         if(path) path.innerHTML=button('branch-up','← 上一级',mobileBranch===activeMap.rootId?'disabled':'')+`<span>${esc(activeMap.nodes.find(n=>n.id===mobileBranch)?.title || activeMap.title)}</span>`;
@@ -304,7 +356,7 @@
         const node = selection(), isRoot = node.id === activeMap.rootId, childCount = activeMap.nodes.filter(n => n.parentId === node.id).length;
         if (isLearning()) {
             const lesson = curriculum().byId.get(node.id);
-            return root.JavaLearningView.inspector({node:lesson,index:curriculum(),entry:snapshot.learning.entries[node.id],questions:root.JavaLearningCore.relatedQuestions(lesson,currentRecords),hasChildren:!!childCount});
+            return root.JavaLearningView.inspector({node:lesson,index:curriculum(),entry:snapshot.learning.entries[node.id],questions:root.JavaLearningCore.relatedQuestions(lesson,currentRecords),hasChildren:!!childCount,reading:conceptReadings(node.id)});
         }
         const q = currentRecords.find(q => q.id === node.questionId), descendants = new Set([node.id, ...Core.descendantIds(activeMap, node.id)]);
         const breadcrumb = []; let parent = activeMap.nodes.find(n => n.id === node.parentId);
@@ -317,19 +369,46 @@
     }
     function paintInspector() {
         const el = document.getElementById('mindmapInspector'); if (el) el.innerHTML = (isLearning() ? `<div class="mm-reading-back">${button('back-to-map','← 返回导图')}<span>知识讲解</span></div>` : '') + inspector();
+        if(el?.dataset)el.dataset.conceptId=selected;
         if (typeof WorkspaceControls !== 'undefined') WorkspaceControls.enhance(el);
-        const title=document.getElementById('mindmapSelectedTitle'); if(title) title.textContent=selection().title;
+        for(const id of ['mindmapSelectedTitle','mindmapFocusTitle']) {const title=document.getElementById(id);if(title)title.textContent=selection().title;}
     }
     function readingMode(open, moveFocus = true) {
         mobileReading=open;
         const workspace=document.querySelector('.mindmap-view');
         if(workspace) workspace.dataset.reading=String(open && isLearning());
-        if(onPhone() && moveFocus) {
+        if(focusMode) {
+            if(!open&&focusSurface==='reading'&&workspace)focusedReadingPosition={id:selected,top:workspace.scrollTop};
+            focusSurface=open?'reading':'map';focusSearchOpen=false;
+            if(workspace){workspace.dataset.focusSurface=focusSurface;workspace.dataset.focusSearch='false';workspace.scrollTop=open&&focusedReadingPosition.id===selected?focusedReadingPosition.top:0;}
+            workspace?.querySelectorAll('[data-mm-action="focus-map"],[data-mm-action="focus-read"]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.mmAction===(open?'focus-read':'focus-map'))));
+        }
+        if((onPhone() || focusMode) && moveFocus) {
             const target=document.getElementById(open?'mindmapInspector':'mindmapViewport');
             const visibleTarget=!open && view==='outline'?document.getElementById('mindmapOutline'):target;
-            visibleTarget?.scrollIntoView?.({block:'start'});
+            if(!focusMode)visibleTarget?.scrollIntoView?.({block:'start'});
             visibleTarget?.focus?.({preventScroll:true});
         }
+    }
+    function setFocus(enabled, surface) {
+        if(!flushEdit())return;
+        if(enabled&&!focusMode) focusOrigin={mobileReading,scrollY:root.scrollY||0,inspectorScroll:document.getElementById('mindmapInspector')?.scrollTop||0};
+        focusMode=enabled;focusSearchOpen=false;
+        if(enabled){focusSurface=surface||(isLearning()&&mobileReading?'reading':'map');mobileReading=focusSurface==='reading';}
+        else mobileReading=focusOrigin?.mobileReading||false;
+        refresh();
+        if(!enabled) {
+            root.scrollTo?.({top:focusOrigin?.scrollY||0,behavior:'instant'});
+            const inspector=document.getElementById('mindmapInspector');if(inspector)inspector.scrollTop=focusOrigin?.inspectorScroll||0;
+            const selector=isLearning()&&mobileReading?'[data-mm-action="focus-reading"]':'[data-mm-action="focus"]';
+            document.querySelector(selector)?.focus?.({preventScroll:true});focusOrigin=null;
+        }
+    }
+    function showFocusSearch() {
+        if(!focusMode)return;
+        readingMode(false,false);focusSearchOpen=true;
+        const workspace=document.querySelector('.mindmap-view');if(workspace)workspace.dataset.focusSearch='true';
+        document.getElementById('mindmapSearch')?.focus();
     }
     function paintSearch() {
         const el = document.getElementById('mindmapResults'); if (!el) return;
@@ -340,8 +419,16 @@
     }
     function refresh() {
         const target = document.querySelector('.mindmap-view'); if (!target) return;
+        const offsets=['mindmapInspector','mindmapOutline'].map(id=>[id,document.getElementById(id)?.scrollTop||0]);
+        const top=target.scrollTop;
+        const sameConcept=document.getElementById('mindmapInspector')?.dataset.conceptId===selected;
+        const openDetails=sameConcept?[...target.querySelectorAll('.mm-reading-more[open],.mm-lesson-utilities[open],.mm-lesson-practice[open]')].map(el=>el.className):[];
         target.outerHTML = renderMindMap(); mountMindMap();
         if (typeof WorkspaceControls !== 'undefined') WorkspaceControls.enhance(document.querySelector('.mindmap-view'));
+        const current=document.querySelector('.mindmap-view');
+        for(const name of openDetails){const detail=current?.getElementsByClassName(name)[0];if(detail)detail.open=true;}
+        if(current&&sameConcept)current.scrollTop=top;
+        if(sameConcept)for(const [id,offset] of offsets){const el=document.getElementById(id);if(el)el.scrollTop=offset;}
     }
     function setFolds(ids, collapsed) {
         if (editable()) changeMap(m => ({ ...m, nodes: m.nodes.map(n => ids.includes(n.id) ? { ...n, collapsed } : n) }), { history: false });
@@ -366,7 +453,7 @@
             paintOutline(); paintInspector();
         }
         if (reveal) centerNode(id);
-        if (isLearning() && onPhone()) readingMode(true);
+        if (isLearning() && (onPhone() || focusMode)) readingMode(true);
     }
     function switchMap(id) {
         if (loadError) throw new Error(loadError);
@@ -377,7 +464,7 @@
         if (!curriculum().byId.has(id)) return;
         const next=copy(snapshot); next.activeMapId='java-learning'; next.learning.topicId=id;
         lessonFolds.set(id,false);
-        selected=id; query=''; mobileReading=false; mobileBranch=id; commit(next,{history:false});
+        selected=id; query=''; mobileReading=false; mobileBranch=id;focusSurface='map';focusSearchOpen=false; commit(next,{history:false});
     }
     function jumpConcept(id) {
         if (!curriculum().byId.has(id)) return;
@@ -423,6 +510,11 @@
         if (name !== 'raw-export' && name !== 'reset-storage' && !flushEdit()) { notify(savedLabel); return; }
         const node = selection();
         switch (name) {
+            case 'focus-reading': setFocus(true,'reading'); break;
+            case 'focus-map': readingMode(false); break;
+            case 'focus-read': readingMode(true); break;
+            case 'focus-search': showFocusSearch(); break;
+            case 'focus-exit': setFocus(false); break;
             case 'read-concept': readingMode(true); break;
             case 'back-to-map': readingMode(false); break;
             case 'branch-up': {
@@ -432,6 +524,11 @@
             case 'learning': switchMap('java-learning'); break;
             case 'lesson-topic': learningTopic(el.dataset.id); break;
             case 'lesson-jump': jumpConcept(el.dataset.id); break;
+            case 'read-xiaolin': openConceptReading(el.dataset.id); break;
+            case 'show-readings': {
+                const target=document.querySelector('.mm-reading-sources');
+                target?.scrollIntoView?.({block:'start',behavior:'instant'});target?.focus?.({preventScroll:true});break;
+            }
             case 'lesson-state': {
                 const next=copy(snapshot);
                 next.learning.entries[node.id]={...(next.learning.entries[node.id] || {note:''}),status:el.dataset.status};
@@ -484,7 +581,7 @@
             case 'zoom-out': zoom(1 / 1.2); break;
             case 'fit': fit(); break;
             case 'center': centerNode(); break;
-            case 'focus': focusMode = !focusMode; refresh(); break;
+            case 'focus': setFocus(!focusMode); break;
             case 'undo': case 'redo': {
                 const from = name === 'undo' ? undo : redo, to = name === 'undo' ? redo : undo;
                 if (!from.length) break;
@@ -513,6 +610,9 @@
     }
     function safely(fn) { try { fn(); } catch (error) { notify(error.message || '操作失败，请检查导图数据'); updateSaveLabel(); } }
     function mountMindMap() {
+        root.LearningFocus?.sync(document.querySelector('.mindmap-view'),focusMode,{kind:'mindmap',onExit:()=>safely(()=>setFocus(false)),onSearch:showFocusSearch,onEscape:()=>safely(()=>{
+            if(focusSearchOpen){readingMode(false);return;}setFocus(false);
+        })});
         const viewport = document.getElementById('mindmapViewport'); if (!viewport) return;
         mapNow(); paintCanvas(); paintInspector(); paintSearch();
         resizeObserver?.disconnect();
@@ -521,6 +621,7 @@
             resizeObserver = new ResizeObserver(() => {
                 const w = viewport.clientWidth, h = viewport.clientHeight;
                 if (!w || !h) return;
+                if(restoringReadingView){lastWidth=w;lastHeight=h;return;}
                 const mobile = onPhone() && isLearning();
                 if (!!activeLayout.mobile !== mobile || (mobile && activeLayout.width !== Math.max(296,w))) {
                     paintCanvas();fit();lastWidth=w;lastHeight=h;return;
@@ -614,7 +715,7 @@
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') { event.preventDefault(); safely(() => action(event.shiftKey ? 'redo' : 'undo')); }
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'y') { event.preventDefault(); safely(() => action('redo')); }
         if (event.key === 'Escape' && onPhone() && mobileReading) { readingMode(false); return; }
-        if (event.key === 'Escape' && focusMode) { focusMode = false; refresh(); }
+        if (event.key === 'Escape' && focusMode) { setFocus(false); }
         if (event.target.id === 'mindmapViewport') {
             if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)) { event.preventDefault(); const t = transform(); t.x += event.key === 'ArrowLeft' ? 40 : event.key === 'ArrowRight' ? -40 : 0; t.y += event.key === 'ArrowUp' ? 40 : event.key === 'ArrowDown' ? -40 : 0; paintTransform(); }
             if (event.key === '+' || event.key === '=') zoom(1.2);
@@ -630,4 +731,5 @@
     root.getMindMapSnapshot = getMindMapSnapshot;
     root.applyMindMapSnapshot = applyMindMapSnapshot;
     root.getMindMapSVG = getMindMapSVG;
+    root.returnToMindMapLearning = returnToMindMapLearning;
 })(window);

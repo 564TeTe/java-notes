@@ -38,6 +38,23 @@ test('reader activity never changes question counts or quiz pools',()=>{
     assert.equal(run('JSON.stringify({pool:getStudyPool("bank"),memorized:[...memorizedIds],marked:[...markedIds],mastery,userNotes})'),before);
     assert.ok(store.has('java-notes-xiaolin-v1'));
 });
+test('concept handoff uses workspace navigation and restores the originating concept after a reader edit',()=>{
+    const {run,store}=setup();
+    run(`const linkedLesson=xiaolinIndex.lessons.find(s=>s.topicId==='collections');
+        navigateWorkspace('mindmap');
+        window.returnToMindMapLearning=id=>{window.restoredConcept=id;navigateWorkspace('mindmap');return true;};`);
+    assert.equal(run(`openXiaolinFromMindMap(linkedLesson.id,{id:'hashmap',title:'HashMap'})`),true);
+    assert.equal(run('currentWorkspacePage()'),'xiaolin');
+    assert.equal(run('xiaolinUI.pendingJump'),run('linkedLesson.id'));
+    run(`setXiaolinEntry(linkedLesson.id,{done:true,note:'读懂扩容后再看结构'});`);
+    assert.equal(run('returnFromXiaolinToMindMap()'),true);
+    assert.equal(run('currentWorkspacePage()'),'mindmap');
+    assert.equal(run('window.restoredConcept'),'hashmap');
+    const lesson=JSON.parse(store.get('java-notes-xiaolin-v1')).entries[run('linkedLesson.id')];
+    assert.equal(lesson.done,true);
+    assert.equal(lesson.note,'读懂扩容后再看结构');
+    assert.equal(run('xiaolinUI.mindmapReturn'),null);
+});
 test('full backup round-trip preserves reading state and a legacy import retains it',()=>{
     const {run}=setup();
     run('setXiaolinEntry(xiaolinIndex.lessons[0].id,{note:"保存我的理解",done:true}); const exported=getStateSnapshot();');
