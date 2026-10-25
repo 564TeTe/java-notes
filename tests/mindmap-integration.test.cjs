@@ -87,7 +87,7 @@ test('legacy category and mobile actions leave mindmaps instead of trapping navi
 test('mindmap renders and mounts after markup, clears the study TOC and selects mobile More', () => {
     const { run, elements, links, context } = setup();
     run('navigateWorkspace("mindmap"); renderNotes([]); renderTOC([]); renderWorkspaceShell();');
-    assert.equal(elements.get('mainTitle').textContent, 'Java 面试学习');
+    assert.equal(elements.get('mainTitle').textContent, 'Java 学习');
     assert.match(elements.get('notesContainer').innerHTML, /mindmap-root/);
     assert.equal(run('mountCount'), 1);
     assert.equal(elements.get('tocList').innerHTML, '');
@@ -185,5 +185,5 @@ test('desktop and mobile navigation expose mindmaps and all new assets load befo
     assert.match(html, /learning-focus\.js\?v=\d+[^]*mindmap-module\.js/);
     assert.match(html, /mindmap-core\.js\?v=\d+[^]*mindmap-module\.js\?v=\d+[^]*<script>initStudyWorkspace/);
     const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
-    for (const name of ['learning-focus.js', 'learning-focus.css', 'mindmap-core.js', 'mindmap-module.js', 'mindmap.css', 'data/java-learning-language.js', 'data/java-learning-runtime.js', 'java-learning-core.js', 'java-learning-view.js']) assert.ok(sw.includes(`"./${name}"`));
+    for (const name of ['learning-focus.js', 'learning-focus.css', 'mindmap-core.js', 'mindmap-module.js', 'mindmap.css', 'data/java-learning-language.js', 'data/java-learning-runtime.js', 'java-learning-core.js', 'java-learning-atlas.js', 'data/java-learning-routes.js', 'java-learning-view.js']) assert.ok(sw.includes(`"./${name}"`));
 });

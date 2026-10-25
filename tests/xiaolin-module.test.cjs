@@ -94,11 +94,21 @@ test('legacy backup preserves reader data and invalid import rejects before pers
     assert.throws(()=>app.run('applyXiaolinSnapshot({version:1,entries:{bad:{done:"yes"}}})'),/小林/);
     assert.equal(app.store.get('java-notes-xiaolin-v1'),before);
 });
-test('write failures keep the latest note in memory and show a recoverable warning',()=>{
-    const app=setup(undefined,true);
-    assert.equal(app.run('setXiaolinEntry(xiaolinIndex.lessons[0].id,{note:"不能丢失"})'),false);
-    assert.equal(app.run('Object.values(getXiaolinSnapshot().entries)[0].note'),'不能丢失');
+test('native reader drafts survive a debounced write failure and recover after a failed navigation flush',()=>{
+    const app=setup(undefined,true),id=app.run('xiaolinIndex.lessons[0].id'),status={textContent:''};
+    let pendingSave;
+    app.context.setTimeout=fn=>{pendingSave=fn;return 1;};app.context.clearTimeout=()=>{};
+    app.events.input({target:{dataset:{xlNote:id},value:'不能丢失的原阅读器草稿',parentElement:{querySelector:()=>status}}});
+    assert.equal(status.textContent,'正在保存…');assert.equal(typeof pendingSave,'function');pendingSave();
+    assert.equal(app.run('getXiaolinSnapshot().entries[xiaolinIndex.lessons[0].id].note'),'不能丢失的原阅读器草稿');
+    assert.match(status.textContent,/保存失败/);assert.equal(app.store.has('java-notes-xiaolin-v1'),false);
+    assert.equal(app.run('flushXiaolinForNavigation()'),false);
+    assert.equal(app.run('getXiaolinSnapshot().entries[xiaolinIndex.lessons[0].id].note'),'不能丢失的原阅读器草稿');
     assert.ok(app.messages.some(message=>message.includes('保存')));
+    app.context.localStorage.setItem=(key,value)=>app.store.set(key,value);
+    assert.equal(app.run('persistXiaolin()'),true);
+    assert.equal(JSON.parse(app.store.get('java-notes-xiaolin-v1')).entries[id].note,'不能丢失的原阅读器草稿');
+    assert.equal(app.run('xiaolinSaveError'),false);
 });
 test('continuous chapter renders answers immediately, safely escapes personal notes',()=>{
     const app=setup();

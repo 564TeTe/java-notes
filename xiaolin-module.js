@@ -23,9 +23,12 @@ function applyXiaolinSnapshot(value){
 }
 function setXiaolinEntry(id,patch){
     if(!xiaolinIndex.byId.has(id))return false;
+    const previous=xiaolinState;
     const entry={done:false,starred:false,note:'',...xiaolinState.entries[id],...patch};
     xiaolinState=XiaolinCore.normalizeSnapshot({...xiaolinState,entries:{...xiaolinState.entries,[id]:entry}});
-    return persistXiaolin();
+    let saved=false;
+    try {saved=persistXiaolin();return saved;}
+    finally {if(!saved)xiaolinState=previous;}
 }
 function renderXiaolin(){
     xiaolinUI.mobile=window.matchMedia?.('(max-width: 860px)').matches || false;

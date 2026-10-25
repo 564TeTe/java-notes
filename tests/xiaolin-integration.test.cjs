@@ -38,6 +38,60 @@ test('reader activity never changes question counts or quiz pools',()=>{
     assert.equal(run('JSON.stringify({pool:getStudyPool("bank"),memorized:[...memorizedIds],marked:[...markedIds],mastery,userNotes})'),before);
     assert.ok(store.has('java-notes-xiaolin-v1'));
 });
+
+test('a failed read-state write restores the shared snapshot and the same patch can be retried',()=>{
+    const {run,store,context}=setup(),key='java-notes-xiaolin-v1';
+    run('const entryId=xiaolinIndex.lessons[0].id;window.entryToasts=[];toast=message=>entryToasts.push(message);');
+    const before=run('JSON.stringify(getXiaolinSnapshot())'),write=context.localStorage.setItem;
+    context.localStorage.setItem=(name,value)=>{if(name===key)throw Error('quota');write(name,value);};
+    assert.equal(run('setXiaolinEntry(entryId,{done:true})'),false);
+    assert.equal(run('JSON.stringify(getXiaolinSnapshot())'),before);
+    assert.equal(store.has(key),false);
+    assert.equal(run('xiaolinSaveError'),true);
+    assert.equal(run('entryToasts.length'),1);
+    assert.equal(run('setXiaolinEntry(entryId,{done:true})'),false);
+    assert.equal(run('entryToasts.length'),1,'repeated failures keep the existing warning suppression');
+    context.localStorage.setItem=write;
+    assert.equal(run('setXiaolinEntry(entryId,{done:true})'),true);
+    assert.equal(run('getXiaolinSnapshot().entries[entryId].done'),true);
+    assert.equal(JSON.parse(store.get(key)).entries[run('entryId')].done,true);
+    assert.equal(run('xiaolinSaveError'),false);
+});
+
+test('a failed shared note patch never enters a snapshot or overwrites earlier reading records',()=>{
+    const {run,store,context}=setup(),key='java-notes-xiaolin-v1';
+    run(`const noteId=xiaolinIndex.lessons[0].id,otherId=xiaolinIndex.lessons[1].id;
+        setXiaolinEntry(noteId,{note:'已经保存的理解',done:true});
+        setXiaolinEntry(otherId,{note:'另一条记录',starred:true});`);
+    const before=run('JSON.stringify(getXiaolinSnapshot())'),stored=store.get(key),write=context.localStorage.setItem;
+    context.localStorage.setItem=(name,value)=>{if(name===key)throw Error('quota');write(name,value);};
+    assert.equal(run('setXiaolinEntry(noteId,{note:"尚未保存的新回答"})'),false);
+    assert.equal(run('JSON.stringify(getXiaolinSnapshot())'),before);
+    assert.equal(run('JSON.stringify(getStateSnapshot().xiaolin)'),before,'backups cannot report a failed shared-note patch as saved');
+    assert.equal(store.get(key),stored);
+    context.localStorage.setItem=write;
+    assert.equal(run('setXiaolinEntry(noteId,{note:"尚未保存的新回答"})'),true);
+    assert.equal(run('getXiaolinSnapshot().entries[noteId].note'),'尚未保存的新回答');
+    assert.equal(run('getXiaolinSnapshot().entries[noteId].done'),true);
+    assert.equal(run('getXiaolinSnapshot().entries[otherId].note'),'另一条记录');
+    assert.equal(run('getXiaolinSnapshot().entries[otherId].starred'),true);
+});
+
+test('a rejected shared patch retains an existing reader draft for its normal debounced save',()=>{
+    const {run,store,context}=setup(),key='java-notes-xiaolin-v1';
+    run(`const draftId=xiaolinIndex.lessons[0].id;
+        setXiaolinEntry(draftId,{done:false,note:'原笔记'});
+        xiaolinState.entries[draftId].note='原阅读器正在输入的草稿';`);
+    const write=context.localStorage.setItem;
+    context.localStorage.setItem=(name,value)=>{if(name===key)throw Error('quota');write(name,value);};
+    assert.equal(run('setXiaolinEntry(draftId,{done:true})'),false);
+    assert.equal(run('getXiaolinSnapshot().entries[draftId].note'),'原阅读器正在输入的草稿');
+    assert.equal(run('getXiaolinSnapshot().entries[draftId].done'),false);
+    context.localStorage.setItem=write;
+    assert.equal(run('persistXiaolin()'),true);
+    assert.equal(JSON.parse(store.get(key)).entries[run('draftId')].note,'原阅读器正在输入的草稿');
+    assert.equal(JSON.parse(store.get(key)).entries[run('draftId')].done,false);
+});
 test('concept handoff uses workspace navigation and restores the originating concept after a reader edit',()=>{
     const {run,store}=setup();
     run(`const linkedLesson=xiaolinIndex.lessons.find(s=>s.topicId==='collections');

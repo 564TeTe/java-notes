@@ -123,8 +123,8 @@ test('the learning workspace title describes Java interview learning', () => {
         const originalGetElementById = document.getElementById;
         document.getElementById = id => headingElements[id] || originalGetElementById(id);
         document.body = {classList:{toggle(){},remove(){}}}; showMindMap = true; renderNotes([]);`);
-    assert.equal(run('headingElements.mainTitle.textContent'), 'Java 面试学习');
-    assert.equal(run('headingElements.topbarTitle.textContent'), 'Java 面试学习');
+    assert.equal(run('headingElements.mainTitle.textContent'), 'Java 学习');
+    assert.equal(run('headingElements.topbarTitle.textContent'), 'Java 学习');
 });
 
 test('annotation round trips preserve bank filters, pagination, scroll and all learning records', () => {

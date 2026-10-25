@@ -1,4 +1,4 @@
-/* Pure, mobile-first views for interview learning. Storage and navigation live in the controller. */
+/* Presentation only. Xiaolin HTML comes from the sanitized, local content build. */
 (function (root, factory) {
     const view = factory();
     if (typeof module === 'object' && module.exports) module.exports = view;
@@ -6,150 +6,198 @@
 })(typeof window === 'undefined' ? globalThis : window, function () {
     'use strict';
     const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-    const statuses = {new:'还没学',learning:'再巩固',mastered:'能讲清'};
-    const button = (action, content, attrs = '', classes = '') => `<button type="button" class="il-button${classes ? ' ' + classes : ''}" data-mm-action="${action}"${attrs ? ' ' + attrs : ''}>${content}</button>`;
-    const entryFor = (model, id) => model.learning?.entries?.[id] || {status:'new',note:''};
-    const getNode = (model, id) => model.index.byId.get(id);
-    const getPath = (model, id) => (model.paths?.topics || []).find(path => path.id === id);
-    const children = (model, id) => model.index.nodes.filter(node => node.parentId === id);
-
-    function topicFor(model, node) {
-        let current = node;
-        const seen = new Set();
-        while (current && current.parentId !== 'java-root' && !seen.has(current.id)) {
-            seen.add(current.id);
-            current = getNode(model, current.parentId);
-        }
-        return current?.parentId === 'java-root' ? current : null;
-    }
-
-    function descendants(model, id) {
-        const result = [], visit = [id], seen = new Set([id]);
-        while (visit.length) {
-            const parentId = visit.shift();
-            for (const node of children(model, parentId)) {
-                if (seen.has(node.id)) continue;
-                seen.add(node.id); result.push(node); visit.push(node.id);
-            }
-        }
-        return result;
-    }
-
-    function essentials(model, topicId) {
-        const allowed = new Set(descendants(model, topicId).map(node => node.id));
-        const ids = [...new Set(getPath(model, topicId)?.essentials || [])].filter(id => allowed.has(id));
-        return ids.length ? ids.map(id => getNode(model, id)) : descendants(model, topicId).filter(node => !children(model, node.id).length);
-    }
-
-    function saveStatus(model) {
-        return `<span class="il-save" data-learning-save role="status">${esc(model.saveLabel || '学习记录保存在本机')}</span>`;
-    }
+    const get = (collection, id) => collection instanceof Map || typeof collection?.get === 'function' ? collection.get(id) : collection?.[id];
+    const button = (action, text, attrs = '', classes = '') => `<button type="button" class="al-button${classes ? ' ' + classes : ''}" data-mm-action="${action}"${attrs ? ' ' + attrs : ''}>${text}</button>`;
+    const lessonById = (model, id) => get(model.atlas?.byId, id);
+    const topicById = (model, id) => get(model.atlas?.byTopic, id) || model.atlas?.topics?.find(topic => topic.id === id);
+    const topicLessons = (model, topic) => (topic?.lessonIds || topic?.chapters?.flatMap(chapter => chapter.lessonIds || []) || []).map(id => lessonById(model, id)).filter(Boolean);
+    const sourceEntry = (model, lesson) => model.readingState?.entries?.[lesson.sourceSectionId || lesson.id] || {};
+    const conceptEntry = (model, lesson) => model.learning?.entries?.[lesson.id] || {};
+    const statuses = {new:'未学',learning:'学习中',mastered:'已掌握'};
+    const safeLink = (url, title, className = '') => /^https:\/\//i.test(String(url || '')) ? `<a${className ? ` class="${className}"` : ''} href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(title)} ↗</a>` : '';
 
     function search(model, topic) {
-        return `<label class="il-search"><span class="il-sr">${topic ? '搜索当前专题' : '搜索 Java 面试知识'}</span><span aria-hidden="true">⌕</span><input id="mindmapSearch" type="search" autocomplete="off" placeholder="${topic ? '搜索这个专题的知识点' : '搜索知识点，例如 HashMap'}" value="${esc(model.query || '')}"></label>`;
+        return `<label class="al-search"><span class="al-sr">${topic ? '搜索当前专题' : '搜索全部知识'}</span><span aria-hidden="true">⌕</span><input id="mindmapSearch" type="search" autocomplete="off" placeholder="搜索知识" value="${esc(model.query || '')}"></label>`;
     }
 
-    function readingShortcut(reading) {
-        const first = reading?.sections?.[0];
-        if (!first) return '';
-        return `<div class="il-reading-shortcut">${button('read-xiaolin', '读小林讲解 ↗', `data-id="${esc(first.id)}" title="${esc(first.title)}"`, 'il-button-quiet')}<span>${Number(reading.total) || reading.sections.length} 篇对应原文 · ${Number(reading.done) || 0} 篇已读懂</span></div>`;
+    function progress(model, lesson) {
+        if (lesson.sourceType === 'xiaolin') return sourceEntry(model, lesson).done ? '<span class="al-state is-mastered" aria-label="已读懂">✓</span>' : '';
+        const status = conceptEntry(model, lesson).status;
+        return status === 'mastered' ? '<span class="al-state is-mastered" aria-label="已掌握">✓</span>' : status === 'learning' ? '<span class="al-state is-learning" aria-label="学习中">◐</span>' : '';
     }
 
-    function conceptRow(model, node, number, className = '') {
-        const card = model.paths?.concepts?.[node.id], status = entryFor(model, node.id).status;
-        return button('lesson-jump', `${number ? `<span class="il-topic-number" aria-hidden="true">${String(number).padStart(2, '0')}</span>` : ''}<span class="il-row-copy"><strong>${esc(node.title)}</strong><small>${esc(card?.question || node.summary)}</small></span><span class="il-row-meta"><span class="il-status-dot is-${esc(statuses[status] ? status : 'new')}" aria-hidden="true"></span><span>${statuses[status] || statuses.new}</span><span aria-hidden="true">›</span></span>`, `data-id="${esc(node.id)}"`, `il-concept-row ${className}`.trim());
+    function lessonLink(model, lesson, attrs = '', classes = '') {
+        return button('lesson-jump', `<span>${esc(lesson.title)}</span>${progress(model, lesson)}`, `data-id="${esc(lesson.id)}"${lesson.id === model.selectedId && model.screen === 'lesson' ? ' aria-current="page"' : ''}${attrs ? ' ' + attrs : ''}`, `al-lesson-link${lesson.id === model.selectedId && model.screen === 'lesson' ? ' is-current' : ''}${classes ? ' ' + classes : ''}`);
     }
 
     function searchResults(model, topic) {
         const query = String(model.query || '').trim().toLocaleLowerCase();
-        if (!query) return '';
-        const pool = topic ? descendants(model, topic.id) : model.index.nodes.filter(node => node.parentId && node.parentId !== 'java-root');
-        const matches = pool.filter(node => `${node.title} ${node.summary} ${model.paths?.concepts?.[node.id]?.question || ''}`.toLocaleLowerCase().includes(query));
-        return `<section class="il-section il-search-results" aria-label="搜索结果"><div class="il-section-heading"><h2>搜索结果</h2><span>${matches.length} 个知识点</span></div>${matches.length ? `<div class="il-essential-list">${matches.map(node => conceptRow(model, node)).join('')}</div>` : '<p class="il-empty">没有找到相关知识点，试试更短的关键词。</p>'}</section>`;
+        const pool = topic ? topicLessons(model, topic) : model.atlas?.lessons || [];
+        const matches = pool.filter(lesson => {
+            const parent = topicById(model, lesson.topicId), chapter = parent?.chapters?.find(item => item.id === lesson.chapterId), node = lesson.concept;
+            const text = model.atlas?.searchText?.get(lesson.id) || [lesson.title, parent?.title, chapter?.title, node?.summary, node?.explanation, node?.example, node?.pitfall].filter(Boolean).join(' ').toLocaleLowerCase();
+            return query.normalize('NFKC').split(/\s+/).every(term => text.includes(term));
+        }).sort((a,b)=>Number(b.sourceType==='course')-Number(a.sourceType==='course'));
+        return `<section class="al-search-results" aria-label="搜索结果">${matches.length ? `<ul class="al-result-list">${matches.map(lesson => `<li>${lessonLink(model, lesson)}<span class="al-result-topic">${esc(topicById(model, lesson.topicId)?.title || '')}</span></li>`).join('')}</ul>` : '<p class="al-empty">没有找到相关内容。</p>'}</section>`;
+    }
+
+    function stages(model) {
+        const topics = model.atlas?.topics || [], covered = new Set();
+        const result = (model.atlas?.stages || []).map(stage => {
+            const ids = stage.topicIds || topics.filter(topic => topic.stageId === stage.id).map(topic => topic.id);
+            const members = ids.map(id => topicById(model, id)).filter(topic => topic && !covered.has(topic.id));
+            for (const topic of members) covered.add(topic.id);
+            return {id:stage.id,title:stage.title,topics:members};
+        }).filter(stage => stage.topics.length);
+        for (const topic of topics) if (!covered.has(topic.id)) {
+            let stage = result.find(item => item.id === topic.stageId);
+            if (!stage) { stage = {id:topic.stageId || 'other',title:topic.stageTitle || '其他',topics:[]}; result.push(stage); }
+            stage.topics.push(topic); covered.add(topic.id);
+        }
+        return result;
+    }
+
+    function knowledgeMap(model) {
+        return `<nav class="al-map" aria-label="完整知识导图"><div class="al-map-root">Java</div><ol class="al-stage-list">${stages(model).map(stage => `<li class="al-stage" data-stage="${esc(stage.id)}"><h2 class="al-stage-title">${esc(stage.title)}</h2><ul class="al-map-topics">${stage.topics.map(topic => `<li>${button('lesson-topic',esc(topic.title),`data-id="${esc(topic.id)}"`,'al-topic')}</li>`).join('')}</ul></li>`).join('')}</ol></nav>`;
+    }
+
+    function routes(model) {
+        return `<div class="al-routes">${(model.routes || []).map(route => `<section class="al-route${route.id === model.routeId ? ' is-current' : ''}" aria-labelledby="al-route-${esc(route.id)}"><h2 id="al-route-${esc(route.id)}">${esc(route.title)}</h2><ol class="al-route-steps">${(route.steps || []).map(step => {
+            const item = lessonById(model,step.id);
+            return item ? `<li>${button('route-step',esc(step.label || item.title),`data-route="${esc(route.id)}" data-id="${esc(step.id)}"`,'al-route-step')}</li>` : '';
+        }).join('')}</ol></section>`).join('')}</div>`;
     }
 
     function home(model) {
-        const topics = model.paths?.topics?.length ? model.paths.topics : (model.index.topics || children(model, 'java-root'));
-        const last = getNode(model, model.lastId), lastTopic = topicFor(model, last);
-        const query = String(model.query || '').trim();
-        return `<div class="il-topbar">${saveStatus(model)}</div><header class="il-heading"><p class="il-eyebrow">从理解到讲清楚</p><h1 tabindex="-1">Java 面试学习</h1><p class="il-description">选一个专题，理清回答要点，再练对应题型。</p></header>${search(model)}
-            ${query ? searchResults(model) : `${last && lastTopic && last.id !== lastTopic.id ? button('lesson-jump', `<span class="il-row-copy"><small>接着上次学 · ${esc(getPath(model, lastTopic.id)?.title || lastTopic.title)}</small><strong>${esc(last.title)}</strong></span><span aria-hidden="true">继续 →</span>`, `data-id="${esc(last.id)}"`, 'il-continue') : ''}
-            <section class="il-section"><div class="il-section-heading"><h2>选择面试专题</h2><span>${topics.length} 个专题</span></div><div class="il-topic-list">${topics.map((path, position) => {
-                const node = getNode(model, path.id);
-                if (!node) return '';
-                const focus = essentials(model, path.id), mastered = focus.filter(item => entryFor(model, item.id).status === 'mastered').length;
-                return button('lesson-topic', `<span class="il-topic-number" aria-hidden="true">${String(position + 1).padStart(2,'0')}</span><span class="il-row-copy"><strong>${esc(path.title || node.title)}</strong><small>${esc(path.goal || path.description || node.summary)}</small><span class="il-progress"><span>${focus.length} 个核心问题</span><span>${mastered} / ${focus.length} 能讲清</span></span></span><span class="il-row-arrow" aria-hidden="true">›</span>`, `data-id="${esc(node.id)}"`, 'il-topic-row');
-            }).join('')}</div></section>`}`;
+        const last = lessonById(model,model.lastId), query = String(model.query || '').trim();
+        return `<header class="al-header"><h1 tabindex="-1">Java 学习</h1>${search(model)}</header><div class="al-switch" role="group" aria-label="学习视图">${[['map','知识导图'],['routes','学习路线']].map(([mode,label]) => button('home-mode',label,`data-mode="${mode}" aria-pressed="${(model.homeView || 'map') === mode}"`)).join('')}</div>${query ? searchResults(model) : `${last ? `<div class="al-continue">${button('lesson-jump',`继续：${esc(last.title)}`,`data-id="${esc(last.id)}"`,'al-button-quiet')}</div>` : ''}${model.homeView === 'routes' ? routes(model) : knowledgeMap(model)}`}`;
     }
 
     function practice(model) {
-        if (!(Number(model.questionCount) > 0)) return '';
-        return button('practice', `<span class="il-row-copy"><strong>练${model.category ? '这个专题的题' : '题库里的题'}</strong><small>${esc(model.category || '全部题型')} · ${Number(model.questionCount)} 道题</small></span><span aria-hidden="true">进入题库 →</span>`, '', 'il-practice');
+        return Number(model.questionCount) > 0 ? button('practice','对应题型',model.category ? `title="${esc(model.category)}"` : '', 'al-practice') : '';
     }
 
-    function structure(model, topicId) {
-        function branch(node, ancestors = new Set()) {
-            if (ancestors.has(node.id)) return '';
-            const next = new Set([...ancestors, node.id]), nested = children(model, node.id);
-            const status = entryFor(model, node.id).status;
-            const link = button('lesson-jump', `<span>${esc(node.title)}</span><span class="il-status-dot is-${esc(statuses[status] ? status : 'new')}" aria-label="${statuses[status] || statuses.new}"></span>`, `data-id="${esc(node.id)}"`, 'il-tree-link');
-            if (!nested.length) return `<li>${link}</li>`;
-            return `<li><details><summary>${esc(node.title)}<span>${nested.length} 个分支</span></summary>${button('lesson-jump', '先读概念概览', `data-id="${esc(node.id)}"`, 'il-button-quiet')}<ul>${nested.map(child => branch(child, next)).join('')}</ul></details></li>`;
+    function directory(model, topic, location = '') {
+        if (topic.courseChapters?.length) {
+            const referenceActive = topic.referenceChapters.some(chapter => chapter.lessonIds.includes(model.selectedId));
+            const primary = directory(model,{...topic,chapters:topic.courseChapters,courseChapters:null},location);
+            const references = directory(model,{...topic,chapters:topic.referenceChapters,courseChapters:null},location+'-reference');
+            return primary + `<details class="al-reference-directory" data-detail-key="${esc(location+'-references-'+topic.id)}"${referenceActive ? ' open' : ''}><summary>原文与概念查阅</summary>${references}</details>`;
         }
-        return `<details class="il-structure"><summary>展开完整知识结构<span>${descendants(model, topicId).length} 个知识点</span></summary><p class="il-description">核心问题之外，按需要补充这些知识。</p><ul class="il-tree">${children(model, topicId).map(node => branch(node)).join('')}</ul></details>`;
+        const chapters = topic.chapters || [];
+        const active = chapters.find(chapter => (chapter.lessonIds || []).includes(model.selectedId)) || chapters.find(chapter => chapter.id === model.activeChapterId) || chapters[0];
+        const group = `${location}-directory-${topic.id}`;
+        return `<nav class="al-directory" aria-label="${esc(topic.title)}完整目录">${chapters.map(chapter => `<details class="al-chapter" name="${esc(group)}" data-chapter-id="${esc(chapter.id)}" data-detail-key="${esc(`${location}-chapter-${topic.id}-${chapter.id}`)}"${location === 'topic' ? ` id="al-chapter-${esc(chapter.id)}"` : ''}${chapter === active ? ' open' : ''}><summary>${esc(chapter.title)}</summary><ul>${(chapter.lessonIds || []).map(id => lessonById(model,id)).filter(Boolean).map(lesson => `<li>${lessonLink(model,lesson)}</li>`).join('')}</ul></details>`).join('')}</nav>`;
     }
 
-    function topic(model, node) {
-        const path = getPath(model, node.id), focus = essentials(model, node.id), query = String(model.query || '').trim();
-        return `<div class="il-topbar">${button('home','‹ 全部专题','','il-back il-button-quiet')}${saveStatus(model)}</div><header class="il-heading"><p class="il-eyebrow">面试专题</p><h1 tabindex="-1">${esc(path?.title || node.title)}</h1><p class="il-description">${esc(path?.goal || node.summary)}</p></header>${search(model, node)}
-            ${query ? searchResults(model, node) : `<section class="il-section"><div class="il-section-heading"><h2>先掌握这些</h2><span>${focus.length} 个核心问题</span></div><p class="il-description">看问法、讲要点，再检查能否接住追问。</p><div class="il-essential-list">${focus.map((item, position) => conceptRow(model, item, position + 1)).join('')}</div></section>${readings(model.reading)}${practice(model)}${structure(model, node.id)}`}`;
+    function topic(model, current) {
+        const query = String(model.query || '').trim();
+        return `<div class="al-topbar">${button('home','‹ 知识导图','','al-back al-button-quiet')}${practice(model)}</div><header class="al-header"><h1 tabindex="-1">${esc(current.title)}</h1>${search(model,current)}</header>${query ? searchResults(model,current) : `<nav class="al-chapter-map" aria-label="${esc(current.title)}章节导图"><span class="al-chapter-root">${esc(current.title)}</span><ul>${(current.courseChapters?.length ? current.courseChapters : current.chapters || []).map(chapter => `<li>${button('jump-chapter',esc(chapter.title),`data-id="${esc(chapter.id)}"`,'al-chapter-node')}</li>`).join('')}</ul></nav>${directory(model,current,'topic')}`}`;
     }
 
+    const paragraphs = values => values.map(value=>`<p>${esc(value)}</p>`).join('');
+    function knowledgeLinks(model, selected) {
+        const course = selected.course;
+        const group = (label,links) => {
+            const seen = new Set();
+            const items = links.map(link=>{
+                const target = lessonById(model,link.id);
+                if (!target || target.id===selected.id || seen.has(target.id)) return '';
+                seen.add(target.id);
+                return `<li>${lessonLink(model,target)}<p>${esc(link.why)}</p></li>`;
+            }).join('');
+            return items ? `<section><h3>${label}</h3><ul>${items}</ul></section>` : '';
+        };
+        return `<details class="al-knowledge-links" data-detail-key="knowledge-${esc(selected.id)}"><summary>知识联系</summary>${group('前置知识',course.prerequisites)}${group('关联知识',course.related)}</details>`;
+    }
+    function questions(items,prefix) {
+        return items.map((item,i)=>`<details class="al-question" data-detail-key="${esc(prefix+'-'+i)}"><summary>${esc(item.question)}</summary><p>${esc(item.answer)}</p></details>`).join('');
+    }
+    function courseBody(model, selected) {
+        const course=selected.course, example=course.example;
+        const references=(selected.readingIds||[]).map(id=>lessonById(model,id)).filter(Boolean);
+        return `<div class="al-content al-course-content"><p>${esc(course.intro)}</p>${knowledgeLinks(model,selected)}${paragraphs(course.explanation)}<h2>过程</h2><ol class="al-course-flow">${course.flow.map(step=>`<li><strong>${esc(step.title)}</strong><p>${esc(step.text)}</p></li>`).join('')}</ol><h2>代码与结果</h2><pre><code>${esc(example.code)}</code></pre><div class="al-example-result"><h3>观察结果</h3><p>${esc(example.output)}</p></div><p>${esc(example.explanation)}</p><h2>容易混淆的地方</h2><ul>${course.boundaries.map(item=>`<li>${esc(item)}</li>`).join('')}</ul><h2>面试怎么讲</h2><p>${esc(course.answer)}</p><div class="al-followups">${questions(course.followUps,'followup-'+selected.id)}</div></div>${references.length ? `<details class="al-reading-links" data-detail-key="readings-${esc(selected.id)}"><summary>小林原文</summary><ul>${references.map(item=>`<li>${item.kind==='lesson' ? button('read-xiaolin',esc(item.title),`data-id="${esc(item.id)}"`,'al-lesson-link') : safeLink(item.source,item.title)}</li>`).join('')}</ul></details>` : ''}<details class="al-course-sources" data-detail-key="sources-${esc(selected.id)}"><summary>参考文档</summary>${course.sources.map(source=>safeLink(source.url,source.title)).join('')}</details>`;
+    }
+    function recall(model, selected) {
+        const course=selected.course;
+        return `<div class="al-recall">${course ? `<h2>试着讲清楚</h2>${questions(course.checks,'check-'+selected.id)}<h2>继续追问</h2>${questions(course.followUps,'recall-'+selected.id)}` : ''}${button('panel','查看讲解','data-panel="read"','al-button-quiet')}</div>`;
+    }
+
+    function conceptBody(model, node) {
+        if (!node) return '';
+        const relatedIds = [...new Set([...(node.prerequisites || []),...(node.related || [])])];
+        const related = relatedIds.map(id => lessonById(model,id)).filter(lesson => lesson && lesson.id !== node.id);
+        const text = node.explanation || node.summary || '';
+        return `<div class="al-concept-body">${String(text).split(/\n\s*\n/).filter(Boolean).map(paragraph => `<p>${esc(paragraph)}</p>`).join('')}${node.example ? `<h2>示例</h2><pre><code>${esc(node.example)}</code></pre>` : ''}${node.pitfall ? `<h2>易错点</h2><p>${esc(node.pitfall)}</p>` : ''}${related.length ? `<div class="al-related"><h2>相关知识</h2>${related.map(lesson => lessonLink(model,lesson)).join('')}</div>` : ''}${node.sources?.some(source => /^https:\/\//i.test(source.url)) ? `<div class="al-sources">${node.sources.map(source => safeLink(source.url,source.title || '参考资料')).join('')}</div>` : ''}</div>`;
+    }
+
+    function content(model, lesson) {
+        if (lesson.sourceType === 'course') return courseBody(model,lesson);
+        if (lesson.sourceType === 'concept') {
+            const readings = (lesson.readingIds || []).map(id => lessonById(model,id)).filter(item => item?.sourceType === 'xiaolin');
+            const courses=(lesson.courseIds||[]).map(id=>lessonById(model,id)).filter(Boolean);
+            return `${courses.length ? `<div class="al-course-return">${courses.map(item=>lessonLink(model,item)).join('')}</div>` : ''}<div class="al-content">${conceptBody(model,lesson.concept || get(model.index?.byId,lesson.id))}</div>${readings.length ? `<section class="al-related al-reading-links"><h2>相关讲解</h2>${readings.map(item => lessonLink(model,item)).join('')}</section>` : ''}`;
+        }
+        if (model.contentStatus === 'error') return `<div class="al-content-error" role="alert"><p>内容未能加载。</p>${button('retry','重试')}</div>`;
+        if (!model.content || model.contentStatus === 'loading') return '<div class="al-content-loading" role="status">正在加载…</div>';
+        const supplements = (lesson.conceptIds || []).map(id => lessonById(model,id)?.concept || get(model.index?.byId,id)).filter(Boolean);
+        const courses=(lesson.courseIds||[]).map(id=>lessonById(model,id)).filter(Boolean);
+        return `${courses.length ? `<div class="al-course-return">${courses.map(item=>lessonLink(model,item)).join('')}</div>` : ''}<div class="al-content">${model.content.html || ''}</div>${supplements.length ? `<details class="al-supplement" data-detail-key="supplement-${esc(lesson.id)}"><summary>理解补充</summary>${supplements.map(node => `<section><h2>${esc(node.title)}</h2>${conceptBody(model,node)}</section>`).join('')}</details>` : ''}`;
+    }
+
+    function routeSequence(model) {
+        const route = (model.routes || []).find(item => item.id === model.routeId);
+        return route ? [...new Set((route.steps || []).map(step => step.id))].map(id => lessonById(model,id)).filter(Boolean) : null;
+    }
+
+    function currentRoute(model, selected) {
+        const route = (model.routes || []).find(item => item.id === model.routeId);
+        if (!route || !(route.steps || []).some(step => step.id === selected.id)) return '';
+        return `<details class="al-current-route" data-detail-key="route-${esc(route.id)}"><summary>${esc(route.title)}</summary><ol class="al-route-steps">${(route.steps || []).map(step => {
+            const item = lessonById(model,step.id);
+            if (!item) return '';
+            const active = item.id === selected.id;
+            return `<li>${button('route-step',esc(step.label || item.title),`data-route="${esc(route.id)}" data-id="${esc(item.id)}"${active ? ' aria-current="step"' : ''}`,`al-route-step${active ? ' is-current' : ''}`)}</li>`;
+        }).join('')}</ol></details>`;
+    }
+
+    function lessonNavigation(model, lesson, current) {
+        const routed = routeSequence(model);
+        const sequence = routed?.some(item => item.id === lesson.id) ? routed : lesson.sourceType==='course' ? current.courseLessonIds.map(id=>lessonById(model,id)) : topicLessons(model,current);
+        const position = sequence.findIndex(item => item.id === lesson.id);
+        if (position < 0) return '';
+        const previous = sequence[position - 1], next = sequence[position + 1];
+        const nav = (item,label) => button(routed === sequence ? 'route-step' : 'lesson-jump',`<span>${label}</span><strong>${esc(item.title)}</strong>`,`data-id="${esc(item.id)}"${routed === sequence ? ` data-route="${esc(model.routeId)}"` : ''}`);
+        return `<nav class="al-lesson-nav" aria-label="阅读翻页">${previous ? nav(previous,'上一节') : '<span></span>'}${next ? nav(next,'下一节') : button('lesson-topic','返回目录',`data-id="${esc(current.id)}"`)}</nav>`;
+    }
+
+    function learningState(model, lesson) {
+        const entry = lesson.sourceType === 'xiaolin' ? sourceEntry(model,lesson) : conceptEntry(model,lesson);
+        const status = statuses[entry.status] ? entry.status : 'new';
+        return `<section class="al-learning-state"><div class="al-study-state" role="group" aria-label="学习状态">${lesson.sourceType === 'xiaolin' ? button('reading-state',entry.done ? '✓ 已读懂' : '标记读懂',`aria-pressed="${!!entry.done}"`) : Object.entries(statuses).map(([value,label]) => button('lesson-state',label,`data-status="${value}" aria-pressed="${status === value}"`)).join('')}</div><span class="al-save" data-learning-save role="status">${esc(model.saveLabel || '')}</span></section>`;
+    }
+
+    function lesson(model, selected) {
+        const current = topicById(model,selected.topicId);
+        if (!current) return home(model);
+        const source = selected.sourceType === 'xiaolin' ? selected.source || model.content?.source : '';
+        return `<div class="al-topbar">${button('lesson-topic',`‹ ${esc(current.title)}`,`data-id="${esc(current.id)}"`,'al-back al-button-quiet')}<div class="al-topbar-actions">${practice(model)}${button(model.focused ? 'focus-exit' : 'focus',model.focused ? '退出专注' : '专注阅读',model.focused ? 'data-learning-focus-initial' : '', 'al-focus-toggle')}</div></div><div class="al-lesson-layout"><aside class="al-sidebar">${directory(model,current,'sidebar')}</aside><article class="al-article"><details class="al-mobile-directory" data-detail-key="mobile-directory-${esc(current.id)}"><summary>目录</summary>${directory(model,current,'mobile')}</details>${currentRoute(model,selected)}<header class="al-lesson-header"><h1 tabindex="-1">${esc(selected.title)}</h1><div class="al-lesson-tools"><div class="al-switch" role="group" aria-label="学习方式">${[['read','学习'],['recall','复述']].map(([panel,label]) => button('panel',label,`data-panel="${panel}" aria-pressed="${(model.panel || 'read') === panel}"`)).join('')}</div>${safeLink(source,'原文','al-source-link')}</div></header>${model.panel === 'recall' ? recall(model,selected) : content(model,selected)}${learningState(model,selected)}${lessonNavigation(model,selected,current)}</article></div>`;
+    }
+
+    // Kept for integrations that render concept-to-Xiaolin links independently.
     function readings(reading) {
         const sections = reading?.sections || [], branches = reading?.branches || [];
         if (!sections.length && !branches.length) return '';
-        const row = item => button('read-xiaolin', `<span class="il-reading-status${item.done ? ' is-done' : ''}" aria-label="${item.done ? '已读懂' : '未标记读懂'}">${item.done ? '✓' : '○'}</span><span class="il-row-copy"><strong>${esc(item.title)}</strong><small>${esc(item.topicTitle)} · ${esc(item.chapterTitle)}</small></span><span aria-hidden="true">↗</span>`, `data-id="${esc(item.id)}"`, 'il-reading-row');
-        const total = sections.length ? Number(reading.total) || sections.length : Number(reading.branchTotal) || 0;
-        const done = Number(sections.length ? reading.done : reading.branchDone) || 0;
-        const branchRows = !sections.length ? branches.map(item => button('lesson-jump', `<span class="il-row-copy"><strong>${esc(item.title)}</strong><small>小林讲解 · ${Number(item.done) || 0} / ${Number(item.total) || 0} 已读懂</small></span><span aria-hidden="true">查看 →</span>`, `data-id="${esc(item.id)}"`, 'il-reading-row')).join('') : '';
-        return `<section class="il-section il-readings" aria-label="小林深入阅读"><div class="il-section-heading"><h2>小林原文 · 深入理解</h2><span>${done} / ${total} 已读懂</span></div>${sections.slice(0, 3).map(row).join('')}${sections.length > 3 ? `<details class="il-details il-reading-more"><summary>其余 ${sections.length - 3} 篇讲解</summary>${sections.slice(3).map(row).join('')}</details>` : ''}${branchRows}</section>`;
-    }
-
-    function lessonNavigation(model, node, topicNode) {
-        if (!topicNode) return '';
-        const main = essentials(model, topicNode.id);
-        const sequence = main.some(item => item.id === node.id) ? main : descendants(model, topicNode.id);
-        const position = sequence.findIndex(item => item.id === node.id);
-        if (position < 0) return '';
-        const previous = sequence[position - 1], next = sequence[position + 1];
-        return `<nav class="il-lesson-nav" aria-label="知识点导航">${previous ? button('lesson-jump', `<small>上一问</small><strong>${esc(previous.title)}</strong>`, `data-id="${esc(previous.id)}"`) : '<span></span>'}<span class="il-lesson-position">${position + 1} / ${sequence.length}</span>${next ? button('lesson-jump', `<small>下一问 →</small><strong>${esc(next.title)}</strong>`, `data-id="${esc(next.id)}"`) : button('lesson-topic', '<small>这组看完了</small><strong>回到专题 →</strong>', `data-id="${esc(topicNode.id)}"`)}</nav>`;
-    }
-
-    function lesson(model, node) {
-        const topicNode = topicFor(model, node), path = getPath(model, topicNode?.id), card = model.paths?.concepts?.[node.id], entry = entryFor(model, node.id);
-        const answer = card?.answer?.length ? card.answer : [...new Set([node.summary, node.explanation].filter(Boolean))];
-        const related = [...new Set([...(node.prerequisites || []), ...(node.related || [])])].map(id => getNode(model, id)).filter(item => item && item.id !== node.id && item.id !== 'java-root' && item.parentId !== 'java-root').slice(0, 4);
-        const sources = (node.sources || []).filter(source => /^https:\/\//i.test(source.url));
-        return `<div class="il-topbar">${topicNode ? button('lesson-topic', `‹ ${esc(path?.title || topicNode.title)}`, `data-id="${esc(topicNode.id)}"`, 'il-back il-button-quiet') : button('home','‹ 全部专题','','il-back il-button-quiet')}${button(model.focused ? 'focus-exit' : 'focus', model.focused ? '退出专注' : '专注阅读', '', 'il-focus-toggle')}</div>
-            <header class="il-heading il-lesson-heading"><p class="il-eyebrow">${card ? '面试核心问题' : '补充知识'}</p><h1 tabindex="-1">${esc(node.title)}</h1>${saveStatus(model)}${readingShortcut(model.reading)}</header>
-            <section class="il-question" aria-label="面试问法"><h2>面试怎么问</h2><p>${esc(card?.question || `怎样解释${node.title}？`)}</p></section>
-            <details class="il-answer" open><summary>回答要点<span>合上后，试着自己讲一遍</span></summary><ol>${answer.map(point => `<li>${esc(point)}</li>`).join('')}</ol></details>
-            ${card?.followUps?.length ? `<section class="il-section il-followups"><div class="il-section-heading"><h2>接着可能会追问</h2></div>${card.followUps.map(item => `<details class="il-details"><summary>${esc(item.question)}</summary><p>${esc(item.answer)}</p></details>`).join('')}</section>` : ''}
-            ${readings(model.reading)}
-            <details class="il-details il-understanding"><summary>理解原理与示例<span>把答案讲明白</span></summary><div class="il-detail-body"><p>${esc(node.explanation || node.summary)}</p>${node.example ? `<h3>结合代码看</h3><pre class="il-example"><code>${esc(node.example)}</code></pre>` : ''}${node.pitfall ? `<aside class="il-pitfall"><h3>别在这里答错</h3><p>${esc(node.pitfall)}</p></aside>` : ''}${related.length ? `<div class="il-related"><h3>联系起来理解</h3>${related.map(item => button('lesson-jump', esc(item.title), `data-id="${esc(item.id)}"`, 'il-button-quiet')).join('')}</div>` : ''}${sources.length ? `<div class="il-sources"><h3>官方参考</h3>${sources.map(source => `<a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer">${esc(source.title)} ↗</a>`).join('')}</div>` : ''}</div></details>
-            ${practice(model)}
-            <section class="il-section il-notes"><div class="il-section-heading"><h2>用自己的话讲一遍</h2><span>自动保存</span></div><label for="mindmapLearningNote" class="il-sr">这个知识点的面试回答和笔记</label><textarea id="mindmapLearningNote" rows="3" maxlength="10000" placeholder="写下你的回答，或者还容易卡住的地方…">${esc(entry.note || '')}</textarea></section>
-            <section class="il-section il-mastery"><h2>现在能讲清楚吗？</h2><div class="il-states" role="group" aria-label="这个知识点的掌握状态">${Object.entries(statuses).map(([value, label]) => button('lesson-state', label, `data-status="${value}" aria-pressed="${entry.status === value}"`)).join('')}</div></section>
-            ${lessonNavigation(model, node, topicNode)}`;
+        const row = item => button('read-xiaolin',`${item.done ? '<span aria-label="已读懂">✓</span>' : ''}${esc(item.title)}`,`data-id="${esc(item.id)}"`,'al-reading-link');
+        return `<section class="al-readings"><h2>小林讲解</h2><span>${Number(sections.length ? reading.done : reading.branchDone) || 0} / ${Number(sections.length ? reading.total : reading.branchTotal) || sections.length} 已读懂</span>${sections.slice(0,3).map(row).join('')}${sections.length > 3 ? `<details data-detail-key="readings-${esc(sections.map(item => item.id).join('|'))}"><summary>其余 ${sections.length - 3} 篇</summary>${sections.slice(3).map(row).join('')}</details>` : ''}${!sections.length ? branches.map(item => button('lesson-jump',esc(item.title),`data-id="${esc(item.id)}"`,'al-reading-link')).join('') : ''}</section>`;
     }
 
     function render(model) {
-        const error = model.loadError ? `<div class="il-error" role="alert"><strong>学习记录暂时无法读取</strong><p>${esc(model.loadError?.message || model.loadError)}</p><p>请先备份原始记录，再恢复数据。</p></div>` : '';
-        const selected = getNode(model, model.selectedId), topicNode = getNode(model, model.topicId);
-        if (model.screen === 'lesson' && selected && selected.id !== 'java-root') return error + lesson(model, selected);
-        if (model.screen === 'topic' && topicNode && topicNode.parentId === 'java-root') return error + topic(model, topicNode);
-        return error + home(model);
+        const selected = lessonById(model,model.selectedId), current = topicById(model,model.topicId);
+        const screen = model.screen === 'lesson' && selected ? 'lesson' : model.screen === 'topic' && current ? 'topic' : 'home';
+        const error = model.loadError ? `<div class="al-error" role="alert"><strong>学习记录暂时无法读取</strong><p>${esc(model.loadError.message || model.loadError)}</p></div>` : '';
+        return error + (screen === 'lesson' ? lesson(model,selected) : screen === 'topic' ? topic(model,current) : home(model));
     }
 
-    return {render, readings};
+    return {render,readings};
 });

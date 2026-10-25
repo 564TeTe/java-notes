@@ -422,8 +422,8 @@ renderNotes = function(filtered) {
     }
     if (mindmap) {
         document.body.classList.remove('resume-mode', 'recruitment-mode', 'interview-mode');
-        document.getElementById('mainTitle').textContent = 'Java 面试学习';
-        document.getElementById('topbarTitle').textContent = 'Java 面试学习';
+        document.getElementById('mainTitle').textContent = 'Java 学习';
+        document.getElementById('topbarTitle').textContent = 'Java 学习';
         document.getElementById('mainSubtitle').textContent = '';
         document.querySelector('.main-header .stats').style.display = 'none';
         document.getElementById('notesContainer').innerHTML = typeof renderMindMap === 'function' ? renderMindMap() : '';
