@@ -87,7 +87,7 @@ test('legacy category and mobile actions leave mindmaps instead of trapping navi
 test('mindmap renders and mounts after markup, clears the study TOC and selects mobile More', () => {
     const { run, elements, links, context } = setup();
     run('navigateWorkspace("mindmap"); renderNotes([]); renderTOC([]); renderWorkspaceShell();');
-    assert.equal(elements.get('mainTitle').textContent, '思维导图');
+    assert.equal(elements.get('mainTitle').textContent, 'Java 面试学习');
     assert.match(elements.get('notesContainer').innerHTML, /mindmap-root/);
     assert.equal(run('mountCount'), 1);
     assert.equal(elements.get('tocList').innerHTML, '');
@@ -177,7 +177,7 @@ test('desktop and mobile navigation expose mindmaps and all new assets load befo
     let header;
     context.document.body.prepend = value => { header = value; };
     run('initWorkspaceShell();');
-    assert.match(header.innerHTML, /data-workspace-link="mindmap">思维导图/);
+    assert.match(header.innerHTML, /data-workspace-link="mindmap">Java 学习/);
     assert.match(elements.get('.more-grid').innerHTML, /data-workspace-link="mindmap"/);
     const styles = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(match => match[1]);
     assert.match(styles.at(-2), /mindmap\.css/);

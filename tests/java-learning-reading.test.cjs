@@ -31,7 +31,7 @@ test('view shows reading evidence separately, escapes source titles, and hides e
  const view=ctx.JavaLearningView.readings;
  const sections=Array.from({length:5},(_,i)=>({id:'s'+i,title:i===0?'<b>标题</b>':'标题'+i,topicTitle:'集合',chapterTitle:'Map',done:i===0}));
  const html=view({sections,total:5,done:1,branchTotal:5,branchDone:1,branches:[]});
- assert.match(html,/已读懂 1 \/ 5/);assert.match(html,/其余 2 篇/);
+ assert.match(html,/1 \/ 5 已读懂/);assert.match(html,/其余 2 篇/);
  assert.doesNotMatch(html,/<b>标题/);assert.match(html,/data-mm-action="read-xiaolin"/);
  assert.equal(view({sections:[],total:0,branches:[],branchTotal:0,branchDone:0}), '');
 });

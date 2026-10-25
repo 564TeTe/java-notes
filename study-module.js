@@ -181,12 +181,21 @@ function clearStudyFilters() {
     document.getElementById('searchInput').value = '';
     document.getElementById('mobileSearchInput').value = '';
 }
-function openStudy(source) {
+function openStudy(source, category = 'all') {
     resetStudyModes(); studySource = ['personal', 'memorized'].includes(source) ? source : 'bank';
-    clearStudyFilters(); buildCategoryBtns(); renderAll();
+    clearStudyFilters(); activeCategory = category; buildCategoryBtns(); renderAll();
     document.querySelector('.sidebar').classList.remove('drawer-open');
     document.getElementById('drawerOverlay').classList.remove('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function openStudyCategory(category) {
+    if (category === null) { openStudy('bank'); return true; }
+    if (typeof category !== 'string' || !category) return false;
+    const records = getBankStudyRecords().filter(note => note.category === category);
+    if (!records.length) return false;
+    const source = records.some(note => !memorizedIds.has(note.id)) ? 'bank' : 'memorized';
+    openStudy(source, category);
+    return true;
 }
 function studyOptions(values, selected) {
     return values.map(([value, label]) => `<option value="${studyEsc(value)}"${selected === value ? ' selected' : ''}>${studyEsc(label)}</option>`).join('');
@@ -413,8 +422,8 @@ renderNotes = function(filtered) {
     }
     if (mindmap) {
         document.body.classList.remove('resume-mode', 'recruitment-mode', 'interview-mode');
-        document.getElementById('mainTitle').textContent = '思维导图';
-        document.getElementById('topbarTitle').textContent = '思维导图';
+        document.getElementById('mainTitle').textContent = 'Java 面试学习';
+        document.getElementById('topbarTitle').textContent = 'Java 面试学习';
         document.getElementById('mainSubtitle').textContent = '';
         document.querySelector('.main-header .stats').style.display = 'none';
         document.getElementById('notesContainer').innerHTML = typeof renderMindMap === 'function' ? renderMindMap() : '';

@@ -1,4 +1,4 @@
-const CACHE_NAME = "java-notes-v81";
+const CACHE_NAME = "java-notes-v82";
 const APP_SHELL = [
     "./learning-focus.js", "./learning-focus.css",
     "./assets/themes/xiaolin/panel-01.png",
@@ -33,7 +33,7 @@ const APP_SHELL = [
     "./workspace-tatsumaki.css", "./workspace-tatsumaki.js",
     "./annotation-data.js", "./annotation-core.js", "./annotation.js", "./annotation.css",
     "./data/java-learning-language.js", "./data/java-learning-runtime.js",
-    "./java-learning-core.js", "./java-learning-view.js",
+    "./java-learning-core.js", "./java-learning-view.js", "./data/java-interview-paths.js",
     "./java-learning-reading.js", "./data/java-learning-xiaolin.js",
     "./mindmap-core.js", "./mindmap-module.js", "./mindmap.css",
     "./glossary-data.js", "./glossary-core.js", "./glossary.js", "./glossary.css", "./glossary-highlighter.js", "./glossary-highlighter.css",

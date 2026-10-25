@@ -35,6 +35,98 @@ function setup({ archivedEdition = false, priorityCuration = false, glossary = f
     return { run, store, scrolls };
 }
 
+test('opening a learning category clears stale filters and shows only its available bank questions', () => {
+    const { run, scrolls } = setup();
+    run(`loadState();
+        const categoryQuestions = getBankStudyRecords().filter(n => n.category === 'Java 集合');
+        deletedIds.add(categoryQuestions[0].id); purgedIds.add(categoryQuestions[1].id);
+        memorizedIds.add(categoryQuestions[2].id); mastery[categoryQuestions[3].id] = {level:'known'};
+        markedIds.add(categoryQuestions[3].id);
+        const beforeCategoryJump = JSON.stringify({...getStateSnapshot(),updatedAt:null});
+        const searchFields = {searchInput:{value:'not a matching question'},mobileSearchInput:{value:'stale mobile search'}};
+        const originalGetElementById = document.getElementById;
+        document.getElementById = id => searchFields[id] || originalGetElementById(id);
+        showMindMap = showMarkedOnly = showTrash = true; studySource = 'personal';
+        activeCategory = 'Redis'; studyPriority = 'P2'; studyLevel = 'hard'; studyPage = 8;
+        studyLinkedIds = [categoryQuestions[0].id]; studyLinkedTitle = 'old concept'; activeNoteId = categoryQuestions[0].id;`);
+    assert.equal(run('openStudyCategory("Java 集合")'), true);
+    assert.equal(run('studySource'), 'bank');
+    assert.equal(run('activeCategory'), 'Java 集合');
+    assert.equal(run('studyPage'), 1);
+    assert.equal(run('studyPriority'), 'all');
+    assert.equal(run('studyLevel'), 'all');
+    assert.equal(run('studyLinkedIds'), null);
+    assert.equal(run('studyLinkedTitle'), '');
+    assert.equal(run('activeNoteId'), null);
+    assert.equal(run('showMindMap || showMarkedOnly || showTrash'), false);
+    assert.equal(run('searchFields.searchInput.value'), '');
+    assert.equal(run('searchFields.mobileSearchInput.value'), '');
+    assert.ok(run('getFilteredNotes().length > 0 && getFilteredNotes().every(n => n.category === "Java 集合")'));
+    assert.ok(run('getFilteredNotes().every(n => !deletedIds.has(n.id) && !purgedIds.has(n.id) && !memorizedIds.has(n.id))'));
+    assert.equal(run('JSON.stringify({...getStateSnapshot(),updatedAt:null})'), run('beforeCategoryJump'));
+    assert.equal(scrolls.at(-1), 0);
+});
+
+test('a category whose available questions are all memorized opens that category in the memorized area', () => {
+    const { run } = setup();
+    run(`loadState();
+        const categoryQuestions = getBankStudyRecords().filter(n => n.category === 'Java 集合');
+        categoryQuestions.forEach(n => memorizedIds.add(n.id));
+        deletedIds.add(categoryQuestions[0].id); purgedIds.add(categoryQuestions[1].id);
+        const beforeCategoryJump = JSON.stringify({...getStateSnapshot(),updatedAt:null});
+        showMindMap = true;`);
+    assert.equal(run('openStudyCategory("Java 集合")'), true);
+    assert.equal(run('studySource'), 'memorized');
+    assert.equal(run('activeCategory'), 'Java 集合');
+    assert.equal(run('getFilteredNotes().length'), run('categoryQuestions.length - 2'));
+    assert.ok(run('getFilteredNotes().every(n => n.category === "Java 集合" && memorizedIds.has(n.id))'));
+    assert.equal(run('JSON.stringify({...getStateSnapshot(),updatedAt:null})'), run('beforeCategoryJump'));
+});
+
+test('a missing or fully excluded category leaves the current page and filters untouched', () => {
+    const { run, scrolls } = setup();
+    run(`loadState();
+        getBankStudyRecords().filter(n => n.category === 'Java 集合').forEach(n => deletedIds.add(n.id));
+        showMindMap = true; activeCategory = 'Redis'; studyPriority = 'P0'; studyLevel = 'weak'; studyPage = 3;
+        studyLinkedIds = ['kept-id']; studyLinkedTitle = 'kept title';
+        document.getElementById('searchInput').value = 'kept query';
+        let categoryRenders = 0; renderAll = () => {categoryRenders++;};`);
+    for (const value of ['"Java 集合"', '"missing category"', '""', 'undefined', '{}']) {
+        assert.equal(run(`openStudyCategory(${value})`), false);
+    }
+    assert.equal(run('showMindMap'), true);
+    assert.equal(run('activeCategory'), 'Redis');
+    assert.equal(run('studyPriority'), 'P0');
+    assert.equal(run('studyLevel'), 'weak');
+    assert.equal(run('studyPage'), 3);
+    assert.equal(run('JSON.stringify(studyLinkedIds)'), '["kept-id"]');
+    assert.equal(run('studyLinkedTitle'), 'kept title');
+    assert.equal(run('document.getElementById("searchInput").value'), 'kept query');
+    assert.equal(run('categoryRenders'), 0);
+    assert.equal(scrolls.length, 0);
+});
+
+test('null category explicitly opens the full bank even when all available questions are memorized', () => {
+    const { run } = setup();
+    run('loadState(); getBankStudyRecords().forEach(n => memorizedIds.add(n.id)); showMindMap = true; activeCategory = "Redis"; studyPriority = "P0"; studyLinkedIds = [BANK[0].id];');
+    assert.equal(run('openStudyCategory(null)'), true);
+    assert.equal(run('showMindMap'), false);
+    assert.equal(run('studySource'), 'bank');
+    assert.equal(run('activeCategory'), 'all');
+    assert.equal(run('studyPriority'), 'all');
+    assert.equal(run('studyLinkedIds'), null);
+});
+
+test('the learning workspace title describes Java interview learning', () => {
+    const { run } = setup();
+    run(`const headingElements = {mainTitle:{},topbarTitle:{}};
+        const originalGetElementById = document.getElementById;
+        document.getElementById = id => headingElements[id] || originalGetElementById(id);
+        document.body = {classList:{toggle(){},remove(){}}}; showMindMap = true; renderNotes([]);`);
+    assert.equal(run('headingElements.mainTitle.textContent'), 'Java 面试学习');
+    assert.equal(run('headingElements.topbarTitle.textContent'), 'Java 面试学习');
+});
+
 test('annotation round trips preserve bank filters, pagination, scroll and all learning records', () => {
     const {run} = setup({annotations:true});
     run('loadState(); activeCategory="Java 集合"; studyPage=2; studyPriority="P0"; studyLevel="weak"; window.scrollY=480; markedIds.add(BANK[0].id); mastery[BANK[0].id]={level:"hard"}; const before=getStateSnapshot(); navigateWorkspace("annotations");');

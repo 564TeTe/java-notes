@@ -3,193 +3,285 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
-function setup(saved, phone=false) {
-    const store=new Map(saved ? [['java-notes-mindmaps-v1',JSON.stringify(saved)]] : []);
-    const handlers={};
-    const context=vm.createContext({console,URL,crypto:require('node:crypto').webcrypto,setTimeout,clearTimeout,
-        localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)},
-        document:{addEventListener:(name,fn,options)=>{if(!options)handlers[name]=fn;},getElementById:()=>null,querySelector:()=>null,querySelectorAll:()=>[]},
-        getBankStudyRecords:()=>[],mastery:{},memorizedIds:new Set(),markLocalUpdated(){},addEventListener(){},confirm:()=>true,matchMedia:()=>({matches:phone})});
+const SNAPSHOT_KEY='java-notes-mindmaps-v1', VIEW_KEY='java-notes-learning-view-v1';
+
+function setup(saved, {phone=false, storage=[], questions=[]}={}) {
+    const store=new Map(storage);
+    if(saved)store.set(SNAPSHOT_KEY,JSON.stringify(saved));
+    const handlers={},captured={},lifecycle={},timers=new Map(),toasts=[],practices=[],scrolls=[];
+    let nextTimer=0,storageFails=false;
+    const context=vm.createContext({console,URL,crypto:require('node:crypto').webcrypto,
+        setTimeout:fn=>{timers.set(++nextTimer,fn);return nextTimer;},clearTimeout:id=>timers.delete(id),
+        localStorage:{getItem:k=>store.get(k)??null,setItem:(k,v)=>{if(storageFails)throw Error('QuotaExceededError');store.set(k,String(v));},removeItem:k=>store.delete(k)},
+        document:{addEventListener:(name,fn,options)=>{(options?captured:handlers)[name]=fn;},getElementById:()=>null,querySelector:()=>null,querySelectorAll:()=>[]},
+        getBankStudyRecords:()=>questions,mastery:{},memorizedIds:new Set(),markLocalUpdated(){},toast:message=>toasts.push(message),
+        addEventListener:(name,fn)=>{lifecycle[name]=fn;},matchMedia:()=>({matches:phone}),
+        requestAnimationFrame:fn=>fn(),scrollTo:value=>scrolls.push(value),
+        openStudyCategory:category=>{practices.push(category);return true;}});
     context.window=context;
     const run=code=>vm.runInContext(code,context);
-    for(const file of ['mindmap-core.js','data/java-learning-language.js','data/java-learning-runtime.js','java-learning-core.js','java-learning-view.js','mindmap-module.js']) run(fs.readFileSync(path.join(__dirname,'..',file),'utf8'));
+    for(const file of ['mindmap-core.js','data/java-learning-language.js','data/java-learning-runtime.js','data/java-interview-paths.js','java-learning-core.js','java-learning-view.js','mindmap-module.js'])run(fs.readFileSync(path.join(__dirname,'..',file),'utf8'));
     const click=(action,dataset={})=>{
         const control={dataset:{mmAction:action,...dataset}};
         handlers.click({target:{closest:selector=>selector==='[data-mm-action]'?control:selector==='.mindmap-view'?{}:null}});
     };
-    return {store,run,click,handlers,context};
+    const input=(value,id='mindmapLearningNote',isComposing=false)=>{
+        const target={id,value};handlers.input({target,isComposing});return target;
+    };
+    return {store,run,click,input,handlers,captured,lifecycle,context,toasts,practices,scrolls,
+        failSaves:value=>{storageFails=value;}, flushTimers:()=>{const pending=[...timers.values()];timers.clear();pending.forEach(fn=>fn());}};
 }
-test('Java learning is the default and works with an entirely empty question bank',()=>{
-    const app=setup();
-    const html=app.run('renderMindMap()');
-    assert.match(html,/Java 学习/); assert.match(html,/题库导航/); assert.match(html,/我的导图/);
-    assert.equal(app.run('getMindMapSnapshot().activeMapId'),'java-learning');
-    const index=app.run('JavaLearningCore.createIndex(JAVA_LEARNING_PARTS)');
-    assert.ok(index.nodes.length>100);
-});
-test('upgrading preserves existing personal maps and makes course content independent',()=>{
-    const core=require('../mindmap-core.js'), map=core.createMap('我的旧导图');
-    const app=setup({version:1,activeMapId:map.id,maps:[map]});
-    app.run('renderMindMap()');
-    assert.equal(app.run('getMindMapSnapshot().maps[0].title'),'我的旧导图');
-    assert.equal(app.run('getMindMapSnapshot().activeMapId'),'java-learning');
-    app.click('knowledge');
-    assert.equal(app.run('getMindMapSnapshot().activeMapId'),'knowledge');
-    app.click('learning');
-    assert.equal(app.run('getMindMapSnapshot().activeMapId'),'java-learning');
-});
-test('course progress is independent from question mastery and survives backup round trips',()=>{
-    const app=setup();
-    app.run('renderMindMap()');
-    app.click('lesson-state',{status:'mastered'});
-    assert.equal(app.run('getMindMapSnapshot().learning.entries["java-root"].status'),'mastered');
-    assert.equal(app.run('Object.keys(mastery).length'),0);
-    const saved=JSON.parse(app.store.get('java-notes-mindmaps-v1'));
-    const restored=setup(saved);
-    assert.equal(restored.run('getMindMapSnapshot().learning.entries["java-root"].status'),'mastered');
-    restored.run('applyMindMapSnapshot({version:1,activeMapId:"knowledge",maps:[]})');
-    assert.equal(restored.run('getMindMapSnapshot().learning.entries["java-root"].status'),'mastered','legacy map backups preserve course progress');
-});
-test('learning inspector teaches the concept before showing practice questions and escapes notes',()=>{
-    const app=setup();
-    const html=app.run(`const idx=JavaLearningCore.createIndex(JAVA_LEARNING_PARTS); const n=idx.nodes.find(n=>n.id==='collections-hashmap'); JavaLearningView.inspector({node:n,index:idx,entry:{status:'new',note:'<img src=x onerror=alert(1)>'},questions:[],hasChildren:true});`);
-    assert.match(html,/理解原理/);assert.match(html,/示例/);assert.match(html,/易错点/);assert.match(html,/官方资料/);
-    assert.doesNotMatch(html,/<img src=x/);
-    assert.doesNotMatch(html,/练习巩固/,'empty practice does not interrupt the lesson');
-});
+const html=app=>app.run('renderMindMap()');
+const savedEntry=(app,id)=>JSON.parse(app.store.get(SNAPSHOT_KEY)).learning.entries[id];
+function openHashMap(app){html(app);app.click('lesson-topic',{id:'collections'});app.click('lesson-jump',{id:'collections-hashmap'});}
 
-test('concept notes flush before switching mode and copied branches carry explanations',()=>{
-    const app=setup(); app.run('renderMindMap()');
-    app.click('lesson-topic',{id:'collections'}); app.run('renderMindMap()');
-    app.handlers.input({target:{id:'mindmapLearningNote',value:'先理解接口，再比较实现'},isComposing:false});
-    app.click('knowledge');
-    assert.equal(app.run('getMindMapSnapshot().learning.entries.collections.note'),'先理解接口，再比较实现');
-    app.click('learning'); app.run('renderMindMap()');
-    app.click('copy-branch');
-    assert.match(app.run('getMindMapSnapshot().maps[0].nodes[0].note'),/先理解接口，再比较实现/);
-    assert.match(app.run('getMindMapSnapshot().maps[0].nodes[0].note'),/知识讲解/);
-    assert.ok(app.run('getMindMapSnapshot().maps[0].nodes.length')>10);
-    assert.equal(app.run('getMindMapSnapshot().maps[0].nodes.some(n=>n.questionId!==null)'),false);
-});
-
-test('an unknown saved topic falls back to the overview while preserving unknown notes',()=>{
-    const app=setup({version:1,activeMapId:'java-learning',maps:[],learning:{version:1,topicId:'removed-topic',entries:{'removed-concept':{status:'learning',note:'历史笔记'}}}});
-    const html=app.run('renderMindMap()');
-    assert.match(html,/全部知识/);
-    assert.equal(app.run('getMindMapSnapshot().learning.entries["removed-concept"].note'),'历史笔记');
-});
-
-test('copying a lesson preserves maximum length notes without blocking unrelated branches',()=>{
-    const app=setup({version:1,activeMapId:'java-learning',maps:[],learning:{version:1,topicId:'collections',entries:{'collections-hashmap':{status:'learning',note:'长'.repeat(10000)},'collections-arraylist':{status:'new',note:'另'.repeat(10000)}}}});
-    app.run('renderMindMap()');
+for(const phone of [false,true])test(`${phone?'phone':'desktop'} opens interview topics without a canvas or separate map libraries`,()=>{
+    const app=setup(undefined,{phone}),markup=html(app);
+    assert.match(markup,/data-screen="home"/);
+    assert.match(markup,/Java 面试学习/);
+    assert.equal((markup.match(/data-mm-action="lesson-topic"/g)||[]).length,10);
+    assert.doesNotMatch(markup,/题库导航|我的导图|mindmapViewport|<svg/);
+    app.click('lesson-topic',{id:'collections'});
+    assert.match(html(app),/data-screen="topic"/);
+    assert.match(html(app),/data-mm-action="lesson-jump" data-id="collections-hashmap"/);
     app.click('lesson-jump',{id:'collections-hashmap'});
-    app.click('copy-branch');
-    assert.equal(app.run('getMindMapSnapshot().maps.length'),1);
-    assert.equal(app.run('getMindMapSnapshot().maps[0].nodes.find(n=>n.title==="我的理解").note.length'),10000);
-    assert.equal(app.run('getMindMapSnapshot().maps[0].nodes.some(n=>n.note==="另".repeat(10000))'),false);
+    assert.match(html(app),/data-screen="lesson"/);
+    assert.match(html(app),/面试怎么问/);
+    assert.match(html(app),/回答要点/);
+    assert.match(html(app),/接着可能会追问/);
 });
 
-test('a personal map with a curriculum-like ID renders and exports as a personal map',()=>{
-    const core=require('../mindmap-core.js'),map=core.createMap('自建的 Java 图');
+test('legacy personal maps survive while the workspace opens the new learning home',()=>{
+    const core=require('../mindmap-core.js'),map=core.createMap('我的旧导图');
     map.id='java-learning:custom';
-    const app=setup({version:1,activeMapId:map.id,maps:[map],learning:{version:1,topicId:'java-root',entries:{}}});
-    assert.match(app.run('renderMindMap()'),/data-mode="personal"/);
-    assert.match(app.run('getMindMapSVG(getMindMapSnapshot().maps[0])'),/自建的 Java 图/);
+    const app=setup({version:1,activeMapId:map.id,maps:[map]});
+    assert.match(html(app),/data-screen="home"/);
+    assert.doesNotMatch(html(app),/我的旧导图|我的导图/);
+    openHashMap(app);app.input('这里开始按面试问题学');app.click('home');
+    const stored=JSON.parse(app.run('JSON.stringify(getMindMapSnapshot())'));
+    assert.equal(stored.activeMapId,map.id);
+    assert.deepEqual(stored.maps,[map]);
+    assert.equal(stored.learning.entries['collections-hashmap'].note,'这里开始按面试问题学');
 });
 
-test('phone opens with the map and saves a pending note before returning from reading',()=>{
-    const app=setup(undefined,true);
-    assert.match(app.run('renderMindMap()'),/data-view="canvas" data-reading="false"/);
-    app.click('read-concept');
-    assert.match(app.run('renderMindMap()'),/data-reading="true"/);
-    app.handlers.input({target:{id:'mindmapLearningNote',value:'在手机记录的理解'},isComposing:false});
-    app.click('back-to-map');
-    assert.equal(app.run('getMindMapSnapshot().learning.entries["java-root"].note'),'在手机记录的理解');
-    assert.match(app.run('renderMindMap()'),/data-reading="false"/);
+test('unknown historical entries survive learning and legacy snapshot imports',()=>{
+    const app=setup({version:1,activeMapId:'java-learning',maps:[],learning:{version:1,topicId:'removed-topic',entries:{'removed-concept':{status:'learning',note:'历史笔记'}}}});
+    assert.match(html(app),/data-screen="home"/);
+    openHashMap(app);app.click('lesson-state',{status:'mastered'});
+    app.run('applyMindMapSnapshot({version:1,activeMapId:"knowledge",maps:[]})');
+    assert.equal(app.run('getMindMapSnapshot().learning.entries["removed-concept"].note'),'历史笔记');
+    assert.equal(app.run('getMindMapSnapshot().learning.entries["collections-hashmap"].status'),'mastered');
+    const imported=JSON.parse(app.run('JSON.stringify(getMindMapSnapshot())'));
+    const restart=setup(imported);
+    assert.equal(restart.run('getMindMapSnapshot().learning.entries["removed-concept"].status'),'learning');
 });
 
-test('phone topic selector changes the lesson scope and returns to the map',()=>{
-    const app=setup(undefined,true);app.run('renderMindMap()');app.click('read-concept');
-    app.handlers.change({target:{id:'mindmapTopicSelect',value:'collections'}});
-    assert.equal(app.run('getMindMapSnapshot().learning.topicId'),'collections');
-    assert.match(app.run('renderMindMap()'),/data-reading="false"/);
-    app.click('lesson-jump',{id:'collections-hashmap'});
-    assert.match(app.run('renderMindMap()'),/data-reading="true"/);
+test('concept mastery is independent from question ratings and survives backup round trips',()=>{
+    const app=setup(undefined,{questions:[{id:'question-hashmap',category:'Java 集合'}]});
+    app.run('mastery["question-hashmap"]={level:"hard"};memorizedIds.add("question-hashmap");');
+    openHashMap(app);app.click('lesson-state',{status:'mastered'});
+    assert.equal(app.run('getMindMapSnapshot().learning.entries["collections-hashmap"].status'),'mastered');
+    assert.equal(app.run('mastery["question-hashmap"].level'),'hard');
+    assert.equal(app.run('memorizedIds.size'),1);
+    const restored=setup(JSON.parse(app.store.get(SNAPSHOT_KEY)));
+    assert.equal(restored.run('getMindMapSnapshot().learning.entries["collections-hashmap"].status'),'mastered');
 });
 
-test('phone drilling and going up keep the read-concept target on the visible branch',()=>{
-    const app=setup(undefined,true);app.run('renderMindMap()');
-    app.click('toggle',{id:'language'});
-    assert.match(app.run('renderMindMap()'),/id="mindmapSelectedTitle">语言基础</);
-    app.click('branch-up');
-    assert.match(app.run('renderMindMap()'),/id="mindmapSelectedTitle">Java 知识学习</);
+for(const [action,dataset,target] of [['home',{},'home'],['lesson-topic',{id:'language'},'topic'],['lesson-jump',{id:'collections-arraylist'},'lesson'],['practice',{},'lesson']])test(`pending notes save before ${action}`,()=>{
+    const app=setup(undefined,{questions:[{id:'hash-question',category:'Java 集合'}]});
+    openHashMap(app);app.input('先说明哈希定位，再说明键是否相等');app.click(action,dataset);
+    assert.equal(savedEntry(app,'collections-hashmap').note,'先说明哈希定位，再说明键是否相等');
+    assert.match(html(app),new RegExp(`data-screen="${target}"`));
+    if(action==='practice')assert.deepEqual(app.practices,['Java 集合']);
+    if(action==='lesson-jump'){
+        app.input('数组连续存储');app.flushTimers();
+        assert.equal(savedEntry(app,'collections-arraylist').note,'数组连续存储');
+        assert.equal(savedEntry(app,'collections-hashmap').note,'先说明哈希定位，再说明键是否相等');
+    }
+});
+
+test('rerendering retains unsaved textarea edits before debounce and after quota failure without changing stored records',()=>{
+    const app=setup({version:1,activeMapId:'java-learning',maps:[],learning:{version:1,topicId:'collections',entries:{
+        'collections-hashmap':{status:'mastered',note:'之前保存的回答'},
+        'collections-arraylist':{status:'learning',note:'其他知识点的笔记'}
+    }}});
+    openHashMap(app);
+    const storedBefore=app.store.get(SNAPSHOT_KEY),draft='新回答：先定位 <key>，再判断相等 & 继续追问';
+    const renderedNote=()=>html(app).match(/<textarea\b[^>]*id="mindmapLearningNote"[^>]*>([\s\S]*?)<\/textarea>/)[1];
+    app.input(draft);
+    assert.equal(renderedNote(),'新回答：先定位 &lt;key&gt;，再判断相等 &amp; 继续追问');
+    assert.equal(app.store.get(SNAPSHOT_KEY),storedBefore,'rendering the pending draft does not persist or mutate saved records');
+    app.failSaves(true);app.flushTimers();
+    assert.equal(renderedNote(),'新回答：先定位 &lt;key&gt;，再判断相等 &amp; 继续追问');
+    assert.equal(app.store.get(SNAPSHOT_KEY),storedBefore,'a failed save retains the exact previous snapshot');
+    app.failSaves(false);app.input(draft+'，补充了一个例子');app.flushTimers();
+    assert.equal(savedEntry(app,'collections-hashmap').note,draft+'，补充了一个例子');
+    assert.equal(savedEntry(app,'collections-hashmap').status,'mastered');
+    assert.equal(savedEntry(app,'collections-arraylist').note,'其他知识点的笔记');
+});
+
+test('failed note saves block every learning transition and retain the draft for a later retry',()=>{
+    const app=readingSetup();
+    const draft=app.input('尚未落盘的重要面试回答');app.failSaves(true);
+    for(const [action,dataset] of [['home',{}],['lesson-topic',{id:'language'}],['practice',{}],['read-xiaolin',{id:'hash-section'}],['focus',{}]])app.click(action,dataset);
+    assert.match(html(app),/data-screen="lesson"/);
+    assert.doesNotMatch(html(app),/mm-focus/);
+    assert.equal(draft.value,'尚未落盘的重要面试回答');
+    assert.equal(app.run('handoffs.length'),0);
+    assert.equal(app.practices.length,0);
+    assert.equal(JSON.parse(app.store.get(SNAPSHOT_KEY)).learning.entries['collections-hashmap'],undefined);
+    assert.ok(app.toasts.some(message=>message.includes('本地保存失败')));
+    assert.throws(()=>app.run('getMindMapSnapshot()'),/本地保存失败/);
+    app.failSaves(false);app.click('home');
+    assert.match(html(app),/data-screen="home"/);
+    assert.equal(savedEntry(app,'collections-hashmap').note,'尚未落盘的重要面试回答');
+});
+
+test('practice hands the topic category to the bank without selecting individual question IDs',()=>{
+    const app=setup(undefined,{questions:[{id:'hash-question',category:'Java 集合'},{id:'jdbc-question',category:'MySQL'}]});
+    openHashMap(app);
+    assert.match(html(app),/data-mm-action="practice"/);
+    app.click('practice');assert.deepEqual(app.practices,['Java 集合']);
+    app.click('lesson-topic',{id:'data-access'});app.click('practice');
+    assert.deepEqual(app.practices,['Java 集合','MySQL']);
+    assert.equal(app.run('Object.keys(mastery).length'),0);
+});
+
+test('empty categories and engineering do not show unusable practice entries',()=>{
+    const empty=setup();openHashMap(empty);
+    assert.doesNotMatch(html(empty),/data-mm-action="practice"/);
+    const app=setup(undefined,{questions:[{id:'hash-question',category:'Java 集合'}]});html(app);
+    app.click('lesson-topic',{id:'engineering'});
+    assert.doesNotMatch(html(app),/data-mm-action="practice"/);
+    app.click('lesson-jump',{id:'engineering-unit-tests'});
+    assert.doesNotMatch(html(app),/data-mm-action="practice"/);
+    app.click('practice');assert.equal(app.practices.length,0);
 });
 
 function readingSetup(phone=true){
-    const app=setup(undefined,phone);
+    const app=setup(undefined,{phone,questions:[{id:'hash-question',category:'Java 集合'}]});
     app.run(fs.readFileSync(path.join(__dirname,'../java-learning-reading.js'),'utf8'));
-    app.run(`window.XIAOLIN_CATALOG={topics:[{id:'collections',title:'集合',chapters:[{id:'map',title:'Map'}],sections:[{id:'hash-section',title:'HashMap原理',chapterId:'map',kind:'lesson'}]}]};
+    app.run(`window.XIAOLIN_CATALOG={topics:[{id:'collections',title:'集合',chapters:[{id:'map',title:'Map'}],sections:[{id:'hash-section',title:'HashMap原理',chapterId:'map',kind:'lesson'},{id:'other-section',title:'其他问题',chapterId:'map',kind:'lesson'}]}]};
         window.JAVA_LEARNING_XIAOLIN={'collections-hashmap':['hash-section']};
         window.readState={entries:{}};window.getXiaolinSnapshot=()=>readState;
         window.handoffs=[];window.openXiaolinFromMindMap=(id,concept)=>{handoffs.push({id,concept});return true;};
-        window.returnPages=[];window.navigateWorkspace=page=>returnPages.push(page);
-        window.requestAnimationFrame=fn=>fn();window.scrollTo=()=>{};`);
-    app.run('renderMindMap()');app.click('lesson-topic',{id:'collections'});app.run('renderMindMap()');
-    app.click('lesson-jump',{id:'collections-hashmap'});
-    return app;
+        window.returnPages=[];window.navigateWorkspace=page=>returnPages.push(page);`);
+    openHashMap(app);return app;
 }
-test('curated reading opens exact section, flushes pending notes and restores phone concept context',()=>{
+
+test('Xiaolin opens the exact linked section after saving and returns to the focused lesson',()=>{
     const app=readingSetup();
-    app.handlers.input({target:{id:'mindmapLearningNote',value:'读前的疑问'},isComposing:false});
+    app.click('focus');app.input('读前的疑问');
     app.click('read-xiaolin',{id:'hash-section'});
     assert.equal(app.run('handoffs.length'),1);
+    assert.equal(app.run('handoffs[0].id'),'hash-section');
     assert.equal(app.run('handoffs[0].concept.id'),'collections-hashmap');
-    assert.equal(app.run('getMindMapSnapshot().learning.entries["collections-hashmap"].note'),'读前的疑问');
+    assert.equal(app.run('handoffs[0].concept.focused'),true);
+    assert.equal(savedEntry(app,'collections-hashmap').note,'读前的疑问');
     app.run('readState.entries["hash-section"]={done:true}');
     assert.equal(app.run('returnToMindMapLearning("collections-hashmap")'),true);
     assert.equal(app.run('returnPages.at(-1)'),'mindmap');
-    const html=app.run('renderMindMap()');
-    assert.match(html,/data-reading="true"/);
-    const inspector={innerHTML:'',querySelectorAll:()=>[]};
-    app.context.document.getElementById=id=>id==='mindmapInspector'?inspector:id==='mindmapViewport'?{clientWidth:390,clientHeight:400,addEventListener(){},isConnected:false}:null;
-    app.run('mountMindMap()');
-    assert.match(inspector.innerHTML,/已读懂 1 \/ 1/);
+    assert.match(html(app),/mm-focus/);
+    assert.match(html(app),/data-screen="lesson"/);
+    assert.match(html(app),/1 \/ 1 已读懂/);
     assert.equal(app.run('getMindMapSnapshot().learning.topicId'),'collections');
     assert.equal(app.run('getMindMapSnapshot().learning.entries["collections-hashmap"].status'),'new');
-    assert.equal(app.run('returnToMindMapLearning("collections-hashmap")'),false,'return context consumed');
+    assert.equal(app.run('returnToMindMapLearning("collections-hashmap")'),false);
 });
-test('invalid or unrelated reading references cannot navigate and return IDs must match',()=>{
-    const app=readingSetup();app.click('read-xiaolin',{id:'missing'});
+
+test('unmapped reading IDs cannot navigate and mismatched return IDs cannot consume the saved context',()=>{
+    const app=readingSetup();
+    app.click('read-xiaolin',{id:'missing'});app.click('read-xiaolin',{id:'other-section'});
     assert.equal(app.run('handoffs.length'),0);
     app.click('read-xiaolin',{id:'hash-section'});
     assert.equal(app.run('returnToMindMapLearning("language")'),false);
+    assert.equal(app.run('returnPages.length'),0);
     assert.equal(app.run('returnToMindMapLearning("collections-hashmap")'),true);
 });
 
-test('hidden phone reading canvas keeps its last measured width for return navigation',()=>{
-    const app=readingSetup();
-    const viewport={clientWidth:370,clientHeight:400,addEventListener(){},isConnected:false};
-    app.context.document.getElementById=id=>id==='mindmapViewport'?viewport:null;
-    app.run('const measured=[];const originalLayout=JavaLearningCore.layoutMobile;JavaLearningCore.layoutMobile=(map,id,width)=>{measured.push(width);return originalLayout(map,id,width)};mountMindMap()');
-    viewport.clientWidth=0;viewport.clientHeight=0;
-    app.click('read-concept');app.run('mountMindMap()');
-    assert.deepEqual(JSON.parse(app.run('JSON.stringify(measured)')),[370,370]);
+function topicReadingSetup(){
+    const app=setup();
+    app.run(fs.readFileSync(path.join(__dirname,'../java-learning-reading.js'),'utf8'));
+    app.run(`const topicEntryId=JavaInterviewPaths.topics.find(topic=>topic.id==='collections').readings[0];
+        JavaInterviewPaths.topics.find(topic=>topic.id==='collections').readings.push('missing-topic-section');
+        window.XIAOLIN_CATALOG={topics:[{id:'collections',title:'集合',chapters:[{id:'map',title:'Map'}],sections:[
+            {id:topicEntryId,title:'集合章节入口',chapterId:'map',kind:'lesson'},
+            {id:'topic-curated-section',title:'专题已有讲解',chapterId:'map',kind:'lesson'},
+            {id:'hash-section',title:'HashMap 原理',chapterId:'map',kind:'lesson'},
+            {id:'unwired-section',title:'未关联章节',chapterId:'map',kind:'lesson'}]}]};
+        window.JAVA_LEARNING_XIAOLIN={collections:['topic-curated-section'],'collections-hashmap':['hash-section']};
+        window.readState={entries:{}};window.getXiaolinSnapshot=()=>readState;
+        window.handoffs=[];window.openXiaolinFromMindMap=(id,concept)=>{handoffs.push({id,concept});return true;};
+        window.returnPages=[];window.navigateWorkspace=page=>returnPages.push(page);`);
+    html(app);app.click('lesson-topic',{id:'collections'});return app;
+}
+
+test('a topic opens its path chapter entry and returns to the topic without creating concept mastery',()=>{
+    const app=topicReadingSetup(),entryId=app.run('topicEntryId');
+    assert.match(html(app),/data-screen="topic"/);
+    assert.ok(html(app).includes(`data-mm-action="read-xiaolin" data-id="${entryId}"`));
+    app.click('read-xiaolin',{id:entryId});
+    assert.equal(app.run('handoffs.length'),1);
+    assert.equal(app.run('handoffs[0].id'),entryId);
+    assert.equal(app.run('handoffs[0].concept.id'),'collections');
+    assert.equal(app.run('handoffs[0].concept.focused'),false);
+    app.run('readState.entries[topicEntryId]={done:true}');
+    assert.equal(app.run('returnToMindMapLearning("collections-hashmap")'),false);
+    assert.equal(app.run('returnToMindMapLearning("collections")'),true);
+    assert.equal(app.run('returnPages.at(-1)'),'mindmap');
+    assert.match(html(app),/data-screen="topic"/);
+    assert.match(html(app),/1 \/ 2 已读懂/);
+    assert.equal(app.run('getMindMapSnapshot().learning.topicId'),'collections');
+    assert.equal(app.run('Object.keys(getMindMapSnapshot().learning.entries).length'),0);
+    assert.equal(app.store.get(VIEW_KEY),undefined);
+    assert.equal(app.run('returnToMindMapLearning("collections")'),false);
 });
 
-test('desktop focused reading and map are separate surfaces and edits survive transitions',()=>{
- const app=setup();app.run('renderMindMap()');app.click('lesson-topic',{id:'collections'});app.run('renderMindMap()');
- app.handlers.input({target:{id:'mindmapLearningNote',value:'聚焦理解集合接口'},isComposing:false});
- app.click('focus-reading');
- assert.match(app.run('renderMindMap()'),/class="mindmap-view mm-focus"/);
- assert.match(app.run('renderMindMap()'),/data-focus-surface="reading"/);
- app.click('focus-map');assert.match(app.run('renderMindMap()'),/data-focus-surface="map"/);
- app.click('focus-exit');assert.doesNotMatch(app.run('renderMindMap()'),/class="mindmap-view mm-focus"/);
- assert.equal(app.run('getMindMapSnapshot().learning.entries.collections.note'),'聚焦理解集合接口');
+test('topic readings merge existing curated references while rejecting unavailable or unrelated entries',()=>{
+    const app=topicReadingSetup();
+    assert.match(html(app),/data-mm-action="read-xiaolin" data-id="topic-curated-section"/);
+    assert.doesNotMatch(html(app),/data-mm-action="read-xiaolin" data-id="missing-topic-section"/);
+    for(const id of ['missing-topic-section','unwired-section','hash-section'])app.click('read-xiaolin',{id});
+    assert.equal(app.run('handoffs.length'),0);
+    app.click('read-xiaolin',{id:'topic-curated-section'});
+    assert.equal(app.run('handoffs[0].id'),'topic-curated-section');
+    assert.equal(app.run('returnToMindMapLearning("collections")'),true);
+    app.click('lesson-jump',{id:'collections-hashmap'});
+    app.click('read-xiaolin',{id:app.run('topicEntryId')});
+    assert.equal(app.run('handoffs.length'),1,'topic entries are not automatically attached to each concept');
+    app.click('read-xiaolin',{id:'hash-section'});
+    assert.equal(app.run('handoffs[1].id'),'hash-section');
+    assert.equal(app.run('handoffs[1].concept.id'),'collections-hashmap');
 });
 
-test('focused Xiaolin handoff restores the concept reading surface',()=>{
- const app=readingSetup(false);app.click('focus-reading');app.click('read-xiaolin',{id:'hash-section'});
- assert.equal(app.run('handoffs[0].concept.focused'),true);
- assert.equal(app.run('returnToMindMapLearning("collections-hashmap")'),true);
- assert.match(app.run('renderMindMap()'),/data-focus-surface="reading"/);
+test('focus only applies to a lesson, saves pending drafts and exits back to the existing reading position',()=>{
+    const app=setup();html(app);app.click('focus');assert.doesNotMatch(html(app),/mm-focus/);
+    openHashMap(app);app.run('scrollY=480');app.input('聚焦理解集合接口');app.click('focus');
+    assert.match(html(app),/mm-focus/);
+    assert.equal(savedEntry(app,'collections-hashmap').note,'聚焦理解集合接口');
+    app.input('补充键稳定性');app.click('focus-exit');
+    assert.doesNotMatch(html(app),/mm-focus/);
+    assert.match(html(app),/data-screen="lesson"/);
+    assert.equal(savedEntry(app,'collections-hashmap').note,'补充键稳定性');
+    assert.equal(app.scrolls.at(-1).top,480);
+});
+
+test('continue learning survives restart in its separate view key without changing concept mastery',()=>{
+    const app=setup();openHashMap(app);
+    assert.deepEqual(JSON.parse(app.store.get(VIEW_KEY)),{lastId:'collections-hashmap'});
+    assert.deepEqual(JSON.parse(app.store.get(SNAPSHOT_KEY)).learning.entries,{});
+    const restart=setup(undefined,{storage:[...app.store]});
+    const markup=html(restart);
+    assert.match(markup,/data-screen="home"/);
+    assert.match(markup,/il-continue[^>]*data-mm-action="lesson-jump" data-id="collections-hashmap"/);
+    restart.click('lesson-jump',{id:'collections-hashmap'});
+    assert.match(html(restart),/data-screen="lesson"/);
+    assert.equal(restart.run('getMindMapSnapshot().learning.topicId'),'collections');
+});
+
+test('an unavailable last-read concept is ignored and invalid lesson links return safely to the overview',()=>{
+    const app=setup(undefined,{storage:[[VIEW_KEY,JSON.stringify({lastId:'removed-concept'})]]});
+    assert.doesNotMatch(html(app),/class="[^"]*il-continue/);
+    app.click('lesson-jump',{id:'removed-concept'});
+    assert.match(html(app),/data-screen="home"/);
 });

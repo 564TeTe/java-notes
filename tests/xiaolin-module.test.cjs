@@ -71,7 +71,7 @@ test('contextual return remains accessible while loading or failed, including lo
     const title='AQS <同步器> & 等待队列'.repeat(8);
     for(const error of ['', 'load']){
         const $=load(app.run(`XiaolinView.reader(xiaolinIndex,xiaolinState,{topicId:'java',mobile:true,error:${JSON.stringify(error)},mindmapReturn:{id:'aqs',title:${JSON.stringify(title)}}})`));
-        assert.equal($('.xl-reader-toolbar [data-xl-action="return-mindmap"]').text(),'← 返回知识导图');
+        assert.equal($('.xl-reader-toolbar [data-xl-action="return-mindmap"]').text(),'← 返回 Java 学习');
         assert.equal($('.xl-mindmap-context .xl-mindmap-concept').text(),title);
         assert.equal($('.xl-mindmap-context .xl-mindmap-concept').attr('title'),title);
         assert.equal($('.xl-mindmap-context script').length,0);
